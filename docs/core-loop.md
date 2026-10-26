@@ -16,4 +16,6 @@ Decisions the GDD left open, as agreed with @Boss. Every number is a starting gu
 - **Species weaknesses:** Clerkbot slows late in the shift; Bulkform can break dishes on delivery; Glitchling can glitch (skips a second of cooking); Hypeform is slow; Steady-unit barely drains; Xeno costs more to recharge and unlocks an exotic recipe.
 - **Traits** are stat modifiers on top of species. Night Owl works faster late in the shift and fights better. Perfectionist makes customers happier but works slower. Chatty earns more tips and works slower. Kleptomaniac brings more raid loot but may pocket coins at night.
 
-Not built yet: UI, saving, decorating, furniture upgrades, buying pods, stoves and seats, district takeover, menus.
+Saving: `SaveSystem` writes plain JSON with a version number, crash-safe, with a `.bak` fallback; 3 manual slots plus an autosave when a shift closes and after each night.
+
+Not built yet: UI, decorating, furniture upgrades, buying pods, stoves and seats, district takeover, menus.

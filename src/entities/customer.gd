@@ -27,3 +27,22 @@ enum Stage {
 
 func is_seated() -> bool:
 	return stage == Stage.WAITING_FOOD or stage == Stage.EATING
+
+
+func to_dict() -> Dictionary:
+	return {"id": id, "type_id": type_id, "stage": stage, "satisfaction": satisfaction, "waited": waited,
+		"timer": timer, "recipe_id": recipe_id, "served_by": served_by, "tip_bonus": tip_bonus}
+
+
+static func from_dict(values: Dictionary) -> Customer:
+	var customer := Customer.new()
+	customer.id = str(values.get("id", ""))
+	customer.type_id = str(values.get("type_id", ""))
+	customer.stage = int(values.get("stage", -1)) as Stage
+	customer.satisfaction = float(values.get("satisfaction", 0.0))
+	customer.waited = int(values.get("waited", 0))
+	customer.timer = int(values.get("timer", 0))
+	customer.recipe_id = str(values.get("recipe_id", ""))
+	customer.served_by = str(values.get("served_by", ""))
+	customer.tip_bonus = float(values.get("tip_bonus", 0.0))
+	return customer

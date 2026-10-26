@@ -25,3 +25,23 @@ const ROLES: Array[String] = [SERVER, CHEF, GREETER, REST]
 
 func is_delivering() -> bool:
 	return task_customer_id != ""
+
+
+func to_dict() -> Dictionary:
+	return {"id": id, "name": name, "species_id": species_id, "trait_id": trait_id, "role": role,
+		"battery": battery, "task_customer_id": task_customer_id, "task_recipe_id": task_recipe_id,
+		"task_remaining": task_remaining}
+
+
+static func from_dict(values: Dictionary) -> Synth:
+	var synth := Synth.new()
+	synth.id = str(values.get("id", ""))
+	synth.name = str(values.get("name", ""))
+	synth.species_id = str(values.get("species_id", ""))
+	synth.trait_id = str(values.get("trait_id", ""))
+	synth.role = str(values.get("role", ""))
+	synth.battery = float(values.get("battery", 0.0))
+	synth.task_customer_id = str(values.get("task_customer_id", ""))
+	synth.task_recipe_id = str(values.get("task_recipe_id", ""))
+	synth.task_remaining = float(values.get("task_remaining", 0.0))
+	return synth
