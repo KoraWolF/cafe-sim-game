@@ -59,3 +59,20 @@ The Alley still falls on day 11–13. Neon Market is now taken in 4 of 5 runs (d
 ## Balance check after the daily menu (40 days × 5 seeds)
 
 The bot fills the menu with the dishes the customer mix likes most. Compared with before the menu: more customers seated (2,857 vs 2,650 over 40 days), far fewer leaving angry (6.8 vs 21), 92% stars, and Neon Market taken in all 5 runs (days 17–32). The Alley falls on day 9–12. A focused menu makes the kitchen easier to keep stocked, so good menu planning pays off. Coins at day 40 are about 15,300, which makes décor as a coin sink the most needed next feature.
+
+## Décor design (agreed 2026-10-26, not built yet)
+
+Your answers:
+- **Effect: Vibe.** Décor adds Vibe, which slows how fast waiting customers lose satisfaction and adds a little satisfaction to every meal.
+- **Placement: tile grid with adjacency.** The café is an isometric tile grid. Each piece has a footprint (1x1, 2x1, 2x2, and can be rotated), and pieces may not overlap.
+- **Adjacency by tags.** Each piece has tags (plant, light, tech, cozy, …). Data rules such as "light next to plant: +2 Vibe" apply to any pair of touching pieces with matching tags.
+- **Furniture is placed like décor.** Seats, stoves and Sync Pods take tiles too. Buying one of those upgrades gives you a piece to place, and it only counts once it's placed. The starting furniture comes pre-placed. A full floor means you have to expand before buying more.
+- **Prices: one-time coins.** Better pieces cost much more (about 100 up to 5,000+). Selling a piece gives back 50%.
+- **Floor grows with an upgrade.** Start with a small grid; a floor-expansion upgrade adds rows.
+- **Editing: night only.** Buy, place, move, rotate and sell only at night, while the café is closed. Moving is free.
+
+Proposed numbers (my defaults, to be tuned with the sim):
+- **Floor:** 8×6 tiles at the start. Each floor expansion adds 2 rows, up to 4 times (8×14 at most), at 500 coins growing ×2 each time.
+- **Furniture footprints:** seat 1×1, stove 2×1, Sync Pod 1×2.
+- **Vibe effect:** waiting customers lose satisfaction more slowly, divided by 1 + Vibe / 100. Each meal also adds Vibe × 0.1 satisfaction, up to +10.
+- **Save format:** v5. Older saves get their furniture laid out automatically.
