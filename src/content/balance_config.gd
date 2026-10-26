@@ -7,9 +7,11 @@ extends RefCounted
 var shift_seconds: int = 480
 ## The first customer arrives this long after the shift opens.
 var first_arrival_seconds: int = 3
-## Gap between arrivals, before greeters shorten it (gap / (1 + total appeal)).
+## Gap between arrivals, before greeters and extra seats shorten it:
+## gap / (1 + total appeal + arrival_per_extra_seat * seats beyond start_seats).
 var arrival_min_seconds: int = 10
 var arrival_max_seconds: int = 18
+var arrival_per_extra_seat: float = 0.0
 ## No new customers in the last part of the shift.
 var spawn_stop_before_end: int = 45
 ## Customers waiting for a seat; more are turned away.
@@ -61,6 +63,8 @@ var raid_suspicion: float = 12.0
 ## Suspicion each district loses every night.
 var suspicion_decay: float = 5.0
 var raid_squad_max: int = 4
+## Rival guards grow stronger every day: power/hp * (1 + rival_growth_per_day * day).
+var rival_growth_per_day: float = 0.0
 ## Battery each raider spends, win or lose.
 var raid_battery_cost: float = 25.0
 ## A raided rival can be raided again this many days later.
