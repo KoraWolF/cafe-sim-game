@@ -1,0 +1,6 @@
+[
+	{"id": "night_owl", "modifiers": {"late_shift_slowdown": -0.3, "power": 3}},
+	{"id": "perfectionist", "modifiers": {"speed": -0.15, "satisfaction": 10}},
+	{"id": "chatty", "modifiers": {"speed": -0.1, "tip": 0.3, "appeal": 0.1}},
+	{"id": "kleptomaniac", "modifiers": {"raid_loot": 0.3, "steal_chance": 0.15}}
+]

@@ -1,0 +1,7 @@
+[
+	{"id": "alley", "rivals": [
+		{"id": "megabean_kiosk", "defenders": [{"power": 5, "hp": 20}], "loot_coins": 60, "loot_cores": 1},
+		{"id": "megabean_express", "defenders": [{"power": 7, "hp": 30}, {"power": 7, "hp": 30},
+			{"power": 9, "hp": 35}], "loot_coins": 150, "loot_cores": 2}
+	]}
+]

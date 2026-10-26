@@ -1,0 +1,6 @@
+[
+	{"id": "coffee", "cook_seconds": 20, "servings": 6, "cost": 10, "price": 8},
+	{"id": "toast", "cook_seconds": 30, "servings": 5, "cost": 15, "price": 12},
+	{"id": "ramen", "cook_seconds": 60, "servings": 8, "cost": 40, "price": 20},
+	{"id": "star_jelly", "cook_seconds": 45, "servings": 4, "cost": 30, "price": 45, "unlock_species": "xeno"}
+]

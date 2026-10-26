@@ -1,0 +1,71 @@
+class_name TestFixtures
+extends RefCounted
+## Fixed test data, independent of /data so tuning the game does not break tests.
+## Shift 100 s; one customer every 50 s from second 3 (only "regular" spawns;
+## "tourist" has weight 0); queue holds 2, patience 20 s; no satisfaction loss for
+## the first 5 s waited, then 2/s. Star at 80, window 10 s, tip 50% of price.
+## Delivery 4 s at speed 1, eating 5 s. 2 seats, 2 stoves, 2 pods, 100 coins,
+## 1 NanoBrew, 10 Power, 0.1 Power per battery point. Battles: no damage variance,
+## 10 rounds max. MegaBean never comes (chance 0) unless a test raises it.
+## Recipes: tea (10 s, 3 servings, cost 10, price 10); jelly (needs an alien Synth).
+## Species: steady (starter server, speed 1, drain 1), worker (speed 2, drain 0.5,
+## battery 50, power 10, hp 30), chef (cook 1), alien (recharge x3).
+## Traits: owl (late slowdown -0.5, power +5), klepto (always steals, loot +50%).
+## District "town": rivals "weak" (1 guard 1 power / 5 hp, loot 40 coins + 1 core)
+## and "fort" (1 guard 100 power / 1000 hp).
+
+
+static func content(balance_overrides := {}) -> Dictionary:
+	var balance := {
+		"shift_seconds": 100, "first_arrival_seconds": 3, "arrival_min_seconds": 50, "arrival_max_seconds": 50,
+		"spawn_stop_before_end": 10, "max_queue": 2, "queue_patience_seconds": 20, "wait_grace_seconds": 5,
+		"satisfaction_decay_per_second": 2.0, "break_satisfaction_penalty": 15.0, "star_threshold": 80.0,
+		"star_window_seconds": 10, "delivery_seconds": 4, "eat_seconds": 5, "tip_rate": 0.5, "min_pay_share": 0.5,
+		"low_battery_share": 0.2, "low_battery_factor": 0.5, "late_shift_start": 0.7,
+		"start_coins": 100, "start_nanobrew": 1, "start_cores": 0, "start_power": 10.0, "start_seats": 2,
+		"start_stoves": 2, "start_pods": 2, "start_security": 0.0, "start_district": "town",
+		"starter_species": "steady", "starter_name": "Proto", "brew_coin_cost": 30, "brew_core_cost": 1,
+		"power_price": 2, "power_per_battery": 0.1, "conversion_suspicion": 10.0, "raid_suspicion": 20.0,
+		"suspicion_decay": 5.0, "raid_squad_max": 2, "raid_battery_cost": 25.0, "raid_cooldown_days": 2,
+		"battle_max_rounds": 10, "battle_damage_variance": 0.0, "defense_base_chance": 0.0,
+		"defense_chance_per_suspicion": 0.0, "defense_max_chance": 1.0, "defense_size_step": 50.0,
+		"defense_max_size": 2, "defense_power_base": 5.0, "defense_power_per_day": 0.0, "defense_hp_base": 20.0,
+		"defense_hp_per_day": 0.0, "defense_coin_loss": 0.5, "defense_core_loss": 1, "steal_coins": 10,
+	}
+	balance.merge(balance_overrides, true)
+	return {
+		"balance": balance,
+		"recipes": [
+			{"id": "tea", "cook_seconds": 10, "servings": 3, "cost": 10, "price": 10},
+			{"id": "jelly", "cook_seconds": 10, "servings": 1, "cost": 5, "price": 50, "unlock_species": "alien"},
+		],
+		"customer_types": [
+			{"id": "regular", "weight": 1, "synth_species": "worker", "patience": 1.0, "tip": 1.0,
+				"trait_pool": ["owl"]},
+			{"id": "tourist", "weight": 0, "synth_species": "alien", "patience": 1.0, "tip": 1.0,
+				"trait_pool": []},
+		],
+		"species": [
+			{"id": "steady", "best_role": "server", "stats": {"speed": 1.0, "power": 5, "hp": 20,
+				"battery_max": 100, "drain": 1.0}},
+			{"id": "worker", "best_role": "server", "stats": {"speed": 2.0, "power": 10, "hp": 30,
+				"battery_max": 50, "drain": 0.5}},
+			{"id": "chef", "best_role": "chef", "stats": {"cook": 1.0, "power": 5, "hp": 20, "battery_max": 100}},
+			{"id": "alien", "best_role": "chef", "stats": {"cook": 0.5, "power": 5, "hp": 20, "battery_max": 100,
+				"recharge_multiplier": 3.0}},
+		],
+		"traits": [
+			{"id": "owl", "modifiers": {"late_shift_slowdown": -0.5, "power": 5}},
+			{"id": "klepto", "modifiers": {"steal_chance": 1.0, "raid_loot": 0.5}},
+		],
+		"districts": [
+			{"id": "town", "rivals": [
+				{"id": "weak", "defenders": [{"power": 1, "hp": 5}], "loot_coins": 40, "loot_cores": 1},
+				{"id": "fort", "defenders": [{"power": 100, "hp": 1000}], "loot_coins": 999, "loot_cores": 9},
+			]},
+		],
+	}
+
+
+static func data(balance_overrides := {}) -> GameData:
+	return GameData.from_content(content(balance_overrides))
