@@ -102,6 +102,10 @@ func test_menu_survives_saving_and_old_saves_order_anything() -> void:
 	var raw := SaveSystem.to_dict(state)
 	raw.erase("menu")
 	raw.erase("menu_slots")
+	raw["seats"] = 2
+	raw["pods"] = 2  # 2 Synths: starter + alien
+	for key: String in ["floor_rows", "placed", "storage"]:
+		raw.erase(key)
 	raw["version"] = 3
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	file.store_string(JSON.stringify(raw))

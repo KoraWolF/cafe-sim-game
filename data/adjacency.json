@@ -1,0 +1,8 @@
+[
+	{"tags": ["light", "plant"], "vibe": 2},
+	{"tags": ["plant", "cozy"], "vibe": 2},
+	{"tags": ["tech", "light"], "vibe": 1},
+	{"tags": ["cozy", "cozy"], "vibe": 1},
+	{"tags": ["seat", "cozy"], "vibe": 1},
+	{"tags": ["seat", "plant"], "vibe": 1}
+]

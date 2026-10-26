@@ -25,9 +25,17 @@ const SPEEDS: Array[int] = [0, 1, 2, 4]
 @export var cores: int = 0
 @export var power: float = 0.0
 
+## Placed seats and Sync Pods (one per Synth: the staff cap), kept up to date
+## by Layout.refresh from the floor.
 @export var seats: int = 0
-## Sync Pods: one per Synth, so this is the staff cap.
 @export var pods: int = 0
+## Floor depth in tiles (width is floor_width).
+@export var floor_rows: int = 0
+@export var placed: Array[PlacedPiece] = []
+## Pieces owned but not on the floor: piece id -> count.
+@export var storage: Dictionary[String, int] = {}
+## From the layout (Layout.refresh); not saved.
+var vibe: float = 0.0
 ## Extra HP for each home defender.
 @export var security: float = 0.0
 @export var stoves: Array[Stove] = []
@@ -67,8 +75,9 @@ const SPEEDS: Array[int] = [0, 1, 2, 4]
 @export var rng_state: int = 0
 
 
-## Day 1, shift just opened, with the starter Synth on its pod at full battery
-## and the first start_menu_slots unlocked recipes on the menu.
+## Day 1, shift just opened: the starting stoves, Pods and seats laid out on
+## the floor, the starter Synth at full battery and the first start_menu_slots
+## unlocked recipes on the menu.
 static func new_game(seed_value: int, data: GameData) -> GameState:
 	var b := data.balance
 	var state := GameState.new()
@@ -76,11 +85,12 @@ static func new_game(seed_value: int, data: GameData) -> GameState:
 	state.nanobrew = b.start_nanobrew
 	state.cores = b.start_cores
 	state.power = b.start_power
-	state.seats = b.start_seats
-	state.pods = b.start_pods
 	state.security = b.start_security
-	for i: int in b.start_stoves:
-		state.stoves.append(Stove.new())
+	state.floor_rows = b.start_floor_rows
+	for kind_count: Array in [[Piece.STOVE, b.start_stoves], [Piece.POD, b.start_pods], [Piece.SEAT, b.start_seats]]:
+		for i: int in kind_count[1]:
+			if not Layout.auto_place(state, kind_count[0], data):
+				push_error("GameState: the starting furniture does not fit the floor")
 	state.district_id = b.start_district
 	state.suspicion[b.start_district] = 0.0
 	state.next_arrival = b.first_arrival_seconds

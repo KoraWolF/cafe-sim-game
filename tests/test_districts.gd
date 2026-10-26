@@ -170,6 +170,10 @@ func test_version_1_save_is_migrated() -> void:
 	for synth: Dictionary in raw["synths"]:
 		synth.erase("level")
 		synth.erase("xp")
+	raw["seats"] = 2
+	raw["pods"] = 2
+	for key: String in ["floor_rows", "placed", "storage"]:
+		raw.erase(key)
 	raw["version"] = 1
 	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
 	var file := FileAccess.open(path, FileAccess.WRITE)

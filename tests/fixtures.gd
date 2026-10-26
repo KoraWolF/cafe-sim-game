@@ -21,6 +21,11 @@ extends RefCounted
 ## level n -> n + 1 costs 100 * n; max level 3; +50% of base per level.
 ## Upgrades: stove 50 (x2 per level, max 2), seat 20 (+2 seats, max 3),
 ## pod 100 (max 1), menu slot 40 (max 1), security 30 (+10 hp, max 2).
+## Floor 8 x 6; the floor upgrade adds 2 rows (100 coins, max 2). Pieces: seat 1x1,
+## stove 2x1, pod 1x2 (new game lays out stoves, then pods, then seats, row by
+## row); décor fern 1x1 (50 coins, 10 Vibe, plant), lamp 1x1 (30, 5, light),
+## tank 2x2 (200, 40, plant); light next to plant +3. Vibe: waiting loss / (1 +
+## 0.01 x Vibe), +0.1 x Vibe per dish (max 10); selling returns 50%.
 ## Menu: 2 slots, tea on it by default (jelly needs an alien). Favourites x3,
 ## +10 satisfaction when served.
 
@@ -34,6 +39,8 @@ static func content(balance_overrides := {}) -> Dictionary:
 		"low_battery_share": 0.2, "low_battery_factor": 0.5, "late_shift_start": 0.7,
 		"start_coins": 100, "start_nanobrew": 1, "start_cores": 0, "start_power": 10.0, "start_seats": 2,
 		"start_stoves": 2, "start_pods": 2, "start_menu_slots": 2, "favorite_weight": 3.0,
+		"floor_width": 8, "start_floor_rows": 6, "vibe_decay_per_point": 0.01, "vibe_meal_bonus": 0.1,
+		"vibe_meal_bonus_max": 10.0, "sell_refund": 0.5,
 		"favorite_satisfaction": 10.0, "start_security": 0.0, "start_district": "town",
 		"starter_species": "steady", "starter_name": "Proto", "brew_coin_cost": 30, "brew_core_cost": 1,
 		"power_price": 2, "power_per_battery": 0.1, "conversion_suspicion": 10.0, "raid_suspicion": 20.0,
@@ -88,7 +95,19 @@ static func content(balance_overrides := {}) -> Dictionary:
 			{"id": "seat", "step": 2, "base_cost": 20, "cost_growth": 1.0, "max_level": 3},
 			{"id": "pod", "step": 1, "base_cost": 100, "cost_growth": 1.0, "max_level": 1},
 			{"id": "menu_slot", "step": 1, "base_cost": 40, "cost_growth": 1.0, "max_level": 1},
+			{"id": "floor", "step": 2, "base_cost": 100, "cost_growth": 1.0, "max_level": 2},
 			{"id": "security", "step": 10, "base_cost": 30, "cost_growth": 1.0, "max_level": 2},
+		],
+		"pieces": [
+			{"id": "seat", "kind": "seat", "size": [1, 1], "tags": ["seat"]},
+			{"id": "stove", "kind": "stove", "size": [2, 1], "tags": ["kitchen"]},
+			{"id": "pod", "kind": "pod", "size": [1, 2], "tags": ["tech"]},
+			{"id": "fern", "kind": "decor", "size": [1, 1], "price": 50, "vibe": 10, "tags": ["plant"]},
+			{"id": "lamp", "kind": "decor", "size": [1, 1], "price": 30, "vibe": 5, "tags": ["light"]},
+			{"id": "tank", "kind": "decor", "size": [2, 2], "price": 200, "vibe": 40, "tags": ["plant"]},
+		],
+		"adjacency": [
+			{"tags": ["light", "plant"], "vibe": 3},
 		],
 	}
 
