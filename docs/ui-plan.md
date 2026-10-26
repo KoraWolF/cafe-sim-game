@@ -25,7 +25,7 @@ The logic stays headless-tested. UI-only helpers, such as the error message tabl
 
 ## Branches
 
-1. **`ui-playable-loop`:**
+1. **`ui-playable-loop` (built 2026-10-27):**
    - main menu (new game, continue, load slot)
    - café view (isometric floor, furniture, customers, Synths, icons above heads)
    - shift HUD with stove, star and Synth clicks
@@ -39,3 +39,16 @@ The logic stays headless-tested. UI-only helpers, such as the error message tabl
 4. **`ui-polish`:** feedback effects (tip pop-ups, conversion burst, level-up), tooltips, settings menu (resolution, volume, language) and audio buses.
 
 Not decided yet (I'll ask before branch 4): music and SFX style, the settings menu contents, and whether there's a tutorial or first-day guidance.
+
+## Running it
+
+- Play: open the project in Godot 4.7 and press Play, or run `godot --path .`. Shortcuts: Space pauses or resumes, 1/2/3 set the speed, Esc opens the pause menu (save to a slot, main menu).
+- Shift: click a stove to cook, click a starred customer to convert them (needs a NanoBrew and a free Pod), click a Synth for its card and role. Wheel zooms; right-drag or middle-drag pans (a left drag on empty floor pans too).
+- Screenshot check: `godot --path . --resolution 1920x1080 -s res://tools/ui_snapshot.gd -- <folder>` plays a scripted day and saves a screenshot of every screen. It also sends real clicks to a Synth, a stove and a starred customer, and prints `CHECK` lines with the results.
+
+## Notes for the next branches
+
+- Theme: `UiTheme.shared()` must be set on every top-level Control. A theme set on the Window doesn't reach Controls under a plain Node or a CanvasLayer.
+- Tools run with `-s` compile before autoloads exist. Don't name UI classes that use `Session` in a tool script's types; keep those references untyped.
+- Clicks use the event's own position, not the cursor's, so injected input works. Popups are embedded, so they're positioned in game-window coordinates.
+- Not checked through the UI: loading a save from the main menu, and saving from the pause menu. `SaveSystem` itself is covered by the headless tests.
