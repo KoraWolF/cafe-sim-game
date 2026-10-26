@@ -32,3 +32,10 @@ Still open, waiting on design (district takeover, décor):
 - Upgrades are maxed by about day 17–20, and after that coins pile up with nothing to spend them on.
 - Suspicion reaches its cap (95+) by about day 14 if the player raids every other night, and then it stops creating any choices.
 - The Alley has only two rivals. After about day 10 the express café is too strong to raid, so all raids go to the kiosk.
+
+## Decisions for the next features (2026-10-26)
+
+- **District takeover:** each district has a MegaBean flagship (the boss). Raiding its smaller rivals earns Influence. Enough Influence unlocks the boss raid, and winning it takes over the district: it then gives income each day, and the next district opens with stronger rivals.
+- **Losing:** setbacks only, never game over. When Suspicion is at max, a "Corporate Audit" night comes: a big raid you have to survive. Losing it closes the café for a day and costs coins or a Synth, and then the game carries on.
+- **Menu:** each night the player picks up to N dishes for the next day (more slots come from an upgrade). Customers only order from the menu, and some customer types prefer certain dishes.
+- **Synth growth:** Synths earn XP from shifts and raids, and each level raises their stats a little.
