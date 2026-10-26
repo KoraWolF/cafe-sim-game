@@ -36,6 +36,8 @@ const NIGHT_PANEL: float = 790.0
 var editor: FloorEditor = null
 var seats := SeatMap.new()
 var _hover := Vector2i(-100, -100)
+## Short-lived feedback drawn over the café: {"kind", "at", "age", "life", "text", "color"}.
+var _effects: Array[Dictionary] = []
 var camera := Camera2D.new()
 var _time: float = 0.0
 var _drag_from := Vector2.ZERO
@@ -49,11 +51,62 @@ func _ready() -> void:
 	add_child(camera)
 	camera.make_current()
 	fit_camera()
+	Session.shift_advanced.connect(_on_shift_advanced)
+	Session.converted.connect(_on_converted)
+	Session.night_resolved.connect(func(report: NightOps.Report) -> void: _level_up_effects(report.level_ups))
 
 
 func _process(delta: float) -> void:
 	_time += delta
+	for effect: Dictionary in _effects:
+		effect["age"] += delta
+	_effects = _effects.filter(func(effect: Dictionary) -> bool: return effect["age"] < effect["life"])
 	queue_redraw()
+
+
+## Coin pop-ups over paying customers and level-up rings. Heads are from the
+## last frame, so a customer who just left can still be found.
+func _on_shift_advanced(events: Shift.Events) -> void:
+	for customer_id: String in events.payments:
+		if _heads.has(customer_id):
+			_effects.append({"kind": "pop", "at": _heads[customer_id] + Vector2(0, -50), "age": 0.0, "life": 1.2,
+				"text": "+%d" % events.payments[customer_id], "color": UiTheme.WARN})
+	_level_up_effects(events.level_ups)
+
+
+func _level_up_effects(level_ups: Dictionary[String, int]) -> void:
+	for synth_id: String in level_ups:
+		if _heads.has(synth_id):
+			_effects.append({"kind": "ring", "at": _heads[synth_id], "age": 0.0, "life": 1.4,
+				"text": tr("ui.fx_level_up"), "color": UiTheme.PANEL_BORDER})
+
+
+func _on_converted(customer_id: String, synth: Synth) -> void:
+	if not _heads.has(customer_id):
+		return
+	var glow: Color = UiTheme.SPECIES_GLOW.get(synth.species_id, Color.CYAN)
+	_effects.append({"kind": "burst", "at": _heads[customer_id], "age": 0.0, "life": 1.6,
+		"text": tr("ui.fx_new_synth"), "color": glow})
+
+
+func _draw_effects() -> void:
+	for effect: Dictionary in _effects:
+		var t: float = effect["age"] / effect["life"]
+		var at: Vector2 = effect["at"]
+		var color: Color = effect["color"]
+		var fade := Color(color, 1.0 - t)
+		match effect["kind"]:
+			"pop":
+				_text(at + Vector2(0, -40 * t), effect["text"], 20, fade)
+			"ring":
+				draw_arc(at, 20 + 40 * t, 0, TAU, 32, fade, 4.0)
+				_text(at + Vector2(0, -50 - 20 * t), effect["text"], 18, fade)
+			"burst":
+				draw_circle(at, 30 + 90 * t, Color(color, 0.35 * (1.0 - t)))
+				for i: int in 10:
+					var direction := Vector2.from_angle(TAU * i / 10.0 + t)
+					draw_circle(at + direction * (20 + 110 * t), 5 * (1.0 - t) + 1, fade)
+				_text(at + Vector2(0, -60 - 30 * t), effect["text"], 22, fade)
 
 
 ## Fits the whole floor into the free part of the screen: below the top bar,
@@ -207,6 +260,7 @@ func _draw() -> void:
 	_draw_counter(state, data)
 	if editor != null:
 		_draw_editing(state, data)
+	_draw_effects()
 
 
 func _draw_floor(state: GameState, data: GameData) -> void:

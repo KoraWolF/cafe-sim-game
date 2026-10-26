@@ -23,6 +23,8 @@ class Events:
 	var star_expired: Array[String] = []
 	## Pay and tips, in coins.
 	var coins_earned: int = 0
+	## Customer id -> what they paid, tip included (for pop-ups).
+	var payments: Dictionary[String, int] = {}
 	var tips_earned: int = 0
 	## Recipe id per finished batch.
 	var dishes_ready: Array[String] = []
@@ -300,6 +302,7 @@ static func _finish_meal(state: GameState, customer: Customer, data: GameData, e
 	state.coins += pay
 	events.coins_earned += pay
 	events.served.append(customer.id)
+	events.payments[customer.id] = pay
 	if customer.satisfaction < b.star_threshold:
 		state.customers.erase(customer)
 		return
@@ -307,6 +310,7 @@ static func _finish_meal(state: GameState, customer: Customer, data: GameData, e
 	var tip := roundi(recipe.price * b.tip_rate * type.tip * (1.0 + customer.tip_bonus))
 	state.coins += tip
 	events.tips_earned += tip
+	events.payments[customer.id] += tip
 	if not can_star:
 		state.customers.erase(customer)
 		return

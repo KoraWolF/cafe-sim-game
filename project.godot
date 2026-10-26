@@ -17,6 +17,7 @@ config/features=PackedStringArray("4.7", "Forward Plus")
 [autoload]
 
 Session="*res://src/ui/session.gd"
+AudioDirector="*res://src/ui/audio_director.gd"
 
 [display]
 

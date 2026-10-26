@@ -19,6 +19,11 @@ func _initialize() -> void:
 
 func _run() -> void:
 	_session = root.get_node("Session")
+	# Silent while it runs; the player's own settings are put back at the end.
+	AudioServer.set_bus_mute(0, true)
+	var tutorial_was_done := Settings.tutorial_done()
+	var music_volume := Settings.volume("Music")
+	Settings.set_tutorial_done(false)
 	_main = load("res://src/ui/main.tscn").instantiate()
 	root.add_child(_main)
 	await _frames(10)
@@ -32,11 +37,19 @@ func _run() -> void:
 	var game = _main.get_child(0)  # untyped: GameScreen needs the Session autoload, which -s scripts compile before
 	var state: GameState = _session.state
 	var data: GameData = _session.data
+	print("CHECK new game -> guided first day shows its welcome: ",
+		game.tutorial_box.visible and game.tutorial_box._text.text == tr("tutorial.welcome"))
+	_shot("01b_tutorial_welcome")
+	await _click(_centre_of(game.tutorial_box._next))
+	await _frames(2)
+	print("CHECK Next -> cook step: ", game.tutorial_box._text.text == tr("tutorial.cook"))
 	GameLoop.start_cooking(state, 0, "coffee", data)
 	GameLoop.start_cooking(state, 1, "toast", data)
+	await _frames(2)
+	print("CHECK cooking -> tutorial moves to the delivery step: ", game.tutorial_box._text.text == tr("tutorial.deliver"))
 	_session.advance(70)
-	await _frames(5)
-	_shot("02_shift")
+	await _frames(2)
+	_shot("02_shift_with_pops")
 
 	# Real clicks through the window, as a player would make them.
 	var canvas: Transform2D = game.cafe.get_viewport().get_canvas_transform()
@@ -114,6 +127,18 @@ func _run() -> void:
 	game.night._tabs.current_tab = 4
 	await _frames(3)
 	_shot("07_night_ops_planned")
+	# Settings: a real click on the Music slider's left end turns music down, and it is saved.
+	game.hud.settings_requested.emit()
+	await _frames(2)
+	var slider: HSlider = game.settings._sliders["Music"]
+	var rect := slider.get_global_rect()
+	await _click(Vector2(rect.position.x + 4, rect.get_center().y))
+	Settings._config = null
+	print("CHECK settings slider -> Music volume saved low: ", Settings.volume("Music") < 0.2)
+	_shot("11b_settings")
+	Settings.set_volume("Music", music_volume)
+	game.settings.close()
+
 	# Suspicion past the Audit line: tonight has a raid and an Audit to watch.
 	state.add_suspicion(95.0)
 	_session.end_night()
@@ -134,6 +159,7 @@ func _run() -> void:
 	await _frames(5)
 	print("CHECK last Continue -> night report shown: ", game.report.visible and not game.battle.visible)
 	_shot("15_report")
+	Settings.set_tutorial_done(tutorial_was_done)
 	quit()
 
 

@@ -173,3 +173,37 @@ error.overlap,Something is already standing there.
 error.unknown_placed,That piece is no longer on the floor.
 error.pod_in_use,A Synth needs that Pod.
 error.maxed,That upgrade is already at its maximum.
+ui.settings,Settings
+ui.volume_master,Master volume
+ui.volume_music,Music
+ui.volume_sfx,Sound effects
+ui.volume_ui,Interface sounds
+ui.replay_tutorial,Replay the guided first day
+ui.tutorial_next_game,The guided first day will start with your next new game.
+tutorial.title,FIRST DAY
+tutorial.next,Next
+tutorial.skip_step,Skip step
+tutorial.skip_all,Skip tutorial
+tutorial.welcome,"Welcome to NanoBrew Café! Customers come in, sit down and order from your menu. Your job: keep the food coming and turn your happiest customers into Synth staff."
+tutorial.cook,Click a stove and pick a dish to cook. A finished batch goes to the counter.
+tutorial.deliver,Your server Synth carries dishes from the counter to the tables. Watch a customer get served and pay.
+tutorial.convert,"That customer has a star — they loved it! Click them to spend your NanoBrew: they become a Synth."
+tutorial.card,Click one of your Synths to see its level and battery and to change its role.
+tutorial.night,"The café is closed: it's night. Plan for tomorrow here, then press End Night."
+tutorial.menu,Open the Menu tab and choose tomorrow's dishes. Customers love their favourites.
+tutorial.raid,"Open Night Ops, pick a MegaBean café and a squad, then Plan raid. Raids bring Nano Cores (for NanoBrew) and Influence."
+tutorial.end_night,Press End Night to see the night play out.
+tutorial.done,That's the basics! Take over the Alley by beating its flagship. Good luck.
+ui.fx_level_up,LEVEL UP!
+ui.fx_new_synth,NEW SYNTH!
+tip.resources,"Coins pay for dishes, upgrades and décor. NanoBrew converts a starred customer. Nano Cores (from raids) brew NanoBrew. Power recharges Synths at night. Suspicion brings MegaBean raids — and at 90, a Corporate Audit. Influence unlocks the district's flagship."
+tip.upgrade.stove,One more stove to cook on (place it on the floor).
+tip.upgrade.seat,One more seat. More seats also bring customers in faster.
+tip.upgrade.pod,One more Sync Pod: room for one more Synth.
+tip.upgrade.menu_slot,One more dish on the daily menu.
+tip.upgrade.floor,Two more rows of floor for furniture and décor.
+tip.upgrade.security,Extra HP for every Synth defending the café at night.
+tip.role.server,Carries dishes from the counter to the tables (uses speed).
+tip.role.chef,Makes every stove cook faster (uses cooking).
+tip.role.greeter,Brings customers in more often (uses appeal).
+tip.role.rest,Off duty: no work and no battery drain.

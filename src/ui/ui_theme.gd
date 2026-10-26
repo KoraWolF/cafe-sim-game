@@ -92,5 +92,6 @@ static func label(text: String, size := 18, color := TEXT) -> Label:
 static func button(text: String, on_press: Callable) -> Button:
 	var button := Button.new()
 	button.text = text
+	button.pressed.connect(Sfx.play.bind("ui_click"))
 	button.pressed.connect(on_press)
 	return button

@@ -37,6 +37,8 @@ signal phase_changed
 signal night_resolved(report: NightOps.Report)
 ## A short message for the player (errors, events).
 signal toast(text: String)
+## A starred customer became a Synth (for the burst effect and sound).
+signal converted(customer_id: String, synth: Synth)
 
 var data: GameData
 var state: GameState
@@ -149,6 +151,7 @@ func convert_customer(customer_id: String) -> void:
 	var created: Array[Synth] = []
 	if act(GameLoop.convert_customer(state, customer_id, data, created)):
 		day_log.conversions += 1
+		converted.emit(customer_id, created[0])
 		toast.emit(tr("ui.converted") % [tr("ui.customer"), UiText.name(created[0].species_id)])
 
 

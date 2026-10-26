@@ -29,6 +29,7 @@ func _ready() -> void:
 	for role: String in Synth.ROLES:
 		var button := UiTheme.button(UiText.role(role), _set_role.bind(role))
 		button.toggle_mode = true
+		button.tooltip_text = tr("tip.role." + role)
 		_roles[role] = button
 		roles.add_child(button)
 	column.add_child(UiTheme.button(tr("ui.close"), func() -> void: visible = false))
