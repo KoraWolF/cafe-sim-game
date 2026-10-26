@@ -1,0 +1,146 @@
+keys,en
+ui.title,NanoBrew Café
+ui.subtitle,A cozy café where happy customers become synthetic staff
+ui.new_game,New Game
+ui.continue,Continue
+ui.load_slot,Load Slot %d
+ui.save_slot,Save to Slot %d
+ui.empty_slot,Slot %d (empty)
+ui.quit,Quit
+ui.resume,Resume
+ui.main_menu,Main Menu
+ui.paused,Paused
+ui.saved,Saved to slot %d.
+ui.save_failed,Could not save (error %d).
+ui.load_failed,That save could not be loaded: %s
+ui.day,Day %d
+ui.shift_time,%s / %s
+ui.coins,Coins
+ui.nanobrew,NanoBrew
+ui.cores,Nano Cores
+ui.power,Power
+ui.suspicion,Suspicion
+ui.influence,Influence %d / %d
+ui.district,District
+ui.vibe,Vibe %d
+ui.menu_button,Menu
+ui.speed_pause,Pause
+ui.closed_today,The café is shut today after the Corporate Audit.
+ui.shift_over,Closing time! The café is closed for the night.
+ui.counter,Counter
+ui.cook_title,Cook on stove %d
+ui.cook_item,"%s — %d coins (%d servings, %ds)"
+ui.cooking,Cooking %s
+ui.customer,A customer
+ui.converted,%s became a %s!
+ui.level_up,%s reached level %d!
+ui.tip,+%d coins (tip +%d)
+ui.broke_dish,A dish was dropped!
+ui.left_angry,A customer left angry.
+ui.turned_away,The queue is full — a customer walked away.
+ui.glitch,Glitch!
+ui.card_level,Level %d
+ui.card_xp,XP %d / %d
+ui.card_xp_max,Max level
+ui.card_battery,Battery %d / %d
+ui.card_trait,Trait: %s
+ui.card_no_trait,No trait
+ui.card_role,Role
+ui.close,Close
+ui.night_title,Night %d — %s
+ui.tab_summary,Summary
+ui.tab_menu,Menu
+ui.tab_upgrades,Upgrades & Décor
+ui.tab_staff,Staff
+ui.tab_ops,Night Ops
+ui.end_night,End Night
+ui.summary_line,"Served %d, stars %d (%d%%), left angry %d, walked away %d"
+ui.summary_money,"Earned %d coins (tips %d). Coins now: %d"
+ui.summary_staff,"Conversions %d, dishes dropped %d, glitches %d"
+ui.menu_slots,Menu slots used: %d / %d
+ui.menu_dish,"%s — price %d, cost %d, %d servings, %ds"
+ui.menu_fans,Favourite of: %s
+ui.menu_no_fans,No customer type's favourite
+ui.upgrade_line,"%s — level %d / %d"
+ui.buy,Buy (%d)
+ui.maxed,Maxed
+ui.decor_title,Décor shop
+ui.decor_line,"%s — %dx%d, %d Vibe, tags: %s"
+ui.decor_owned,In storage: %d
+ui.decor_note,Pieces are placed automatically for now; arranging the floor comes in the next update.
+ui.floor_line,"Floor %d x %d, Vibe %d"
+ui.no_room_stored,No room on the floor — the piece waits in storage.
+ui.staff_line,"%s (%s%s) — Lv %d, battery %d / %d"
+ui.brew,Brew NanoBrew (%d core + %d coins)
+ui.nanobrew_count,NanoBrew: %d   Nano Cores: %d
+ui.power_line,"Power: %d (full recharge needs %d)"
+ui.buy_power,Buy %d Power (%d coins)
+ui.ops_district,"%s — Influence %d / %d, Suspicion %d"
+ui.ops_owned,Owned districts: %s (income %d per night)
+ui.ops_none_owned,No districts owned yet.
+ui.ops_defense,MegaBean raid chance tonight: %d%%
+ui.ops_audit,"Suspicion is %d or more: a Corporate Audit WILL come tonight. Keep strong Synths home!"
+ui.ops_target,"%s — %d guards (power %d, HP %d), loot %d coins + %d cores, +%d Influence"
+ui.ops_flagship,FLAGSHIP — beat it to take the district
+ui.ops_squad,Squad (up to %d):
+ui.ops_member,"%s — power %d, HP %d, battery %d"
+ui.ops_plan,Plan raid
+ui.ops_cancel,Cancel raid
+ui.ops_planned,Tonight: raid %s with %d Synths
+ui.ops_no_plan,No raid planned.
+ui.ops_no_targets,No café can be raided tonight.
+ui.report_title,Night %d results
+ui.report_raid_won,Raid on %s: WON. Loot %d coins + %d cores. +%d Influence.
+ui.report_raid_lost,Raid on %s: lost.
+ui.report_takeover,%s is yours! It pays %d coins every night.
+ui.report_next,%s opens tomorrow.
+ui.report_city,The whole city is yours!
+ui.report_defense_held,MegaBean raided the café — your Synths held them off.
+ui.report_defense_lost,MegaBean raided the café and took %d coins and %d cores.
+ui.report_audit_held,The Corporate Audit came — and failed!
+ui.report_audit_lost,The Corporate Audit took %d coins and one of your Synths. The café is shut tomorrow.
+ui.report_audit_lost_none,The Corporate Audit took %d coins. The café is shut tomorrow.
+ui.report_quiet,A quiet night.
+ui.report_stolen,%s pocketed %d coins.
+ui.report_income,District income: +%d coins.
+ui.report_power,Recharging used %d Power.
+ui.report_undercharged,Not enough Power: %d Synths are not fully charged.
+ui.report_level,%s reached level %d.
+ui.continue_day,Start Day %d
+role.server,Server
+role.chef,Chef
+role.greeter,Greeter
+role.rest,Rest
+error.wrong_phase,You can't do that right now.
+error.unknown_stove,That stove doesn't exist.
+error.stove_busy,That stove is already cooking.
+error.unknown_recipe,Unknown dish.
+error.recipe_locked,You haven't unlocked that dish yet.
+error.not_enough_coins,Not enough coins.
+error.not_enough_cores,Not enough Nano Cores.
+error.unknown_customer,That customer has left.
+error.no_star,Only customers with a star can be converted.
+error.no_nanobrew,You need a NanoBrew to convert a customer.
+error.no_free_pod,Every Sync Pod is taken — buy and place another Pod.
+error.unknown_synth,Unknown Synth.
+error.unknown_role,Unknown role.
+error.synth_busy,That Synth is carrying a dish — wait a moment.
+error.bad_amount,Choose an amount above zero.
+error.unknown_target,Unknown target.
+error.target_cooldown,That café is still on guard after the last raid.
+error.empty_squad,Pick at least one Synth for the squad.
+error.squad_too_big,That squad is too big.
+error.no_battery,A Synth in the squad has no battery.
+error.flagship_locked,Earn more Influence before challenging the flagship.
+error.empty_menu,Put at least one dish on the menu.
+error.menu_too_long,All menu slots are full.
+error.unknown_upgrade,Unknown upgrade.
+error.no_room,No room on the floor — expand the floor first.
+error.unknown_piece,Unknown piece.
+error.not_for_sale,That can't be bought or sold.
+error.none_stored,You don't have that piece in storage.
+error.out_of_bounds,That doesn't fit on the floor there.
+error.overlap,Something is already standing there.
+error.unknown_placed,That piece is no longer on the floor.
+error.pod_in_use,A Synth needs that Pod.
+error.maxed,That upgrade is already at its maximum.
