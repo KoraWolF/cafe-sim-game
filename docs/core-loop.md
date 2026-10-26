@@ -81,4 +81,11 @@ Proposed numbers (my defaults, to be tuned with the sim):
 
 ## Balance check after décor (40 days × 5 seeds)
 
-The bot buys the décor piece that adds the most Vibe per coin at its best spot, keeping 150 coins in reserve and leaving room for future furniture. It also expands the floor when furniture no longer fits. Upgrades plus décor now take about 33,900 coins over 40 days (21,300 before décor), and coins at day 40 fell from about 15,300 to about 5,100. A fully decorated floor reaches about 520 Vibe, and stars rise from 92% to 96.6%. The Alley falls on day 11–14 (a little later, since money goes into décor) and Neon Market in 4 of 5 runs (days 20–33). The proposed Vibe numbers gave 98% stars, so I weakened them; the table of four settings is in the décor branch history.
+The bot buys the décor piece that adds the most Vibe per coin at its best spot, keeping 150 coins in reserve and leaving room for future furniture. It also expands the floor when furniture no longer fits. Upgrades plus décor now take about 33,900 coins over 40 days (21,300 before décor), and coins at day 40 fell from about 15,300 to about 5,100. A fully decorated floor reaches about 520 Vibe, and stars rise from 92% to 96.6%. The Alley falls on day 11–14 (a little later, since money goes into décor) and Neon Market in 4 of 5 runs (days 20–33). The proposed Vibe numbers gave 98% stars, so I weakened them:
+
+| Loss divided by 1 + k × Vibe | Per-meal bonus | Stars | Coins at day 40 |
+| --- | --- | --- | --- |
+| k = 0.01 (proposed) | 0.1 × Vibe, max 10 | 98.0% | 4,100 |
+| k = 0.004 | 0.04 × Vibe, max 6 | 97.1% | 5,200 |
+| **k = 0.003 (chosen)** | **0.03 × Vibe, max 5** | **96.6%** | **5,100** |
+| k = 0.002 | 0.02 × Vibe, max 4 | 96.4% | 5,300 |
