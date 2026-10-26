@@ -114,14 +114,37 @@ func _run() -> void:
 	game.night._tabs.current_tab = 4
 	await _frames(3)
 	_shot("07_night_ops_planned")
+	# Suspicion past the Audit line: tonight has a raid and an Audit to watch.
+	state.add_suspicion(95.0)
 	_session.end_night()
+	await _frames(45)
+	print("CHECK End Night -> raid battle playing: ", game.battle.visible and not game.report.visible)
+	_shot("12_battle_raid")
+	await _click(_centre_of(game.battle._skip))
+	await _frames(3)
+	print("CHECK Skip -> raid finished, Continue shown: ", game.battle.playback.is_finished() and game.battle._continue.visible)
+	_shot("13_battle_raid_end")
+	await _click(_centre_of(game.battle._continue))
+	await _frames(45)
+	print("CHECK Continue -> Audit battle playing: ", game.battle.visible and game.battle._title.text == tr("ui.battle_audit"))
+	_shot("14_battle_audit")
+	await _click(_centre_of(game.battle._skip))
+	await _frames(3)
+	await _click(_centre_of(game.battle._continue))
 	await _frames(5)
-	_shot("08_report")
+	print("CHECK last Continue -> night report shown: ", game.report.visible and not game.battle.visible)
+	_shot("15_report")
 	quit()
+
+
+func _centre_of(control: Control) -> Vector2:
+	return control.get_global_rect().get_center()
 
 
 ## A left click at a screen position, through the window's input.
 func _click(at: Vector2) -> void:
+	# Press and release in the same frame: a real mouse move from the OS cursor
+	# landing in between would turn the click into a drag (or move it off a button).
 	for pressed: bool in [true, false]:
 		var event := InputEventMouseButton.new()
 		event.button_index = MOUSE_BUTTON_LEFT
@@ -129,8 +152,7 @@ func _click(at: Vector2) -> void:
 		event.position = at
 		event.global_position = at
 		root.push_input(event)
-		await _frames(1)
-	await _frames(2)
+	await _frames(3)
 
 
 func _move(to: Vector2) -> void:

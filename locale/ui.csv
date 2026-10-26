@@ -122,6 +122,20 @@ ui.report_power,Recharging used %d Power.
 ui.report_undercharged,Not enough Power: %d Synths are not fully charged.
 ui.report_level,%s reached level %d.
 ui.continue_day,Start Day %d
+ui.battle_raid,Raid on %s
+ui.battle_defense,MegaBean raids your café!
+ui.battle_audit,CORPORATE AUDIT!
+ui.battle_round,Round %d
+ui.battle_victory,VICTORY
+ui.battle_defeat,DEFEAT
+ui.battle_ko,KO!
+ui.battle_skip,Skip
+ui.battle_fast,2×
+ui.battle_continue,Continue
+ui.battle_guard,Guard %d
+ui.battle_raider,Raider %d
+ui.battle_auditor,Auditor %d
+ui.battle_gone,Lost Synth
 role.server,Server
 role.chef,Chef
 role.greeter,Greeter

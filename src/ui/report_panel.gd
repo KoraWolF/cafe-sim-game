@@ -1,8 +1,9 @@
 class_name ReportPanel
 extends PanelContainer
-## What happened tonight, shown after "End Night": the raid, takeovers, the
-## MegaBean raid or Audit, theft, income, recharging and level-ups. The next
-## shift waits (paused) until the player presses Start.
+## What happened tonight, shown after the night's battles (GameScreen calls
+## show_report): the raid, takeovers, the MegaBean raid or Audit, theft,
+## income, recharging and level-ups. The next shift waits (paused) until the
+## player presses Start.
 
 var _lines := VBoxContainer.new()
 var _title := UiTheme.label("", 28, UiTheme.PANEL_BORDER)
@@ -20,7 +21,6 @@ func _ready() -> void:
 	_start.custom_minimum_size = Vector2(0, 50)
 	_start.pressed.connect(_close)
 	column.add_child(_start)
-	Session.night_resolved.connect(show_report)
 
 
 func show_report(report: NightOps.Report) -> void:

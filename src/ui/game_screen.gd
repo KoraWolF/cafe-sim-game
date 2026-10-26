@@ -1,8 +1,9 @@
 class_name GameScreen
 extends Node
 ## One running game: the café view, the HUD, the night hub, the floor edit
-## panel and the night report. Passes frame time to the Session and routes
-## café clicks to the HUD.
+## panel, the battle scenes and the night report. Passes frame time to the
+## Session and routes café clicks to the HUD. After "End Night" the night's
+## battles play first (the raid, then a MegaBean raid or Audit), then the report.
 
 signal quit_to_menu
 
@@ -11,6 +12,10 @@ var hud := Hud.new()
 var night := NightHub.new()
 var edit_panel := EditPanel.new()
 var report := ReportPanel.new()
+var battle := BattleView.new()
+## Battles still to play tonight, then the report.
+var _battles: Array[Dictionary] = []
+var _night_report: NightOps.Report = null
 
 
 func _ready() -> void:
@@ -26,6 +31,9 @@ func _ready() -> void:
 	root.add_child(edit_panel)
 	root.add_child(hud)
 	root.add_child(report)
+	root.add_child(battle)
+	battle.finished.connect(_play_next_battle)
+	Session.night_resolved.connect(_on_night_resolved)
 	cafe.stove_clicked.connect(hud.open_recipe_menu)
 	cafe.synth_clicked.connect(hud.open_synth_card)
 	cafe.customer_clicked.connect(Session.convert_customer)
@@ -42,6 +50,50 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	Session.tick(delta)
+
+
+func _on_night_resolved(night_report: NightOps.Report) -> void:
+	_night_report = night_report
+	_battles.clear()
+	if night_report.raid != null:
+		var squad: Array[String] = []
+		for fighter: Battle.Fighter in night_report.raid.attackers:
+			squad.append(_synth_label(fighter.synth_id))
+		_battles.append({"battle": night_report.raid, "attacks": true, "mine": squad, "theirs": _numbered("ui.battle_guard",
+			night_report.raid.defenders.size()), "title": tr("ui.battle_raid") % UiText.name(night_report.raid_target)})
+	if night_report.defense != null:
+		var home: Array[String] = []
+		for fighter: Battle.Fighter in night_report.defense.defenders:
+			home.append(_synth_label(fighter.synth_id))
+		_battles.append({"battle": night_report.defense, "attacks": false, "mine": home,
+			"theirs": _numbered("ui.battle_auditor" if night_report.audit else "ui.battle_raider", night_report.defense.attackers.size()),
+			"title": tr("ui.battle_audit") if night_report.audit else tr("ui.battle_defense")})
+	Session.paused = true
+	_play_next_battle()
+
+
+func _play_next_battle() -> void:
+	if _battles.is_empty():
+		report.show_report(_night_report)
+		return
+	var next: Dictionary = _battles.pop_front()
+	var mine: Array[String] = next["mine"]
+	var theirs: Array[String] = next["theirs"]
+	if next["attacks"]:
+		battle.play(next["battle"], next["title"], true, mine, theirs)
+	else:
+		battle.play(next["battle"], next["title"], false, theirs, mine)
+
+
+func _synth_label(synth_id: String) -> String:
+	return Session.synth_names.get(synth_id, tr("ui.battle_gone"))
+
+
+func _numbered(key: String, count: int) -> Array[String]:
+	var names: Array[String] = []
+	for i: int in count:
+		names.append(tr(key) % (i + 1))
+	return names
 
 
 ## Arranging the floor (night only): the hub steps aside for the edit panel.
