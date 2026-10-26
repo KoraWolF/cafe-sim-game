@@ -4,7 +4,8 @@ extends RefCounted
 ## calls these and shows the returned events and reports.
 ##
 ## A day: the shift runs through advance() until it closes (phase NIGHT). At
-## night the player may plan a raid, brew, buy Power and change roles; then
+## night the player may plan a raid, brew, buy Power and upgrades and change
+## roles; then
 ## end_night() resolves Night Ops and opens the next shift.
 ## Actions return OK ("") or an error code.
 
@@ -29,6 +30,8 @@ const TARGET_COOLDOWN: String = "target_cooldown"
 const EMPTY_SQUAD: String = "empty_squad"
 const SQUAD_TOO_BIG: String = "squad_too_big"
 const NO_BATTERY: String = "no_battery"
+const UNKNOWN_UPGRADE: String = "unknown_upgrade"
+const MAXED: String = "maxed"
 
 
 ## Passes shift time. Returns empty events outside a shift.
@@ -102,6 +105,42 @@ static func buy_power(state: GameState, amount: int, data: GameData) -> String:
 		return NOT_ENOUGH_COINS
 	state.coins -= price
 	state.power += amount
+	return OK
+
+
+## Coins the next purchase of this upgrade costs, or -1 if it is maxed or unknown.
+static func upgrade_cost(state: GameState, upgrade_id: String, data: GameData) -> int:
+	var upgrade: Upgrade = data.upgrades.get(upgrade_id)
+	if upgrade == null:
+		return -1
+	var level: int = state.upgrades.get(upgrade_id, 0)
+	return -1 if level >= upgrade.max_level else upgrade.cost_at(level)
+
+
+## Buys one level of an upgrade. Only at night, while the café is closed.
+static func buy_upgrade(state: GameState, upgrade_id: String, data: GameData) -> String:
+	if state.phase != GameState.Phase.NIGHT:
+		return WRONG_PHASE
+	var upgrade: Upgrade = data.upgrades.get(upgrade_id)
+	if upgrade == null:
+		return UNKNOWN_UPGRADE
+	var cost := upgrade_cost(state, upgrade_id, data)
+	if cost < 0:
+		return MAXED
+	if state.coins < cost:
+		return NOT_ENOUGH_COINS
+	state.coins -= cost
+	state.upgrades[upgrade_id] = state.upgrades.get(upgrade_id, 0) + 1
+	match upgrade_id:
+		Upgrade.STOVE:
+			for i: int in roundi(upgrade.step):
+				state.stoves.append(Stove.new())
+		Upgrade.SEAT:
+			state.seats += roundi(upgrade.step)
+		Upgrade.POD:
+			state.pods += roundi(upgrade.step)
+		Upgrade.SECURITY:
+			state.security += upgrade.step
 	return OK
 
 

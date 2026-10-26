@@ -9,6 +9,7 @@ const PATHS: Dictionary[String, String] = {
 	"species": "res://data/species.json",
 	"traits": "res://data/traits.json",
 	"districts": "res://data/districts.json",
+	"upgrades": "res://data/upgrades.json",
 }
 
 var balance: BalanceConfig
@@ -17,6 +18,7 @@ var customer_types: Dictionary[String, CustomerType] = {}
 var species: Dictionary[String, Species] = {}
 var traits: Dictionary[String, SynthTrait] = {}
 var districts: Dictionary[String, District] = {}
+var upgrades: Dictionary[String, Upgrade] = {}
 
 
 ## Loads everything from /data. Returns null (and logs why) if it is invalid.
@@ -51,6 +53,9 @@ static func from_content(content: Dictionary) -> GameData:
 	for entry: Dictionary in _objects(content.get("districts"), "districts"):
 		var district := District.from_dict(entry)
 		data.districts[district.id] = district
+	for entry: Dictionary in _objects(content.get("upgrades"), "upgrades"):
+		var upgrade := Upgrade.from_dict(entry)
+		data.upgrades[upgrade.id] = upgrade
 	var errors := data.check()
 	if not errors.is_empty():
 		push_error("GameData: invalid content: %s" % "; ".join(errors))
@@ -96,4 +101,12 @@ func check() -> PackedStringArray:
 			errors.append("recipe %s: unknown species '%s'" % [recipe.id, recipe.unlock_species])
 		if recipe.cook_seconds <= 0 or recipe.servings <= 0:
 			errors.append("recipe %s: cook_seconds and servings must be positive" % recipe.id)
+	for upgrade_id: String in Upgrade.IDS:
+		if not upgrades.has(upgrade_id):
+			errors.append("upgrade '%s' is missing" % upgrade_id)
+	for upgrade: Upgrade in upgrades.values():
+		if not Upgrade.IDS.has(upgrade.id):
+			errors.append("unknown upgrade '%s'" % upgrade.id)
+		if upgrade.step <= 0.0 or upgrade.max_level < 0:
+			errors.append("upgrade %s: step must be positive, max_level not negative" % upgrade.id)
 	return errors

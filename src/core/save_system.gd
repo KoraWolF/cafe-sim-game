@@ -41,6 +41,7 @@ static func to_dict(state: GameState) -> Dictionary:
 		"seats": state.seats,
 		"pods": state.pods,
 		"security": state.security,
+		"upgrades": state.upgrades,
 		"stoves": state.stoves.map(func(stove: Stove) -> Dictionary: return stove.to_dict()),
 		"counter": state.counter,
 		"customers": state.customers.map(func(customer: Customer) -> Dictionary: return customer.to_dict()),
@@ -71,6 +72,10 @@ static func from_dict(raw: Dictionary) -> GameState:
 	state.seats = int(raw.get("seats", 0))
 	state.pods = int(raw.get("pods", 0))
 	state.security = float(raw.get("security", 0.0))
+	var upgrades: Variant = raw.get("upgrades", {})
+	if upgrades is Dictionary:
+		for upgrade_id: Variant in upgrades:
+			state.upgrades[str(upgrade_id)] = int(upgrades[upgrade_id])
 	for entry: Dictionary in _objects(raw, "stoves"):
 		state.stoves.append(Stove.from_dict(entry))
 	var counter: Variant = raw.get("counter", {})
@@ -142,6 +147,10 @@ static func validate(state: GameState, data: GameData) -> PackedStringArray:
 		errors.append("negative resources")
 	if state.seats < 0 or state.pods < state.synths.size():
 		errors.append("%d seats, %d pods for %d Synths" % [state.seats, state.pods, state.synths.size()])
+	for upgrade_id: String in state.upgrades:
+		var upgrade: Upgrade = data.upgrades.get(upgrade_id)
+		if upgrade == null or state.upgrades[upgrade_id] < 0 or state.upgrades[upgrade_id] > upgrade.max_level:
+			errors.append("bad upgrade level '%s'" % upgrade_id)
 	if not data.districts.has(state.district_id):
 		errors.append("unknown district '%s'" % state.district_id)
 	for district_id: String in state.suspicion:

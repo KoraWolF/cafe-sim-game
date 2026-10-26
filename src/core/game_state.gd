@@ -31,6 +31,8 @@ const SPEEDS: Array[int] = [0, 1, 2, 4]
 ## Extra HP for each home defender.
 @export var security: float = 0.0
 @export var stoves: Array[Stove] = []
+## Upgrade id -> times bought.
+@export var upgrades: Dictionary[String, int] = {}
 ## Ready servings: recipe id -> count.
 @export var counter: Dictionary[String, int] = {}
 

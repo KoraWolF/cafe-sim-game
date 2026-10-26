@@ -13,6 +13,8 @@ extends RefCounted
 ## Traits: owl (late slowdown -0.5, power +5), klepto (always steals, loot +50%).
 ## District "town": rivals "weak" (1 guard 1 power / 5 hp, loot 40 coins + 1 core)
 ## and "fort" (1 guard 100 power / 1000 hp).
+## Upgrades: stove 50 (x2 per level, max 2), seat 20 (+2 seats, max 3),
+## pod 100 (max 1), security 30 (+10 hp, max 2).
 
 
 static func content(balance_overrides := {}) -> Dictionary:
@@ -63,6 +65,12 @@ static func content(balance_overrides := {}) -> Dictionary:
 				{"id": "weak", "defenders": [{"power": 1, "hp": 5}], "loot_coins": 40, "loot_cores": 1},
 				{"id": "fort", "defenders": [{"power": 100, "hp": 1000}], "loot_coins": 999, "loot_cores": 9},
 			]},
+		],
+		"upgrades": [
+			{"id": "stove", "step": 1, "base_cost": 50, "cost_growth": 2.0, "max_level": 2},
+			{"id": "seat", "step": 2, "base_cost": 20, "cost_growth": 1.0, "max_level": 3},
+			{"id": "pod", "step": 1, "base_cost": 100, "cost_growth": 1.0, "max_level": 1},
+			{"id": "security", "step": 10, "base_cost": 30, "cost_growth": 1.0, "max_level": 2},
 		],
 	}
 

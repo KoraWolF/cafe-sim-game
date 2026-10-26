@@ -18,4 +18,6 @@ Decisions the GDD left open, as agreed with @Boss. Every number is a starting gu
 
 Saving: `SaveSystem` writes plain JSON with a version number, crash-safe, with a `.bak` fallback; 3 manual slots plus an autosave when a shift closes and after each night.
 
-Not built yet: UI, decorating, furniture upgrades, buying pods, stoves and seats, district takeover, menus.
+Upgrades: at night the player buys stoves, seats, Sync Pods and security. Each level costs more and has a cap (`data/upgrades.json`).
+
+Not built yet: UI, decorating, district takeover, menus.
