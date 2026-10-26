@@ -62,6 +62,12 @@ static func greeter_appeal(state: GameState, data: GameData) -> float:
 	return total
 
 
+## How many times faster than the base gap customers arrive: greeters plus extra seats.
+static func arrival_rate(state: GameState, data: GameData) -> float:
+	var extra_seats := maxi(state.seats - data.balance.start_seats, 0)
+	return 1.0 + greeter_appeal(state, data) + data.balance.arrival_per_extra_seat * extra_seats
+
+
 static func seated_count(state: GameState) -> int:
 	return state.customers.filter(func(customer: Customer) -> bool: return customer.is_seated()).size()
 
@@ -111,7 +117,7 @@ static func _arrive(state: GameState, data: GameData, rng: RandomNumberGenerator
 	var b := data.balance
 	if state.shift_time < state.next_arrival or state.shift_time >= b.shift_seconds - b.spawn_stop_before_end:
 		return
-	var gap := rng.randi_range(b.arrival_min_seconds, b.arrival_max_seconds) / (1.0 + greeter_appeal(state, data))
+	var gap := rng.randi_range(b.arrival_min_seconds, b.arrival_max_seconds) / arrival_rate(state, data)
 	state.next_arrival = state.shift_time + maxi(roundi(gap), 1)
 	var type_id := _pick_type(data, rng)
 	if queued_count(state) >= b.max_queue:

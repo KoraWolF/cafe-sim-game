@@ -67,6 +67,15 @@ static func resolve(state: GameState, data: GameData) -> Report:
 	return report
 
 
+## A rival's guards on this day (they grow stronger every day).
+static func rival_guards(rival: RivalCafe, day: int, b: BalanceConfig) -> Array[Battle.Fighter]:
+	var growth := 1.0 + b.rival_growth_per_day * day
+	var guards: Array[Battle.Fighter] = []
+	for defender: Dictionary in rival.defenders:
+		guards.append(Battle.Fighter.make("", defender["power"] * growth, defender["hp"] * growth))
+	return guards
+
+
 static func synth_fighter(synth: Synth, extra_hp: float, data: GameData) -> Battle.Fighter:
 	# Low battery fights at the same reduced strength as it works.
 	var power := SynthStats.stat(synth, "power", data) * SynthStats.battery_factor(synth, data)
@@ -84,9 +93,7 @@ static func _raid(state: GameState, data: GameData, rng: RandomNumberGenerator, 
 		squad.append(synth_fighter(synth, 0.0, data))
 		loot_bonus += SynthStats.stat(synth, "raid_loot", data)
 		synth.battery = maxf(synth.battery - b.raid_battery_cost, 0.0)
-	var guards: Array[Battle.Fighter] = []
-	for defender: Dictionary in rival.defenders:
-		guards.append(Battle.Fighter.make("", defender["power"], defender["hp"]))
+	var guards := rival_guards(rival, state.day, b)
 	report.raid = Battle.run(squad, guards, rng, b)
 	state.raid_cooldowns[rival.id] = state.day + b.raid_cooldown_days
 	if not report.raid.attackers_won:

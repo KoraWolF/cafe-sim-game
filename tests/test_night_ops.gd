@@ -153,3 +153,11 @@ func test_defense_chance_grows_with_suspicion() -> void:
 	state.add_suspicion(100.0)
 	assert_eq(state.current_suspicion(), 100.0, "capped at 100")
 	assert_eq(NightOps.defense_chance(state, data.balance), 0.5, "capped chance")
+
+
+func test_rival_guards_grow_every_day() -> void:
+	var data := TestFixtures.data({"rival_growth_per_day": 0.5})
+	var weak := data.districts["town"].rival_by_id("weak")
+	var guards := NightOps.rival_guards(weak, 2, data.balance)
+	assert_eq(guards[0].power, 2.0, "power x2 on day 2")
+	assert_eq(guards[0].max_hp, 10.0, "hp x2 on day 2")

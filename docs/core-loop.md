@@ -21,3 +21,14 @@ Saving: `SaveSystem` writes plain JSON with a version number, crash-safe, with a
 Upgrades: at night the player buys stoves, seats, Sync Pods and security. Each level costs more and has a cap (`data/upgrades.json`).
 
 Not built yet: UI, decorating, district takeover, menus.
+
+## Balance pass (30 days × 5 seeds, `tools/balance_sim.gd`)
+
+Run it with `godot --headless --path . -s res://tools/balance_sim.gd -- 30 5` (add `--daily` for a table of each day). The bot cooks what customers ask for, converts every star, keeps Power topped up, buys the cheapest upgrade (keeping 150 coins in reserve), and raids only rivals it expects to beat.
+
+Changes made: each seat beyond the starting 4 brings customers 10% faster (`arrival_per_extra_seat`), rival guards grow 6% stronger per day (`rival_growth_per_day`), and upgrade prices climb faster. Results after: about 1,960 customers seated in 30 days, 90.7% stars, about 8 conversions, 18 raids (almost all won, because the bot skips raids it can't win), MegaBean attacks on 15 nights (9 lost), and about 3,600 coins at day 30.
+
+Still open, waiting on design (district takeover, décor):
+- Upgrades are maxed by about day 17–20, and after that coins pile up with nothing to spend them on.
+- Suspicion reaches its cap (95+) by about day 14 if the player raids every other night, and then it stops creating any choices.
+- The Alley has only two rivals. After about day 10 the express café is too strong to raid, so all raids go to the kiosk.
