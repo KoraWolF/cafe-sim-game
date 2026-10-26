@@ -192,7 +192,7 @@ func open_synth_card(synth_id: String) -> void:
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
-	if not event.is_pressed() or event.is_echo() or not Session.has_game():
+	if not event.is_pressed() or event.is_echo() or not Session.has_game() or Session.editing:
 		return
 	var key := (event as InputEventKey).keycode
 	match key:

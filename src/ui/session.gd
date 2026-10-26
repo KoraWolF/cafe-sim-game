@@ -43,6 +43,8 @@ var state: GameState
 var day_log := DayLog.new()
 ## Pause menu open: time stops without touching state.speed.
 var paused: bool = false
+## Arranging the floor: keys go to the floor editor, not the HUD.
+var editing: bool = false
 var _carry: float = 0.0
 
 

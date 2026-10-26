@@ -34,7 +34,7 @@ The logic stays headless-tested. UI-only helpers, such as the error message tabl
    - autosave and save slots
 
    Playable from start to finish.
-2. **`ui-floor-editing`:** an edit mode at night on the café view. Drag pieces from storage, move, rotate, pick up and sell, with a footprint preview and a live Vibe and adjacency preview.
+2. **`ui-floor-editing` (built 2026-10-27):** an edit mode at night on the café view. Drag pieces from storage, move, rotate, pick up and sell, with a footprint preview and a live Vibe and adjacency preview.
 3. **`ui-battle-playback`:** the animated battle scene, played from `Battle.Report.hits`.
 4. **`ui-polish`:** feedback effects (tip pop-ups, conversion burst, level-up), tooltips, settings menu (resolution, volume, language) and audio buses.
 
@@ -43,8 +43,9 @@ Not decided yet (I'll ask before branch 4): music and SFX style, the settings me
 ## Running it
 
 - Play: open the project in Godot 4.7 and press Play, or run `godot --path .`. Shortcuts: Space pauses or resumes, 1/2/3 set the speed, Esc opens the pause menu (save to a slot, main menu).
+- Floor editing (night): press Arrange Floor in the night hub. Click a piece to pick it up and click again to drop it, or take one from Storage in the side panel. The ghost turns green or red, shows the Vibe change, and outlines the pieces it would combine with. R rotates, right-click puts the piece back, Esc leaves. The panel has Rotate, Put back, Store and Sell (décor only, 50% back). The rules are the game's own (`FloorEditor` goes through `GameLoop`), so a busy stove or a Pod a Synth needs stays put.
 - Shift: click a stove to cook, click a starred customer to convert them (needs a NanoBrew and a free Pod), click a Synth for its card and role. Wheel zooms; right-drag or middle-drag pans (a left drag on empty floor pans too).
-- Screenshot check: `godot --path . --resolution 1920x1080 -s res://tools/ui_snapshot.gd -- <folder>` plays a scripted day and saves a screenshot of every screen. It also sends real clicks to a Synth, a stove and a starred customer, and prints `CHECK` lines with the results.
+- Screenshot check: `godot --path . --resolution 1920x1080 -s res://tools/ui_snapshot.gd -- <folder>` plays a scripted day and saves a screenshot of every screen. It also sends real clicks and mouse moves (a Synth, a stove, a starred customer, then picking up, moving and dropping décor and pressing Done), and prints `CHECK` lines with the results. The game clock is paused in the tool, so only the script advances time; with the clock running, one of four early runs failed.
 
 ## Notes for the next branches
 

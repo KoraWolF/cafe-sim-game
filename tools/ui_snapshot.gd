@@ -26,6 +26,8 @@ func _run() -> void:
 
 	_session.new_game(7)
 	_main.show_game()
+	# Time only moves through _session.advance, so checks don't race the clock.
+	_session.set_speed(0)
 	await _frames(5)
 	var game = _main.get_child(0)  # untyped: GameScreen needs the Session autoload, which -s scripts compile before
 	var state: GameState = _session.state
@@ -56,7 +58,8 @@ func _run() -> void:
 	var star: Customer = state.customers.filter(func(c: Customer) -> bool: return c.stage == Customer.Stage.STAR)[0]
 	var synths_before := state.synths.size()
 	await _click(game.cafe.get_viewport().get_canvas_transform() * game.cafe._heads[star.id])
-	print("CHECK click starred customer -> converted: ", state.synths.size() == synths_before + 1)
+	print("CHECK click starred customer -> converted: ", state.synths.size() == synths_before + 1,
+		" (star stage now %s, pods %d, synths %d, nanobrew %d)" % [star.stage, state.pods, state.synths.size(), state.nanobrew])
 
 	# Play the rest of the shift, cooking for demand and converting stars.
 	while state.phase == GameState.Phase.SHIFT:
@@ -74,6 +77,36 @@ func _run() -> void:
 		game.night._tabs.current_tab = tab
 		await _frames(3)
 		_shot("06_night_tab_%d" % tab)
+
+	# Arranging the floor with real mouse input.
+	state.coins = 1000
+	GameLoop.buy_decor(state, "potted_fern", data)
+	_session.auto_place("potted_fern")
+	GameLoop.buy_decor(state, "bubble_lamp", data)
+	_session.state_changed.emit()
+	game.enter_edit()
+	await _frames(3)
+	_shot("09_edit_mode")
+	var fern: PlacedPiece = state.placed[-1]
+	var canvas_edit: Transform2D = game.cafe.get_viewport().get_canvas_transform()
+	await _click(canvas_edit * Iso.centre(fern.cell, Vector2i.ONE))
+	print("CHECK click fern -> holding it: ", game.cafe.editor.held_uid == fern.uid)
+	await _move(canvas_edit * Iso.centre(Vector2i(5, 4), Vector2i.ONE))
+	_shot("10_moving_fern")
+	await _click(canvas_edit * Iso.centre(Vector2i(5, 4), Vector2i.ONE))
+	print("CHECK drop fern -> moved to (5, 4): ", fern.cell == Vector2i(5, 4))
+	game.edit_panel._take("bubble_lamp")
+	await _move(canvas_edit * Iso.centre(Vector2i(4, 4), Vector2i.ONE))
+	_shot("11_lamp_next_to_fern")
+	var vibe_before := state.vibe
+	var promised: float = game.cafe.editor.preview(state, Vector2i(4, 4), data)["delta"]
+	await _click(canvas_edit * Iso.centre(Vector2i(4, 4), Vector2i.ONE))
+	print("CHECK drop lamp beside fern -> Vibe change %+d, as the ghost showed (%+d): %s" % [
+		roundi(state.vibe - vibe_before), roundi(promised), state.vibe - vibe_before == promised])
+	await _move(canvas_edit * Iso.centre(Vector2i(0, 0), Vector2i.ONE))
+	game.edit_panel.done.emit()
+	await _frames(3)
+	print("CHECK Done -> back to the night hub: ", game.night.visible and not game.edit_panel.visible)
 
 	var raider := state.synths[-1]
 	GameLoop.plan_raid(state, "megabean_kiosk", [raider.id] as Array[String], data)
@@ -97,6 +130,14 @@ func _click(at: Vector2) -> void:
 		event.global_position = at
 		root.push_input(event)
 		await _frames(1)
+	await _frames(2)
+
+
+func _move(to: Vector2) -> void:
+	var event := InputEventMouseMotion.new()
+	event.position = to
+	event.global_position = to
+	root.push_input(event)
 	await _frames(2)
 
 

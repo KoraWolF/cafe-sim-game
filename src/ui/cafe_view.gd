@@ -6,6 +6,10 @@ extends Node2D
 ## customer, a Synth or a stove emits a signal; the HUD decides what happens.
 ## Mouse wheel zooms; right/middle drag (or left drag) pans.
 ##
+## With an editor set (arranging the floor at night), clicks pick up and drop
+## pieces instead: the held piece follows the mouse as a green or red ghost
+## with its Vibe change, and the pieces it would combine with are outlined.
+##
 ## The logic has no positions for people, so they are placed here: seated
 ## customers at their SeatMap seat, the queue outside the entrance, servers
 ## walking from the counter to the table as their delivery progresses.
@@ -13,6 +17,10 @@ extends Node2D
 signal stove_clicked(stove_index: int, screen_position: Vector2)
 signal synth_clicked(synth_id: String)
 signal customer_clicked(customer_id: String)
+## Floor editing: the held piece or the floor changed (the edit panel refreshes).
+signal editor_changed
+## Esc pressed while editing with nothing in hand.
+signal edit_exit_requested
 
 const HEIGHTS: Dictionary[String, float] = {"seat": 14.0, "stove": 30.0, "pod": 56.0, "decor": 22.0}
 const KIND_COLORS: Dictionary[String, Color] = {
@@ -24,7 +32,10 @@ const DRAG_THRESHOLD: float = 8.0
 const TOP_BAR: float = 50.0
 const NIGHT_PANEL: float = 790.0
 
+## Set while arranging the floor; null otherwise.
+var editor: FloorEditor = null
 var seats := SeatMap.new()
+var _hover := Vector2i(-100, -100)
 var camera := Camera2D.new()
 var _time: float = 0.0
 var _drag_from := Vector2.ZERO
@@ -46,14 +57,15 @@ func _process(delta: float) -> void:
 
 
 ## Fits the whole floor into the free part of the screen: below the top bar,
-## and left of the night hub at night.
-func fit_camera() -> void:
+## and left of the panel on the right (the night hub at night by default).
+func fit_camera(right_panel := -1.0) -> void:
 	if not Session.has_game():
 		return
 	var rect := floor_rect()
 	var view := get_viewport_rect().size
-	var night := Session.state.phase == GameState.Phase.NIGHT
-	var free := Rect2(0, TOP_BAR, view.x - (NIGHT_PANEL if night else 0.0), view.y - TOP_BAR)
+	if right_panel < 0.0:
+		right_panel = NIGHT_PANEL if Session.state.phase == GameState.Phase.NIGHT else 0.0
+	var free := Rect2(0, TOP_BAR, view.x - right_panel, view.y - TOP_BAR)
 	var scale := minf(free.size.x * 0.92 / rect.size.x, free.size.y * 0.92 / rect.size.y)
 	camera.zoom = Vector2.ONE * clampf(scale, 0.3, 2.5)
 	# The camera looks at the screen centre; shift so the floor sits in the free area.
@@ -86,17 +98,64 @@ func _unhandled_input(event: InputEvent) -> void:
 					_dragging = button.button_index != MOUSE_BUTTON_LEFT
 					_drag_from = button.position
 				else:
-					if button.button_index == MOUSE_BUTTON_LEFT and not _dragging:
-						# The event's own position, not the cursor's (they differ for injected input).
-						_click(get_canvas_transform().affine_inverse() * button.position, button.position)
+					# The event's own position, not the cursor's (they differ for injected input).
+					var world := get_canvas_transform().affine_inverse() * button.position
+					if not _dragging:
+						if editor != null:
+							_edit_click(button.button_index, world)
+						elif button.button_index == MOUSE_BUTTON_LEFT:
+							_click(world, button.position)
 					_pressed = false
 					_dragging = false
-	elif event is InputEventMouseMotion and _pressed:
+	elif event is InputEventMouseMotion:
 		var motion := event as InputEventMouseMotion
+		_hover = Iso.tile_at(get_canvas_transform().affine_inverse() * motion.position)
+		if not _pressed:
+			return
 		if not _dragging and motion.position.distance_to(_drag_from) > DRAG_THRESHOLD:
 			_dragging = true
 		if _dragging:
 			camera.position -= motion.relative / camera.zoom
+
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if editor == null or not event.is_pressed() or event.is_echo():
+		return
+	match (event as InputEventKey).keycode:
+		KEY_R:
+			editor.rotate()
+		KEY_ESCAPE:
+			if editor.is_holding():
+				editor.cancel()
+			else:
+				edit_exit_requested.emit()
+		_:
+			return
+	editor_changed.emit()
+	get_viewport().set_input_as_handled()
+
+
+## Left click drops the held piece (or picks up the piece under the mouse);
+## right click puts the held piece down where it was.
+func _edit_click(button: MouseButton, world: Vector2) -> void:
+	var state := Session.state
+	var tile := Iso.tile_at(world)
+	if button == MOUSE_BUTTON_RIGHT:
+		editor.cancel()
+	elif button == MOUSE_BUTTON_LEFT:
+		if editor.is_holding():
+			Session.act(editor.drop(state, ghost_cell(tile), Session.data))
+		else:
+			var placed := Layout.piece_at(state, tile, Session.data)
+			if placed != null:
+				editor.hold_placed(state, placed.uid)
+	editor_changed.emit()
+
+
+## Top-left cell of the held piece when the mouse is over tile (the piece is centred on it).
+func ghost_cell(tile: Vector2i) -> Vector2i:
+	var size := Session.data.pieces[editor.held_piece].footprint(editor.rotated)
+	return tile - Vector2i((size.x - 1) / 2, (size.y - 1) / 2)
 
 
 func _zoom(factor: float) -> void:
@@ -146,6 +205,8 @@ func _draw() -> void:
 	for entry: Array in drawables:
 		entry[1].call()
 	_draw_counter(state, data)
+	if editor != null:
+		_draw_editing(state, data)
 
 
 func _draw_floor(state: GameState, data: GameData) -> void:
@@ -173,7 +234,9 @@ func _draw_piece(placed: PlacedPiece) -> void:
 	var data := Session.data
 	var piece := data.pieces[placed.piece_id]
 	var size := Vector2(piece.footprint(placed.rotated))
-	var color: Color = KIND_COLORS.get(piece.kind, UiTheme.TAG_COLORS.get(piece.tags[0] if not piece.tags.is_empty() else "", Color.GRAY))
+	var color := piece_color(piece)
+	if editor != null and placed.uid == editor.held_uid:
+		color.a = 0.3  # being moved: the ghost shows where it goes
 	_draw_block(Vector2(placed.cell), size, HEIGHTS.get(piece.kind, 20.0), color)
 	var label_at := Iso.centre(placed.cell, Vector2i(size)) - Vector2(0, HEIGHTS.get(piece.kind, 20.0) + 6)
 	if piece.kind == Piece.STOVE:
@@ -184,6 +247,47 @@ func _draw_piece(placed: PlacedPiece) -> void:
 			_text(label_at + Vector2(0, -20), UiText.name(recipe.id), 14, UiTheme.TEXT)
 	elif piece.kind == Piece.DECOR:
 		_text(label_at, UiText.name(piece.id), 12, UiTheme.TEXT_DIM)
+
+
+static func piece_color(piece: Piece) -> Color:
+	return KIND_COLORS.get(piece.kind, UiTheme.TAG_COLORS.get(piece.tags[0] if not piece.tags.is_empty() else "", Color.GRAY))
+
+
+## The held piece's ghost with its Vibe change and the neighbours it combines
+## with, or an outline on the piece under the mouse when nothing is held.
+func _draw_editing(state: GameState, data: GameData) -> void:
+	if not editor.is_holding():
+		var under := Layout.piece_at(state, _hover, data)
+		if under != null:
+			_outline(under, UiTheme.PANEL_BORDER)
+		return
+	if _hover.x < -50:
+		return
+	var cell := ghost_cell(_hover)
+	var preview := editor.preview(state, cell, data)
+	var ok: bool = preview["error"] == GameLoop.OK
+	var piece := data.pieces[editor.held_piece]
+	var size := Vector2(piece.footprint(editor.rotated))
+	var color := UiTheme.GOOD if ok else UiTheme.BAD
+	color.a = 0.55
+	_draw_block(Vector2(cell), size, HEIGHTS.get(piece.kind, 20.0), color)
+	for uid: String in preview["matches"]:
+		_outline(Layout.placed_by_uid(state, uid), UiTheme.WARN)
+	var label_at := Iso.centre(cell, Vector2i(size)) - Vector2(0, HEIGHTS.get(piece.kind, 20.0) + 14)
+	var text: String = tr("ui.edit_vibe_delta") % roundi(preview["delta"]) if ok else UiText.error(preview["error"])
+	var text_color := (UiTheme.GOOD if preview["delta"] >= 0.0 else UiTheme.WARN) if ok else UiTheme.BAD
+	_text(label_at, text, 16, text_color)
+
+
+## Outlines the top of a placed piece.
+func _outline(placed: PlacedPiece, color: Color) -> void:
+	var piece := Session.data.pieces[placed.piece_id]
+	var size := Vector2(piece.footprint(placed.rotated))
+	var lift := Vector2(0, -HEIGHTS.get(piece.kind, 20.0))
+	var cell := Vector2(placed.cell)
+	draw_polyline(PackedVector2Array([Iso.to_world(cell) + lift, Iso.to_world(cell + Vector2(size.x, 0)) + lift,
+		Iso.to_world(cell + size) + lift, Iso.to_world(cell + Vector2(0, size.y)) + lift, Iso.to_world(cell) + lift]),
+		color, 3.0)
 
 
 ## An isometric box on the floor.
