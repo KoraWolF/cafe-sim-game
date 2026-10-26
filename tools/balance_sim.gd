@@ -10,6 +10,8 @@ extends SceneTree
 
 const RESERVE: int = 150
 
+var decor_spend := 0
+
 var data: GameData
 
 
@@ -32,6 +34,7 @@ func _init() -> void:
 
 func _play(seed_value: int, days: int, daily: bool) -> Dictionary:
 	var state := GameState.new_game(seed_value, data)
+	decor_spend = 0
 	var stats := {"seated": 0.0, "stars": 0.0, "angry": 0.0, "turned_away": 0.0, "conversions": 0.0,
 		"raids": 0.0, "raids_won": 0.0, "defenses": 0.0, "defenses_lost": 0.0, "coins_stolen": 0.0,
 		"undercharged_nights": 0.0, "upgrade_spend": 0.0, "max_suspicion": 0.0,
@@ -40,7 +43,7 @@ func _play(seed_value: int, days: int, daily: bool) -> Dictionary:
 		stats["taken_day_" + district_id] = 0.0
 	if daily:
 		print("\n-- seed %d --" % seed_value)
-		print(" day  coins  synths pods seats stoves  stars%  angry  away  susp  raid                      defense")
+		print(" day  coins  vibe synths pods seats stoves  stars%  angry  away  susp  raid                      defense")
 	for day: int in days:
 		var day_stats := {"seated": 0, "stars": 0, "angry": 0, "away": 0}
 		while state.phase == GameState.Phase.SHIFT:
@@ -85,7 +88,7 @@ func _play(seed_value: int, days: int, daily: bool) -> Dictionary:
 			var defense_text := "-" if report.defense == null else ("lost %d" % report.coins_lost if report.defense.attackers_won else "held")
 			if report.audit:
 				defense_text = "AUDIT " + defense_text
-			print(" %3d %6d %5d %5d %5d %5d %7.0f %6d %5d %5.0f  %-25s %s" % [day + 1, state.coins, state.synths.size(),
+			print(" %3d %6d %5.0f %5d %5d %5d %5d %7.0f %6d %5d %5.0f  %-25s %s" % [day + 1, state.coins, state.vibe, state.synths.size(),
 				state.pods, state.seats, state.stoves.size(),
 				100.0 * day_stats["stars"] / maxi(day_stats["seated"], 1), day_stats["angry"], day_stats["away"],
 				state.current_suspicion(), raid_text, defense_text])
@@ -95,6 +98,9 @@ func _play(seed_value: int, days: int, daily: bool) -> Dictionary:
 	stats["final_seats"] = state.seats
 	stats["final_stoves"] = state.stoves.size()
 	stats["final_pods"] = state.pods
+	stats["final_vibe"] = state.vibe
+	stats["final_floor_rows"] = state.floor_rows
+	stats["decor_spend"] = decor_spend
 	var levels := state.synths.map(func(synth: Synth) -> int: return synth.level)
 	stats["final_avg_level"] = levels.reduce(func(sum: int, level: int) -> int: return sum + level, 0) / float(levels.size())
 	stats["final_max_level"] = levels.max()
@@ -153,21 +159,87 @@ func _night_shopping(state: GameState) -> int:
 	if shortfall > 0.0:
 		GameLoop.buy_power(state, ceili(shortfall), data)
 	var spent := 0
+	var refused: Array[String] = []
 	while true:
 		var best := ""
 		for upgrade_id: String in Upgrade.IDS:
 			# More pods only help when NanoBrew is waiting for them.
-			if upgrade_id == Upgrade.POD and state.synths.size() < state.pods:
+			if refused.has(upgrade_id) or (upgrade_id == Upgrade.POD and state.synths.size() < state.pods):
 				continue
 			var cost := GameLoop.upgrade_cost(state, upgrade_id, data)
 			if cost > 0 and state.coins - cost >= RESERVE \
 					and (best == "" or cost < GameLoop.upgrade_cost(state, best, data)):
 				best = upgrade_id
 		if best == "":
-			return spent
-		spent += GameLoop.upgrade_cost(state, best, data)
-		GameLoop.buy_upgrade(state, best, data)
+			break
+		var cost := GameLoop.upgrade_cost(state, best, data)
+		if GameLoop.buy_upgrade(state, best, data) == GameLoop.OK:
+			spent += cost
+			_place_stored_furniture(state)
+		else:
+			refused.append(best)  # e.g. no room for more furniture
+	decor_spend += _buy_decor(state)
 	return spent
+
+
+func _place_stored_furniture(state: GameState) -> void:
+	for piece_id: String in [Piece.STOVE, Piece.POD, Piece.SEAT]:
+		while state.storage.get(piece_id, 0) > 0:
+			var spot := Layout.find_spot(state, piece_id, data)
+			if spot.is_empty():
+				break
+			GameLoop.place_piece(state, piece_id, spot["cell"], spot["rotated"], data)
+
+
+## Buys and places the décor piece with the most Vibe gained per coin at its
+## best spot, while coins stay above the reserve. Leaves two free rows' worth
+## of tiles for future furniture. Returns coins spent.
+func _buy_decor(state: GameState) -> int:
+	var spent := 0
+	while true:
+		var free_tiles := data.balance.floor_width * state.floor_rows
+		for placed: PlacedPiece in state.placed:
+			free_tiles -= Layout.cells(placed, data).size()
+		var best_value := 0.0
+		var best: Dictionary = {}
+		for piece: Piece in data.pieces.values():
+			if piece.kind != Piece.DECOR or state.coins - piece.price < RESERVE:
+				continue
+			if free_tiles - piece.size.x * piece.size.y < 2 * data.balance.floor_width:
+				continue
+			var spot := _best_spot(state, piece)
+			if not spot.is_empty() and spot["gain"] / piece.price > best_value:
+				best_value = spot["gain"] / piece.price
+				best = spot
+				best["piece_id"] = piece.id
+		if best.is_empty():
+			return spent
+		spent += data.pieces[best["piece_id"]].price
+		GameLoop.buy_decor(state, best["piece_id"], data)
+		GameLoop.place_piece(state, best["piece_id"], best["cell"], best["rotated"], data)
+	return spent
+
+
+## The free spot where this piece adds the most Vibe: {"cell", "rotated", "gain"}.
+func _best_spot(state: GameState, piece: Piece) -> Dictionary:
+	var before := state.vibe
+	var best: Dictionary = {}
+	var trial := PlacedPiece.new()
+	trial.piece_id = piece.id
+	trial.uid = "trial"
+	for y: int in state.floor_rows:
+		for x: int in data.balance.floor_width:
+			for rotated: bool in [false, true]:
+				if Layout.check_spot(state, piece.id, Vector2i(x, y), rotated, data) != GameLoop.OK:
+					continue
+				trial.cell = Vector2i(x, y)
+				trial.rotated = rotated
+				state.placed.append(trial)
+				var gain := Layout.vibe(state, data) - before
+				state.placed.pop_back()
+				if best.is_empty() or gain > best["gain"]:
+					best = {"cell": trial.cell, "rotated": rotated, "gain": gain}
+	return best
 
 
 ## Raids the rival with the most loot whose guards the squad outmatches. Returns its id or "".

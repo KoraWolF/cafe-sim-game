@@ -1,0 +1,16 @@
+[
+	{"id": "seat", "kind": "seat", "size": [1, 1], "tags": ["seat"]},
+	{"id": "stove", "kind": "stove", "size": [2, 1], "tags": ["kitchen"]},
+	{"id": "pod", "kind": "pod", "size": [1, 2], "tags": ["tech"]},
+
+	{"id": "potted_fern", "kind": "decor", "size": [1, 1], "price": 100, "vibe": 3, "tags": ["plant"]},
+	{"id": "bubble_lamp", "kind": "decor", "size": [1, 1], "price": 180, "vibe": 4, "tags": ["light", "cozy"]},
+	{"id": "glass_pod_plant", "kind": "decor", "size": [1, 1], "price": 250, "vibe": 6, "tags": ["plant", "tech"]},
+	{"id": "beanbag", "kind": "decor", "size": [1, 1], "price": 300, "vibe": 6, "tags": ["cozy"]},
+	{"id": "led_sign", "kind": "decor", "size": [2, 1], "price": 400, "vibe": 8, "tags": ["light", "tech"]},
+	{"id": "holo_menu", "kind": "decor", "size": [1, 1], "price": 600, "vibe": 10, "tags": ["tech", "light"]},
+	{"id": "vending_shrine", "kind": "decor", "size": [1, 2], "price": 900, "vibe": 14, "tags": ["tech", "cozy"]},
+	{"id": "koi_tank", "kind": "decor", "size": [2, 2], "price": 1500, "vibe": 22, "tags": ["plant", "tech"]},
+	{"id": "neon_mural", "kind": "decor", "size": [2, 1], "price": 2500, "vibe": 30, "tags": ["light"]},
+	{"id": "zen_garden", "kind": "decor", "size": [2, 2], "price": 5000, "vibe": 50, "tags": ["plant", "cozy"]}
+]

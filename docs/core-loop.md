@@ -28,7 +28,9 @@ Synth levels: Synths earn XP from their work. A server earns 2 per dish delivere
 
 Daily menu: each night the player picks up to `menu_slots` unlocked dishes for the next shift. You start with 2 slots, and the menu-slot upgrade adds up to 2 more (250, then 500 coins). Customers order only from the menu. Each customer type has favourites (`favorites` in `customer_types.json`): a favourite on the menu is ordered 3 times as often as other dishes and adds +10 satisfaction when it's served. A new game starts with the first unlocked dishes on the menu. If nothing on the menu can be ordered (for example, an Audit took the Xeno that unlocks star jelly), customers order any unlocked dish. Saves are now format v4.
 
-Not built yet: UI, decorating.
+Café floor and décor: the café is a grid 8 tiles across, starting 6 rows deep. Each floor expansion adds 2 rows, up to 4 times; it costs 500 coins and doubles each time. Seats (1×1), stoves (2×1) and Sync Pods (1×2) stand on it like décor and count only once placed. Their upgrades put the piece in storage and need a free spot for it. A new game lays out the starting furniture automatically. Décor (`data/pieces.json`, 10 pieces costing 100 to 5,000) adds Vibe, plus Vibe from adjacency rules (`data/adjacency.json`) for each pair of touching pieces with matching tags. Vibe divides how fast waiting customers lose satisfaction by (1 + 0.003 × Vibe), and every served dish adds 0.03 × Vibe satisfaction, up to +5. Buying, placing, moving (free), picking up and selling (50% back) happen only at night. A cooking stove, or a Pod a Synth needs, can't be picked up. Saves are now format v5, which saves the floor instead of seat and Pod counts. Older saves get their furniture laid out on load.
+
+Not built yet: UI.
 
 ## Balance pass (30 days × 5 seeds, `tools/balance_sim.gd`)
 
@@ -60,7 +62,7 @@ The Alley still falls on day 11–13. Neon Market is now taken in 4 of 5 runs (d
 
 The bot fills the menu with the dishes the customer mix likes most. Compared with before the menu: more customers seated (2,857 vs 2,650 over 40 days), far fewer leaving angry (6.8 vs 21), 92% stars, and Neon Market taken in all 5 runs (days 17–32). The Alley falls on day 9–12. A focused menu makes the kitchen easier to keep stocked, so good menu planning pays off. Coins at day 40 are about 15,300, which makes décor as a coin sink the most needed next feature.
 
-## Décor design (agreed 2026-10-26, not built yet)
+## Décor design (agreed 2026-10-26, built)
 
 Your answers:
 - **Effect: Vibe.** Décor adds Vibe, which slows how fast waiting customers lose satisfaction and adds a little satisfaction to every meal.
@@ -74,5 +76,9 @@ Your answers:
 Proposed numbers (my defaults, to be tuned with the sim):
 - **Floor:** 8×6 tiles at the start. Each floor expansion adds 2 rows, up to 4 times (8×14 at most), at 500 coins growing ×2 each time.
 - **Furniture footprints:** seat 1×1, stove 2×1, Sync Pod 1×2.
-- **Vibe effect:** waiting customers lose satisfaction more slowly, divided by 1 + Vibe / 100. Each meal also adds Vibe × 0.1 satisfaction, up to +10.
+- **Vibe effect:** proposed as 1 + Vibe / 100 and Vibe × 0.1 per meal (up to +10). The sim showed that was too strong (98% stars), so it shipped as 1 + 0.003 × Vibe and 0.03 × Vibe per meal, up to +5.
 - **Save format:** v5. Older saves get their furniture laid out automatically.
+
+## Balance check after décor (40 days × 5 seeds)
+
+The bot buys the décor piece that adds the most Vibe per coin at its best spot, keeping 150 coins in reserve and leaving room for future furniture. It also expands the floor when furniture no longer fits. Upgrades plus décor now take about 33,900 coins over 40 days (21,300 before décor), and coins at day 40 fell from about 15,300 to about 5,100. A fully decorated floor reaches about 520 Vibe, and stars rise from 92% to 96.6%. The Alley falls on day 11–14 (a little later, since money goes into décor) and Neon Market in 4 of 5 runs (days 20–33). The proposed Vibe numbers gave 98% stars, so I weakened them; the table of four settings is in the décor branch history.

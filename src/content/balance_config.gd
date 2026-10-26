@@ -49,6 +49,17 @@ var start_stoves: int = 2
 var start_pods: int = 2
 ## Dishes the player can put on the daily menu.
 var start_menu_slots: int = 2
+## The café floor: floor_width tiles across, start_floor_rows deep (the floor
+## upgrade adds rows). Seats, stoves, Pods and décor all stand on it.
+var floor_width: int = 8
+var start_floor_rows: int = 6
+## Vibe (décor): waiting customers lose satisfaction / (1 + vibe * vibe_decay_per_point);
+## every served dish adds vibe * vibe_meal_bonus satisfaction, at most vibe_meal_bonus_max.
+var vibe_decay_per_point: float = 0.01
+var vibe_meal_bonus: float = 0.1
+var vibe_meal_bonus_max: float = 10.0
+## Share of a décor piece's price returned when it is sold.
+var sell_refund: float = 0.5
 ## A customer orders a favourite dish on the menu this many times as often as
 ## another dish, and gains favorite_satisfaction when it is served.
 var favorite_weight: float = 3.0

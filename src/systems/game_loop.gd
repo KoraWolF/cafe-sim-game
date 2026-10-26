@@ -4,8 +4,8 @@ extends RefCounted
 ## calls these and shows the returned events and reports.
 ##
 ## A day: the shift runs through advance() until it closes (phase NIGHT). At
-## night the player may set tomorrow's menu, plan a raid, brew, buy Power and
-## upgrades and change roles; then
+## night the player may set tomorrow's menu, plan a raid, brew, buy Power,
+## upgrades and décor, arrange the floor and change roles; then
 ## end_night() resolves Night Ops and opens the next shift.
 ## Actions return OK ("") or an error code.
 
@@ -34,6 +34,14 @@ const FLAGSHIP_LOCKED: String = "flagship_locked"
 const EMPTY_MENU: String = "empty_menu"
 const MENU_TOO_LONG: String = "menu_too_long"
 const UNKNOWN_UPGRADE: String = "unknown_upgrade"
+const NO_ROOM: String = "no_room"
+const UNKNOWN_PIECE: String = "unknown_piece"
+const NOT_FOR_SALE: String = "not_for_sale"
+const NONE_STORED: String = "none_stored"
+const OUT_OF_BOUNDS: String = "out_of_bounds"
+const OVERLAP: String = "overlap"
+const UNKNOWN_PLACED: String = "unknown_placed"
+const POD_IN_USE: String = "pod_in_use"
 const MAXED: String = "maxed"
 
 
@@ -145,6 +153,8 @@ static func upgrade_cost(state: GameState, upgrade_id: String, data: GameData) -
 
 
 ## Buys one level of an upgrade. Only at night, while the café is closed.
+## Stove, seat and Pod upgrades put the piece in storage to be placed, and need
+## a free spot for it on the floor (expand the floor first).
 static func buy_upgrade(state: GameState, upgrade_id: String, data: GameData) -> String:
 	if state.phase != GameState.Phase.NIGHT:
 		return WRONG_PHASE
@@ -156,21 +166,52 @@ static func buy_upgrade(state: GameState, upgrade_id: String, data: GameData) ->
 		return MAXED
 	if state.coins < cost:
 		return NOT_ENOUGH_COINS
+	var furniture := [Upgrade.STOVE, Upgrade.SEAT, Upgrade.POD].has(upgrade_id)
+	if furniture and Layout.find_spot(state, upgrade_id, data).is_empty():
+		return NO_ROOM
 	state.coins -= cost
 	state.upgrades[upgrade_id] = state.upgrades.get(upgrade_id, 0) + 1
+	if furniture:
+		state.storage[upgrade_id] = state.storage.get(upgrade_id, 0) + roundi(upgrade.step)
 	match upgrade_id:
-		Upgrade.STOVE:
-			for i: int in roundi(upgrade.step):
-				state.stoves.append(Stove.new())
-		Upgrade.SEAT:
-			state.seats += roundi(upgrade.step)
-		Upgrade.POD:
-			state.pods += roundi(upgrade.step)
+		Upgrade.FLOOR:
+			state.floor_rows += roundi(upgrade.step)
+			Layout.refresh(state, data)
 		Upgrade.MENU_SLOT:
 			state.menu_slots += roundi(upgrade.step)
 		Upgrade.SECURITY:
 			state.security += upgrade.step
 	return OK
+
+
+## Buys a décor piece into storage. Night only, like every floor change below.
+static func buy_decor(state: GameState, piece_id: String, data: GameData) -> String:
+	return Layout.buy(state, piece_id, data) if state.phase == GameState.Phase.NIGHT else WRONG_PHASE
+
+
+## Places a stored piece with its top-left tile on cell.
+static func place_piece(state: GameState, piece_id: String, cell: Vector2i, rotated: bool, data: GameData) -> String:
+	return Layout.place(state, piece_id, cell, rotated, data) if state.phase == GameState.Phase.NIGHT else WRONG_PHASE
+
+
+## Moves (and/or rotates) a placed piece. Free.
+static func move_piece(state: GameState, uid: String, cell: Vector2i, rotated: bool, data: GameData) -> String:
+	return Layout.move(state, uid, cell, rotated, data) if state.phase == GameState.Phase.NIGHT else WRONG_PHASE
+
+
+## Puts a placed piece back in storage.
+static func pick_up_piece(state: GameState, uid: String, data: GameData) -> String:
+	return Layout.pick_up(state, uid, data) if state.phase == GameState.Phase.NIGHT else WRONG_PHASE
+
+
+## Sells a placed décor piece for sell_refund of its price.
+static func sell_piece(state: GameState, uid: String, data: GameData) -> String:
+	return Layout.sell_placed(state, uid, data) if state.phase == GameState.Phase.NIGHT else WRONG_PHASE
+
+
+## Sells one stored décor piece for sell_refund of its price.
+static func sell_stored_piece(state: GameState, piece_id: String, data: GameData) -> String:
+	return Layout.sell_stored(state, piece_id, data) if state.phase == GameState.Phase.NIGHT else WRONG_PHASE
 
 
 ## A server carrying a dish has to finish the delivery first.

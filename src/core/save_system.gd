@@ -13,7 +13,9 @@ extends RefCounted
 ## 2: district takeover (influence, owned districts, district start day, closed shift).
 ## 3: Synth level and XP.
 ## 4: daily menu and menu slots.
-const VERSION: int = 4
+## 5: the café floor (placed pieces, storage, floor rows); seats and Pods are no
+##    longer saved, they come from the floor.
+const VERSION: int = 5
 const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
 
@@ -38,9 +40,10 @@ static func to_dict(state: GameState) -> Dictionary:
 		"nanobrew": state.nanobrew,
 		"cores": state.cores,
 		"power": state.power,
-		"seats": state.seats,
-		"pods": state.pods,
 		"security": state.security,
+		"floor_rows": state.floor_rows,
+		"placed": state.placed.map(func(placed: PlacedPiece) -> Dictionary: return placed.to_dict()),
+		"storage": state.storage,
 		"upgrades": state.upgrades,
 		"stoves": state.stoves.map(func(stove: Stove) -> Dictionary: return stove.to_dict()),
 		"counter": state.counter,
@@ -75,9 +78,14 @@ static func from_dict(raw: Dictionary) -> GameState:
 	state.nanobrew = int(raw.get("nanobrew", 0))
 	state.cores = int(raw.get("cores", 0))
 	state.power = float(raw.get("power", 0.0))
-	state.seats = int(raw.get("seats", 0))
-	state.pods = int(raw.get("pods", 0))
 	state.security = float(raw.get("security", 0.0))
+	state.floor_rows = int(raw.get("floor_rows", 0))
+	for entry: Dictionary in _objects(raw, "placed"):
+		state.placed.append(PlacedPiece.from_dict(entry))
+	var storage: Variant = raw.get("storage", {})
+	if storage is Dictionary:
+		for piece_id: Variant in storage:
+			state.storage[str(piece_id)] = int(storage[piece_id])
 	var upgrades: Variant = raw.get("upgrades", {})
 	if upgrades is Dictionary:
 		for upgrade_id: Variant in upgrades:
@@ -178,7 +186,36 @@ static func _migrate_step(version: int, raw: Dictionary) -> Dictionary:
 			raw["menu"] = []
 			raw["menu_slots"] = 2
 			return raw
+		4:
+			# Before the floor: seats, stoves and Pods were counts. They are laid
+			# out on load (needs GameData, see _lay_out_old) on the 6 starting rows.
+			raw["needs_layout"] = true
+			raw["floor_rows"] = 6
+			raw["placed"] = []
+			raw["storage"] = {}
+			return raw
 	return {}
+
+
+## Puts a pre-floor save's seats, stoves (keeping what they cook) and Pods on
+## the floor, adding rows until everything fits.
+static func _lay_out_old(state: GameState, raw: Dictionary, data: GameData) -> void:
+	var old_stoves := state.stoves.duplicate()
+	state.stoves.clear()
+	var wanted: Array[String] = []
+	for stove: Stove in old_stoves:
+		wanted.append(Piece.STOVE)
+	for i: int in int(raw.get("pods", 0)):
+		wanted.append(Piece.POD)
+	for i: int in int(raw.get("seats", 0)):
+		wanted.append(Piece.SEAT)
+	for piece_id: String in wanted:
+		while not Layout.auto_place(state, piece_id, data):
+			state.floor_rows += 2
+		if piece_id == Piece.STOVE:
+			var old: Stove = old_stoves[state.stoves.size() - 1]
+			state.stoves[-1].recipe_id = old.recipe_id
+			state.stoves[-1].remaining = old.remaining
 
 
 ## Every problem that makes a loaded state unusable; empty means it is fine.
@@ -194,8 +231,9 @@ static func validate(state: GameState, data: GameData) -> PackedStringArray:
 		errors.append("unknown speed %d" % state.speed)
 	if state.coins < 0 or state.nanobrew < 0 or state.cores < 0 or state.power < 0.0:
 		errors.append("negative resources")
-	if state.seats < 0 or state.pods < state.synths.size():
-		errors.append("%d seats, %d pods for %d Synths" % [state.seats, state.pods, state.synths.size()])
+	if state.pods < state.synths.size():
+		errors.append("%d Pods for %d Synths" % [state.pods, state.synths.size()])
+	errors.append_array(_check_floor(state, data))
 	for upgrade_id: String in state.upgrades:
 		var upgrade: Upgrade = data.upgrades.get(upgrade_id)
 		if upgrade == null or state.upgrades[upgrade_id] < 0 or state.upgrades[upgrade_id] > upgrade.max_level:
@@ -270,6 +308,36 @@ static func validate(state: GameState, data: GameData) -> PackedStringArray:
 	return errors
 
 
+## Placed pieces known, unique, on the floor and not overlapping; one stove
+## state per placed stove; storage counts positive.
+static func _check_floor(state: GameState, data: GameData) -> PackedStringArray:
+	var errors: PackedStringArray = []
+	if state.floor_rows < 1:
+		errors.append("floor of %d rows" % state.floor_rows)
+		return errors
+	var uids: Dictionary[String, bool] = {}
+	for placed: PlacedPiece in state.placed:
+		if placed.uid == "" or uids.has(placed.uid) or not data.pieces.has(placed.piece_id):
+			errors.append("bad placed piece '%s' (%s)" % [placed.uid, placed.piece_id])
+			continue
+		uids[placed.uid] = true
+		var spot := Layout.check_spot(state, placed.piece_id, placed.cell, placed.rotated, data, placed.uid)
+		if spot != GameLoop.OK:
+			errors.append("placed piece '%s': %s" % [placed.uid, spot])
+	if errors.is_empty():
+		var stove_pieces := state.placed.filter(func(placed: PlacedPiece) -> bool:
+			return data.pieces[placed.piece_id].kind == Piece.STOVE)
+		if stove_pieces.size() != state.stoves.size():
+			errors.append("%d stoves for %d stove pieces" % [state.stoves.size(), stove_pieces.size()])
+		for placed: PlacedPiece in stove_pieces:
+			if Layout.stove_of(state, placed.uid) == null:
+				errors.append("stove piece '%s' has no stove" % placed.uid)
+	for piece_id: String in state.storage:
+		if not data.pieces.has(piece_id) or state.storage[piece_id] <= 0:
+			errors.append("bad storage entry '%s'" % piece_id)
+	return errors
+
+
 ## Writes atomically: temp file, previous save kept as .bak, then rename.
 static func save(state: GameState, path: String) -> Error:
 	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
@@ -341,5 +409,8 @@ static func _load_one(path: String, data: GameData, errors: PackedStringArray) -
 	if current.is_empty():
 		return null
 	var state := from_dict(current)
+	if current.get("needs_layout", false):
+		_lay_out_old(state, current, data)
+	Layout.refresh(state, data)
 	errors.append_array(validate(state, data))
 	return null if not errors.is_empty() else state

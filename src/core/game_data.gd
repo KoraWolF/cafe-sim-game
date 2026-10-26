@@ -10,6 +10,8 @@ const PATHS: Dictionary[String, String] = {
 	"traits": "res://data/traits.json",
 	"districts": "res://data/districts.json",
 	"upgrades": "res://data/upgrades.json",
+	"pieces": "res://data/pieces.json",
+	"adjacency": "res://data/adjacency.json",
 }
 
 var balance: BalanceConfig
@@ -21,6 +23,8 @@ var districts: Dictionary[String, District] = {}
 ## District ids in the order they open (the order of districts.json).
 var district_order: Array[String] = []
 var upgrades: Dictionary[String, Upgrade] = {}
+var pieces: Dictionary[String, Piece] = {}
+var adjacency: Array[AdjacencyRule] = []
 
 
 ## Loads everything from /data. Returns null (and logs why) if it is invalid.
@@ -59,6 +63,11 @@ static func from_content(content: Dictionary) -> GameData:
 	for entry: Dictionary in _objects(content.get("upgrades"), "upgrades"):
 		var upgrade := Upgrade.from_dict(entry)
 		data.upgrades[upgrade.id] = upgrade
+	for entry: Dictionary in _objects(content.get("pieces"), "pieces"):
+		var piece := Piece.from_dict(entry)
+		data.pieces[piece.id] = piece
+	for entry: Dictionary in _objects(content.get("adjacency"), "adjacency"):
+		data.adjacency.append(AdjacencyRule.from_dict(entry))
 	var errors := data.check()
 	if not errors.is_empty():
 		push_error("GameData: invalid content: %s" % "; ".join(errors))
@@ -126,6 +135,20 @@ func check() -> PackedStringArray:
 			if rival_ids.has(rival.id) or rival.defenders.is_empty():
 				errors.append("rival %s: duplicate id or no defenders" % rival.id)
 			rival_ids[rival.id] = true
+	# Furniture pieces share their kind's id: the stove upgrade gives a "stove" piece.
+	for kind: String in [Piece.SEAT, Piece.STOVE, Piece.POD]:
+		if not pieces.has(kind) or pieces[kind].kind != kind:
+			errors.append("furniture piece '%s' is missing" % kind)
+	for piece: Piece in pieces.values():
+		if not Piece.KINDS.has(piece.kind):
+			errors.append("piece %s: unknown kind '%s'" % [piece.id, piece.kind])
+		if piece.size.x < 1 or piece.size.y < 1 or maxi(piece.size.x, piece.size.y) > balance.floor_width:
+			errors.append("piece %s: bad size" % piece.id)
+		if piece.kind == Piece.DECOR and piece.price <= 0:
+			errors.append("piece %s: décor needs a price" % piece.id)
+	for rule: AdjacencyRule in adjacency:
+		if rule.tag_a == "" or rule.tag_b == "":
+			errors.append("adjacency rule needs two tags")
 	for upgrade_id: String in Upgrade.IDS:
 		if not upgrades.has(upgrade_id):
 			errors.append("upgrade '%s' is missing" % upgrade_id)

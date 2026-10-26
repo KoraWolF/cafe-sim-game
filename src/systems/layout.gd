@@ -1,0 +1,245 @@
+class_name Layout
+extends RefCounted
+## The café floor: a grid floor_width tiles across and state.floor_rows deep.
+## Seats, stoves, Sync Pods and décor stand on it without overlapping; only
+## placed pieces count (seats seat customers, stoves cook, Pods hold Synths).
+## Pieces not on the floor wait in storage. Vibe = the décor's own Vibe plus
+## every adjacency rule matched by a pair of touching pieces.
+##
+## Changes go through GameLoop (night only); these functions do not check the
+## phase. After any change refresh() updates state.seats, state.pods and state.vibe.
+
+const NEIGHBOURS: Array[Vector2i] = [Vector2i.RIGHT, Vector2i.LEFT, Vector2i.DOWN, Vector2i.UP]
+
+
+static func floor_size(state: GameState, b: BalanceConfig) -> Vector2i:
+	return Vector2i(b.floor_width, state.floor_rows)
+
+
+static func cells(placed: PlacedPiece, data: GameData) -> Array[Vector2i]:
+	var size := data.pieces[placed.piece_id].footprint(placed.rotated)
+	var result: Array[Vector2i] = []
+	for y: int in size.y:
+		for x: int in size.x:
+			result.append(placed.cell + Vector2i(x, y))
+	return result
+
+
+static func placed_by_uid(state: GameState, uid: String) -> PlacedPiece:
+	for placed: PlacedPiece in state.placed:
+		if placed.uid == uid:
+			return placed
+	return null
+
+
+## Why this piece cannot stand here, or OK. ignore_uid: a piece being moved.
+static func check_spot(state: GameState, piece_id: String, cell: Vector2i, rotated: bool, data: GameData,
+		ignore_uid := "") -> String:
+	var piece: Piece = data.pieces.get(piece_id)
+	if piece == null:
+		return GameLoop.UNKNOWN_PIECE
+	var size := piece.footprint(rotated)
+	var bounds := floor_size(state, data.balance)
+	if cell.x < 0 or cell.y < 0 or cell.x + size.x > bounds.x or cell.y + size.y > bounds.y:
+		return GameLoop.OUT_OF_BOUNDS
+	var taken := _occupied(state, data, ignore_uid)
+	for y: int in size.y:
+		for x: int in size.x:
+			if taken.has(cell + Vector2i(x, y)):
+				return GameLoop.OVERLAP
+	return GameLoop.OK
+
+
+## The first free spot (row by row, unrotated first): {"cell", "rotated"}, or {} if full.
+static func find_spot(state: GameState, piece_id: String, data: GameData) -> Dictionary:
+	var bounds := floor_size(state, data.balance)
+	for y: int in bounds.y:
+		for x: int in bounds.x:
+			for rotated: bool in [false, true]:
+				if check_spot(state, piece_id, Vector2i(x, y), rotated, data) == GameLoop.OK:
+					return {"cell": Vector2i(x, y), "rotated": rotated}
+	return {}
+
+
+## Places a stored piece.
+static func place(state: GameState, piece_id: String, cell: Vector2i, rotated: bool, data: GameData) -> String:
+	if not data.pieces.has(piece_id):
+		return GameLoop.UNKNOWN_PIECE
+	if state.storage.get(piece_id, 0) <= 0:
+		return GameLoop.NONE_STORED
+	var error := check_spot(state, piece_id, cell, rotated, data)
+	if error != GameLoop.OK:
+		return error
+	_take_from_storage(state, piece_id)
+	_put(state, piece_id, cell, rotated, data)
+	return GameLoop.OK
+
+
+## Puts a piece (not from storage) on the first free spot. False if the floor is full.
+static func auto_place(state: GameState, piece_id: String, data: GameData) -> bool:
+	var spot := find_spot(state, piece_id, data)
+	if spot.is_empty():
+		return false
+	_put(state, piece_id, spot["cell"], spot["rotated"], data)
+	return true
+
+
+static func move(state: GameState, uid: String, cell: Vector2i, rotated: bool, data: GameData) -> String:
+	var placed := placed_by_uid(state, uid)
+	if placed == null:
+		return GameLoop.UNKNOWN_PLACED
+	var error := check_spot(state, placed.piece_id, cell, rotated, data, uid)
+	if error != GameLoop.OK:
+		return error
+	placed.cell = cell
+	placed.rotated = rotated
+	refresh(state, data)
+	return GameLoop.OK
+
+
+## Back to storage. A cooking stove, or a Pod a Synth needs, stays put.
+static func pick_up(state: GameState, uid: String, data: GameData) -> String:
+	var placed := placed_by_uid(state, uid)
+	if placed == null:
+		return GameLoop.UNKNOWN_PLACED
+	var error := _can_remove(state, placed, data)
+	if error != GameLoop.OK:
+		return error
+	_remove(state, placed, data)
+	state.storage[placed.piece_id] = state.storage.get(placed.piece_id, 0) + 1
+	return GameLoop.OK
+
+
+## Buys a décor piece into storage.
+static func buy(state: GameState, piece_id: String, data: GameData) -> String:
+	var piece: Piece = data.pieces.get(piece_id)
+	if piece == null:
+		return GameLoop.UNKNOWN_PIECE
+	if piece.kind != Piece.DECOR:
+		return GameLoop.NOT_FOR_SALE
+	if state.coins < piece.price:
+		return GameLoop.NOT_ENOUGH_COINS
+	state.coins -= piece.price
+	state.storage[piece_id] = state.storage.get(piece_id, 0) + 1
+	return GameLoop.OK
+
+
+static func sell_placed(state: GameState, uid: String, data: GameData) -> String:
+	var placed := placed_by_uid(state, uid)
+	if placed == null:
+		return GameLoop.UNKNOWN_PLACED
+	var piece := data.pieces[placed.piece_id]
+	if piece.kind != Piece.DECOR:
+		return GameLoop.NOT_FOR_SALE
+	_remove(state, placed, data)
+	state.coins += refund(piece, data.balance)
+	return GameLoop.OK
+
+
+static func sell_stored(state: GameState, piece_id: String, data: GameData) -> String:
+	var piece: Piece = data.pieces.get(piece_id)
+	if piece == null:
+		return GameLoop.UNKNOWN_PIECE
+	if piece.kind != Piece.DECOR:
+		return GameLoop.NOT_FOR_SALE
+	if state.storage.get(piece_id, 0) <= 0:
+		return GameLoop.NONE_STORED
+	_take_from_storage(state, piece_id)
+	state.coins += refund(piece, data.balance)
+	return GameLoop.OK
+
+
+static func refund(piece: Piece, b: BalanceConfig) -> int:
+	return int(piece.price * b.sell_refund)
+
+
+## Recomputes what the layout provides: seats, Pods and Vibe.
+static func refresh(state: GameState, data: GameData) -> void:
+	state.seats = count_placed(state, Piece.SEAT, data)
+	state.pods = count_placed(state, Piece.POD, data)
+	state.vibe = vibe(state, data)
+
+
+static func count_placed(state: GameState, kind: String, data: GameData) -> int:
+	return state.placed.filter(func(placed: PlacedPiece) -> bool:
+		return data.pieces[placed.piece_id].kind == kind).size()
+
+
+static func vibe(state: GameState, data: GameData) -> float:
+	var total := 0.0
+	var owner: Dictionary[Vector2i, int] = {}
+	for i: int in state.placed.size():
+		total += data.pieces[state.placed[i].piece_id].vibe
+		for cell: Vector2i in cells(state.placed[i], data):
+			owner[cell] = i
+	for i: int in state.placed.size():
+		var touching: Dictionary[int, bool] = {}
+		for cell: Vector2i in cells(state.placed[i], data):
+			for step: Vector2i in NEIGHBOURS:
+				var j: int = owner.get(cell + step, -1)
+				if j > i:
+					touching[j] = true
+		var a := data.pieces[state.placed[i].piece_id]
+		for j: int in touching:
+			var b := data.pieces[state.placed[j].piece_id]
+			for rule: AdjacencyRule in data.adjacency:
+				if rule.matches(a, b):
+					total += rule.vibe
+	return total
+
+
+static func _occupied(state: GameState, data: GameData, ignore_uid: String) -> Dictionary[Vector2i, bool]:
+	var taken: Dictionary[Vector2i, bool] = {}
+	for placed: PlacedPiece in state.placed:
+		if placed.uid == ignore_uid:
+			continue
+		for cell: Vector2i in cells(placed, data):
+			taken[cell] = true
+	return taken
+
+
+static func _put(state: GameState, piece_id: String, cell: Vector2i, rotated: bool, data: GameData) -> void:
+	var placed := PlacedPiece.new()
+	placed.uid = state.new_id("piece")
+	placed.piece_id = piece_id
+	placed.cell = cell
+	placed.rotated = rotated
+	state.placed.append(placed)
+	if data.pieces[piece_id].kind == Piece.STOVE:
+		var stove := Stove.new()
+		stove.piece_uid = placed.uid
+		state.stoves.append(stove)
+	refresh(state, data)
+
+
+static func _can_remove(state: GameState, placed: PlacedPiece, data: GameData) -> String:
+	match data.pieces[placed.piece_id].kind:
+		Piece.STOVE:
+			var stove := stove_of(state, placed.uid)
+			if stove != null and not stove.is_idle():
+				return GameLoop.STOVE_BUSY
+		Piece.POD:
+			if state.synths.size() > state.pods - 1:
+				return GameLoop.POD_IN_USE
+	return GameLoop.OK
+
+
+static func _remove(state: GameState, placed: PlacedPiece, data: GameData) -> void:
+	state.placed.erase(placed)
+	var stove := stove_of(state, placed.uid)
+	if stove != null:
+		state.stoves.erase(stove)
+	refresh(state, data)
+
+
+static func stove_of(state: GameState, uid: String) -> Stove:
+	for stove: Stove in state.stoves:
+		if stove.piece_uid == uid:
+			return stove
+	return null
+
+
+static func _take_from_storage(state: GameState, piece_id: String) -> void:
+	state.storage[piece_id] -= 1
+	if state.storage[piece_id] <= 0:
+		state.storage.erase(piece_id)
