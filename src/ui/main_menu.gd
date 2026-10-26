@@ -35,9 +35,13 @@ func _ready() -> void:
 		var load := UiTheme.button(tr("ui.load_slot") % (slot + 1) if has else tr("ui.empty_slot") % (slot + 1), _load.bind(slot))
 		load.disabled = not has
 		column.add_child(load)
+	var settings := SettingsPanel.new()
+	column.add_child(UiTheme.button(tr("ui.settings"), settings.open))
 	column.add_child(UiTheme.button(tr("ui.quit"), get_tree().quit))
 	column.add_child(_error)
+	add_child(settings)
 	(resume if not resume.disabled else new_game).grab_focus()
+	Sfx.music("night")
 
 
 func _load(slot: int) -> void:

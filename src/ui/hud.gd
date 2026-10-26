@@ -4,6 +4,7 @@ extends Control
 ## event feed, the stove recipe picker, the Synth card and the pause menu.
 
 signal quit_to_menu
+signal settings_requested
 
 const FEED_LINES: int = 6
 const TOAST_SECONDS: float = 3.0
@@ -62,6 +63,8 @@ func _build_top_bar() -> void:
 	_shift_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(_shift_bar)
 	_resources.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_resources.tooltip_text = tr("tip.resources")
+	_resources.mouse_filter = Control.MOUSE_FILTER_PASS
 	row.add_child(_resources)
 	row.add_child(_speed_box)
 	for speed: int in GameState.SPEEDS:
@@ -83,6 +86,7 @@ func _build_pause_menu() -> void:
 	column.add_child(UiTheme.button(tr("ui.resume"), toggle_pause))
 	for slot: int in SaveSystem.SLOTS:
 		column.add_child(UiTheme.button(tr("ui.save_slot") % (slot + 1), Session.save_game.bind(slot)))
+	column.add_child(UiTheme.button(tr("ui.settings"), settings_requested.emit))
 	column.add_child(UiTheme.button(tr("ui.main_menu"), func() -> void:
 		toggle_pause()
 		quit_to_menu.emit()))
@@ -182,7 +186,8 @@ func open_recipe_menu(stove_index: int, at: Vector2) -> void:
 
 func _on_recipe_chosen(id: int) -> void:
 	var recipe_id: String = _recipe_menu.get_item_metadata(_recipe_menu.get_item_index(id))
-	Session.act(GameLoop.start_cooking(Session.state, _recipe_stove, recipe_id, Session.data))
+	if Session.act(GameLoop.start_cooking(Session.state, _recipe_stove, recipe_id, Session.data)):
+		Sfx.play("cook")
 
 
 func open_synth_card(synth_id: String) -> void:

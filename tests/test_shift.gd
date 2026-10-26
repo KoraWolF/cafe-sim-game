@@ -65,6 +65,7 @@ func test_customer_is_served_pays_tips_and_stars() -> void:
 	assert_eq(events.served.size(), 1, "served")
 	assert_eq(events.coins_earned, 10, "full price at 100 satisfaction")
 	assert_eq(events.tips_earned, 5, "tip = 10 * 0.5")
+	assert_eq(events.payments, {events.served[0]: 15} as Dictionary[String, int], "per-customer payment, tip included")
 	assert_eq(state.coins, 115, "coins")
 	assert_eq(state.counter["tea"], 2, "one serving used")
 	assert_eq(events.starred.size(), 1, "starred")

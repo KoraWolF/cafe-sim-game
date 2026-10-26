@@ -2,6 +2,8 @@ class_name NightHub
 extends PanelContainer
 
 signal arrange_requested
+## A tab was opened: "summary", "menu", "upgrades", "staff" or "ops".
+signal tab_shown(key: String)
 ## The night screen, on the right so the café stays visible: Summary, Menu,
 ## Upgrades & Décor, Staff and Night Ops tabs, then "End Night". Tabs rebuild
 ## from the state after every action, so they always show what is true.
@@ -39,6 +41,8 @@ func _ready() -> void:
 		scroll.add_child(page)
 		_tabs.add_child(scroll)
 		_pages[key] = page
+	# Connected after the tabs exist: adding the first tab already changes the tab.
+	_tabs.tab_changed.connect(func(index: int) -> void: tab_shown.emit(_pages.keys()[index]))
 	var end := UiTheme.button(tr("ui.end_night"), _end_night)
 	end.custom_minimum_size = Vector2(0, 54)
 	end.add_theme_font_size_override("font_size", 24)
@@ -146,6 +150,8 @@ func _fill_upgrades(page: VBoxContainer) -> void:
 		var cost := GameLoop.upgrade_cost(state, upgrade_id, data)
 		var buy := UiTheme.button(tr("ui.buy") % cost if cost >= 0 else tr("ui.maxed"), _buy_upgrade.bind(upgrade_id))
 		buy.disabled = cost < 0 or state.coins < cost
+		name.tooltip_text = tr("tip.upgrade." + upgrade_id)
+		name.mouse_filter = Control.MOUSE_FILTER_PASS
 		row.add_child(buy)
 		page.add_child(row)
 	page.add_child(HSeparator.new())

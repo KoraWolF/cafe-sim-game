@@ -26,6 +26,9 @@ var _time: float = 0.0
 var _speed: float = 1.0
 var _names_left: Array[String] = []
 var _names_right: Array[String] = []
+## Hits already heard, so each plays its sound once.
+var _heard: int = 0
+var _banner_heard: bool = false
 
 
 func _ready() -> void:
@@ -70,12 +73,18 @@ func play(battle: Battle.Report, title: String, attacks: bool, attacker_names: A
 	_continue.visible = false
 	_skip.visible = true
 	_fast.visible = true
+	_heard = 0
+	_banner_heard = false
 	visible = true
+	Sfx.music("battle")
+	if title == tr("ui.battle_audit"):
+		Sfx.play("alarm")
 
 
 func skip() -> void:
 	_time = playback.duration() + END_PAUSE
 	playback.finish()
+	_heard = playback.applied  # no burst of every skipped hit
 
 
 ## True when the player's side won.
@@ -89,6 +98,13 @@ func _process(delta: float) -> void:
 	_time += delta * _speed
 	# A hit's damage lands halfway through its lunge.
 	playback.advance_time(_time + BattlePlayback.HIT_SECONDS * 0.5)
+	if playback.applied > _heard:
+		var landed := playback.report.hits[playback.applied - 1]
+		Sfx.play("ko" if landed.knocked_out else "hit")
+		_heard = playback.applied
+	if _time >= playback.duration() and not _banner_heard:
+		_banner_heard = true
+		Sfx.play("victory" if player_won() else "defeat")
 	_round.text = tr("ui.battle_round") % playback.round_at(_time) if not playback.report.hits.is_empty() else ""
 	if _time >= playback.duration() + END_PAUSE and not _continue.visible:
 		_continue.visible = true

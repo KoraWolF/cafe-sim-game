@@ -13,6 +13,8 @@ var night := NightHub.new()
 var edit_panel := EditPanel.new()
 var report := ReportPanel.new()
 var battle := BattleView.new()
+var tutorial_box := TutorialBox.new()
+var settings := SettingsPanel.new()
 ## Battles still to play tonight, then the report.
 var _battles: Array[Dictionary] = []
 var _night_report: NightOps.Report = null
@@ -32,6 +34,15 @@ func _ready() -> void:
 	root.add_child(hud)
 	root.add_child(report)
 	root.add_child(battle)
+	root.add_child(tutorial_box)
+	root.add_child(settings)
+	hud.settings_requested.connect(settings.open)
+	if Session.state.day == 1 and Session.state.shift_time == 0 and not Settings.tutorial_done():
+		tutorial_box.start(Tutorial.new())
+	cafe.synth_clicked.connect(func(_synth_id: String) -> void: _tutorial_saw(Tutorial.OPENED_CARD))
+	night.tab_shown.connect(func(key: String) -> void:
+		if key == "menu":
+			_tutorial_saw(Tutorial.SAW_MENU))
 	battle.finished.connect(_play_next_battle)
 	Session.night_resolved.connect(_on_night_resolved)
 	cafe.stove_clicked.connect(hud.open_recipe_menu)
@@ -50,6 +61,15 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	Session.tick(delta)
+
+
+func _enter_tree() -> void:
+	Sfx.music_for_phase()
+
+
+func _tutorial_saw(flag: String) -> void:
+	if tutorial_box.tutorial != null:
+		tutorial_box.tutorial.seen[flag] = true
 
 
 func _on_night_resolved(night_report: NightOps.Report) -> void:
@@ -74,6 +94,7 @@ func _on_night_resolved(night_report: NightOps.Report) -> void:
 
 func _play_next_battle() -> void:
 	if _battles.is_empty():
+		Sfx.music_for_phase()
 		report.show_report(_night_report)
 		return
 	var next: Dictionary = _battles.pop_front()
