@@ -17,6 +17,8 @@ extends RefCounted
 ## (2 Influence, income 100): rival "shop", flagship "tower". Rivals do not grow.
 ## Corporate Audit at 90 Suspicion: 2 raiders at x2 (10 power / 40 hp), loses half
 ## the coins, resets Suspicion to 40.
+## XP: delivery 2, batch 6 (shared), arrival 1 (shared), raid 30 / 15, defense 20;
+## level n -> n + 1 costs 100 * n; max level 3; +50% of base per level.
 ## Upgrades: stove 50 (x2 per level, max 2), seat 20 (+2 seats, max 3),
 ## pod 100 (max 1), security 30 (+10 hp, max 2).
 
@@ -39,6 +41,8 @@ static func content(balance_overrides := {}) -> Dictionary:
 		"defense_hp_per_day": 0.0, "defense_coin_loss": 0.5, "defense_core_loss": 1, "steal_coins": 10,
 		"audit_suspicion": 90.0, "audit_size": 2, "audit_strength": 2.0, "audit_coin_loss": 0.5,
 		"audit_reset_suspicion": 40.0,
+		"xp_per_delivery": 2, "xp_per_batch": 6, "xp_per_arrival": 1, "xp_raid_win": 30, "xp_raid_loss": 15,
+		"xp_defense": 20, "xp_per_level": 100, "max_synth_level": 3, "stat_growth_per_level": 0.5,
 	}
 	balance.merge(balance_overrides, true)
 	return {

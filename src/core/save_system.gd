@@ -11,7 +11,8 @@ extends RefCounted
 ## overwrites a manual slot.
 
 ## 2: district takeover (influence, owned districts, district start day, closed shift).
-const VERSION: int = 2
+## 3: Synth level and XP.
+const VERSION: int = 3
 const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
 
@@ -156,6 +157,13 @@ static func _migrate_step(version: int, raw: Dictionary) -> Dictionary:
 			raw["influence"] = {}
 			raw["closed"] = false
 			return raw
+		2:
+			# Before Synth levels: everyone starts at level 1.
+			for synth: Variant in raw.get("synths", []):
+				if synth is Dictionary:
+					synth["level"] = 1
+					synth["xp"] = 0
+			return raw
 	return {}
 
 
@@ -211,6 +219,9 @@ static func validate(state: GameState, data: GameData) -> PackedStringArray:
 			errors.append("Synth '%s': unknown trait '%s'" % [synth.id, synth.trait_id])
 		if not Synth.ROLES.has(synth.role):
 			errors.append("Synth '%s': unknown role '%s'" % [synth.id, synth.role])
+		if synth.level < 1 or synth.level > data.balance.max_synth_level or synth.xp < 0 \
+				or (synth.level < data.balance.max_synth_level and synth.xp >= Leveling.xp_to_next(synth.level, data.balance)):
+			errors.append("Synth '%s': level %d with %d XP" % [synth.id, synth.level, synth.xp])
 	for customer: Customer in state.customers:
 		if ids.has(customer.id) or customer.id == "":
 			errors.append("duplicate or empty customer id '%s'" % customer.id)

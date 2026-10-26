@@ -24,7 +24,9 @@ District takeover: winning a raid on a rival earns that district Influence (kios
 
 Corporate Audit: if Suspicion is at 90 or more at night, an Audit replaces the random MegaBean raid. It always comes: 4 raiders, each 1.5 times as strong as a normal raider. Losing it costs 30% of your coins and one random Synth (never the last), and the café stays shut for the next shift. Win or lose, Suspicion then drops to 40.
 
-Not built yet: UI, decorating, daily menu, Synth levels.
+Synth levels: Synths earn XP from their work. A server earns 2 per dish delivered. Chefs share 6 per batch cooked, and greeters share 1 per customer who arrives. Each raider earns 30 for a won raid and 15 for a lost one, and each Synth defending the café earns 20. Going from level n to n + 1 costs 100 × n XP, up to level 10. Each level adds 8% of the species' base speed, cooking, appeal, power and HP. Battery, drain and weaknesses don't change, and trait bonuses stay flat. Saves are now format v3, which adds level and XP.
+
+Not built yet: UI, decorating, daily menu.
 
 ## Balance pass (30 days × 5 seeds, `tools/balance_sim.gd`)
 
@@ -42,8 +44,12 @@ Still open, waiting on design (district takeover, décor):
 - **District takeover (built):** each district has a MegaBean flagship (the boss). Raiding its smaller rivals earns Influence. Enough Influence unlocks the boss raid, and winning it takes over the district: it then gives income each day, and the next district opens with stronger rivals.
 - **Losing (built as the Corporate Audit):** setbacks only, never game over. When Suspicion is at max, a "Corporate Audit" night comes: a big raid you have to survive. Losing it closes the café for a day and costs coins or a Synth, and then the game carries on.
 - **Menu:** each night the player picks up to N dishes for the next day (more slots come from an upgrade). Customers only order from the menu, and some customer types prefer certain dishes.
-- **Synth growth:** Synths earn XP from shifts and raids, and each level raises their stats a little.
+- **Synth growth (built):** Synths earn XP from shifts and raids, and each level raises their stats a little.
 
 ## Balance check after district takeover (40 days × 5 seeds)
 
 Every seed takes the Alley on day 11 or 12. 2 of 5 take Neon Market on day 19–20; the rest are still building a strong enough squad at day 40. Expect that to come sooner once Synths can level up. About 30 raids (29.8 won, since the bot only picks raids it expects to win), 2 Audits (1.8 lost: the bot leaves only one Synth home, even when an Audit is coming), 92% stars, about 4,100 coins of district income, and about 10,900 coins left at day 40. Coins still pile up late in the game; décor is the planned place to spend them.
+
+## Balance check after Synth levels (40 days × 5 seeds)
+
+The Alley still falls on day 11–13. Neon Market is now taken in 4 of 5 runs (days 19, 19, 25 and 35), up from 2 of 5 before levels. Synths end at about level 5 on average, and the best one reaches about level 9 (usually the starter, which serves every shift). MegaBean raids lost fell from 7.8 to 5.0 per run. The bot still loses every Audit because it keeps only one Synth home. Coins at day 40 are about 13,400, so a late-game coin sink (décor) is still needed.

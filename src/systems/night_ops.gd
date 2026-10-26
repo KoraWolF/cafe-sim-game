@@ -38,6 +38,8 @@ class Report:
 	var undercharged: Array[String] = []
 	## Coins from owned districts.
 	var income: int = 0
+	## Synth id -> level reached (raiders and defenders earn XP).
+	var level_ups: Dictionary[String, int] = {}
 
 
 ## Cafés in the current district that can be raided tonight: rivals off
@@ -142,14 +144,18 @@ static func _raid(state: GameState, data: GameData, rng: RandomNumberGenerator, 
 	var rival := district.rival_by_id(state.raid_target)
 	report.raid_target = rival.id
 	var squad: Array[Battle.Fighter] = []
+	var raiders: Array[Synth] = []
 	var loot_bonus := 0.0
 	for synth_id: String in state.raid_squad:
 		var synth := state.synth_by_id(synth_id)
+		raiders.append(synth)
 		squad.append(synth_fighter(synth, 0.0, data))
 		loot_bonus += SynthStats.stat(synth, "raid_loot", data)
 		synth.battery = maxf(synth.battery - b.raid_battery_cost, 0.0)
 	report.raid = Battle.run(squad, guards_for(state, rival, data), rng, b)
 	state.raid_cooldowns[rival.id] = state.day + b.raid_cooldown_days
+	for synth: Synth in raiders:
+		Leveling.add_xp(synth, b.xp_raid_win if report.raid.attackers_won else b.xp_raid_loss, b, report.level_ups)
 	if not report.raid.attackers_won:
 		return
 	report.loot_coins = roundi(rival.loot_coins * (1.0 + maxf(loot_bonus, 0.0)))
@@ -198,6 +204,7 @@ static func _defend(state: GameState, data: GameData, rng: RandomNumberGenerator
 	var b := data.balance
 	var size := mini(1 + int(state.current_suspicion() / maxf(b.defense_size_step, 1.0)), b.defense_max_size)
 	report.defense = Battle.run(_megabean_squad(state, size, 1.0, b), _home_defenders(state, data), rng, b)
+	_defender_xp(state, report, b)
 	if not report.defense.attackers_won:
 		return
 	report.coins_lost = int(state.coins * b.defense_coin_loss)
@@ -211,6 +218,7 @@ static func _audit(state: GameState, data: GameData, rng: RandomNumberGenerator,
 	report.audit = true
 	report.defense = Battle.run(_megabean_squad(state, b.audit_size, b.audit_strength, b), _home_defenders(state, data),
 		rng, b)
+	_defender_xp(state, report, b)
 	if not report.defense.attackers_won:
 		return
 	report.coins_lost = int(state.coins * b.audit_coin_loss)
@@ -220,6 +228,12 @@ static func _audit(state: GameState, data: GameData, rng: RandomNumberGenerator,
 		var taken := state.synths[rng.randi_range(0, state.synths.size() - 1)]
 		state.synths.erase(taken)
 		report.synth_lost = taken.id
+
+
+## Every Synth who fought for the café earns xp_defense, win or lose.
+static func _defender_xp(state: GameState, report: Report, b: BalanceConfig) -> void:
+	for fighter: Battle.Fighter in report.defense.defenders:
+		Leveling.add_xp(state.synth_by_id(fighter.synth_id), b.xp_defense, b, report.level_ups)
 
 
 static func _steal(state: GameState, data: GameData, rng: RandomNumberGenerator, report: Report) -> void:

@@ -16,6 +16,9 @@ const ROLES: Array[String] = [SERVER, CHEF, GREETER, REST]
 @export var trait_id: String = ""
 @export var role: String = SERVER
 @export var battery: float = 0.0
+@export var level: int = 1
+## XP toward the next level.
+@export var xp: int = 0
 ## The customer whose dish this server is carrying ("" = idle).
 @export var task_customer_id: String = ""
 @export var task_recipe_id: String = ""
@@ -29,7 +32,7 @@ func is_delivering() -> bool:
 
 func to_dict() -> Dictionary:
 	return {"id": id, "name": name, "species_id": species_id, "trait_id": trait_id, "role": role,
-		"battery": battery, "task_customer_id": task_customer_id, "task_recipe_id": task_recipe_id,
+		"battery": battery, "level": level, "xp": xp, "task_customer_id": task_customer_id, "task_recipe_id": task_recipe_id,
 		"task_remaining": task_remaining}
 
 
@@ -41,6 +44,8 @@ static func from_dict(values: Dictionary) -> Synth:
 	synth.trait_id = str(values.get("trait_id", ""))
 	synth.role = str(values.get("role", ""))
 	synth.battery = float(values.get("battery", 0.0))
+	synth.level = int(values.get("level", 0))
+	synth.xp = int(values.get("xp", -1))
 	synth.task_customer_id = str(values.get("task_customer_id", ""))
 	synth.task_recipe_id = str(values.get("task_recipe_id", ""))
 	synth.task_remaining = float(values.get("task_remaining", 0.0))
