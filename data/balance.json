@@ -59,5 +59,14 @@
 	"audit_strength": 1.5,
 	"audit_coin_loss": 0.3,
 	"audit_reset_suspicion": 40.0,
-	"steal_coins": 10
+	"steal_coins": 10,
+	"xp_per_delivery": 2,
+	"xp_per_batch": 6,
+	"xp_per_arrival": 1,
+	"xp_raid_win": 30,
+	"xp_raid_loss": 15,
+	"xp_defense": 20,
+	"xp_per_level": 100,
+	"max_synth_level": 10,
+	"stat_growth_per_level": 0.08
 }

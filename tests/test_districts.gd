@@ -167,6 +167,9 @@ func test_version_1_save_is_migrated() -> void:
 	var raw := SaveSystem.to_dict(GameState.new_game(1, data))
 	for key: String in ["district_started_day", "owned_districts", "influence", "closed"]:
 		raw.erase(key)
+	for synth: Dictionary in raw["synths"]:
+		synth.erase("level")
+		synth.erase("xp")
 	raw["version"] = 1
 	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
 	var file := FileAccess.open(path, FileAccess.WRITE)
@@ -179,3 +182,4 @@ func test_version_1_save_is_migrated() -> void:
 	if loaded != null:
 		assert_eq(loaded.district_started_day, 1, "default start day")
 		assert_true(loaded.owned_districts.is_empty() and loaded.influence.is_empty(), "nothing owned")
+		assert_eq(loaded.synths[0].level, 1, "v1 -> v2 -> v3: level 1")

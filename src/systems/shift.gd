@@ -30,6 +30,8 @@ class Events:
 	var shift_ended: bool = false
 	## True when the café was shut for this shift (lost Corporate Audit).
 	var closed: bool = false
+	## Synth id -> level reached.
+	var level_ups: Dictionary[String, int] = {}
 
 
 ## Passes up to seconds of shift time. Does nothing outside the SHIFT phase.
@@ -101,6 +103,7 @@ static func _cook(state: GameState, data: GameData, rng: RandomNumberGenerator, 
 	if state.stoves.all(func(stove: Stove) -> bool: return stove.is_idle()):
 		return
 	var rate := 1.0
+	var cooking: Array[Synth] = []
 	for synth: Synth in state.synths:
 		if synth.role != Synth.CHEF:
 			continue
@@ -111,6 +114,7 @@ static func _cook(state: GameState, data: GameData, rng: RandomNumberGenerator, 
 			events.glitches += 1
 			continue
 		rate += maxf(SynthStats.stat(synth, "cook", data), 0.0) * factor
+		cooking.append(synth)
 	for stove: Stove in state.stoves:
 		if stove.is_idle():
 			continue
@@ -119,6 +123,7 @@ static func _cook(state: GameState, data: GameData, rng: RandomNumberGenerator, 
 			var recipe := data.recipes[stove.recipe_id]
 			state.counter[recipe.id] = state.counter.get(recipe.id, 0) + recipe.servings
 			events.dishes_ready.append(recipe.id)
+			Leveling.share(cooking, data.balance.xp_per_batch, data.balance, events.level_ups)
 			stove.recipe_id = ""
 			stove.remaining = 0.0
 
@@ -138,6 +143,11 @@ static func _arrive(state: GameState, data: GameData, rng: RandomNumberGenerator
 	customer.type_id = type_id
 	state.customers.append(customer)
 	events.arrived.append(customer.id)
+	var greeting: Array[Synth] = []
+	for synth: Synth in state.synths:
+		if synth.role == Synth.GREETER and SynthStats.work_factor(synth, state, data) > 0.0:
+			greeting.append(synth)
+	Leveling.share(greeting, b.xp_per_arrival, b, events.level_ups)
 
 
 static func _pick_type(data: GameData, rng: RandomNumberGenerator) -> String:
@@ -217,6 +227,7 @@ static func _deliver(state: GameState, synth: Synth, data: GameData, rng: Random
 	customer.timer = data.balance.eat_seconds
 	customer.satisfaction = clampf(customer.satisfaction + SynthStats.stat(synth, "satisfaction", data), 0.0, 100.0)
 	customer.tip_bonus = SynthStats.stat(synth, "tip", data)
+	Leveling.add_xp(synth, data.balance.xp_per_delivery, data.balance, events.level_ups)
 
 
 static func _update_customers(state: GameState, data: GameData, events: Events) -> void:

@@ -101,6 +101,20 @@ var audit_coin_loss: float = 0.3
 var audit_reset_suspicion: float = 40.0
 ## Coins a Synth with steal_chance pockets when the roll hits (once a night).
 var steal_coins: int = 10
+## Synth XP: a server per dish delivered; per batch cooked and per customer
+## arriving, shared by the chefs / greeters working that second; per raid
+## (won or lost) for each raider; per raid on the café for each home defender.
+var xp_per_delivery: int = 2
+var xp_per_batch: int = 6
+var xp_per_arrival: int = 1
+var xp_raid_win: int = 30
+var xp_raid_loss: int = 15
+var xp_defense: int = 20
+## XP from level n to n + 1 = xp_per_level * n. Levels 1..max_synth_level.
+var xp_per_level: int = 100
+var max_synth_level: int = 10
+## Each level above 1 adds this share of the species' base to LEVELED_STATS.
+var stat_growth_per_level: float = 0.08
 
 
 ## Unknown keys are reported, missing keys keep their defaults.

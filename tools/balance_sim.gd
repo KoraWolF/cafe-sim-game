@@ -94,6 +94,9 @@ func _play(seed_value: int, days: int, daily: bool) -> Dictionary:
 	stats["final_seats"] = state.seats
 	stats["final_stoves"] = state.stoves.size()
 	stats["final_pods"] = state.pods
+	var levels := state.synths.map(func(synth: Synth) -> int: return synth.level)
+	stats["final_avg_level"] = levels.reduce(func(sum: int, level: int) -> int: return sum + level, 0) / float(levels.size())
+	stats["final_max_level"] = levels.max()
 	# Untaken districts count as never (shown as 0 in the average; see the count).
 	for district_id: String in data.district_order:
 		stats["took_" + district_id] = 1.0 if state.owned_districts.has(district_id) else 0.0

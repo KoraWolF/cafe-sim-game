@@ -4,9 +4,10 @@ extends RefCounted
 ## works right now (battery, late shift).
 
 
-## Species base (or 0 for trait-only stats) plus the trait's modifier.
+## Species base (or 0 for trait-only stats), grown by level, plus the trait's modifier.
 static func stat(synth: Synth, stat_name: String, data: GameData) -> float:
-	var value: float = data.species[synth.species_id].stats.get(stat_name, 0.0)
+	var value: float = data.species[synth.species_id].stats.get(stat_name, 0.0) \
+		* Leveling.stat_multiplier(synth, stat_name, data.balance)
 	if synth.trait_id != "":
 		value += data.traits[synth.trait_id].modifiers.get(stat_name, 0.0)
 	return value
