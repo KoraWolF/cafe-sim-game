@@ -1,14 +1,14 @@
 [
-	{"id": "office_worker", "weight": 30, "synth_species": "clerkbot", "patience": 0.8, "tip": 1.0,
+	{"id": "office_worker", "favorites": ["coffee"], "weight": 30, "synth_species": "clerkbot", "patience": 0.8, "tip": 1.0,
 		"trait_pool": ["night_owl", "perfectionist", "chatty"]},
-	{"id": "gym_fan", "weight": 20, "synth_species": "bulkform", "patience": 1.0, "tip": 0.8,
+	{"id": "gym_fan", "favorites": ["ramen"], "weight": 20, "synth_species": "bulkform", "patience": 1.0, "tip": 0.8,
 		"trait_pool": ["night_owl", "chatty", "kleptomaniac"]},
-	{"id": "gamer", "weight": 20, "synth_species": "glitchling", "patience": 1.2, "tip": 0.7,
+	{"id": "gamer", "favorites": ["ramen", "coffee"], "weight": 20, "synth_species": "glitchling", "patience": 1.2, "tip": 0.7,
 		"trait_pool": ["night_owl", "perfectionist", "kleptomaniac"]},
-	{"id": "influencer", "weight": 15, "synth_species": "hypeform", "patience": 0.7, "tip": 1.5,
+	{"id": "influencer", "favorites": ["toast", "star_jelly"], "weight": 15, "synth_species": "hypeform", "patience": 0.7, "tip": 1.5,
 		"trait_pool": ["chatty", "perfectionist", "kleptomaniac"]},
-	{"id": "grandparent", "weight": 14, "synth_species": "steady_unit", "patience": 1.5, "tip": 1.2,
+	{"id": "grandparent", "favorites": ["toast"], "weight": 14, "synth_species": "steady_unit", "patience": 1.5, "tip": 1.2,
 		"trait_pool": ["perfectionist", "chatty", "night_owl"]},
-	{"id": "alien_tourist", "weight": 1, "synth_species": "xeno", "patience": 1.0, "tip": 2.0,
+	{"id": "alien_tourist", "favorites": ["star_jelly"], "weight": 1, "synth_species": "xeno", "patience": 1.0, "tip": 2.0,
 		"trait_pool": ["night_owl", "perfectionist", "chatty", "kleptomaniac"]}
 ]

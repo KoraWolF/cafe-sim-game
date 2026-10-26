@@ -47,6 +47,12 @@ var start_power: float = 50.0
 var start_seats: int = 4
 var start_stoves: int = 2
 var start_pods: int = 2
+## Dishes the player can put on the daily menu.
+var start_menu_slots: int = 2
+## A customer orders a favourite dish on the menu this many times as often as
+## another dish, and gains favorite_satisfaction when it is served.
+var favorite_weight: float = 3.0
+var favorite_satisfaction: float = 10.0
 ## Extra HP each home defender gets from security décor.
 var start_security: float = 0.0
 var start_district: String = "alley"

@@ -53,6 +53,7 @@ func _play(seed_value: int, days: int, daily: bool) -> Dictionary:
 			for customer_id: String in events.starred:
 				if GameLoop.convert_customer(state, customer_id, data) == GameLoop.OK:
 					stats["conversions"] += 1
+		_choose_menu(state)
 		var raid := _plan_raid(state)
 		stats["upgrade_spend"] += _night_shopping(state)
 		var report := GameLoop.end_night(state, data)
@@ -119,6 +120,23 @@ func _cook(state: GameState) -> void:
 				pick = recipe_id
 		if pick != "":
 			GameLoop.start_cooking(state, i, pick, data)
+
+
+## Fills the menu with the dishes most favoured by the customer mix (spawn
+## weight of each type that loves them), ties broken by price.
+func _choose_menu(state: GameState) -> void:
+	var dishes := Shift.unlocked_recipes(state, data)
+	var score := func(recipe: Recipe) -> float:
+		var total := 0.0
+		for type: CustomerType in data.customer_types.values():
+			if type.favorites.has(recipe.id):
+				total += type.weight
+		return total + recipe.price * 0.01
+	dishes.sort_custom(func(a: Recipe, b: Recipe) -> bool: return score.call(a) > score.call(b))
+	var menu: Array[String] = []
+	for recipe: Recipe in dishes.slice(0, state.menu_slots):
+		menu.append(recipe.id)
+	GameLoop.set_menu(state, menu, data)
 
 
 ## Brews, buys Power for a full recharge, then upgrades. Returns coins spent on upgrades.
