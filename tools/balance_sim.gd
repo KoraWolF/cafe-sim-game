@@ -34,10 +34,13 @@ func _play(seed_value: int, days: int, daily: bool) -> Dictionary:
 	var state := GameState.new_game(seed_value, data)
 	var stats := {"seated": 0.0, "stars": 0.0, "angry": 0.0, "turned_away": 0.0, "conversions": 0.0,
 		"raids": 0.0, "raids_won": 0.0, "defenses": 0.0, "defenses_lost": 0.0, "coins_stolen": 0.0,
-		"undercharged_nights": 0.0, "upgrade_spend": 0.0, "max_suspicion": 0.0}
+		"undercharged_nights": 0.0, "upgrade_spend": 0.0, "max_suspicion": 0.0,
+		"audits": 0.0, "audits_lost": 0.0, "closed_shifts": 0.0, "income": 0.0}
+	for district_id: String in data.district_order:
+		stats["taken_day_" + district_id] = 0.0
 	if daily:
 		print("\n-- seed %d --" % seed_value)
-		print(" day  coins  synths pods seats stoves  stars%  angry  away  susp  raid      defense")
+		print(" day  coins  synths pods seats stoves  stars%  angry  away  susp  raid                      defense")
 	for day: int in days:
 		var day_stats := {"seated": 0, "stars": 0, "angry": 0, "away": 0}
 		while state.phase == GameState.Phase.SHIFT:
@@ -60,9 +63,18 @@ func _play(seed_value: int, days: int, daily: bool) -> Dictionary:
 		if report.raid != null:
 			stats["raids"] += 1
 			stats["raids_won"] += 1 if report.raid.attackers_won else 0
-		if report.defense != null:
+		if report.defense != null and report.audit:
+			stats["audits"] += 1
+			stats["audits_lost"] += 1 if report.defense.attackers_won else 0
+			stats["closed_shifts"] += 1 if report.closed_next_shift else 0
+		elif report.defense != null:
 			stats["defenses"] += 1
 			stats["defenses_lost"] += 1 if report.defense.attackers_won else 0
+		if report.district_taken != "":
+			stats["taken_day_" + report.district_taken] = day + 1
+			if daily:
+				print("     >> took %s on day %d" % [report.district_taken, day + 1])
+		stats["income"] += report.income
 		for amount: int in report.stolen.values():
 			stats["coins_stolen"] += amount
 		stats["undercharged_nights"] += 1 if not report.undercharged.is_empty() else 0
@@ -70,7 +82,9 @@ func _play(seed_value: int, days: int, daily: bool) -> Dictionary:
 		if daily:
 			var raid_text := "-" if report.raid == null else "%s %s" % [raid, "won" if report.raid.attackers_won else "lost"]
 			var defense_text := "-" if report.defense == null else ("lost %d" % report.coins_lost if report.defense.attackers_won else "held")
-			print(" %3d %6d %5d %5d %5d %5d %7.0f %6d %5d %5.0f  %-17s %s" % [day + 1, state.coins, state.synths.size(),
+			if report.audit:
+				defense_text = "AUDIT " + defense_text
+			print(" %3d %6d %5d %5d %5d %5d %7.0f %6d %5d %5.0f  %-25s %s" % [day + 1, state.coins, state.synths.size(),
 				state.pods, state.seats, state.stoves.size(),
 				100.0 * day_stats["stars"] / maxi(day_stats["seated"], 1), day_stats["angry"], day_stats["away"],
 				state.current_suspicion(), raid_text, defense_text])
@@ -80,6 +94,9 @@ func _play(seed_value: int, days: int, daily: bool) -> Dictionary:
 	stats["final_seats"] = state.seats
 	stats["final_stoves"] = state.stoves.size()
 	stats["final_pods"] = state.pods
+	# Untaken districts count as never (shown as 0 in the average; see the count).
+	for district_id: String in data.district_order:
+		stats["took_" + district_id] = 1.0 if state.owned_districts.has(district_id) else 0.0
 	return stats
 
 
@@ -152,11 +169,13 @@ func _plan_raid(state: GameState) -> String:
 	for rival: RivalCafe in NightOps.raid_targets(state, data):
 		var guard_power := 0.0
 		var guard_hp := 0.0
-		for guard: Battle.Fighter in NightOps.rival_guards(rival, state.day, data.balance):
+		for guard: Battle.Fighter in NightOps.guards_for(state, rival, data):
 			guard_power += guard.power
 			guard_hp += guard.hp
 		# Rounds each side needs to knock the other out; attackers hit first.
-		if guard_hp / power <= hp / guard_power and (best == null or rival.loot_cores > best.loot_cores):
+		# The flagship is worth a riskier try.
+		var margin := 1.25 if data.districts[state.district_id].is_flagship(rival.id) else 1.0
+		if guard_hp / power <= margin * hp / guard_power and (best == null or rival.loot_cores > best.loot_cores):
 			best = rival
 	if best == null:
 		return ""

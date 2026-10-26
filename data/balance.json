@@ -39,7 +39,7 @@
 	"suspicion_decay": 5.0,
 	"raid_squad_max": 4,
 	"raid_battery_cost": 25.0,
-	"rival_growth_per_day": 0.06,
+	"rival_growth_per_day": 0.03,
 	"raid_cooldown_days": 2,
 	"battle_max_rounds": 30,
 	"battle_damage_variance": 0.2,
@@ -54,5 +54,10 @@
 	"defense_hp_per_day": 2.0,
 	"defense_coin_loss": 0.25,
 	"defense_core_loss": 1,
+	"audit_suspicion": 90.0,
+	"audit_size": 4,
+	"audit_strength": 1.5,
+	"audit_coin_loss": 0.3,
+	"audit_reset_suspicion": 40.0,
 	"steal_coins": 10
 }

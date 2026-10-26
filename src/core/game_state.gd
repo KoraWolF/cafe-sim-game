@@ -39,9 +39,18 @@ const SPEEDS: Array[int] = [0, 1, 2, 4]
 @export var customers: Array[Customer] = []
 @export var synths: Array[Synth] = []
 
+## The district being contested: where raids happen and Suspicion builds.
 @export var district_id: String = ""
+## Day the current district opened (rival guards grow from then).
+@export var district_started_day: int = 1
+## Districts taken over; each pays its income every night.
+@export var owned_districts: Array[String] = []
+## District id -> Influence earned there by winning raids.
+@export var influence: Dictionary[String, int] = {}
 ## District id -> 0..100.
 @export var suspicion: Dictionary[String, float] = {}
+## True for a shift the café is shut after a lost Corporate Audit.
+@export var closed: bool = false
 ## Rival id -> first day it can be raided again.
 @export var raid_cooldowns: Dictionary[String, int] = {}
 ## Tonight's raid: "" = none.
@@ -130,6 +139,15 @@ func has_species(species_id: String) -> bool:
 
 func current_suspicion() -> float:
 	return suspicion.get(district_id, 0.0)
+
+
+func current_influence() -> int:
+	return influence.get(district_id, 0)
+
+
+## True once every district is taken over.
+func owns_city(data: GameData) -> bool:
+	return data.district_order.all(func(id: String) -> bool: return owned_districts.has(id))
 
 
 func add_suspicion(amount: float) -> void:
