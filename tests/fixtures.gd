@@ -11,8 +11,12 @@ extends RefCounted
 ## Species: steady (starter server, speed 1, drain 1), worker (speed 2, drain 0.5,
 ## battery 50, power 10, hp 30), chef (cook 1), alien (recharge x3).
 ## Traits: owl (late slowdown -0.5, power +5), klepto (always steals, loot +50%).
-## District "town": rivals "weak" (1 guard 1 power / 5 hp, loot 40 coins + 1 core)
-## and "fort" (1 guard 100 power / 1000 hp).
+## District "town" (3 Influence for the flagship, income 50): rivals "weak" (1 guard
+## 1 power / 5 hp, loot 40 coins + 1 core, 1 Influence), "fort" (1 guard 100 power /
+## 1000 hp) and flagship "hq" (1 guard 2 / 10, loot 100 + 2 cores). Then "city"
+## (2 Influence, income 100): rival "shop", flagship "tower". Rivals do not grow.
+## Corporate Audit at 90 Suspicion: 2 raiders at x2 (10 power / 40 hp), loses half
+## the coins, resets Suspicion to 40.
 ## Upgrades: stove 50 (x2 per level, max 2), seat 20 (+2 seats, max 3),
 ## pod 100 (max 1), security 30 (+10 hp, max 2).
 
@@ -33,6 +37,8 @@ static func content(balance_overrides := {}) -> Dictionary:
 		"defense_chance_per_suspicion": 0.0, "defense_max_chance": 1.0, "defense_size_step": 50.0,
 		"defense_max_size": 2, "defense_power_base": 5.0, "defense_power_per_day": 0.0, "defense_hp_base": 20.0,
 		"defense_hp_per_day": 0.0, "defense_coin_loss": 0.5, "defense_core_loss": 1, "steal_coins": 10,
+		"audit_suspicion": 90.0, "audit_size": 2, "audit_strength": 2.0, "audit_coin_loss": 0.5,
+		"audit_reset_suspicion": 40.0,
 	}
 	balance.merge(balance_overrides, true)
 	return {
@@ -61,10 +67,14 @@ static func content(balance_overrides := {}) -> Dictionary:
 			{"id": "klepto", "modifiers": {"steal_chance": 1.0, "raid_loot": 0.5}},
 		],
 		"districts": [
-			{"id": "town", "rivals": [
-				{"id": "weak", "defenders": [{"power": 1, "hp": 5}], "loot_coins": 40, "loot_cores": 1},
-				{"id": "fort", "defenders": [{"power": 100, "hp": 1000}], "loot_coins": 999, "loot_cores": 9},
-			]},
+			{"id": "town", "influence_required": 3, "income": 50, "rivals": [
+				{"id": "weak", "defenders": [{"power": 1, "hp": 5}], "loot_coins": 40, "loot_cores": 1, "influence": 1},
+				{"id": "fort", "defenders": [{"power": 100, "hp": 1000}], "loot_coins": 999, "loot_cores": 9,
+					"influence": 2},
+			], "flagship": {"id": "hq", "defenders": [{"power": 2, "hp": 10}], "loot_coins": 100, "loot_cores": 2}},
+			{"id": "city", "influence_required": 2, "income": 100, "rivals": [
+				{"id": "shop", "defenders": [{"power": 1, "hp": 5}], "loot_coins": 10, "loot_cores": 0, "influence": 1},
+			], "flagship": {"id": "tower", "defenders": [{"power": 2, "hp": 10}], "loot_coins": 300, "loot_cores": 3}},
 		],
 		"upgrades": [
 			{"id": "stove", "step": 1, "base_cost": 50, "cost_growth": 2.0, "max_level": 2},

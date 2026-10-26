@@ -20,7 +20,11 @@ Saving: `SaveSystem` writes plain JSON with a version number, crash-safe, with a
 
 Upgrades: at night the player buys stoves, seats, Sync Pods and security. Each level costs more and has a cap (`data/upgrades.json`).
 
-Not built yet: UI, decorating, district takeover, menus.
+District takeover: winning a raid on a rival earns that district Influence (kiosk-sized rivals 1, bigger ones 2). Once Influence reaches the district's target, its MegaBean flagship can be raided. Flagships keep a fixed strength, while ordinary rivals grow 3% stronger for each day their district has been open. Beating the flagship takes the district: it pays income every night (the Alley pays 80, Neon Market 200), and the next district opens the following day with Suspicion at 0. When the last district is taken, the city is yours and the game carries on.
+
+Corporate Audit: if Suspicion is at 90 or more at night, an Audit replaces the random MegaBean raid. It always comes: 4 raiders, each 1.5 times as strong as a normal raider. Losing it costs 30% of your coins and one random Synth (never the last), and the café stays shut for the next shift. Win or lose, Suspicion then drops to 40.
+
+Not built yet: UI, decorating, daily menu, Synth levels.
 
 ## Balance pass (30 days × 5 seeds, `tools/balance_sim.gd`)
 
@@ -35,7 +39,11 @@ Still open, waiting on design (district takeover, décor):
 
 ## Decisions for the next features (2026-10-26)
 
-- **District takeover:** each district has a MegaBean flagship (the boss). Raiding its smaller rivals earns Influence. Enough Influence unlocks the boss raid, and winning it takes over the district: it then gives income each day, and the next district opens with stronger rivals.
-- **Losing:** setbacks only, never game over. When Suspicion is at max, a "Corporate Audit" night comes: a big raid you have to survive. Losing it closes the café for a day and costs coins or a Synth, and then the game carries on.
+- **District takeover (built):** each district has a MegaBean flagship (the boss). Raiding its smaller rivals earns Influence. Enough Influence unlocks the boss raid, and winning it takes over the district: it then gives income each day, and the next district opens with stronger rivals.
+- **Losing (built as the Corporate Audit):** setbacks only, never game over. When Suspicion is at max, a "Corporate Audit" night comes: a big raid you have to survive. Losing it closes the café for a day and costs coins or a Synth, and then the game carries on.
 - **Menu:** each night the player picks up to N dishes for the next day (more slots come from an upgrade). Customers only order from the menu, and some customer types prefer certain dishes.
 - **Synth growth:** Synths earn XP from shifts and raids, and each level raises their stats a little.
+
+## Balance check after district takeover (40 days × 5 seeds)
+
+Every seed takes the Alley on day 11 or 12. 2 of 5 take Neon Market on day 19–20; the rest are still building a strong enough squad at day 40. Expect that to come sooner once Synths can level up. About 30 raids (29.8 won, since the bot only picks raids it expects to win), 2 Audits (1.8 lost: the bot leaves only one Synth home, even when an Audit is coming), 92% stars, about 4,100 coins of district income, and about 10,900 coins left at day 40. Coins still pile up late in the game; décor is the planned place to spend them.

@@ -18,6 +18,8 @@ var customer_types: Dictionary[String, CustomerType] = {}
 var species: Dictionary[String, Species] = {}
 var traits: Dictionary[String, SynthTrait] = {}
 var districts: Dictionary[String, District] = {}
+## District ids in the order they open (the order of districts.json).
+var district_order: Array[String] = []
 var upgrades: Dictionary[String, Upgrade] = {}
 
 
@@ -53,6 +55,7 @@ static func from_content(content: Dictionary) -> GameData:
 	for entry: Dictionary in _objects(content.get("districts"), "districts"):
 		var district := District.from_dict(entry)
 		data.districts[district.id] = district
+		data.district_order.append(district.id)
 	for entry: Dictionary in _objects(content.get("upgrades"), "upgrades"):
 		var upgrade := Upgrade.from_dict(entry)
 		data.upgrades[upgrade.id] = upgrade
@@ -74,6 +77,12 @@ static func _objects(parsed: Variant, source: String) -> Array[Dictionary]:
 		else:
 			push_error("GameData: %s has an entry that is not an object" % source)
 	return result
+
+
+## The district that opens after this one, or "" for the last.
+func next_district(district_id: String) -> String:
+	var index := district_order.find(district_id)
+	return district_order[index + 1] if index >= 0 and index + 1 < district_order.size() else ""
 
 
 ## Every broken cross-reference, so systems can trust ids.
@@ -101,6 +110,19 @@ func check() -> PackedStringArray:
 			errors.append("recipe %s: unknown species '%s'" % [recipe.id, recipe.unlock_species])
 		if recipe.cook_seconds <= 0 or recipe.servings <= 0:
 			errors.append("recipe %s: cook_seconds and servings must be positive" % recipe.id)
+	var rival_ids: Dictionary[String, bool] = {}
+	for district: District in districts.values():
+		if district.flagship == null:
+			errors.append("district %s: no flagship" % district.id)
+		if district.influence_required <= 0:
+			errors.append("district %s: influence_required must be positive" % district.id)
+		var cafes := district.rivals.duplicate()
+		if district.flagship != null:
+			cafes.append(district.flagship)
+		for rival: RivalCafe in cafes:
+			if rival_ids.has(rival.id) or rival.defenders.is_empty():
+				errors.append("rival %s: duplicate id or no defenders" % rival.id)
+			rival_ids[rival.id] = true
 	for upgrade_id: String in Upgrade.IDS:
 		if not upgrades.has(upgrade_id):
 			errors.append("upgrade '%s' is missing" % upgrade_id)

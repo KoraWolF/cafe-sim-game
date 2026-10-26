@@ -6,7 +6,8 @@ extends RefCounted
 ## arrive (greeters shorten the gap), queued customers take free seats and
 ## order, servers carry ready servings to tables, customers wait / eat / leave,
 ## and on-duty Synths drain battery. When the shift time is up, customers
-## still eating pay and everyone leaves; the phase becomes NIGHT.
+## still eating pay and everyone leaves; the phase becomes NIGHT. A shift shut
+## by a lost Corporate Audit goes straight to NIGHT.
 
 
 class Events:
@@ -27,12 +28,21 @@ class Events:
 	var dishes_broken: int = 0
 	var glitches: int = 0
 	var shift_ended: bool = false
+	## True when the café was shut for this shift (lost Corporate Audit).
+	var closed: bool = false
 
 
 ## Passes up to seconds of shift time. Does nothing outside the SHIFT phase.
 static func run(state: GameState, seconds: int, data: GameData) -> Events:
 	var events := Events.new()
 	if state.phase != GameState.Phase.SHIFT:
+		return events
+	if state.closed:
+		# Shut for the day: straight to night, nobody works or drains.
+		state.closed = false
+		state.shift_time = data.balance.shift_seconds
+		events.closed = true
+		_close(state, data, events)
 		return events
 	var rng := state.rng()
 	for i: int in maxi(seconds, 0):

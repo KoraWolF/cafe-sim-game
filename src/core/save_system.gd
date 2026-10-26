@@ -10,12 +10,10 @@ extends RefCounted
 ## and after GameLoop.end_night. The autosave has its own file, so it never
 ## overwrites a manual slot.
 
-const VERSION: int = 1
+## 2: district takeover (influence, owned districts, district start day, closed shift).
+const VERSION: int = 2
 const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
-## Old version -> function turning that save's dictionary into the next version's.
-## Add an entry every time VERSION goes up.
-const MIGRATIONS: Dictionary[int, Callable] = {}
 
 
 static func slot_path(slot: int) -> String:
@@ -47,6 +45,10 @@ static func to_dict(state: GameState) -> Dictionary:
 		"customers": state.customers.map(func(customer: Customer) -> Dictionary: return customer.to_dict()),
 		"synths": state.synths.map(func(synth: Synth) -> Dictionary: return synth.to_dict()),
 		"district_id": state.district_id,
+		"district_started_day": state.district_started_day,
+		"owned_districts": state.owned_districts,
+		"influence": state.influence,
+		"closed": state.closed,
 		"suspicion": state.suspicion,
 		"raid_cooldowns": state.raid_cooldowns,
 		"raid_target": state.raid_target,
@@ -87,6 +89,16 @@ static func from_dict(raw: Dictionary) -> GameState:
 	for entry: Dictionary in _objects(raw, "synths"):
 		state.synths.append(Synth.from_dict(entry))
 	state.district_id = str(raw.get("district_id", ""))
+	state.district_started_day = int(raw.get("district_started_day", 0))
+	var owned: Variant = raw.get("owned_districts", [])
+	if owned is Array:
+		for district_id: Variant in owned:
+			state.owned_districts.append(str(district_id))
+	var influence: Variant = raw.get("influence", {})
+	if influence is Dictionary:
+		for district_id: Variant in influence:
+			state.influence[str(district_id)] = int(influence[district_id])
+	state.closed = bool(raw.get("closed", false))
 	var suspicion: Variant = raw.get("suspicion", {})
 	if suspicion is Dictionary:
 		for district_id: Variant in suspicion:
@@ -123,13 +135,28 @@ static func migrate(raw: Dictionary, errors: PackedStringArray) -> Dictionary:
 		errors.append("save is from a newer version of the game (%d > %d)" % [version, VERSION])
 		return {}
 	while version < VERSION:
-		if not MIGRATIONS.has(version):
+		var next := _migrate_step(version, raw)
+		if next.is_empty():
 			errors.append("unsupported save version %d" % version)
 			return {}
-		raw = MIGRATIONS[version].call(raw)
+		raw = next
 		version += 1
 		raw["version"] = version
 	return raw
+
+
+## One save version to the next; {} if there is no migration from this version.
+## Add a case every time VERSION goes up.
+static func _migrate_step(version: int, raw: Dictionary) -> Dictionary:
+	match version:
+		1:
+			# Before district takeover: still in the first district, nothing owned.
+			raw["district_started_day"] = 1
+			raw["owned_districts"] = []
+			raw["influence"] = {}
+			raw["closed"] = false
+			return raw
+	return {}
 
 
 ## Every problem that makes a loaded state unusable; empty means it is fine.
@@ -153,9 +180,20 @@ static func validate(state: GameState, data: GameData) -> PackedStringArray:
 			errors.append("bad upgrade level '%s'" % upgrade_id)
 	if not data.districts.has(state.district_id):
 		errors.append("unknown district '%s'" % state.district_id)
-	for district_id: String in state.suspicion:
+	for district_id: String in state.suspicion.keys() + state.influence.keys():
 		if not data.districts.has(district_id):
-			errors.append("suspicion for unknown district '%s'" % district_id)
+			errors.append("suspicion or influence for unknown district '%s'" % district_id)
+	for district_id: String in state.influence:
+		if state.influence[district_id] < 0:
+			errors.append("negative influence in '%s'" % district_id)
+	for i: int in state.owned_districts.size():
+		var district_id := state.owned_districts[i]
+		if not data.districts.has(district_id) or state.owned_districts.find(district_id) != i:
+			errors.append("bad owned district '%s'" % district_id)
+	if state.district_started_day < 1 or state.district_started_day > state.day + 1:
+		errors.append("district started on day %d" % state.district_started_day)
+	if state.closed and (state.phase != GameState.Phase.SHIFT or state.shift_time != 0):
+		errors.append("closed outside the start of a shift")
 	for stove: Stove in state.stoves:
 		if not stove.is_idle() and not data.recipes.has(stove.recipe_id):
 			errors.append("stove cooks unknown recipe '%s'" % stove.recipe_id)

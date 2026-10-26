@@ -30,11 +30,13 @@ const TARGET_COOLDOWN: String = "target_cooldown"
 const EMPTY_SQUAD: String = "empty_squad"
 const SQUAD_TOO_BIG: String = "squad_too_big"
 const NO_BATTERY: String = "no_battery"
+const FLAGSHIP_LOCKED: String = "flagship_locked"
 const UNKNOWN_UPGRADE: String = "unknown_upgrade"
 const MAXED: String = "maxed"
 
 
-## Passes shift time. Returns empty events outside a shift.
+## Passes shift time. Returns empty events outside a shift. A shift shut by a
+## lost Corporate Audit closes at once (events.closed).
 static func advance(state: GameState, seconds: int, data: GameData) -> Shift.Events:
 	return Shift.run(state, seconds, data)
 
@@ -161,8 +163,11 @@ static func assign_role(state: GameState, synth_id: String, role: String) -> Str
 static func plan_raid(state: GameState, rival_id: String, synth_ids: Array[String], data: GameData) -> String:
 	if state.phase != GameState.Phase.NIGHT:
 		return WRONG_PHASE
-	if data.districts[state.district_id].rival_by_id(rival_id) == null:
+	var district := data.districts[state.district_id]
+	if district.rival_by_id(rival_id) == null:
 		return UNKNOWN_TARGET
+	if district.is_flagship(rival_id) and not NightOps.flagship_unlocked(state, data):
+		return FLAGSHIP_LOCKED
 	if state.raid_cooldowns.get(rival_id, 0) > state.day:
 		return TARGET_COOLDOWN
 	var squad: Array[String] = []

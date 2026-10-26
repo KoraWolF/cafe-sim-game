@@ -1,7 +1,20 @@
 [
-	{"id": "alley", "rivals": [
-		{"id": "megabean_kiosk", "defenders": [{"power": 5, "hp": 20}], "loot_coins": 60, "loot_cores": 1},
-		{"id": "megabean_express", "defenders": [{"power": 7, "hp": 30}, {"power": 7, "hp": 30},
-			{"power": 9, "hp": 35}], "loot_coins": 150, "loot_cores": 2}
-	]}
+	{"id": "alley", "influence_required": 10, "income": 80,
+		"rivals": [
+			{"id": "megabean_kiosk", "defenders": [{"power": 5, "hp": 20}], "loot_coins": 60, "loot_cores": 1,
+				"influence": 1},
+			{"id": "megabean_express", "defenders": [{"power": 7, "hp": 30}, {"power": 7, "hp": 30},
+				{"power": 9, "hp": 35}], "loot_coins": 150, "loot_cores": 2, "influence": 2}
+		],
+		"flagship": {"id": "megabean_alley_flagship", "defenders": [{"power": 8, "hp": 40}, {"power": 8, "hp": 40},
+			{"power": 10, "hp": 55}], "loot_coins": 400, "loot_cores": 3}},
+	{"id": "neon_market", "influence_required": 10, "income": 200,
+		"rivals": [
+			{"id": "megabean_drive", "defenders": [{"power": 9, "hp": 35}, {"power": 9, "hp": 35}],
+				"loot_coins": 140, "loot_cores": 1, "influence": 1},
+			{"id": "megabean_lounge", "defenders": [{"power": 10, "hp": 45}, {"power": 10, "hp": 45},
+				{"power": 12, "hp": 50}], "loot_coins": 260, "loot_cores": 2, "influence": 2}
+		],
+		"flagship": {"id": "megabean_tower", "defenders": [{"power": 10, "hp": 50}, {"power": 10, "hp": 50},
+			{"power": 12, "hp": 60}, {"power": 15, "hp": 80}], "loot_coins": 900, "loot_cores": 5}}
 ]

@@ -7,6 +7,8 @@ var id: String = ""
 var defenders: Array[Dictionary] = []
 var loot_coins: int = 0
 var loot_cores: int = 0
+## Influence a won raid earns in the rival's district (flagships give none).
+var influence: int = 0
 
 
 static func from_dict(values: Dictionary) -> RivalCafe:
@@ -17,4 +19,5 @@ static func from_dict(values: Dictionary) -> RivalCafe:
 			rival.defenders.append({"power": float(entry.get("power", 0.0)), "hp": float(entry.get("hp", 1.0))})
 	rival.loot_coins = int(values.get("loot_coins", 0))
 	rival.loot_cores = int(values.get("loot_cores", 0))
+	rival.influence = int(values.get("influence", 0))
 	return rival

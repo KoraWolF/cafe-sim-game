@@ -63,7 +63,8 @@ var raid_suspicion: float = 12.0
 ## Suspicion each district loses every night.
 var suspicion_decay: float = 5.0
 var raid_squad_max: int = 4
-## Rival guards grow stronger every day: power/hp * (1 + rival_growth_per_day * day).
+## Rival guards (not flagships) grow stronger every day the district has been open:
+## power/hp * (1 + rival_growth_per_day * days since the district opened).
 var rival_growth_per_day: float = 0.0
 ## Battery each raider spends, win or lose.
 var raid_battery_cost: float = 25.0
@@ -88,6 +89,16 @@ var defense_hp_per_day: float = 2.0
 ## Losing a defense costs this share of coins and this many Nano Cores.
 var defense_coin_loss: float = 0.25
 var defense_core_loss: int = 1
+## At night with Suspicion at or above this, a Corporate Audit replaces the
+## random MegaBean raid: always comes, audit_size raiders, each audit_strength
+## times a normal raider. Losing it costs audit_coin_loss of the coins and one
+## Synth (never the last), and closes the café for the next shift. Win or
+## lose, Suspicion falls to audit_reset_suspicion.
+var audit_suspicion: float = 90.0
+var audit_size: int = 4
+var audit_strength: float = 1.5
+var audit_coin_loss: float = 0.3
+var audit_reset_suspicion: float = 40.0
 ## Coins a Synth with steal_chance pockets when the roll hits (once a night).
 var steal_coins: int = 10
 
