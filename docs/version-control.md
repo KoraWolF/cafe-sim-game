@@ -26,7 +26,7 @@ git tag -a v0.1-core-loop -m "Core loop playable headless"
 
 ## Back-up
 
-1. **GitHub (main backup):** `origin` is `git@github.com:KoraWolF/cafe-sim-game.git` (keep it private). Push `main` and every work branch at the end of each session: `git push -u origin <branch>`, and push tags with `git push --tags`.
+1. **GitHub (main backup):** `origin` is `https://github.com/KoraWolF/cafe-sim-game.git` over HTTPS with the Windows credential manager, like monster-brothel (keep it private). Push `main` and every work branch at the end of each session: `git push -u origin <branch>`, and push tags with `git push --tags`.
 2. **Second copy (optional):** a few times a month, write a single-file bundle to another drive or cloud folder: `git bundle create D:/Backups/nanobrew-YYYY-MM-DD.bundle --all`. It restores with `git clone <bundle>`.
 
 ## Large files
