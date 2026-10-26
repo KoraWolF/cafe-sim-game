@@ -35,6 +35,10 @@ const SPEEDS: Array[int] = [0, 1, 2, 4]
 @export var upgrades: Dictionary[String, int] = {}
 ## Ready servings: recipe id -> count.
 @export var counter: Dictionary[String, int] = {}
+## Recipe ids customers can order this shift (set at night, up to menu_slots).
+## Empty = any unlocked recipe (saves from before the menu).
+@export var menu: Array[String] = []
+@export var menu_slots: int = 0
 
 @export var customers: Array[Customer] = []
 @export var synths: Array[Synth] = []
@@ -63,7 +67,8 @@ const SPEEDS: Array[int] = [0, 1, 2, 4]
 @export var rng_state: int = 0
 
 
-## Day 1, shift just opened, with the starter Synth on its pod at full battery.
+## Day 1, shift just opened, with the starter Synth on its pod at full battery
+## and the first start_menu_slots unlocked recipes on the menu.
 static func new_game(seed_value: int, data: GameData) -> GameState:
 	var b := data.balance
 	var state := GameState.new()
@@ -86,6 +91,9 @@ static func new_game(seed_value: int, data: GameData) -> GameState:
 	var starter := state.add_synth(b.starter_species, "", data)
 	starter.name = b.starter_name
 	starter.role = Synth.SERVER
+	state.menu_slots = b.start_menu_slots
+	for recipe: Recipe in Shift.unlocked_recipes(state, data).slice(0, b.start_menu_slots):
+		state.menu.append(recipe.id)
 	return state
 
 

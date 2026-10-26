@@ -4,8 +4,8 @@ extends RefCounted
 ## calls these and shows the returned events and reports.
 ##
 ## A day: the shift runs through advance() until it closes (phase NIGHT). At
-## night the player may plan a raid, brew, buy Power and upgrades and change
-## roles; then
+## night the player may set tomorrow's menu, plan a raid, brew, buy Power and
+## upgrades and change roles; then
 ## end_night() resolves Night Ops and opens the next shift.
 ## Actions return OK ("") or an error code.
 
@@ -31,6 +31,8 @@ const EMPTY_SQUAD: String = "empty_squad"
 const SQUAD_TOO_BIG: String = "squad_too_big"
 const NO_BATTERY: String = "no_battery"
 const FLAGSHIP_LOCKED: String = "flagship_locked"
+const EMPTY_MENU: String = "empty_menu"
+const MENU_TOO_LONG: String = "menu_too_long"
 const UNKNOWN_UPGRADE: String = "unknown_upgrade"
 const MAXED: String = "maxed"
 
@@ -110,6 +112,29 @@ static func buy_power(state: GameState, amount: int, data: GameData) -> String:
 	return OK
 
 
+## Sets the next shift's menu (duplicates dropped). Only at night.
+static func set_menu(state: GameState, recipe_ids: Array[String], data: GameData) -> String:
+	if state.phase != GameState.Phase.NIGHT:
+		return WRONG_PHASE
+	var menu: Array[String] = []
+	for recipe_id: String in recipe_ids:
+		if not menu.has(recipe_id):
+			menu.append(recipe_id)
+	if menu.is_empty():
+		return EMPTY_MENU
+	if menu.size() > state.menu_slots:
+		return MENU_TOO_LONG
+	var unlocked := Shift.unlocked_recipes(state, data)
+	for recipe_id: String in menu:
+		var recipe: Recipe = data.recipes.get(recipe_id)
+		if recipe == null:
+			return UNKNOWN_RECIPE
+		if not unlocked.has(recipe):
+			return RECIPE_LOCKED
+	state.menu = menu
+	return OK
+
+
 ## Coins the next purchase of this upgrade costs, or -1 if it is maxed or unknown.
 static func upgrade_cost(state: GameState, upgrade_id: String, data: GameData) -> int:
 	var upgrade: Upgrade = data.upgrades.get(upgrade_id)
@@ -141,6 +166,8 @@ static func buy_upgrade(state: GameState, upgrade_id: String, data: GameData) ->
 			state.seats += roundi(upgrade.step)
 		Upgrade.POD:
 			state.pods += roundi(upgrade.step)
+		Upgrade.MENU_SLOT:
+			state.menu_slots += roundi(upgrade.step)
 		Upgrade.SECURITY:
 			state.security += upgrade.step
 	return OK

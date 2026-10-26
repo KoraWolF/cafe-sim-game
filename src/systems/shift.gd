@@ -4,7 +4,7 @@ extends RefCounted
 ##
 ## Each second, in order: stoves cook (base speed 1 + chefs' cook), customers
 ## arrive (greeters shorten the gap), queued customers take free seats and
-## order, servers carry ready servings to tables, customers wait / eat / leave,
+## order from the menu (favourites more often), servers carry ready servings to tables, customers wait / eat / leave,
 ## and on-duty Synths drain battery. When the shift time is up, customers
 ## still eating pay and everyone leaves; the phase becomes NIGHT. A shift shut
 ## by a lost Corporate Audit goes straight to NIGHT.
@@ -63,6 +63,14 @@ static func unlocked_recipes(state: GameState, data: GameData) -> Array[Recipe]:
 		if recipe.unlock_species == "" or state.has_species(recipe.unlock_species):
 			result.append(recipe)
 	return result
+
+
+## What customers can order now: the menu's unlocked recipes, or every unlocked
+## recipe if none of the menu is (an empty menu, or a lost Xeno's recipe).
+static func order_menu(state: GameState, data: GameData) -> Array[Recipe]:
+	var unlocked := unlocked_recipes(state, data)
+	var result := unlocked.filter(func(recipe: Recipe) -> bool: return state.menu.has(recipe.id))
+	return unlocked if result.is_empty() else result
 
 
 ## Total appeal of working greeters; the arrival gap is divided by 1 + this.
@@ -170,7 +178,7 @@ static func _seat(state: GameState, data: GameData, rng: RandomNumberGenerator) 
 	var free := state.seats - seated_count(state)
 	if free <= 0:
 		return
-	var menu := unlocked_recipes(state, data)
+	var menu := order_menu(state, data)
 	for customer: Customer in state.customers:
 		if free <= 0:
 			return
@@ -178,8 +186,24 @@ static func _seat(state: GameState, data: GameData, rng: RandomNumberGenerator) 
 			continue
 		customer.stage = Customer.Stage.WAITING_FOOD
 		customer.waited = 0
-		customer.recipe_id = menu[rng.randi_range(0, menu.size() - 1)].id
+		customer.recipe_id = _pick_order(data.customer_types[customer.type_id], menu, data.balance, rng)
 		free -= 1
+
+
+## A menu dish, favourites weighted by favorite_weight.
+static func _pick_order(type: CustomerType, menu: Array[Recipe], b: BalanceConfig, rng: RandomNumberGenerator) -> String:
+	var weights: Array[float] = []
+	var total := 0.0
+	for recipe: Recipe in menu:
+		var weight := b.favorite_weight if type.favorites.has(recipe.id) else 1.0
+		weights.append(weight)
+		total += weight
+	var roll := rng.randf() * total
+	for i: int in menu.size():
+		roll -= weights[i]
+		if roll < 0.0:
+			return menu[i].id
+	return menu[-1].id
 
 
 static func _serve(state: GameState, data: GameData, rng: RandomNumberGenerator, events: Events) -> void:
@@ -225,7 +249,10 @@ static func _deliver(state: GameState, synth: Synth, data: GameData, rng: Random
 		return
 	customer.stage = Customer.Stage.EATING
 	customer.timer = data.balance.eat_seconds
-	customer.satisfaction = clampf(customer.satisfaction + SynthStats.stat(synth, "satisfaction", data), 0.0, 100.0)
+	var bonus := SynthStats.stat(synth, "satisfaction", data)
+	if data.customer_types[customer.type_id].favorites.has(customer.recipe_id):
+		bonus += data.balance.favorite_satisfaction
+	customer.satisfaction = clampf(customer.satisfaction + bonus, 0.0, 100.0)
 	customer.tip_bonus = SynthStats.stat(synth, "tip", data)
 	Leveling.add_xp(synth, data.balance.xp_per_delivery, data.balance, events.level_ups)
 

@@ -20,7 +20,9 @@ extends RefCounted
 ## XP: delivery 2, batch 6 (shared), arrival 1 (shared), raid 30 / 15, defense 20;
 ## level n -> n + 1 costs 100 * n; max level 3; +50% of base per level.
 ## Upgrades: stove 50 (x2 per level, max 2), seat 20 (+2 seats, max 3),
-## pod 100 (max 1), security 30 (+10 hp, max 2).
+## pod 100 (max 1), menu slot 40 (max 1), security 30 (+10 hp, max 2).
+## Menu: 2 slots, tea on it by default (jelly needs an alien). Favourites x3,
+## +10 satisfaction when served.
 
 
 static func content(balance_overrides := {}) -> Dictionary:
@@ -31,7 +33,8 @@ static func content(balance_overrides := {}) -> Dictionary:
 		"star_window_seconds": 10, "delivery_seconds": 4, "eat_seconds": 5, "tip_rate": 0.5, "min_pay_share": 0.5,
 		"low_battery_share": 0.2, "low_battery_factor": 0.5, "late_shift_start": 0.7,
 		"start_coins": 100, "start_nanobrew": 1, "start_cores": 0, "start_power": 10.0, "start_seats": 2,
-		"start_stoves": 2, "start_pods": 2, "start_security": 0.0, "start_district": "town",
+		"start_stoves": 2, "start_pods": 2, "start_menu_slots": 2, "favorite_weight": 3.0,
+		"favorite_satisfaction": 10.0, "start_security": 0.0, "start_district": "town",
 		"starter_species": "steady", "starter_name": "Proto", "brew_coin_cost": 30, "brew_core_cost": 1,
 		"power_price": 2, "power_per_battery": 0.1, "conversion_suspicion": 10.0, "raid_suspicion": 20.0,
 		"suspicion_decay": 5.0, "raid_squad_max": 2, "raid_battery_cost": 25.0, "raid_cooldown_days": 2,
@@ -54,7 +57,7 @@ static func content(balance_overrides := {}) -> Dictionary:
 		"customer_types": [
 			{"id": "regular", "weight": 1, "synth_species": "worker", "patience": 1.0, "tip": 1.0,
 				"trait_pool": ["owl"]},
-			{"id": "tourist", "weight": 0, "synth_species": "alien", "patience": 1.0, "tip": 1.0,
+			{"id": "tourist", "weight": 0, "synth_species": "alien", "patience": 1.0, "tip": 1.0, "favorites": ["jelly"],
 				"trait_pool": []},
 		],
 		"species": [
@@ -84,6 +87,7 @@ static func content(balance_overrides := {}) -> Dictionary:
 			{"id": "stove", "step": 1, "base_cost": 50, "cost_growth": 2.0, "max_level": 2},
 			{"id": "seat", "step": 2, "base_cost": 20, "cost_growth": 1.0, "max_level": 3},
 			{"id": "pod", "step": 1, "base_cost": 100, "cost_growth": 1.0, "max_level": 1},
+			{"id": "menu_slot", "step": 1, "base_cost": 40, "cost_growth": 1.0, "max_level": 1},
 			{"id": "security", "step": 10, "base_cost": 30, "cost_growth": 1.0, "max_level": 2},
 		],
 	}

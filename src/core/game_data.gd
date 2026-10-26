@@ -102,6 +102,9 @@ func check() -> PackedStringArray:
 		for trait_id: String in type.trait_pool:
 			if not traits.has(trait_id):
 				errors.append("customer type %s: unknown trait '%s'" % [type.id, trait_id])
+		for recipe_id: String in type.favorites:
+			if not recipes.has(recipe_id):
+				errors.append("customer type %s: unknown favourite '%s'" % [type.id, recipe_id])
 	for one: Species in species.values():
 		if not Synth.ROLES.has(one.best_role):
 			errors.append("species %s: unknown role '%s'" % [one.id, one.best_role])

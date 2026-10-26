@@ -12,7 +12,8 @@ extends RefCounted
 
 ## 2: district takeover (influence, owned districts, district start day, closed shift).
 ## 3: Synth level and XP.
-const VERSION: int = 3
+## 4: daily menu and menu slots.
+const VERSION: int = 4
 const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
 
@@ -43,6 +44,8 @@ static func to_dict(state: GameState) -> Dictionary:
 		"upgrades": state.upgrades,
 		"stoves": state.stoves.map(func(stove: Stove) -> Dictionary: return stove.to_dict()),
 		"counter": state.counter,
+		"menu": state.menu,
+		"menu_slots": state.menu_slots,
 		"customers": state.customers.map(func(customer: Customer) -> Dictionary: return customer.to_dict()),
 		"synths": state.synths.map(func(synth: Synth) -> Dictionary: return synth.to_dict()),
 		"district_id": state.district_id,
@@ -85,6 +88,11 @@ static func from_dict(raw: Dictionary) -> GameState:
 	if counter is Dictionary:
 		for recipe_id: Variant in counter:
 			state.counter[str(recipe_id)] = int(counter[recipe_id])
+	var menu: Variant = raw.get("menu", [])
+	if menu is Array:
+		for recipe_id: Variant in menu:
+			state.menu.append(str(recipe_id))
+	state.menu_slots = int(raw.get("menu_slots", 0))
 	for entry: Dictionary in _objects(raw, "customers"):
 		state.customers.append(Customer.from_dict(entry))
 	for entry: Dictionary in _objects(raw, "synths"):
@@ -164,6 +172,12 @@ static func _migrate_step(version: int, raw: Dictionary) -> Dictionary:
 					synth["level"] = 1
 					synth["xp"] = 0
 			return raw
+		3:
+			# Before the menu: customers ordered any unlocked recipe (an empty
+			# menu still means that); 2 slots was the starting count.
+			raw["menu"] = []
+			raw["menu_slots"] = 2
+			return raw
 	return {}
 
 
@@ -208,6 +222,11 @@ static func validate(state: GameState, data: GameData) -> PackedStringArray:
 	for recipe_id: String in state.counter:
 		if not data.recipes.has(recipe_id) or state.counter[recipe_id] < 0:
 			errors.append("counter: bad entry '%s'" % recipe_id)
+	if state.menu_slots < 1 or state.menu.size() > state.menu_slots:
+		errors.append("menu of %d dishes for %d slots" % [state.menu.size(), state.menu_slots])
+	for i: int in state.menu.size():
+		if not data.recipes.has(state.menu[i]) or state.menu.find(state.menu[i]) != i:
+			errors.append("bad menu dish '%s'" % state.menu[i])
 	var ids: Dictionary[String, bool] = {}
 	for synth: Synth in state.synths:
 		if ids.has(synth.id) or synth.id == "":
