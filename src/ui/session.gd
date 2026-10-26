@@ -45,6 +45,9 @@ var day_log := DayLog.new()
 var paused: bool = false
 ## Arranging the floor: keys go to the floor editor, not the HUD.
 var editing: bool = false
+## Synth id -> name, taken just before the night resolves, so a Synth the
+## Audit takes can still be named in the battle scene.
+var synth_names: Dictionary[String, String] = {}
 var _carry: float = 0.0
 
 
@@ -119,6 +122,9 @@ func advance(seconds: int) -> Shift.Events:
 
 
 func end_night() -> NightOps.Report:
+	synth_names.clear()
+	for synth: Synth in state.synths:
+		synth_names[synth.id] = synth_name(synth)
 	var report := GameLoop.end_night(state, data)
 	if report == null:
 		return null
