@@ -9,3 +9,14 @@ extends Resource
 
 func is_idle() -> bool:
 	return recipe_id == ""
+
+
+func to_dict() -> Dictionary:
+	return {"recipe_id": recipe_id, "remaining": remaining}
+
+
+static func from_dict(values: Dictionary) -> Stove:
+	var stove := Stove.new()
+	stove.recipe_id = str(values.get("recipe_id", ""))
+	stove.remaining = float(values.get("remaining", 0.0))
+	return stove
