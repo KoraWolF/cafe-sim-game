@@ -188,6 +188,74 @@ static func vibe(state: GameState, data: GameData) -> float:
 	return total
 
 
+## The placed piece covering a tile, or null.
+static func piece_at(state: GameState, tile: Vector2i, data: GameData) -> PlacedPiece:
+	for placed: PlacedPiece in state.placed:
+		if cells(placed, data).has(tile):
+			return placed
+	return null
+
+
+## Total Vibe if a piece stood here: the placed piece uid moved, or (uid "") a
+## new piece_id placed. The state is left as it was.
+static func vibe_if(state: GameState, piece_id: String, cell: Vector2i, rotated: bool, data: GameData, uid := "") -> float:
+	var trial := _trial(state, piece_id, cell, rotated, uid)
+	var total := vibe(state, data)
+	_end_trial(state, trial)
+	return total
+
+
+## Placed pieces that would touch this piece here and match an adjacency rule with it.
+static func matching_neighbours(state: GameState, piece_id: String, cell: Vector2i, rotated: bool, data: GameData,
+		uid := "") -> Array[String]:
+	var trial := _trial(state, piece_id, cell, rotated, uid)
+	var mine := cells(trial["placed"], data)
+	var piece := data.pieces[piece_id]
+	var result: Array[String] = []
+	for placed: PlacedPiece in state.placed:
+		if placed == trial["placed"]:
+			continue
+		var other := data.pieces[placed.piece_id]
+		if not data.adjacency.any(func(rule: AdjacencyRule) -> bool: return rule.matches(piece, other)):
+			continue
+		var touching := false
+		for other_cell: Vector2i in cells(placed, data):
+			for step: Vector2i in NEIGHBOURS:
+				if mine.has(other_cell + step):
+					touching = true
+		if touching:
+			result.append(placed.uid)
+	_end_trial(state, trial)
+	return result
+
+
+## Puts the piece at cell for a moment: moves the placed uid, or adds a new one.
+## Returns what _end_trial needs to undo it.
+static func _trial(state: GameState, piece_id: String, cell: Vector2i, rotated: bool, uid: String) -> Dictionary:
+	var placed := placed_by_uid(state, uid) if uid != "" else null
+	if placed != null:
+		var undo := {"placed": placed, "cell": placed.cell, "rotated": placed.rotated, "added": false}
+		placed.cell = cell
+		placed.rotated = rotated
+		return undo
+	placed = PlacedPiece.new()
+	placed.uid = "trial"
+	placed.piece_id = piece_id
+	placed.cell = cell
+	placed.rotated = rotated
+	state.placed.append(placed)
+	return {"placed": placed, "added": true}
+
+
+static func _end_trial(state: GameState, undo: Dictionary) -> void:
+	var placed: PlacedPiece = undo["placed"]
+	if undo["added"]:
+		state.placed.erase(placed)
+	else:
+		placed.cell = undo["cell"]
+		placed.rotated = undo["rotated"]
+
+
 static func _occupied(state: GameState, data: GameData, ignore_uid: String) -> Dictionary[Vector2i, bool]:
 	var taken: Dictionary[Vector2i, bool] = {}
 	for placed: PlacedPiece in state.placed:

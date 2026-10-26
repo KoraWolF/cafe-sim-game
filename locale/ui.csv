@@ -67,7 +67,22 @@ ui.maxed,Maxed
 ui.decor_title,Décor shop
 ui.decor_line,"%s — %dx%d, %d Vibe, tags: %s"
 ui.decor_owned,In storage: %d
-ui.decor_note,Pieces are placed automatically for now; arranging the floor comes in the next update.
+ui.decor_note,New pieces go to the first free spot. Use Arrange Floor to move them.
+ui.arrange,Arrange Floor
+ui.edit_title,Arrange the floor
+ui.edit_hint,"Click a piece to pick it up, click again to drop it. R rotates, right-click puts it back. Esc leaves."
+ui.edit_holding,Holding: %s
+ui.edit_holding_rotated,Holding: %s (rotated)
+ui.edit_nothing,Nothing in hand.
+ui.edit_rotate,Rotate (R)
+ui.edit_store,Store
+ui.edit_sell,Sell (+%d)
+ui.edit_cancel,Put back
+ui.edit_done,Done
+ui.edit_storage,Storage
+ui.edit_storage_empty,Storage is empty.
+ui.edit_take,%s ×%d
+ui.edit_vibe_delta,%+d Vibe
 ui.floor_line,"Floor %d x %d, Vibe %d"
 ui.no_room_stored,No room on the floor — the piece waits in storage.
 ui.staff_line,"%s (%s%s) — Lv %d, battery %d / %d"

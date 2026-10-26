@@ -1,5 +1,7 @@
 class_name NightHub
 extends PanelContainer
+
+signal arrange_requested
 ## The night screen, on the right so the café stays visible: Summary, Menu,
 ## Upgrades & Décor, Staff and Night Ops tabs, then "End Night". Tabs rebuild
 ## from the state after every action, so they always show what is true.
@@ -21,7 +23,11 @@ func _ready() -> void:
 	offset_bottom = -12
 	var column := VBoxContainer.new()
 	add_child(column)
-	column.add_child(_title)
+	var header := HBoxContainer.new()
+	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(_title)
+	header.add_child(UiTheme.button(tr("ui.arrange"), arrange_requested.emit))
+	column.add_child(header)
 	_tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(_tabs)
 	for key: String in ["summary", "menu", "upgrades", "staff", "ops"]:
