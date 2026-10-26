@@ -38,7 +38,16 @@ The logic stays headless-tested. UI-only helpers, such as the error message tabl
 3. **`ui-battle-playback` (built 2026-10-27):** the animated battle scene, played from `Battle.Report.hits`.
 4. **`ui-polish`:** feedback effects (tip pop-ups, conversion burst, level-up), tooltips, settings menu (resolution, volume, language) and audio buses.
 
-Not decided yet (I'll ask before branch 4): music and SFX style, the settings menu contents, and whether there's a tutorial or first-day guidance.
+Branch 4 decisions (2026-10-27):
+- **Audio style:** lo-fi synthwave.
+  - Music: chill lo-fi beats with soft synth pads during shifts, a moodier neon synthwave track at night, and punchy, slightly chiptune stings in battles.
+  - Sound effects: soft UI blips, coffee pours, a cash "ka-ching" and a glitchy power-up for conversions.
+- **Audio source for now:** audio buses (Master, Music, SFX, UI) and an event hook for every moment (tip, conversion, hit, level-up, …), with simple placeholder tones generated in code. Real files are swapped in later by name, with no code changes.
+- **Settings menu:** volume sliders for Master, Music, SFX and UI, saved between sessions.
+- **Tutorial:** a guided first day.
+  - Short step-by-step tips that wait for the player to do each thing: cook a dish, watch a delivery, convert a starred customer, set the menu, plan a raid, end the night.
+  - It can be skipped, and replayed from the settings menu.
+- **Feedback effects (from the plan):** tip pop-ups, a conversion burst, level-up flashes and tooltips.
 
 ## Running it
 
