@@ -14,6 +14,7 @@ const FEED_LINES: int = 6
 const TOAST_SECONDS: float = 3.0
 const MAX_TOASTS: int = 3
 
+var bar := PanelContainer.new()
 var _top := Label.new()
 var _resources := Label.new()
 var _shift_bar := ProgressBar.new()
@@ -42,11 +43,11 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build_top_bar()
-	_tracker.position = Vector2(16, 62)
+	_tracker.position = Vector2(16, UiTheme.TOP_BAR_HEIGHT + 8)
 	_tracker.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_tracker)
 	_toasts.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
-	_toasts.position = Vector2(-300, 90)
+	_toasts.position = Vector2(-300, UiTheme.TOP_BAR_HEIGHT + 30)
 	_toasts.custom_minimum_size = Vector2(600, 0)
 	_toasts.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_toasts)
@@ -72,11 +73,14 @@ func _ready() -> void:
 
 
 func _build_top_bar() -> void:
-	var bar := PanelContainer.new()
+	# Two rows: day, shift and resources on top; speed and the buttons below.
 	bar.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	bar.custom_minimum_size = Vector2(0, UiTheme.TOP_BAR_HEIGHT)
 	add_child(bar)
+	var rows := VBoxContainer.new()
+	bar.add_child(rows)
 	var row := HBoxContainer.new()
-	bar.add_child(row)
+	rows.add_child(row)
 	_top.add_theme_font_size_override("font_size", 22)
 	row.add_child(_top)
 	_shift_bar.custom_minimum_size = Vector2(180, 20)
@@ -87,7 +91,12 @@ func _build_top_bar() -> void:
 	_resources.tooltip_text = tr("tip.resources")
 	_resources.mouse_filter = Control.MOUSE_FILTER_PASS
 	row.add_child(_resources)
+	row = HBoxContainer.new()
+	rows.add_child(row)
 	row.add_child(_speed_box)
+	var gap := Control.new()
+	gap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(gap)
 	for speed: int in GameState.SPEEDS:
 		var label := tr("ui.speed_pause") if speed == 0 else "%d×" % speed
 		var button := UiTheme.button(label, Session.set_speed.bind(speed))

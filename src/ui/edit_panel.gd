@@ -20,7 +20,7 @@ var _storage := VBoxContainer.new()
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_RIGHT_WIDE)
 	offset_left = -WIDTH - 12
-	offset_top = 70
+	offset_top = UiTheme.TOP_BAR_HEIGHT + 12
 	offset_right = -12
 	offset_bottom = -12
 	visible = false
