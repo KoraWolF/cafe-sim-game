@@ -5,9 +5,11 @@ extends Resource
 const SERVER: String = "server"
 const CHEF: String = "chef"
 const GREETER: String = "greeter"
+## Works a register: customers pay there on the way out.
+const CASHIER: String = "cashier"
 ## Off duty: does no work and does not drain.
 const REST: String = "rest"
-const ROLES: Array[String] = [SERVER, CHEF, GREETER, REST]
+const ROLES: Array[String] = [SERVER, CHEF, CASHIER, GREETER, REST]
 
 @export var id: String = ""
 @export var name: String = ""

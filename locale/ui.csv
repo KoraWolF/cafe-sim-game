@@ -185,8 +185,8 @@ tutorial.skip_step,Skip step
 tutorial.skip_all,Skip tutorial
 tutorial.welcome,"Welcome to NanoBrew Café! Customers come in, sit down and order from your menu. Your job: keep the food coming and turn your happiest customers into Synth staff."
 tutorial.cook,Click a stove and pick a dish to cook. A server carries the finished batch to a free counter.
-tutorial.deliver,Your server Synth carries dishes from the counter to the tables. Watch a customer get served and pay.
-tutorial.convert,"That customer has a star — they loved it! Click them to spend your NanoBrew: they become a Synth."
+tutorial.deliver,"Your server carries dishes from the counter to the tables. After eating, customers pay your Cashier at the register."
+tutorial.convert,"That customer has a star — they loved it! Click them while they pay or walk out to spend your NanoBrew: they become a Synth."
 tutorial.card,Click one of your Synths to see its level and battery and to change its role.
 tutorial.night,"The café is closed: it's night. Plan for tomorrow here, then press End Night."
 tutorial.menu,Open the Menu tab and choose tomorrow's dishes. Customers love their favourites.
@@ -216,7 +216,7 @@ ui.ops_security,"Security level %d: every Synth defending the café at night get
 customer.stage_0,Waiting in line for a seat
 customer.stage_1,Seated and waiting for food
 customer.stage_2,Eating
-customer.stage_3,Loved it! (star)
+customer.stage_3,Loved it! Leaving (star)
 customer.order,Order: %s%s
 customer.favourite, (favourite!)
 customer.mood,Mood: %d%%
@@ -234,8 +234,6 @@ trait.chatty.desc,"Chatty: dishes it serves earn bigger tips (+30%) and it greet
 trait.kleptomaniac.desc,"Kleptomaniac: brings back 30% more raid loot, but may pocket 10 coins at night."
 ui.door_open,OPEN
 ui.door_closed,CLOSED
-ui.call_board_1,Starred?
-ui.call_board_2,Wait here!
 error.counter_needed,The café needs at least one counter for finished dishes.
 customer.seat_vibe,Vibe at their seat: %d (décor within 2 tiles)
 ui.card_rename_hint,Click the pencil to rename (Enter to save)
@@ -276,3 +274,9 @@ tip.shop,"Energy, café upgrades and décor — open any time, the café keeps r
 tip.arrange,"Move, rotate, place and sell furniture and décor — any time. Pieces in use (a cooking stove, a counter with food, an occupied seat) can be moved but not picked up."
 tip.upgrade.table,"One more table (1x1). A seat works only right beside a table — one seat per table, and the seat turns to face it."
 ui.seat_no_table,No table
+role.cashier,Cashier
+tip.role.cashier,"Works a register: customers pay there on the way out (uses speed). No Cashier, no payments — one per register."
+tip.upgrade.register,"One more register (1x1). Each needs its own Cashier; customers pay at the first free one."
+error.register_needed,The café needs at least one register.
+customer.stage_4,Paying at the register
+ui.register_label,Register

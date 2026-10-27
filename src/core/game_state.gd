@@ -104,7 +104,7 @@ static func new_game(seed_value: int, data: GameData) -> GameState:
 	# Kind by kind (stoves, counters, tables, seats, bins): the start layout's spots first,
 	# then the first free spot (seats and tables next to each other where they can).
 	var wanted: Dictionary[String, int] = {Piece.STOVE: b.start_stoves, Piece.COUNTER: b.start_counters,
-		Piece.TABLE: b.start_tables, Piece.SEAT: b.start_seats, Piece.BIN: b.start_bins}
+		Piece.TABLE: b.start_tables, Piece.SEAT: b.start_seats, Piece.BIN: b.start_bins, Piece.REGISTER: b.start_registers}
 	for piece_id: String in wanted:
 		for entry: Variant in b.start_layout:
 			if wanted[piece_id] <= 0 or not entry is Dictionary or str(entry.get("piece", "")) != piece_id:
@@ -131,10 +131,24 @@ static func new_game(seed_value: int, data: GameData) -> GameState:
 	starter.battery = SynthStats.stat(starter, "battery_max", data)
 	starter.name = b.starter_name
 	starter.role = Synth.SERVER
+	if b.starter_cashier_species != "":
+		state.add_starter_cashier(data)
 	state.menu_slots = b.start_menu_slots
 	for recipe: Recipe in Shift.unlocked_recipes(state, data).slice(0, b.start_menu_slots):
 		state.menu.append(recipe.id)
 	return state
+
+
+## Adds the starting Cashier (a full-battery starter_cashier_species at the register).
+func add_starter_cashier(data: GameData) -> Synth:
+	var b := data.balance
+	var generator := rng()
+	var cashier := add_synth(b.starter_cashier_species, "", data, data.species[b.starter_cashier_species].roll_battery_max(generator))
+	store_rng(generator)
+	cashier.battery = SynthStats.stat(cashier, "battery_max", data)
+	cashier.name = b.starter_cashier_name
+	cashier.role = Synth.CASHIER
+	return cashier
 
 
 ## The generator at the saved state; call store_rng after using it.

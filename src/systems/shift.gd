@@ -6,7 +6,9 @@ extends RefCounted
 ## batch waits on its stove for a server to carry it to a counter), customers
 ## arrive (greeters shorten the gap), queued customers take free seats and
 ## order from the menu (favourites more often), servers carry ready servings to tables, customers wait / eat / leave,
-## and on-duty Synths drain battery. The Vibe at a customer's seat (décor in
+## and on-duty Synths drain battery. Customers who finish eating line up at the
+## registers; each Cashier takes the next one (pay_seconds, star_pay_seconds
+## for a starred customer, at the Cashier's speed) and the coins come in then. The Vibe at a customer's seat (décor in
 ## range) slows their satisfaction loss and adds to their dish. When the shift time is up, customers
 ## still eating pay and everyone leaves; the phase becomes NIGHT. A shift shut
 ## by a lost Corporate Audit goes straight to NIGHT.
@@ -22,6 +24,8 @@ class Events:
 	var served: Array[String] = []
 	var starred: Array[String] = []
 	var star_expired: Array[String] = []
+	## Customers who got angry in the pay line (they pay, but no tip).
+	var angry_in_line: Array[String] = []
 	## Pay and tips, in coins.
 	var coins_earned: int = 0
 	## Customer id -> what they paid, tip included (for pop-ups).
@@ -109,6 +113,7 @@ static func _tick(state: GameState, data: GameData, rng: RandomNumberGenerator, 
 	_seat(state, data, rng)
 	_serve(state, data, rng, events)
 	_update_customers(state, data, events)
+	_cashiers(state, data, events)
 	_drain(state, data)
 	state.shift_time += 1
 
@@ -400,6 +405,13 @@ static func _update_customers(state: GameState, data: GameData, events: Events) 
 				customer.timer -= 1
 				if customer.timer <= 0:
 					_finish_meal(state, customer, data, events)
+			Customer.Stage.PAYING:
+				if customer.cashier_id == "":
+					# Waiting in line: an angry customer still pays, but no tip.
+					_wait(customer, type, b, 0.0)
+					if customer.satisfaction <= 0.0 and customer.tip > 0:
+						customer.tip = 0
+						events.angry_in_line.append(customer.id)
 			Customer.Stage.STAR:
 				customer.timer -= 1
 				if customer.timer <= 0:
@@ -414,31 +426,85 @@ static func _wait(customer: Customer, type: CustomerType, b: BalanceConfig, vibe
 		customer.satisfaction = maxf(customer.satisfaction - loss, 0.0)
 
 
-## Pays, and tips if satisfied enough for a star. A starred customer stays for
-## the star window unless can_star is false (the café is closing).
+## The bill (and a tip, with a star, if satisfied enough). With registers the
+## customer lines up to pay; without (test cafés) they pay at once. A starred
+## customer can be converted until they leave, unless can_star is false (closing).
 static func _finish_meal(state: GameState, customer: Customer, data: GameData, events: Events,
 		can_star := true) -> void:
 	var b := data.balance
 	var recipe := data.recipes[customer.recipe_id]
-	var pay := roundi(recipe.price * (b.min_pay_share + (1.0 - b.min_pay_share) * customer.satisfaction / 100.0))
-	state.coins += pay
-	events.coins_earned += pay
-	events.served.append(customer.id)
-	events.payments[customer.id] = pay
-	if customer.satisfaction < b.star_threshold:
-		state.customers.erase(customer)
+	customer.bill = roundi(recipe.price * (b.min_pay_share + (1.0 - b.min_pay_share) * customer.satisfaction / 100.0))
+	customer.tip = 0
+	customer.starred = customer.satisfaction >= b.star_threshold
+	if customer.starred:
+		var type := data.customer_types[customer.type_id]
+		customer.tip = roundi(recipe.price * b.tip_rate * type.tip * (1.0 + customer.tip_bonus))
+		if can_star:
+			events.starred.append(customer.id)
+		else:
+			customer.starred = false
+	if Layout.count_placed(state, Piece.REGISTER, data) > 0:
+		customer.stage = Customer.Stage.PAYING
+		customer.cashier_id = ""
+		customer.waited = 0
 		return
-	var type := data.customer_types[customer.type_id]
-	var tip := roundi(recipe.price * b.tip_rate * type.tip * (1.0 + customer.tip_bonus))
-	state.coins += tip
-	events.tips_earned += tip
-	events.payments[customer.id] += tip
-	if not can_star:
+	_pay(state, customer, data, events)
+
+
+## Takes the bill and tip; a starred customer then leaves slowly (STAR, the
+## star window), anyone else is gone.
+static func _pay(state: GameState, customer: Customer, data: GameData, events: Events) -> void:
+	state.coins += customer.bill + customer.tip
+	events.coins_earned += customer.bill
+	events.tips_earned += customer.tip
+	events.served.append(customer.id)
+	events.payments[customer.id] = customer.bill + customer.tip
+	customer.cashier_id = ""
+	if not customer.starred:
 		state.customers.erase(customer)
 		return
 	customer.stage = Customer.Stage.STAR
-	customer.timer = b.star_window_seconds
-	events.starred.append(customer.id)
+	customer.timer = data.balance.star_window_seconds
+
+
+## Each register's Cashier (working Cashiers paired with registers in floor
+## order) takes the next customer in line and finishes their payment.
+static func _cashiers(state: GameState, data: GameData, events: Events) -> void:
+	var working: Dictionary[String, Synth] = {}
+	for synth: Synth in active_cashiers(state, data):
+		working[synth.id] = synth
+	for customer: Customer in state.customers:
+		if customer.stage == Customer.Stage.PAYING and customer.cashier_id != "" and not working.has(customer.cashier_id):
+			customer.cashier_id = ""  # their Cashier stopped: back in line
+	for synth: Synth in working.values():
+		var current: Customer = null
+		for customer: Customer in state.customers:
+			if customer.stage == Customer.Stage.PAYING and customer.cashier_id == synth.id:
+				current = customer
+				break
+		if current == null:
+			for customer: Customer in state.customers:
+				if customer.stage == Customer.Stage.PAYING and customer.cashier_id == "":
+					current = customer
+					current.cashier_id = synth.id
+					current.pay_left = data.balance.star_pay_seconds if current.starred else data.balance.pay_seconds
+					break
+		if current == null:
+			continue
+		current.pay_left -= SynthStats.speed(synth, data) * SynthStats.work_factor(synth, state, data)
+		if current.pay_left <= 0.0:
+			_pay(state, current, data, events)
+			Leveling.add_xp(synth, data.balance.xp_per_delivery, data.balance, events.level_ups)
+
+
+## Cashiers who can work now, at most one per register.
+static func active_cashiers(state: GameState, data: GameData) -> Array[Synth]:
+	var result: Array[Synth] = []
+	var registers := Layout.count_placed(state, Piece.REGISTER, data)
+	for synth: Synth in state.synths:
+		if result.size() < registers and synth.role == Synth.CASHIER and SynthStats.work_factor(synth, state, data) > 0.0:
+			result.append(synth)
+	return result
 
 
 ## Leaves without paying; a dish already on its way goes back to the counter.
@@ -457,11 +523,16 @@ static func _drain(state: GameState, data: GameData) -> void:
 			synth.battery = maxf(synth.battery - maxf(SynthStats.stat(synth, "drain", data), 0.0), 0.0)
 
 
-## Customers eating pay and leave, the rest just leave; dishes in hand go back.
+## Customers eating or in the pay line pay (if a Cashier is working) and leave,
+## the rest just leave; dishes in hand go back.
 static func _close(state: GameState, data: GameData, events: Events) -> void:
+	var can_pay := Layout.count_placed(state, Piece.REGISTER, data) == 0 or not active_cashiers(state, data).is_empty()
 	for customer: Customer in state.customers.duplicate():
 		if customer.stage == Customer.Stage.EATING:
 			_finish_meal(state, customer, data, events, false)
+		if customer.stage == Customer.Stage.PAYING and can_pay:
+			customer.starred = false
+			_pay(state, customer, data, events)
 	for synth: Synth in state.synths:
 		if synth.is_delivering():
 			_return_dish(state, synth, data)

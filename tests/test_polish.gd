@@ -28,6 +28,7 @@ func test_tutorial_follows_the_first_day() -> void:
 	star.id = "s"
 	star.type_id = "regular"
 	star.stage = Customer.Stage.STAR
+	star.starred = true
 	state.customers.append(star)
 	assert_eq(tutorial.text_key(state), "tutorial.convert", "a star: convert tip shows")
 	log.conversions = 1

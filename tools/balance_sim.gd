@@ -3,7 +3,8 @@ extends SceneTree
 ## staff, Suspicion and Night Ops develop. For tuning /data, not a test.
 ## Usage: godot --headless --path . -s res://tools/balance_sim.gd -- [days] [seeds] [--daily]
 ##
-## The bot: cooks whatever waiting customers want, converts every star it can
+## The bot: keeps a Cashier at the register, cooks whatever waiting customers want,
+## converts every star it can
 ## (and puts each new Synth to work in its best role),
 ## brews NanoBrew from every core, keeps enough Power for a full recharge, buys
 ## the cheapest upgrade while keeping a reserve, and raids the strongest rival
@@ -60,6 +61,7 @@ func _play(seed_value: int, days: int, daily: bool) -> Dictionary:
 					stats["conversions"] += 1
 					# New Synths start Resting: the bot puts them to work in their best role.
 					GameLoop.assign_role(state, created[0].id, data.species[created[0].species_id].best_role)
+		_keep_a_cashier(state)
 		_choose_menu(state)
 		var raid := _plan_raid(state)
 		stats["upgrade_spend"] += _night_shopping(state)
@@ -150,6 +152,19 @@ func _choose_menu(state: GameState) -> void:
 
 
 ## Brews, buys Power for a full recharge, then upgrades. Returns coins spent on upgrades.
+## Someone has to take payments: if the Cashier is gone (an Audit), the fastest
+## server takes the register.
+func _keep_a_cashier(state: GameState) -> void:
+	if state.synths.any(func(synth: Synth) -> bool: return synth.role == Synth.CASHIER):
+		return
+	var best: Synth = null
+	for synth: Synth in state.synths:
+		if synth.role == Synth.SERVER and (best == null or SynthStats.speed(synth, data) > SynthStats.speed(best, data)):
+			best = synth
+	if best != null:
+		GameLoop.assign_role(state, best.id, Synth.CASHIER)
+
+
 func _night_shopping(state: GameState) -> int:
 	while GameLoop.brew_nanobrew(state, data) == GameLoop.OK:
 		pass
@@ -168,7 +183,7 @@ func _night_shopping(state: GameState) -> int:
 		var best := ""
 		for upgrade_id: String in Upgrade.IDS:
 			# More pods only help when NanoBrew is waiting for them; the bot never throws food away.
-			if refused.has(upgrade_id) or upgrade_id == Upgrade.BIN 					or (upgrade_id == Upgrade.POD and state.synths.size() < state.pods):
+			if refused.has(upgrade_id) or upgrade_id == Upgrade.BIN or upgrade_id == Upgrade.REGISTER 					or (upgrade_id == Upgrade.POD and state.synths.size() < state.pods):
 				continue
 			var cost := GameLoop.upgrade_cost(state, upgrade_id, data)
 			if cost > 0 and state.coins - cost >= RESERVE \
