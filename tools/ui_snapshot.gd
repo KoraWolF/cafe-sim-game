@@ -101,6 +101,21 @@ func _run() -> void:
 	game.shop.tabs.current_tab = 0
 	game.shop.close()
 	await _frames(2)
+	# Quests from the top bar, mid-shift: three dailies; a finished achievement is claimed by a real click.
+	state.stats["served"] = 100
+	_session.state_changed.emit()
+	await _click(_centre_of(game.hud.quests_button))
+	print("CHECK Quests button mid-shift -> panel open with 3 dailies: ", game.quests.visible
+		and state.daily_quests.size() == 3 and state.phase == GameState.Phase.SHIFT)
+	_shot("03g_quests_daily")
+	game.quests.tabs.current_tab = 2
+	await _frames(2)
+	var coins_now := state.coins
+	await _click(_centre_of(_button_with(game.quests, tr("ui.quests_claim"))))
+	print("CHECK Claim -> achievement reward: ", state.achievements.has("served_100") and state.coins == coins_now + 100)
+	_shot("03h_quests_achievements")
+	game.quests.close()
+	await _frames(2)
 	# Customers walk in through the door: give them a few seconds, then everyone seated is at their seat.
 	await _frames(300)
 	var stuck := 0
@@ -135,7 +150,11 @@ func _run() -> void:
 	var newcomer: Synth = state.synths[-1]
 	print("CHECK new Synth rests at 70%% battery and walks to its Pod: ", newcomer.role == Synth.REST
 		and SynthStats.battery_percent(newcomer, data) == 70 and game.cafe._to_pod.has(newcomer.id))
-	await _frames(240)
+	# Walking from the pay line or the street round the front takes a few seconds.
+	for wait: int in 60:
+		if not game.cafe._to_pod.has(newcomer.id):
+			break
+		await _frames(20)
 	print("CHECK ...and reaches it: ", not game.cafe._to_pod.has(newcomer.id))
 	_shot("04c_new_synth_in_pod")
 	print("CHECK Auto locked on day 1: ", game.hud._auto.disabled)

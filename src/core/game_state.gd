@@ -53,6 +53,14 @@ var seat_table: Dictionary[String, String] = {}
 @export var bottles: Dictionary[String, int] = {}
 @export var scrap: int = 0
 @export var chips: int = 0
+## Lifetime counters for quests (served, stars, coins_earned, batches,
+## conversions, raids_won, clean_days), today's daily quests and the real-world
+## date they were rolled, the story step, and claimed achievement ids.
+@export var stats: Dictionary[String, int] = {}
+@export var daily_quests: Array[Dictionary] = []
+@export var daily_date: String = ""
+@export var story_index: int = 0
+@export var achievements: Array[String] = []
 ## Auto on: each night passes by itself with the same menu and no raid
 ## (see Session.auto_night). Unlocks on auto_unlock_day.
 @export var auto_night: bool = false

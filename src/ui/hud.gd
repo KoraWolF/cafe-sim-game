@@ -7,6 +7,7 @@ extends Control
 signal quit_to_menu
 signal settings_requested
 signal shop_requested
+signal quests_requested
 signal arrange_requested
 
 const FEED_LINES: int = 6
@@ -32,12 +33,18 @@ var customer_card := CustomerCard.new()
 var details := UnitDetails.new()
 var info := InfoPanel.new()
 var info_button := UiTheme.button(tr("ui.info_button"), func() -> void: info.open())
+var quests_button := UiTheme.button(tr("ui.quests_button"), quests_requested.emit)
+## Today's daily quests, small, under the top bar.
+var _tracker := UiTheme.label("", 15, UiTheme.TEXT_DIM)
 
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build_top_bar()
+	_tracker.position = Vector2(16, 62)
+	_tracker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_tracker)
 	_toasts.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	_toasts.position = Vector2(-300, 90)
 	_toasts.custom_minimum_size = Vector2(600, 0)
@@ -89,6 +96,8 @@ func _build_top_bar() -> void:
 		_speed_box.add_child(button)
 	info_button.tooltip_text = tr("tip.info")
 	row.add_child(info_button)
+	quests_button.tooltip_text = tr("tip.quests")
+	row.add_child(quests_button)
 	shop_button.tooltip_text = tr("tip.shop")
 	arrange_button.tooltip_text = tr("tip.arrange")
 	row.add_child(shop_button)
@@ -145,6 +154,16 @@ func refresh() -> void:
 	_speed_box.visible = in_shift
 	for speed: int in _speed_buttons:
 		_speed_buttons[speed].set_pressed_no_signal(speed == state.speed)
+	var ready := Quests.claimable(state, data)
+	quests_button.text = tr("ui.quests_button") + (" (%d)" % ready if ready > 0 else "")
+	var lines: Array[String] = []
+	for quest: Dictionary in state.daily_quests:
+		if not quest["claimed"]:
+			var done := Quests.daily_progress(state, quest, data)
+			lines.append("%s %s %d/%d" % ["✓" if done[0] >= done[1] else "•", tr("quest.daily." + quest["id"]) % quest["target"],
+				done[0], done[1]])
+	_tracker.text = "\n".join(lines)
+	_tracker.visible = in_shift and not lines.is_empty()
 	var unlocked := state.day >= data.balance.auto_unlock_day
 	_auto.disabled = not unlocked
 	_auto.set_pressed_no_signal(state.auto_night)

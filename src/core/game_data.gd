@@ -13,6 +13,7 @@ const PATHS: Dictionary[String, String] = {
 	"pieces": "res://data/pieces.json",
 	"adjacency": "res://data/adjacency.json",
 	"items": "res://data/items.json",
+	"quests": "res://data/quests.json",
 }
 
 var balance: BalanceConfig
@@ -27,6 +28,8 @@ var upgrades: Dictionary[String, Upgrade] = {}
 var pieces: Dictionary[String, Piece] = {}
 var adjacency: Array[AdjacencyRule] = []
 var items: ItemCatalog = ItemCatalog.new()
+## Quest content as parsed (see Quests): "daily", "daily_rewards", "story", "achievements".
+var quests: Dictionary = {}
 
 
 ## Loads everything from /data. Returns null (and logs why) if it is invalid.
@@ -72,6 +75,8 @@ static func from_content(content: Dictionary) -> GameData:
 		data.adjacency.append(AdjacencyRule.from_dict(entry))
 	var item_values: Variant = content.get("items", {})
 	data.items = ItemCatalog.from_dict(item_values if item_values is Dictionary else {})
+	var quest_values: Variant = content.get("quests", {})
+	data.quests = quest_values if quest_values is Dictionary else {}
 	var errors := data.check()
 	if not errors.is_empty():
 		push_error("GameData: invalid content: %s" % "; ".join(errors))
@@ -101,6 +106,11 @@ func next_district(district_id: String) -> String:
 ## Every broken cross-reference, so systems can trust ids.
 func check() -> PackedStringArray:
 	var errors: PackedStringArray = items.check()
+	for kind: String in ["story", "achievements"]:
+		for entry: Variant in quests.get(kind, []):
+			var fashion_id := str(entry.get("reward", {}).get("fashion", ""))
+			if fashion_id != "" and not items.fashion.has(fashion_id):
+				errors.append("quest %s: unknown fashion '%s'" % [entry.get("id", "?"), fashion_id])
 	if recipes.is_empty():
 		errors.append("no recipes")
 	if customer_types.is_empty():

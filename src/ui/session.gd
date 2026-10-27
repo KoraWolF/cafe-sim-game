@@ -67,6 +67,7 @@ func has_game() -> bool:
 
 func new_game(seed_value := -1) -> void:
 	state = GameState.new_game(seed_value if seed_value >= 0 else randi(), data)
+	refresh_quests()
 	day_log = DayLog.new()
 	_carry = 0.0
 	paused = false
@@ -80,11 +81,18 @@ func load_game(slot: int) -> PackedStringArray:
 	var loaded := SaveSystem.load_file(path, data, errors)
 	if loaded != null:
 		state = loaded
+		refresh_quests()
 		day_log = DayLog.new()
 		_carry = 0.0
 		paused = false
 		phase_changed.emit()
 	return errors
+
+
+## New daily quests when the real-world date has changed.
+func refresh_quests() -> void:
+	if state != null and Quests.refresh(state, Time.get_date_string_from_system(), data):
+		state_changed.emit()
 
 
 func save_game(slot: int) -> void:
@@ -120,6 +128,7 @@ func advance(seconds: int) -> Shift.Events:
 		if synth != null:
 			toast.emit(tr("ui.level_up") % [synth_name(synth), events.level_ups[synth_id]])
 	if events.shift_ended:
+		refresh_quests()
 		toast.emit(tr("ui.closed_today") if events.closed else tr("ui.shift_over"))
 		SaveSystem.autosave(state)
 		phase_changed.emit()

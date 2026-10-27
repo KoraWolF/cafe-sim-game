@@ -57,12 +57,17 @@ const NOTHING_WORN: String = "nothing_worn"
 const UNKNOWN_CRAFT: String = "unknown_craft"
 const NOT_ENOUGH_MATERIALS: String = "not_enough_materials"
 const NONE_LEFT: String = "none_left"
+const UNKNOWN_QUEST: String = "unknown_quest"
+const NOT_DONE: String = "not_done"
+const ALREADY_CLAIMED: String = "already_claimed"
 
 
 ## Passes shift time. Returns empty events outside a shift. A shift shut by a
 ## lost Corporate Audit closes at once (events.closed).
 static func advance(state: GameState, seconds: int, data: GameData) -> Shift.Events:
-	return Shift.run(state, seconds, data)
+	var events := Shift.run(state, seconds, data)
+	Quests.record_shift(state, events)
+	return events
 
 
 ## Starts a batch on an idle stove (any phase; it cooks only during shifts).
@@ -120,6 +125,7 @@ static func convert_customer(state: GameState, customer_id: String, data: GameDa
 	state.customers.erase(customer)
 	state.add_suspicion(data.balance.conversion_suspicion)
 	var synth := state.add_synth(type.synth_species, trait_id, data, battery_max)
+	state.stats["conversions"] = state.stats.get("conversions", 0) + 1
 	synth.role = Synth.REST
 	synth.battery *= 1.0 - data.balance.conversion_battery_loss
 	out_synth.append(synth)
@@ -314,6 +320,12 @@ static func use_bottle(state: GameState, synth_id: String, bottle_id: String, da
 	return Items.use_bottle(state, synth_id, bottle_id, data, level_ups)
 
 
+## Claims a finished quest's reward (see Quests.claim). Any time.
+static func claim_quest(state: GameState, kind: String, key: String, data: GameData,
+		out_reward: Array[Dictionary] = []) -> String:
+	return Quests.claim(state, kind, key, data, out_reward)
+
+
 ## Longest Synth name.
 const MAX_NAME_LENGTH: int = 20
 
@@ -384,4 +396,6 @@ static func cancel_raid(state: GameState) -> void:
 static func end_night(state: GameState, data: GameData) -> NightOps.Report:
 	if state.phase != GameState.Phase.NIGHT:
 		return null
-	return NightOps.resolve(state, data)
+	var report := NightOps.resolve(state, data)
+	Quests.record_night(state, report)
+	return report
