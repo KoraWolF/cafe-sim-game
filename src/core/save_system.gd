@@ -18,7 +18,9 @@ extends RefCounted
 ## 6: the counter piece (older saves get one placed on load).
 ## 7: Sync Pods leave the floor for the Pod bay: saved as a count again.
 ## 8: 1x1 counters holding one dish each; batches wait on stoves to be carried.
-const VERSION: int = 8
+## 9: each unit's own max battery, bins and throw-away marks, Auto. Older
+##    cafés get a bin (placed if there is room, else in storage).
+const VERSION: int = 9
 const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
 
@@ -51,6 +53,8 @@ static func to_dict(state: GameState) -> Dictionary:
 		"upgrades": state.upgrades,
 		"stoves": state.stoves.map(func(stove: Stove) -> Dictionary: return stove.to_dict()),
 		"counter": state.counter,
+		"discard": state.discard,
+		"auto_night": state.auto_night,
 		"counter_dish": state.counter_dish,
 		"counter_count": state.counter_count,
 		"menu": state.menu,
@@ -103,6 +107,11 @@ static func from_dict(raw: Dictionary) -> GameState:
 	if counter is Dictionary:
 		for recipe_id: Variant in counter:
 			state.counter[str(recipe_id)] = int(counter[recipe_id])
+	state.auto_night = bool(raw.get("auto_night", false))
+	var discard: Variant = raw.get("discard", [])
+	if discard is Array:
+		for uid: Variant in discard:
+			state.discard.append(str(uid))
 	var dishes: Variant = raw.get("counter_dish", {})
 	if dishes is Dictionary:
 		for counter_uid: Variant in dishes:
@@ -234,6 +243,10 @@ static func _migrate_step(version: int, raw: Dictionary) -> Dictionary:
 			# Counters held a shared pool: spread it over the counters on load (see Counters).
 			raw["needs_counter_fill"] = true
 			return raw
+		8:
+			# The starter café now has a bin: older cafés get one in storage to place.
+			raw["needs_bin"] = true
+			return raw
 	return {}
 
 
@@ -345,6 +358,9 @@ static func validate(state: GameState, data: GameData) -> PackedStringArray:
 			var carrier := state.synth_by_id(stove.carrier)
 			if carrier == null or carrier.task_stove_uid != stove.piece_uid:
 				errors.append("stove '%s': broken carrier" % stove.piece_uid)
+	for uid: String in state.discard:
+		if Layout.placed_by_uid(state, uid) == null:
+			errors.append("throw-away mark on missing piece '%s'" % uid)
 	for synth: Synth in state.synths:
 		if synth.is_carrying():
 			var stove := Layout.stove_of(state, synth.task_stove_uid)
@@ -471,6 +487,8 @@ static func _load_one(path: String, data: GameData, errors: PackedStringArray) -
 	if current.get("needs_counter", false) and Layout.count_placed(state, Piece.COUNTER, data) == 0:
 		while not Layout.auto_place(state, Piece.COUNTER, data):
 			state.floor_rows += 2
+	if current.get("needs_bin", false) and Layout.count_placed(state, Piece.BIN, data) == 0 			and data.balance.start_bins > 0 and not Layout.auto_place(state, Piece.BIN, data):
+		state.storage[Piece.BIN] = state.storage.get(Piece.BIN, 0) + 1
 	Layout.refresh(state, data)
 	if current.get("needs_counter_fill", false):
 		Counters.fill_from_pool(state, data)

@@ -177,7 +177,7 @@ func _fill_upgrades(page: VBoxContainer) -> void:
 
 func _buy_upgrade(upgrade_id: String) -> void:
 	if Session.act(GameLoop.buy_upgrade(Session.state, upgrade_id, Session.data)) \
-			and [Upgrade.STOVE, Upgrade.COUNTER, Upgrade.SEAT].has(upgrade_id):
+			and Upgrade.FURNITURE.has(upgrade_id):
 		Session.auto_place(upgrade_id)
 		Session.state_changed.emit()
 
@@ -197,7 +197,7 @@ func _fill_staff(page: VBoxContainer) -> void:
 		var row := HBoxContainer.new()
 		var trait_text := ", " + UiText.name(synth.trait_id) if synth.trait_id != "" else ""
 		var name := _wrap(tr("ui.staff_line") % [Session.synth_name(synth), UiText.name(synth.species_id), trait_text,
-			synth.level, roundi(synth.battery), roundi(SynthStats.stat(synth, "battery_max", data))], 16)
+			synth.level, SynthStats.battery_percent(synth, data), roundi(SynthStats.stat(synth, "battery_max", data))], 16)
 		name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(name)
 		var roles := OptionButton.new()
@@ -271,7 +271,7 @@ func _fill_ops(page: VBoxContainer) -> void:
 	for synth: Synth in state.synths:
 		var pick := CheckBox.new()
 		pick.text = tr("ui.ops_member") % [Session.synth_name(synth), roundi(SynthStats.stat(synth, "power", data)),
-			roundi(SynthStats.stat(synth, "hp", data)), roundi(synth.battery)]
+			roundi(SynthStats.stat(synth, "hp", data)), SynthStats.battery_percent(synth, data)]
 		pick.button_pressed = _squad.has(synth.id)
 		pick.disabled = synth.battery <= 0.0
 		pick.toggled.connect(func(on: bool) -> void:

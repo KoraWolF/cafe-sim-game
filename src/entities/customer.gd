@@ -28,6 +28,9 @@ enum Stage {
 @export var trait_id: String = ""
 ## The placed seat this customer sits at ("" while queued).
 @export var seat_uid: String = ""
+## Max battery this customer would have as a Synth, rolled on arrival
+## (0 = not rolled yet: older saves roll at conversion).
+@export var battery_max: int = 0
 
 
 func is_seated() -> bool:
@@ -37,7 +40,7 @@ func is_seated() -> bool:
 func to_dict() -> Dictionary:
 	return {"id": id, "type_id": type_id, "stage": stage, "satisfaction": satisfaction, "waited": waited,
 		"timer": timer, "recipe_id": recipe_id, "served_by": served_by, "tip_bonus": tip_bonus,
-		"trait_id": trait_id, "seat_uid": seat_uid}
+		"trait_id": trait_id, "seat_uid": seat_uid, "battery_max": battery_max}
 
 
 static func from_dict(values: Dictionary) -> Customer:
@@ -53,4 +56,5 @@ static func from_dict(values: Dictionary) -> Customer:
 	customer.tip_bonus = float(values.get("tip_bonus", 0.0))
 	customer.trait_id = str(values.get("trait_id", ""))
 	customer.seat_uid = str(values.get("seat_uid", ""))
+	customer.battery_max = int(values.get("battery_max", 0))
 	return customer

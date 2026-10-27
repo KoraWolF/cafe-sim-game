@@ -2,7 +2,7 @@ class_name CustomerCard
 extends PanelContainer
 ## Shown while the mouse is over a customer: who they are, what they want, how
 ## happy they are, and what they would become as a Synth (species and the trait
-## they arrived with), so the player can choose who to convert.
+## they arrived with, and their max battery), so the player can choose who to convert.
 
 var customer_id: String = ""
 var _title := UiTheme.label("", 20, UiTheme.PANEL_BORDER)
@@ -52,6 +52,8 @@ func refresh() -> void:
 		lines.append(tr("customer.seat_vibe") % roundi(session.state.seat_vibe.get(customer.seat_uid, 0.0)))
 	lines.append(tr("customer.converts") % [UiText.name(type.synth_species),
 		UiText.name(customer.trait_id) if customer.trait_id != "" else tr("ui.card_no_trait")])
+	if customer.battery_max > 0:
+		lines.append(tr("customer.battery_max") % customer.battery_max)
 	lines.append(tr("species.%s.desc" % type.synth_species))
 	if customer.trait_id != "":
 		lines.append(tr("trait.%s.desc" % customer.trait_id))

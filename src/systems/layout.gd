@@ -377,6 +377,7 @@ static func _remove(state: GameState, placed: PlacedPiece, data: GameData) -> vo
 		state.stoves.erase(stove)
 	state.counter_dish.erase(placed.uid)
 	state.counter_count.erase(placed.uid)
+	state.discard.erase(placed.uid)
 	refresh(state, data)
 
 
