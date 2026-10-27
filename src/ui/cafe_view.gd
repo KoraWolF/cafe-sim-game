@@ -356,10 +356,7 @@ func _door_point(width: float, rows: float) -> Vector2:
 ## going in or out. Walking speed follows the game speed (stops when paused).
 func _walk_to(at: Vector2, target: Vector2, width: float, rows: float) -> Vector2:
 	var speed := 0.0 if Session.paused else WALK_SPEED * maxf(Session.state.speed, 1.0)
-	var inside_now := at.x < width
-	var inside_target := target.x < width
-	var next := _door_point(width, rows) if inside_now != inside_target and at.distance_to(_door_point(width, rows)) > 0.05 else target
-	return at.move_toward(next, speed * _walk_delta)
+	return Walk.step(at, target, width, rows, speed * _walk_delta)
 
 
 func _draw_piece(placed: PlacedPiece) -> void:

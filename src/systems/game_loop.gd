@@ -43,6 +43,8 @@ const OVERLAP: String = "overlap"
 const UNKNOWN_PLACED: String = "unknown_placed"
 const POD_IN_USE: String = "pod_in_use"
 const COUNTER_NEEDED: String = "counter_needed"
+const EMPTY_NAME: String = "empty_name"
+const NAME_TOO_LONG: String = "name_too_long"
 const MAXED: String = "maxed"
 
 
@@ -217,6 +219,24 @@ static func sell_piece(state: GameState, uid: String, data: GameData) -> String:
 ## Sells one stored décor piece for sell_refund of its price.
 static func sell_stored_piece(state: GameState, piece_id: String, data: GameData) -> String:
 	return Layout.sell_stored(state, piece_id, data) if state.phase == GameState.Phase.NIGHT else WRONG_PHASE
+
+
+## Longest Synth name.
+const MAX_NAME_LENGTH: int = 20
+
+
+## Gives a Synth a name (spaces at the ends are dropped). Any time.
+static func rename_synth(state: GameState, synth_id: String, new_name: String) -> String:
+	var synth := state.synth_by_id(synth_id)
+	if synth == null:
+		return UNKNOWN_SYNTH
+	var clean := new_name.strip_edges()
+	if clean.is_empty():
+		return EMPTY_NAME
+	if clean.length() > MAX_NAME_LENGTH:
+		return NAME_TOO_LONG
+	synth.name = clean
+	return OK
 
 
 ## A server carrying a dish has to finish the delivery first.

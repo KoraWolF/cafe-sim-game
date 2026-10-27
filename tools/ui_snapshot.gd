@@ -56,6 +56,20 @@ func _run() -> void:
 	await _click(canvas * game.cafe._heads[state.synths[0].id])
 	print("CHECK click Synth -> card open: ", game.hud._card.visible)
 	_shot("03_synth_card")
+	# Rename by clicking the name and typing, as a player would.
+	await _click(_centre_of(game.hud._card._title))
+	game.hud._card._title.select_all()
+	await _type("Barista\n")
+	print("CHECK typing a name -> Synth renamed: ", state.synths[0].name == "Barista")
+	# Customers walk in through the door: give them a few seconds, then everyone seated is at their seat.
+	await _frames(300)
+	var stuck := 0
+	for customer: Customer in state.customers:
+		if customer.is_seated() and game.cafe._walk.has(customer.id):
+			var seat: PlacedPiece = Layout.placed_by_uid(state, customer.seat_uid)
+			if seat != null and game.cafe._walk[customer.id].distance_to(Vector2(seat.cell) + Vector2(0.5, 0.5)) > 0.1:
+				stuck += 1
+	print("CHECK seated customers walked in to their seats (%d not there): %s" % [stuck, stuck == 0])
 
 	var stove: PlacedPiece = Layout.placed_by_uid(state, state.stoves[0].piece_uid)
 	state.stoves[0].recipe_id = ""
@@ -182,6 +196,22 @@ func _click(at: Vector2) -> void:
 		event.global_position = at
 		root.push_input(event)
 	await _frames(3)
+
+
+## Types text into whatever has keyboard focus (a line break presses Enter).
+func _type(text: String) -> void:
+	for character: String in text:
+		var event := InputEventKey.new()
+		event.pressed = true
+		if character == "\n":
+			event.keycode = KEY_ENTER
+		else:
+			event.unicode = character.unicode_at(0)
+		root.push_input(event)
+		var release := event.duplicate()
+		release.pressed = false
+		root.push_input(release)
+	await _frames(2)
 
 
 func _move(to: Vector2) -> void:
