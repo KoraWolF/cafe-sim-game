@@ -10,7 +10,7 @@ extends RefCounted
 ## adjacency bonus it is part of; a seat's Vibe is the sum of the shares of all
 ## pieces within decor_range tiles of it. The café's Vibe is the total over seats.
 ##
-## Changes go through GameLoop (night only); these functions do not check the
+## Changes go through GameLoop (any time); these functions do not check the
 ## phase. After any change refresh() updates state.seats, state.pods and state.vibe.
 
 const NEIGHBOURS: Array[Vector2i] = [Vector2i.RIGHT, Vector2i.LEFT, Vector2i.DOWN, Vector2i.UP]
@@ -106,7 +106,8 @@ static func move(state: GameState, uid: String, cell: Vector2i, rotated: bool, d
 	return GameLoop.OK
 
 
-## Back to storage. A cooking stove or the last counter stays put.
+## Back to storage. A busy stove, a counter with food (or the last one) and a
+## seat with a customer stay put. Moving is always fine.
 static func pick_up(state: GameState, uid: String, data: GameData) -> String:
 	var placed := placed_by_uid(state, uid)
 	if placed == null:
@@ -367,6 +368,9 @@ static func _can_remove(state: GameState, placed: PlacedPiece, data: GameData) -
 				return GameLoop.COUNTER_NEEDED
 			if Counters.dish_on(state, placed.uid) != "":
 				return GameLoop.COUNTER_BUSY
+		Piece.SEAT:
+			if state.customers.any(func(customer: Customer) -> bool: return customer.seat_uid == placed.uid):
+				return GameLoop.SEAT_BUSY
 	return GameLoop.OK
 
 

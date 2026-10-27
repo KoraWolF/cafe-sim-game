@@ -1,10 +1,13 @@
 class_name Hud
 extends Control
-## The always-on overlay: resources and day on top, speed buttons, toasts, an
+## The always-on overlay: resources and day on top, speed, Shop, Arrange and
+## Auto buttons, toasts, an
 ## event feed, the stove recipe picker, the Synth card and the pause menu.
 
 signal quit_to_menu
 signal settings_requested
+signal shop_requested
+signal arrange_requested
 
 const FEED_LINES: int = 6
 const TOAST_SECONDS: float = 3.0
@@ -16,6 +19,8 @@ var _shift_bar := ProgressBar.new()
 var _speed_box := HBoxContainer.new()
 var _speed_buttons: Dictionary[int, Button] = {}
 var _auto := Button.new()
+var shop_button := UiTheme.button(tr("ui.shop_button"), shop_requested.emit)
+var arrange_button := UiTheme.button(tr("ui.arrange_button"), arrange_requested.emit)
 var _toasts := VBoxContainer.new()
 var _feed := VBoxContainer.new()
 var _recipe_menu := PopupMenu.new()
@@ -77,6 +82,10 @@ func _build_top_bar() -> void:
 		button.toggle_mode = true
 		_speed_buttons[speed] = button
 		_speed_box.add_child(button)
+	shop_button.tooltip_text = tr("tip.shop")
+	arrange_button.tooltip_text = tr("tip.arrange")
+	row.add_child(shop_button)
+	row.add_child(arrange_button)
 	_auto.text = tr("ui.auto")
 	_auto.toggle_mode = true
 	_auto.toggled.connect(func(on: bool) -> void:
@@ -244,6 +253,12 @@ func confirm_convert(customer_id: String) -> void:
 	confirm.ask(tr("ui.confirm_convert") % [UiText.name(customer.type_id), UiText.name(type.synth_species), trait_text],
 		tr("ui.confirm_convert_details") % [state.nanobrew, state.nanobrew - 1, state.synths.size() + 1, state.pods],
 		tr("ui.confirm_convert_yes"), Session.convert_customer.bind(customer_id))
+
+
+## Keeps the Synth card clear of a panel this wide on the right (0 = none).
+func set_right_inset(width: float) -> void:
+	_card.offset_right = -20.0 - width
+	_card.offset_left = _card.offset_right
 
 
 func open_synth_card(synth_id: String) -> void:

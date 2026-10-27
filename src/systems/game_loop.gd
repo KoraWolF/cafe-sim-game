@@ -4,9 +4,9 @@ extends RefCounted
 ## calls these and shows the returned events and reports.
 ##
 ## A day: the shift runs through advance() until it closes (phase NIGHT). At
-## night the player may set tomorrow's menu, plan a raid, brew, buy Power,
-## upgrades and décor, arrange the floor and change roles; then
-## end_night() resolves Night Ops and opens the next shift.
+## night the player sets tomorrow's menu and plans a raid; then end_night()
+## resolves Night Ops and opens the next shift. Building (upgrades, décor,
+## arranging the floor), brewing, buying Energy and roles work at any time.
 ## Actions return OK ("") or an error code.
 
 const OK: String = ""
@@ -43,6 +43,7 @@ const OVERLAP: String = "overlap"
 const UNKNOWN_PLACED: String = "unknown_placed"
 const COUNTER_NEEDED: String = "counter_needed"
 const COUNTER_BUSY: String = "counter_busy"
+const SEAT_BUSY: String = "seat_busy"
 const EMPTY_NAME: String = "empty_name"
 const NAME_TOO_LONG: String = "name_too_long"
 const MAXED: String = "maxed"
@@ -203,12 +204,10 @@ static func upgrade_cost(state: GameState, upgrade_id: String, data: GameData) -
 	return -1 if level >= upgrade.max_level else upgrade.cost_at(level)
 
 
-## Buys one level of an upgrade. Only at night, while the café is closed.
-## Stove and seat upgrades put the piece in storage to be placed, and need a
-## free spot for it on the floor (expand the floor first). Pods go to the Pod bay.
+## Buys one level of an upgrade, at any time. Furniture upgrades put the piece
+## in storage to be placed, and need a free spot for it on the floor (expand
+## the floor first). Pods go to the Pod bay.
 static func buy_upgrade(state: GameState, upgrade_id: String, data: GameData) -> String:
-	if state.phase != GameState.Phase.NIGHT:
-		return WRONG_PHASE
 	var upgrade: Upgrade = data.upgrades.get(upgrade_id)
 	if upgrade == null:
 		return UNKNOWN_UPGRADE
@@ -237,34 +236,35 @@ static func buy_upgrade(state: GameState, upgrade_id: String, data: GameData) ->
 	return OK
 
 
-## Buys a décor piece into storage. Night only, like every floor change below.
+## Buys a décor piece into storage. Any time, like every floor change below
+## (in a shift, pieces in use stay put: see Layout).
 static func buy_decor(state: GameState, piece_id: String, data: GameData) -> String:
-	return Layout.buy(state, piece_id, data) if state.phase == GameState.Phase.NIGHT else WRONG_PHASE
+	return Layout.buy(state, piece_id, data)
 
 
 ## Places a stored piece with its top-left tile on cell.
 static func place_piece(state: GameState, piece_id: String, cell: Vector2i, rotated: bool, data: GameData) -> String:
-	return Layout.place(state, piece_id, cell, rotated, data) if state.phase == GameState.Phase.NIGHT else WRONG_PHASE
+	return Layout.place(state, piece_id, cell, rotated, data)
 
 
 ## Moves (and/or rotates) a placed piece. Free.
 static func move_piece(state: GameState, uid: String, cell: Vector2i, rotated: bool, data: GameData) -> String:
-	return Layout.move(state, uid, cell, rotated, data) if state.phase == GameState.Phase.NIGHT else WRONG_PHASE
+	return Layout.move(state, uid, cell, rotated, data)
 
 
 ## Puts a placed piece back in storage.
 static func pick_up_piece(state: GameState, uid: String, data: GameData) -> String:
-	return Layout.pick_up(state, uid, data) if state.phase == GameState.Phase.NIGHT else WRONG_PHASE
+	return Layout.pick_up(state, uid, data)
 
 
 ## Sells a placed décor piece for sell_refund of its price.
 static func sell_piece(state: GameState, uid: String, data: GameData) -> String:
-	return Layout.sell_placed(state, uid, data) if state.phase == GameState.Phase.NIGHT else WRONG_PHASE
+	return Layout.sell_placed(state, uid, data)
 
 
 ## Sells one stored décor piece for sell_refund of its price.
 static func sell_stored_piece(state: GameState, piece_id: String, data: GameData) -> String:
-	return Layout.sell_stored(state, piece_id, data) if state.phase == GameState.Phase.NIGHT else WRONG_PHASE
+	return Layout.sell_stored(state, piece_id, data)
 
 
 ## Turns Auto on or off. It unlocks on balance.auto_unlock_day.

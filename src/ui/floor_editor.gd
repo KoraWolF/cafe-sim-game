@@ -1,9 +1,9 @@
 class_name FloorEditor
 extends RefCounted
-## Arranging the café floor at night. The player holds one piece at a time:
+## Arranging the café floor, at any time. The player holds one piece at a time:
 ## one from storage, or a placed piece picked up to be moved. Every change goes
 ## through GameLoop, so the floor rules (bounds, overlap, busy stoves, needed
-## Pods, night only) are the game's own. No drawing here: CafeView shows the
+## counters, seats in use) are the game's own. No drawing here: CafeView shows the
 ## preview and the edit panel shows the buttons.
 
 ## Piece id being held ("" = nothing).

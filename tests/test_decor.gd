@@ -32,7 +32,6 @@ func test_new_game_lays_out_the_starting_furniture() -> void:
 func test_buying_and_placing_rules() -> void:
 	var data := TestFixtures.data()
 	var state := GameState.new_game(1, data)
-	assert_eq(GameLoop.buy_decor(state, "fern", data), GameLoop.WRONG_PHASE, "not mid-shift")
 	state = _night(data)
 	assert_eq(GameLoop.buy_decor(state, "seat", data), GameLoop.NOT_FOR_SALE, "furniture comes from upgrades")
 	assert_eq(GameLoop.buy_decor(state, "throne", data), GameLoop.UNKNOWN_PIECE, "unknown")

@@ -1,11 +1,11 @@
 class_name NightHub
 extends PanelContainer
 
-signal arrange_requested
-## A tab was opened: "summary", "menu", "upgrades", "staff" or "ops".
+## A tab was opened: "summary", "menu", "staff" or "ops".
 signal tab_shown(key: String)
 ## The night screen, on the right so the café stays visible: Summary, Menu,
-## Upgrades & Décor, Staff and Night Ops tabs, then "End Night". Tabs rebuild
+## Staff and Night Ops tabs, then "End Night". (The Shop and Arrange Floor are
+## on the top bar, open at any time.) Tabs rebuild
 ## from the state after every action, so they always show what is true.
 
 var _title := UiTheme.label("", 26, UiTheme.PANEL_BORDER)
@@ -28,11 +28,10 @@ func _ready() -> void:
 	var header := HBoxContainer.new()
 	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(_title)
-	header.add_child(UiTheme.button(tr("ui.arrange"), arrange_requested.emit))
 	column.add_child(header)
 	_tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(_tabs)
-	for key: String in ["summary", "menu", "upgrades", "staff", "ops"]:
+	for key: String in ["summary", "menu", "staff", "ops"]:
 		var scroll := ScrollContainer.new()
 		scroll.name = tr("ui.tab_" + key)
 		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -68,7 +67,6 @@ func refresh() -> void:
 	_title.text = tr("ui.night_title") % [state.day, UiText.name(state.district_id)]
 	_fill_summary(_clear("summary"))
 	_fill_menu(_clear("menu"))
-	_fill_upgrades(_clear("upgrades"))
 	_fill_staff(_clear("staff"))
 	_fill_ops(_clear("ops"))
 
@@ -138,57 +136,6 @@ func _toggle_dish(on: bool, recipe_id: String) -> void:
 		refresh()
 
 
-func _fill_upgrades(page: VBoxContainer) -> void:
-	var state := Session.state
-	var data := Session.data
-	for upgrade_id: String in Upgrade.IDS:
-		var upgrade := data.upgrades[upgrade_id]
-		var row := HBoxContainer.new()
-		var name := _wrap(tr("ui.upgrade_line") % [UiText.name(upgrade_id), state.upgrades.get(upgrade_id, 0), upgrade.max_level])
-		name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(name)
-		var cost := GameLoop.upgrade_cost(state, upgrade_id, data)
-		var buy := UiTheme.button(tr("ui.buy") % cost if cost >= 0 else tr("ui.maxed"), _buy_upgrade.bind(upgrade_id))
-		buy.disabled = cost < 0 or state.coins < cost
-		name.tooltip_text = tr("tip.upgrade." + upgrade_id)
-		name.mouse_filter = Control.MOUSE_FILTER_PASS
-		row.add_child(buy)
-		page.add_child(row)
-		page.add_child(_indent(_wrap(tr("tip.upgrade." + upgrade_id), 14, UiTheme.TEXT_DIM)))
-	page.add_child(HSeparator.new())
-	page.add_child(_wrap(tr("ui.decor_title"), 22, UiTheme.PANEL_BORDER))
-	page.add_child(_wrap(tr("ui.floor_line") % [data.balance.floor_width, state.floor_rows, roundi(state.vibe)], 16, UiTheme.TEXT_DIM))
-	page.add_child(_wrap(tr("ui.decor_note"), 14, UiTheme.TEXT_DIM))
-	for piece: Piece in data.pieces.values():
-		if piece.kind != Piece.DECOR:
-			continue
-		var row := HBoxContainer.new()
-		var text := tr("ui.decor_line") % [UiText.name(piece.id), piece.size.x, piece.size.y, roundi(piece.vibe), ", ".join(piece.tags)]
-		if state.storage.get(piece.id, 0) > 0:
-			text += "   " + tr("ui.decor_owned") % state.storage[piece.id]
-		var name := _wrap(text, 16)
-		name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(name)
-		var buy := UiTheme.button(tr("ui.buy") % piece.price, _buy_decor.bind(piece.id))
-		buy.disabled = state.coins < piece.price
-		row.add_child(buy)
-		page.add_child(row)
-
-
-func _buy_upgrade(upgrade_id: String) -> void:
-	if Session.act(GameLoop.buy_upgrade(Session.state, upgrade_id, Session.data)) \
-			and Upgrade.FURNITURE.has(upgrade_id):
-		Session.auto_place(upgrade_id)
-		Session.state_changed.emit()
-
-
-func _buy_decor(piece_id: String) -> void:
-	if Session.act(GameLoop.buy_decor(Session.state, piece_id, Session.data)):
-		if not Session.auto_place(piece_id):
-			Session.toast.emit(tr("ui.no_room_stored"))
-		Session.state_changed.emit()
-
-
 func _fill_staff(page: VBoxContainer) -> void:
 	var state := Session.state
 	var data := Session.data
@@ -215,14 +162,9 @@ func _fill_staff(page: VBoxContainer) -> void:
 	brew.disabled = state.cores < b.brew_core_cost or state.coins < b.brew_coin_cost
 	page.add_child(brew)
 	page.add_child(HSeparator.new())
+	# Tonight's recharge; Energy is bought in the Shop.
 	page.add_child(_wrap(tr("ui.power_line") % [roundi(state.power), ceili(NightOps.recharge_cost(state, data))]))
-	var row := HBoxContainer.new()
-	for amount: int in [10, 50]:
-		var buy := UiTheme.button(tr("ui.buy_power") % [amount, amount * b.power_price], func() -> void:
-			Session.act(GameLoop.buy_power(state, amount, data)))
-		buy.disabled = state.coins < amount * b.power_price
-		row.add_child(buy)
-	page.add_child(row)
+	page.add_child(_wrap(tr("ui.energy_in_shop"), 14, UiTheme.TEXT_DIM))
 
 
 func _fill_ops(page: VBoxContainer) -> void:
