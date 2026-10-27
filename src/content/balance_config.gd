@@ -47,6 +47,8 @@ var start_nanobrew: int = 1
 var start_cores: int = 0
 var start_power: float = 50.0
 var start_seats: int = 4
+## Tables a new game starts with (each seat needs one beside it).
+var start_tables: int = 0
 var start_stoves: int = 2
 var start_pods: int = 2
 ## Counters a new game starts with (0 only in tests that lay out by hand).

@@ -38,8 +38,9 @@ static func content(balance_overrides := {}) -> Dictionary:
 		"star_window_seconds": 10, "delivery_seconds": 4, "eat_seconds": 5, "tip_rate": 0.5, "min_pay_share": 0.5,
 		"low_battery_share": 0.2, "low_battery_factor": 0.5, "late_shift_start": 0.7,
 		"start_coins": 100, "start_nanobrew": 1, "start_cores": 0, "start_power": 10.0, "start_seats": 2,
-		"start_stoves": 2, "start_pods": 2, "start_counters": 0,
-		"start_layout": [{"piece": "seat", "cell": [6, 0]}, {"piece": "seat", "cell": [7, 0]}], "start_menu_slots": 2, "favorite_weight": 3.0,
+		"start_stoves": 2, "start_pods": 2, "start_counters": 0, "start_tables": 2,
+		"start_layout": [{"piece": "seat", "cell": [6, 0]}, {"piece": "seat", "cell": [7, 0]},
+			{"piece": "table", "cell": [6, 1]}, {"piece": "table", "cell": [7, 1]}], "start_menu_slots": 2, "favorite_weight": 3.0,
 		"floor_width": 8, "start_floor_rows": 6, "vibe_decay_per_point": 0.01, "vibe_meal_bonus": 0.1,
 		"vibe_meal_bonus_max": 10.0, "sell_refund": 0.5,
 		"favorite_satisfaction": 10.0, "start_security": 0.0, "start_district": "town",
@@ -94,6 +95,7 @@ static func content(balance_overrides := {}) -> Dictionary:
 		"upgrades": [
 			{"id": "stove", "step": 1, "base_cost": 50, "cost_growth": 2.0, "max_level": 2},
 			{"id": "seat", "step": 2, "base_cost": 20, "cost_growth": 1.0, "max_level": 3},
+			{"id": "table", "step": 2, "base_cost": 20, "cost_growth": 1.0, "max_level": 3},
 			{"id": "pod", "step": 1, "base_cost": 100, "cost_growth": 1.0, "max_level": 1},
 			{"id": "counter", "step": 1, "base_cost": 30, "cost_growth": 1.0, "max_level": 2},
 			{"id": "bin", "step": 1, "base_cost": 20, "cost_growth": 1.0, "max_level": 2},
@@ -103,6 +105,7 @@ static func content(balance_overrides := {}) -> Dictionary:
 		],
 		"pieces": [
 			{"id": "seat", "kind": "seat", "size": [1, 1], "tags": ["seat"]},
+			{"id": "table", "kind": "table", "size": [1, 1], "tags": ["table"]},
 			{"id": "stove", "kind": "stove", "size": [2, 1], "tags": ["kitchen"]},
 			{"id": "counter", "kind": "counter", "size": [1, 1], "tags": ["kitchen"]},
 			{"id": "bin", "kind": "bin", "size": [1, 1], "tags": ["kitchen"]},

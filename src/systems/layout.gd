@@ -1,8 +1,9 @@
 class_name Layout
 extends RefCounted
 ## The café floor: a grid floor_width tiles across and state.floor_rows deep.
-## Seats, stoves, counters and décor stand on it without overlapping; only
-## placed pieces count (seats seat customers, stoves cook). Sync Pods are not on
+## Seats, tables, stoves, counters, bins and décor stand on it without
+## overlapping; only placed pieces count (stoves cook). A seat works only beside
+## a table (up, down, left or right): each table serves one seat, which faces it. Sync Pods are not on
 ## the floor: they stand in the Pod bay outside (state.pods).
 ## Pieces not on the floor wait in storage.
 ##
@@ -11,7 +12,8 @@ extends RefCounted
 ## pieces within decor_range tiles of it. The café's Vibe is the total over seats.
 ##
 ## Changes go through GameLoop (any time); these functions do not check the
-## phase. After any change refresh() updates state.seats, state.pods and state.vibe.
+## phase. After any change refresh() pairs seats with tables and updates
+## state.seats, state.seat_table, state.seat_vibe and state.vibe.
 
 const NEIGHBOURS: Array[Vector2i] = [Vector2i.RIGHT, Vector2i.LEFT, Vector2i.DOWN, Vector2i.UP]
 
@@ -55,8 +57,22 @@ static func check_spot(state: GameState, piece_id: String, cell: Vector2i, rotat
 
 
 ## The first free spot (row by row, unrotated first): {"cell", "rotated"}, or {} if full.
+## A seat or table goes beside an unpaired table or seat when it can.
 static func find_spot(state: GameState, piece_id: String, data: GameData) -> Dictionary:
 	var bounds := floor_size(state, data.balance)
+	var kind: String = data.pieces[piece_id].kind if data.pieces.has(piece_id) else ""
+	var partner: String = {Piece.SEAT: Piece.TABLE, Piece.TABLE: Piece.SEAT}.get(kind, "")
+	if partner != "":
+		var paired: Dictionary[String, bool] = {}
+		for seat_uid: String in state.seat_table:
+			paired[seat_uid] = true
+			paired[state.seat_table[seat_uid]] = true
+		for placed: PlacedPiece in state.placed:
+			if data.pieces[placed.piece_id].kind != partner or paired.has(placed.uid):
+				continue
+			for step: Vector2i in NEIGHBOURS:
+				if check_spot(state, piece_id, placed.cell + step, false, data) == GameLoop.OK:
+					return {"cell": placed.cell + step, "rotated": false}
 	for y: int in bounds.y:
 		for x: int in bounds.x:
 			for rotated: bool in [false, true]:
@@ -165,19 +181,52 @@ static func refund(piece: Piece, b: BalanceConfig) -> int:
 
 ## Recomputes what the layout provides: seats and Vibe (per seat and total).
 static func refresh(state: GameState, data: GameData) -> void:
-	state.seats = count_placed(state, Piece.SEAT, data)
+	state.seat_table = pair_seats(state, data)
+	state.seats = state.seat_table.size()
 	state.seat_vibe = seat_vibes(state, data)
 	state.vibe = 0.0
 	for value: float in state.seat_vibe.values():
 		state.vibe += value
 
 
-## Seat uid -> the Vibe there: shares of every piece within decor_range tiles.
+## Working seat uid -> the table it faces: each seat beside a table (not
+## diagonally) gets one of its own. Seats with fewer tables to choose from pick
+## first, then in floor order, so as many seats as possible work.
+static func pair_seats(state: GameState, data: GameData) -> Dictionary[String, String]:
+	var tables: Dictionary[Vector2i, String] = {}
+	var seats: Array[PlacedPiece] = []
+	for placed: PlacedPiece in state.placed:
+		match data.pieces[placed.piece_id].kind:
+			Piece.TABLE:
+				tables[placed.cell] = placed.uid
+			Piece.SEAT:
+				seats.append(placed)
+	var options := func(seat: PlacedPiece) -> int:
+		return NEIGHBOURS.filter(func(step: Vector2i) -> bool: return tables.has(seat.cell + step)).size()
+	var order := range(seats.size())
+	order.sort_custom(func(a: int, b: int) -> bool:
+		var options_a: int = options.call(seats[a])
+		var options_b: int = options.call(seats[b])
+		return options_a < options_b or (options_a == options_b and a < b))
+	var result: Dictionary[String, String] = {}
+	var taken: Dictionary[String, bool] = {}
+	for i: int in order:
+		for step: Vector2i in NEIGHBOURS:
+			var table: String = tables.get(seats[i].cell + step, "")
+			if table != "" and not taken.has(table):
+				result[seats[i].uid] = table
+				taken[table] = true
+				break
+	return result
+
+
+## Working seat uid -> the Vibe there: shares of every piece within decor_range tiles.
 static func seat_vibes(state: GameState, data: GameData) -> Dictionary[String, float]:
 	var shares := _shares(state, data)
 	var result: Dictionary[String, float] = {}
+	var working := pair_seats(state, data)
 	for seat: PlacedPiece in state.placed:
-		if data.pieces[seat.piece_id].kind != Piece.SEAT:
+		if not working.has(seat.uid):
 			continue
 		var total := 0.0
 		for i: int in state.placed.size():
@@ -185,6 +234,24 @@ static func seat_vibes(state: GameState, data: GameData) -> Dictionary[String, f
 				total += shares[i]
 		result[seat.uid] = total
 	return result
+
+
+## Puts a table beside every seat that has none (older saves, from before
+## tables). Where there is no free tile beside a seat, the table goes to storage.
+static func give_tables(state: GameState, data: GameData) -> void:
+	refresh(state, data)
+	for seat: PlacedPiece in state.placed.duplicate():
+		if data.pieces[seat.piece_id].kind != Piece.SEAT or state.seat_table.has(seat.uid):
+			continue
+		var placed := false
+		for step: Vector2i in NEIGHBOURS:
+			if check_spot(state, Piece.TABLE, seat.cell + step, false, data) == GameLoop.OK:
+				_put(state, Piece.TABLE, seat.cell + step, false, data)
+				placed = true
+				break
+		if not placed:
+			state.storage[Piece.TABLE] = state.storage.get(Piece.TABLE, 0) + 1
+		refresh(state, data)
 
 
 ## King's-move steps between the nearest tiles of two pieces (1 = touching, 0 = overlapping).
@@ -202,7 +269,7 @@ static func seats_in_range(state: GameState, piece_id: String, cell: Vector2i, r
 	var trial := _trial(state, piece_id, cell, rotated, uid)
 	var result: Array[String] = []
 	for seat: PlacedPiece in state.placed:
-		if data.pieces[seat.piece_id].kind == Piece.SEAT and seat != trial["placed"] \
+		if state.seat_table.has(seat.uid) and seat != trial["placed"] \
 				and distance(trial["placed"], seat, data) <= data.balance.decor_range:
 			result.append(seat.uid)
 	_end_trial(state, trial)
@@ -370,6 +437,10 @@ static func _can_remove(state: GameState, placed: PlacedPiece, data: GameData) -
 				return GameLoop.COUNTER_BUSY
 		Piece.SEAT:
 			if state.customers.any(func(customer: Customer) -> bool: return customer.seat_uid == placed.uid):
+				return GameLoop.SEAT_BUSY
+		Piece.TABLE:
+			var seat_uid: String = state.seat_table.find_key(placed.uid) if state.seat_table.values().has(placed.uid) else ""
+			if seat_uid != "" and state.customers.any(func(customer: Customer) -> bool: return customer.seat_uid == seat_uid):
 				return GameLoop.SEAT_BUSY
 	return GameLoop.OK
 

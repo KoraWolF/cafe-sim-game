@@ -167,16 +167,16 @@ func _run() -> void:
 	var canvas_edit: Transform2D = game.cafe.get_viewport().get_canvas_transform()
 	await _click(canvas_edit * Iso.centre(fern.cell, Vector2i.ONE))
 	print("CHECK click fern -> holding it: ", game.cafe.editor.held_uid == fern.uid)
-	await _move(canvas_edit * Iso.centre(Vector2i(5, 4), Vector2i.ONE))
+	await _move(canvas_edit * Iso.centre(Vector2i(5, 6), Vector2i.ONE))
 	_shot("10_moving_fern")
-	await _click(canvas_edit * Iso.centre(Vector2i(5, 4), Vector2i.ONE))
-	print("CHECK drop fern -> moved to (5, 4): ", fern.cell == Vector2i(5, 4))
+	await _click(canvas_edit * Iso.centre(Vector2i(5, 6), Vector2i.ONE))
+	print("CHECK drop fern -> moved to (5, 6): ", fern.cell == Vector2i(5, 6))
 	game.edit_panel._take("bubble_lamp")
-	await _move(canvas_edit * Iso.centre(Vector2i(4, 4), Vector2i.ONE))
+	await _move(canvas_edit * Iso.centre(Vector2i(4, 6), Vector2i.ONE))
 	_shot("11_lamp_next_to_fern")
 	var vibe_before := state.vibe
-	var promised: float = game.cafe.editor.preview(state, Vector2i(4, 4), data)["delta"]
-	await _click(canvas_edit * Iso.centre(Vector2i(4, 4), Vector2i.ONE))
+	var promised: float = game.cafe.editor.preview(state, Vector2i(4, 6), data)["delta"]
+	await _click(canvas_edit * Iso.centre(Vector2i(4, 6), Vector2i.ONE))
 	print("CHECK drop lamp beside fern -> Vibe change %+d, as the ghost showed (%+d): %s" % [
 		roundi(state.vibe - vibe_before), roundi(promised), state.vibe - vibe_before == promised])
 	await _move(canvas_edit * Iso.centre(Vector2i(0, 0), Vector2i.ONE))
