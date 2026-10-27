@@ -53,6 +53,9 @@ var start_menu_slots: int = 2
 ## upgrade adds rows). Seats, stoves, Pods and décor all stand on it.
 var floor_width: int = 8
 var start_floor_rows: int = 6
+## Where a new game's furniture stands: [{"piece": id, "cell": [x, y], "rotated": bool}].
+## Empty, or a piece that does not fit there: the first free spot instead.
+var start_layout: Array = []
 ## Vibe (décor): waiting customers lose satisfaction / (1 + vibe * vibe_decay_per_point);
 ## every served dish adds vibe * vibe_meal_bonus satisfaction, at most vibe_meal_bonus_max.
 var vibe_decay_per_point: float = 0.01

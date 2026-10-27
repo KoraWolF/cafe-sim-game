@@ -8,12 +8,14 @@ var _details := UiTheme.label("", 16)
 var _xp := ProgressBar.new()
 var _battery := ProgressBar.new()
 var _roles: Dictionary[String, Button] = {}
+var _role_help := UiTheme.label("", 14, UiTheme.TEXT_DIM)
+var _about := UiTheme.label("", 14, UiTheme.TEXT_DIM)
 
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_CENTER_RIGHT)
 	position.x -= 340
-	custom_minimum_size = Vector2(320, 0)
+	custom_minimum_size = Vector2(360, 0)
 	var column := VBoxContainer.new()
 	add_child(column)
 	column.add_child(_title)
@@ -23,6 +25,10 @@ func _ready() -> void:
 		bar.custom_minimum_size = Vector2(0, 14)
 	column.add_child(_xp)
 	column.add_child(_battery)
+	for help: Label in [_about, _role_help]:
+		help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		help.custom_minimum_size = Vector2(320, 0)
+	column.add_child(_about)
 	column.add_child(UiTheme.label(tr("ui.card_role"), 16, UiTheme.TEXT_DIM))
 	var roles := HBoxContainer.new()
 	column.add_child(roles)
@@ -32,6 +38,7 @@ func _ready() -> void:
 		button.tooltip_text = tr("tip.role." + role)
 		_roles[role] = button
 		roles.add_child(button)
+	column.add_child(_role_help)
 	column.add_child(UiTheme.button(tr("ui.close"), func() -> void: visible = false))
 
 
@@ -55,6 +62,14 @@ func refresh() -> void:
 	_battery.value = synth.battery
 	for role: String in _roles:
 		_roles[role].set_pressed_no_signal(role == synth.role)
+	_role_help.text = tr("ui.card_role_now") % [UiText.role(synth.role), tr("tip.role." + synth.role)]
+	var about: Array[String] = [tr("species.%s.desc" % synth.species_id)]
+	if synth.trait_id != "":
+		about.append(tr("trait.%s.desc" % synth.trait_id))
+	about.append(tr("ui.card_stats") % [SynthStats.speed(synth, data), roundi(100.0 * SynthStats.stat(synth, "cook", data)),
+		roundi(100.0 * SynthStats.stat(synth, "appeal", data)), roundi(SynthStats.stat(synth, "power", data)),
+		roundi(SynthStats.stat(synth, "hp", data))])
+	_about.text = "\n".join(about)
 
 
 func _set_role(role: String) -> void:

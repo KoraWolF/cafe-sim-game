@@ -20,7 +20,9 @@ var _feed := VBoxContainer.new()
 var _recipe_menu := PopupMenu.new()
 var _recipe_stove: int = -1
 var _card := SynthCard.new()
-var _pause := PanelContainer.new()
+var _pause := Modal.new()
+var confirm := ConfirmModal.new()
+var customer_card := CustomerCard.new()
 
 
 func _ready() -> void:
@@ -40,6 +42,7 @@ func _ready() -> void:
 	_recipe_menu.id_pressed.connect(_on_recipe_chosen)
 	_card.visible = false
 	add_child(_card)
+	add_child(customer_card)
 	_build_pause_menu()
 	Session.toast.connect(show_toast)
 	Session.state_changed.connect(refresh)
@@ -77,11 +80,10 @@ func _build_top_bar() -> void:
 
 
 func _build_pause_menu() -> void:
-	_pause.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	_pause.visible = false
 	add_child(_pause)
-	var column := VBoxContainer.new()
-	_pause.add_child(column)
+	add_child(confirm)
+	_pause.panel.custom_minimum_size = Vector2(360, 0)
+	var column := _pause.content
 	column.add_child(UiTheme.label(tr("ui.paused"), 28, UiTheme.PANEL_BORDER))
 	column.add_child(UiTheme.button(tr("ui.resume"), toggle_pause))
 	for slot: int in SaveSystem.SLOTS:
@@ -93,11 +95,11 @@ func _build_pause_menu() -> void:
 
 
 func toggle_pause() -> void:
-	_pause.visible = not _pause.visible
-	Session.paused = _pause.visible
 	if _pause.visible:
-		_pause.reset_size()
-		_pause.position = (size - _pause.size) * 0.5
+		_pause.hide_modal()
+	else:
+		_pause.show_modal()
+	Session.paused = _pause.visible
 
 
 func refresh() -> void:
@@ -120,6 +122,8 @@ func refresh() -> void:
 		_speed_buttons[speed].set_pressed_no_signal(speed == state.speed)
 	if _card.visible:
 		_card.refresh()
+	if customer_card.visible:
+		customer_card.refresh()
 
 
 func show_toast(text: String) -> void:
@@ -188,6 +192,29 @@ func _on_recipe_chosen(id: int) -> void:
 	var recipe_id: String = _recipe_menu.get_item_metadata(_recipe_menu.get_item_index(id))
 	if Session.act(GameLoop.start_cooking(Session.state, _recipe_stove, recipe_id, Session.data)):
 		Sfx.play("cook")
+
+
+func show_customer_card(customer_id: String, at: Vector2) -> void:
+	customer_card.show_for(customer_id, at)
+
+
+## Clicking a starred customer: say why it can't happen, or ask before spending NanoBrew.
+func confirm_convert(customer_id: String) -> void:
+	var state := Session.state
+	var customer := state.customer_by_id(customer_id)
+	if customer == null:
+		return
+	if state.nanobrew <= 0:
+		show_toast(UiText.error(GameLoop.NO_NANOBREW))
+		return
+	if state.synths.size() >= state.pods:
+		show_toast(UiText.error(GameLoop.NO_FREE_POD))
+		return
+	var type := Session.data.customer_types[customer.type_id]
+	var trait_text := UiText.name(customer.trait_id) if customer.trait_id != "" else tr("ui.card_no_trait")
+	confirm.ask(tr("ui.confirm_convert") % [UiText.name(customer.type_id), UiText.name(type.synth_species), trait_text],
+		tr("ui.confirm_convert_details") % [state.nanobrew, state.nanobrew - 1, state.synths.size() + 1, state.pods],
+		tr("ui.confirm_convert_yes"), Session.convert_customer.bind(customer_id))
 
 
 func open_synth_card(synth_id: String) -> void:
