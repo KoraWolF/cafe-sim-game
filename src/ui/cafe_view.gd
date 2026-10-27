@@ -27,10 +27,10 @@ signal editor_changed
 signal edit_exit_requested
 
 const HEIGHTS: Dictionary[String, float] = {"seat": 14.0, "table": 24.0, "stove": 30.0, "pod": 56.0, "counter": 26.0,
-	"bin": 24.0, "decor": 22.0}
+	"bin": 24.0, "register": 28.0, "decor": 22.0}
 const KIND_COLORS: Dictionary[String, Color] = {
 	"seat": Color("8a6a4a"), "stove": Color("8c95a8"), "pod": Color("5a6a9a"), "counter": Color("c9a27a"),
-	"bin": Color("4f6b5a"), "table": Color("b08a5a"),
+	"bin": Color("4f6b5a"), "table": Color("b08a5a"), "register": Color("5b6bd0"),
 }
 const HEAD_HIT_RADIUS: float = 30.0
 const DRAG_THRESHOLD: float = 8.0
@@ -265,7 +265,7 @@ func _zoom(factor: float) -> void:
 func _click(world: Vector2, screen: Vector2) -> void:
 	var state := Session.state
 	for customer: Customer in state.customers:
-		if customer.stage == Customer.Stage.STAR and _hit(customer.id, world):
+		if customer.can_convert() and _hit(customer.id, world):
 			customer_clicked.emit(customer.id)
 			return
 	for synth: Synth in state.synths:
@@ -334,7 +334,6 @@ func _draw_floor(state: GameState, data: GameData) -> void:
 	var door := Vector2(width, state.floor_rows - 1)
 	draw_colored_polygon(PackedVector2Array([Iso.to_world(door), Iso.to_world(door + Vector2(0.6, 0)),
 		Iso.to_world(door + Vector2(0.6, 1)), Iso.to_world(door + Vector2(0, 1))]), UiTheme.ACCENT.darkened(0.4))
-	_draw_call_board(width, float(state.floor_rows))
 	_draw_pod_bay(state, data)
 
 
@@ -380,19 +379,7 @@ func _draw_pod_bay(state: GameState, data: GameData) -> void:
 		draw_rect(Rect2(base + Vector2(-20, -76), Vector2(40, 8)), Color("5a6a9a"))
 
 
-## The board outside where starred customers line up to be converted.
-func _draw_call_board(width: float, rows: float) -> void:
-	var foot := Iso.to_world(Vector2(width + 1.25, rows - 1.5))
-	draw_line(foot, foot + Vector2(0, -60), Color("8a6a4a"), 5.0)
-	var board := Rect2(foot + Vector2(-46, -112), Vector2(92, 54))
-	draw_rect(board, Color("2b2650"))
-	draw_rect(board, UiTheme.WARN, false, 3.0)
-	_draw_star(board.position + Vector2(18, 27), 10.0, UiTheme.WARN)
-	_text(board.position + Vector2(56, 24), tr("ui.call_board_1"), 13, UiTheme.TEXT)
-	_text(board.position + Vector2(56, 42), tr("ui.call_board_2"), 13, UiTheme.TEXT)
-
-
-## Street, door and where starred customers stand, in cell units.
+## Street and door, in cell units.
 func _street(width: float, rows: float) -> Vector2:
 	return Vector2(width + 5.0, rows - 0.5)
 
@@ -458,6 +445,12 @@ func _draw_piece(placed: PlacedPiece) -> void:
 				draw_circle(Vector2.ZERO, 13, Color.WHITE)
 				draw_circle(Vector2.ZERO, 8, dish)
 				draw_set_transform(Vector2.ZERO)
+	elif piece.kind == Piece.REGISTER:
+		# A glowing screen on top.
+		var top := Iso.centre(placed.cell, Vector2i.ONE) - Vector2(0, HEIGHTS["register"])
+		draw_rect(Rect2(top + Vector2(-12, -18), Vector2(24, 14)), Color("1b1838"))
+		draw_rect(Rect2(top + Vector2(-10, -16), Vector2(20, 10)), UiTheme.GOOD)
+		_text(label_at + Vector2(0, -22), tr("ui.register_label"), 12, UiTheme.TEXT_DIM)
 	elif piece.kind == Piece.BIN:
 		# A lid on top.
 		var top := Iso.centre(placed.cell, Vector2i(size)) - Vector2(0, HEIGHTS["bin"])
@@ -564,6 +557,9 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 	var rows := float(state.floor_rows)
 	var queue_index := 0
 	var star_index := 0
+	var line_index := 0
+	var registers := _registers(state, data)
+	var cashier_at := _cashier_registers(state, data, registers)
 	var present: Dictionary[String, bool] = {}
 	for customer: Customer in state.customers:
 		var target: Vector2
@@ -572,9 +568,18 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 				target = Vector2(width + 0.6 + queue_index * 0.8, rows - 0.5)
 				queue_index += 1
 			Customer.Stage.STAR:
-				# In line at the call board, beside the door.
-				target = Vector2(width + 0.55, rows - 2.3 - star_index * 0.75)
+				# Paid and leaving: lingering on the street outside, still clickable.
+				target = Vector2(width + 1.3 + star_index * 0.75, rows + 0.4)
 				star_index += 1
+			Customer.Stage.PAYING:
+				if customer.cashier_id != "" and cashier_at.has(customer.cashier_id):
+					target = _piece_front(cashier_at[customer.cashier_id], state, data, Vector2.ZERO)
+				elif not registers.is_empty():
+					# In line in front of the first register.
+					target = _piece_front(registers[0], state, data, Vector2.ZERO) + Vector2(0.15, 0.7 * (line_index + 1))
+					line_index += 1
+				else:
+					target = _street(width, rows)
 			_:
 				target = _seat_position(customer.id, state, data)
 		present[customer.id] = true
@@ -625,6 +630,12 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 						_piece_front(synth.task_counter_uid, state, data, at), progress)
 			Synth.CHEF:
 				at = _stove_front(index, state, data)
+			Synth.CASHIER:
+				var register: String = cashier_at.get(synth.id, "")
+				var spot := Layout.placed_by_uid(state, register)
+				# Behind their register; a Cashier with no free register waits beside the first.
+				at = Vector2(spot.cell) + Vector2(0.5, -0.2) if spot != null \
+					else _piece_front(registers[0] if not registers.is_empty() else "", state, data, pass_point) + Vector2(0.8, 0)
 			Synth.GREETER:
 				at = Vector2(width - 0.5, rows - 1.6 - index * 0.7)
 			_:
@@ -641,6 +652,24 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 
 ## Moves a new Synth along its way to its Pod; returns where to draw it (the
 ## Pod once it is there).
+## Placed register uids in floor order.
+func _registers(state: GameState, data: GameData) -> Array[String]:
+	var result: Array[String] = []
+	for placed: PlacedPiece in state.placed:
+		if data.pieces[placed.piece_id].kind == Piece.REGISTER:
+			result.append(placed.uid)
+	return result
+
+
+## Working Cashier id -> the register uid they stand at (one each, in order).
+func _cashier_registers(state: GameState, data: GameData, registers: Array[String]) -> Dictionary[String, String]:
+	var result: Dictionary[String, String] = {}
+	var cashiers := Shift.active_cashiers(state, data)
+	for i: int in cashiers.size():
+		result[cashiers[i].id] = registers[i]
+	return result
+
+
 func _walk_to_pod(synth_id: String, pod: Vector2) -> Vector2:
 	var trip := _to_pod[synth_id]
 	var via: Array = trip["via"]
@@ -712,9 +741,13 @@ func _draw_customer(customer: Customer, at: Vector2) -> void:
 				_text(above + Vector2(0, -2), UiText.name(customer.recipe_id).left(2), 14, Color.BLACK)
 		Customer.Stage.EATING:
 			_draw_bar(above + Vector2(0, 8), 34, 1.0 - float(customer.timer) / Session.data.balance.eat_seconds, UiTheme.GOOD)
-		Customer.Stage.STAR:
-			var pulse := 1.0 + 0.12 * sin(_time * 6.0)
-			_draw_star(above + Vector2(0, -6), 16.0 * pulse, UiTheme.WARN)
+		Customer.Stage.PAYING:
+			_draw_bar(above + Vector2(0, 8), 34, customer.satisfaction / 100.0, _mood_color(customer.satisfaction))
+			if not customer.starred:
+				_text(above + Vector2(0, -4), "$", 18, UiTheme.WARN)
+	if customer.starred and (customer.stage == Customer.Stage.PAYING or customer.stage == Customer.Stage.STAR):
+		var pulse := 1.0 + 0.12 * sin(_time * 6.0)
+		_draw_star(above + Vector2(0, -6), 16.0 * pulse, UiTheme.WARN)
 
 
 func _draw_leaver(leaver: Dictionary) -> void:

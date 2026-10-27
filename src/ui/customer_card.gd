@@ -57,6 +57,6 @@ func refresh() -> void:
 	lines.append(tr("species.%s.desc" % type.synth_species))
 	if customer.trait_id != "":
 		lines.append(tr("trait.%s.desc" % customer.trait_id))
-	if customer.stage == Customer.Stage.STAR:
+	if customer.can_convert():
 		lines.append(tr("customer.click_convert"))
 	_body.text = "\n".join(lines)

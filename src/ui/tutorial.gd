@@ -23,7 +23,7 @@ var _steps: Array[Dictionary] = []
 
 func _init() -> void:
 	var has_star := func(state: GameState) -> bool:
-		return state.customers.any(func(c: Customer) -> bool: return c.stage == Customer.Stage.STAR)
+		return state.customers.any(func(c: Customer) -> bool: return c.can_convert())
 	var at_night := func(state: GameState) -> bool: return state.phase == GameState.Phase.NIGHT
 	_steps = [
 		{"key": "tutorial.welcome", "shift": true},

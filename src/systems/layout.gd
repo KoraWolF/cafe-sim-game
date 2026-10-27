@@ -438,6 +438,9 @@ static func _can_remove(state: GameState, placed: PlacedPiece, data: GameData) -
 		Piece.SEAT:
 			if state.customers.any(func(customer: Customer) -> bool: return customer.seat_uid == placed.uid):
 				return GameLoop.SEAT_BUSY
+		Piece.REGISTER:
+			if count_placed(state, Piece.REGISTER, data) <= 1:
+				return GameLoop.REGISTER_NEEDED
 		Piece.TABLE:
 			var seat_uid: String = state.seat_table.find_key(placed.uid) if state.seat_table.values().has(placed.uid) else ""
 			if seat_uid != "" and state.customers.any(func(customer: Customer) -> bool: return customer.seat_uid == seat_uid):

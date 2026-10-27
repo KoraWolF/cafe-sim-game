@@ -11,7 +11,7 @@ It is the café's electricity stock. At night it recharges Synths' batteries: 0.
 | 1 | `playtest-3-quick` | Pencil icon to rename, battery as %, max battery 70–200 rolled per unit, new Synths walk to their Pod at 70% on Rest, Power→Energy, Bin and throw-away (the counter bug), Auto button | built |
 | 2 | `live-build` | Shop, upgrades, décor and floor editing open at any time from the top bar (not only at night) | built |
 | 3 | `tables` | Tables apart from seats, seats must face a table, dish shown and eaten on the table; starter café 8×8 with 3 tables, 3 chairs, 1 bin | built |
-| 4 | `cashier` | Cashier role and cashier counter, everyone pays on the way out, star wait spot removed, start with 2 staff | |
+| 4 | `cashier` | Cashier role and cashier counter, everyone pays on the way out, star wait spot removed, start with 2 staff | built |
 | 5 | `unit-cards` | New worker and customer cards, a draggable Details window (Work, Fight, Trait, Gear tabs), an Info button | |
 | 6 | `items` | Inventory: EXP bottles, equipment (5 tiers), fashion, selling, crafting from raid materials | |
 | 7 | `quests` | 3 daily quests (real-time reset), story quests, achievements | |
@@ -65,7 +65,16 @@ Original decisions:
 - Vibe still comes from the seat.
 - Starter café: 8×8 floor with 2 stoves, 2 counters, 3 tables, 3 chairs and 1 bin.
 
-**Cashier (branch 4)**
+**Cashier (branch 4, built)**
+- New **Register** piece (1×1, Register upgrade 150 coins ×1.8, up to 3 more) and **Cashier** role. Working Cashiers pair with registers in floor order, one each; extra Cashiers wait. The last register can't be picked up.
+- After eating, a customer gets their bill (plus a tip if starred) and joins the pay line. A Cashier takes them in 1 s (2 s if starred) at the Cashier's speed. Coins come in then.
+- A customer who gets angry in the line still pays, but loses the tip. At closing, the line pays if a Cashier is working; otherwise they leave without paying.
+- Starred customers show their star in the pay line and while they linger outside after paying (star_window_seconds). Click them anywhere to convert. One converted in the line pays first.
+- New game: Proto (Server) plus **Tally**, a Clerkbot **Cashier**, with **3 Pods** so day 1's NanoBrew has room. Save format v11 gives older cafés a register and a Clerkbot Cashier with a Pod of its own.
+- The "Starred? Wait here!" board is gone.
+- Balance (40 days × 5 seeds): about 2,094 customers paid, 94.5% stars, the Alley taken on day ~11 and Neon Market on day ~26 in **all 5 runs**, about 2,650 coins at day 40. The extra Synth raises Suspicion (2.6 Audits), and early coins go to more upkeep.
+
+Original decisions:
 - Everyone pays at a cashier counter (1×1, one Cashier each) before leaving.
   - 1 s each, or 2 s for star customers
   - faster with the Cashier's speed

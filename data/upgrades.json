@@ -5,6 +5,7 @@
 	{"id": "pod", "step": 1, "base_cost": 200, "cost_growth": 1.6, "max_level": 8},
 	{"id": "counter", "step": 1, "base_cost": 120, "cost_growth": 1.6, "max_level": 4},
 	{"id": "bin", "step": 1, "base_cost": 40, "cost_growth": 1.5, "max_level": 3},
+	{"id": "register", "step": 1, "base_cost": 150, "cost_growth": 1.8, "max_level": 3},
 	{"id": "menu_slot", "step": 1, "base_cost": 250, "cost_growth": 2.0, "max_level": 2},
 	{"id": "floor", "step": 2, "base_cost": 500, "cost_growth": 2.0, "max_level": 4},
 	{"id": "security", "step": 15, "base_cost": 120, "cost_growth": 1.5, "max_level": 5}

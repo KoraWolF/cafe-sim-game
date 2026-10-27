@@ -22,7 +22,9 @@ extends RefCounted
 ##    cafés get a bin (placed if there is room, else in storage).
 ## 10: tables: a seat works only beside one. Older cafés get a table beside
 ##     each seat (or in storage when there is no room).
-const VERSION: int = 10
+## 11: registers and Cashiers: customers pay on the way out. Older cafés get
+##     a register and a Clerkbot Cashier (with a Pod of its own).
+const VERSION: int = 11
 const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
 
@@ -251,6 +253,9 @@ static func _migrate_step(version: int, raw: Dictionary) -> Dictionary:
 			return raw
 		9:
 			raw["needs_tables"] = true
+			return raw
+		10:
+			raw["needs_register"] = true
 			return raw
 	return {}
 
@@ -496,6 +501,14 @@ static func _load_one(path: String, data: GameData, errors: PackedStringArray) -
 		state.storage[Piece.BIN] = state.storage.get(Piece.BIN, 0) + 1
 	if current.get("needs_tables", false):
 		Layout.give_tables(state, data)
+	if current.get("needs_register", false) and data.balance.start_registers > 0:
+		if Layout.count_placed(state, Piece.REGISTER, data) == 0:
+			while not Layout.auto_place(state, Piece.REGISTER, data):
+				state.floor_rows += 2
+		if not state.synths.any(func(synth: Synth) -> bool: return synth.role == Synth.CASHIER) \
+				and data.balance.starter_cashier_species != "":
+			state.pods += 1
+			state.add_starter_cashier(data)
 	Layout.refresh(state, data)
 	if current.get("needs_counter_fill", false):
 		Counters.fill_from_pool(state, data)

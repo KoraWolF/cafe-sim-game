@@ -79,11 +79,12 @@ func _run() -> void:
 	_shot("04_recipe_menu")
 	game.hud._recipe_menu.hide()
 
-	while state.customers.all(func(c: Customer) -> bool: return c.stage != Customer.Stage.STAR):
+	while state.customers.all(func(c: Customer) -> bool: return not c.can_convert()):
 		_session.advance(1)
 	await _frames(2)
 	state.nanobrew = 1
-	var star: Customer = state.customers.filter(func(c: Customer) -> bool: return c.stage == Customer.Stage.STAR)[0]
+	var star: Customer = state.customers.filter(func(c: Customer) -> bool: return c.can_convert())[0]
+	await _frames(30)  # let them walk to the register
 	var synths_before := state.synths.size()
 	await _click(game.cafe.get_viewport().get_canvas_transform() * game.cafe._heads[star.id])
 	print("CHECK click starred customer -> NanoBrew confirmation shown: ", game.hud.confirm.visible)

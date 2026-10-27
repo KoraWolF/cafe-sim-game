@@ -25,7 +25,7 @@ var satisfaction_decay_per_second: float = 1.5
 ## Satisfaction lost when a server drops the customer's dish.
 var break_satisfaction_penalty: float = 15.0
 ## A customer who finishes eating at or above this (out of 100) gets a star:
-## they tip, and can be converted for star_window_seconds.
+## they tip, and can be converted while they pay and for star_window_seconds after.
 var star_threshold: float = 80.0
 var star_window_seconds: int = 20
 ## Seconds a speed 1.0 server needs to carry a dish to a table.
@@ -55,6 +55,15 @@ var start_pods: int = 2
 var start_counters: int = 1
 ## Bins a new game starts with.
 var start_bins: int = 0
+## Registers a new game starts with (0 only in tests: then customers pay as
+## they finish eating, with no cashier).
+var start_registers: int = 0
+## Seconds at a register at cashier speed 1.0: everyone, and starred customers.
+var pay_seconds: float = 1.0
+var star_pay_seconds: float = 2.0
+## The second starting Synth, working the register ("" = none).
+var starter_cashier_species: String = ""
+var starter_cashier_name: String = "Tally"
 ## Dishes the player can put on the daily menu.
 var start_menu_slots: int = 2
 ## The café floor: floor_width tiles across, start_floor_rows deep (the floor
