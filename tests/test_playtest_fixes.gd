@@ -52,3 +52,16 @@ func test_every_species_and_trait_is_explained() -> void:
 	for stage: int in Customer.Stage.values():
 		var key := "customer.stage_%d" % stage
 		assert_true(tr(key) != key, "%s has text" % key)
+
+
+func test_rename_synth() -> void:
+	var data := TestFixtures.data()
+	var state := GameState.new_game(1, data)
+	var synth := state.synths[0]
+	assert_eq(GameLoop.rename_synth(state, synth.id, "  Barista Bot  "), GameLoop.OK, "renamed")
+	assert_eq(synth.name, "Barista Bot", "spaces trimmed")
+	assert_eq(GameLoop.rename_synth(state, synth.id, "   "), GameLoop.EMPTY_NAME, "empty refused")
+	assert_eq(GameLoop.rename_synth(state, synth.id, "x".repeat(21)), GameLoop.NAME_TOO_LONG, "too long refused")
+	assert_eq(GameLoop.rename_synth(state, "nobody", "A"), GameLoop.UNKNOWN_SYNTH, "unknown")
+	assert_eq(synth.name, "Barista Bot", "unchanged by refusals")
+	assert_eq(Synth.from_dict(synth.to_dict()).name, "Barista Bot", "the name is saved")

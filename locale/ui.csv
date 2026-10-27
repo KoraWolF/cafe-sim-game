@@ -212,7 +212,7 @@ ui.confirm_convert,Convert this %s into a %s (trait: %s)?
 ui.confirm_convert_details,"Uses 1 NanoBrew (%d → %d) and a Sync Pod (%d / %d). Suspicion goes up."
 ui.confirm_convert_yes,Use NanoBrew
 ui.card_role_now,"%s: %s"
-ui.card_stats,"Speed %.1f · Cooking +%d%% · Appeal +%d%% · Power %d · HP %d"
+ui.card_stats,"Speed %.1f · Cooking +%d%% · Appeal +%d%% · Power %d (damage per hit) · HP %d"
 ui.ops_security,"Security level %d: every Synth defending the café at night gets +%d HP."
 customer.stage_0,Waiting in line for a seat
 customer.stage_1,Seated and waiting for food
@@ -239,3 +239,7 @@ ui.call_board_1,Starred?
 ui.call_board_2,Wait here!
 error.counter_needed,The café needs at least one counter for finished dishes.
 customer.seat_vibe,Vibe at their seat: %d (décor within 2 tiles)
+ui.card_rename_hint,Click to rename (Enter to save)
+ui.card_power_help,"Power is how hard this Synth hits in raids and defending the café. Power = species base × (1 + 8% per level above 1) + trait bonus (Night Owl +3). Each hit deals power × battery (×0.5 below 20%, nothing when empty) × a random 0.8–1.2. Bases: Clerkbot 6, Bulkform 14, Glitchling 8, Hypeform 5, Steady-unit 7, Xeno 10."
+error.empty_name,A name can't be empty.
+error.name_too_long,That name is too long (20 letters at most).

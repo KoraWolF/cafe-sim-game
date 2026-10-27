@@ -3,7 +3,7 @@ extends PanelContainer
 ## A Synth's details (species, trait, level, XP, battery) and its role buttons.
 
 var synth_id: String = ""
-var _title := UiTheme.label("", 22, UiTheme.PANEL_BORDER)
+var _title := LineEdit.new()
 var _details := UiTheme.label("", 16)
 var _xp := ProgressBar.new()
 var _battery := ProgressBar.new()
@@ -18,6 +18,13 @@ func _ready() -> void:
 	custom_minimum_size = Vector2(360, 0)
 	var column := VBoxContainer.new()
 	add_child(column)
+	_title.add_theme_font_size_override("font_size", 22)
+	_title.add_theme_color_override("font_color", UiTheme.PANEL_BORDER)
+	_title.max_length = GameLoop.MAX_NAME_LENGTH
+	_title.placeholder_text = tr("ui.card_rename_hint")
+	_title.tooltip_text = tr("ui.card_rename_hint")
+	_title.text_submitted.connect(_rename)
+	_title.focus_exited.connect(func() -> void: _rename(_title.text))
 	column.add_child(_title)
 	column.add_child(_details)
 	for bar: ProgressBar in [_xp, _battery]:
@@ -50,7 +57,8 @@ func refresh() -> void:
 	var data := Session.data
 	var b := data.balance
 	var battery_max := SynthStats.stat(synth, "battery_max", data)
-	_title.text = Session.synth_name(synth)
+	if not _title.has_focus():
+		_title.text = Session.synth_name(synth)
 	var trait_text := tr("ui.card_trait") % UiText.name(synth.trait_id) if synth.trait_id != "" else tr("ui.card_no_trait")
 	var xp_text := tr("ui.card_xp") % [synth.xp, Leveling.xp_to_next(synth.level, b)] \
 		if synth.level < b.max_synth_level else tr("ui.card_xp_max")
@@ -70,6 +78,17 @@ func refresh() -> void:
 		roundi(100.0 * SynthStats.stat(synth, "appeal", data)), roundi(SynthStats.stat(synth, "power", data)),
 		roundi(SynthStats.stat(synth, "hp", data))])
 	_about.text = "\n".join(about)
+	_about.tooltip_text = tr("ui.card_power_help")
+	_about.mouse_filter = Control.MOUSE_FILTER_PASS
+
+
+func _rename(new_name: String) -> void:
+	var synth := Session.state.synth_by_id(synth_id)
+	if synth == null or new_name.strip_edges() == Session.synth_name(synth):
+		return
+	if Session.act(GameLoop.rename_synth(Session.state, synth_id, new_name)):
+		_title.release_focus()
+	refresh()
 
 
 func _set_role(role: String) -> void:
