@@ -56,16 +56,15 @@ func test_move_rotate_store_and_sell() -> void:
 	var data := TestFixtures.data()
 	var state := _night(data)
 	var editor := FloorEditor.new()
-	var pod := state.placed[2].uid
-	assert_eq(editor.hold_placed(state, pod), GameLoop.OK, "holding a pod")
-	assert_eq(editor.preview(state, Vector2i(6, 5), data)["error"], GameLoop.OUT_OF_BOUNDS, "upright: too deep")
+	var stove := state.placed[1].uid
+	assert_eq(editor.hold_placed(state, stove), GameLoop.OK, "holding a stove")
+	assert_eq(editor.preview(state, Vector2i(7, 4), data)["error"], GameLoop.OUT_OF_BOUNDS, "lengthwise: too wide")
 	editor.rotate()
-	assert_eq(editor.drop(state, Vector2i(6, 5), data), GameLoop.OK, "rotated into the last row")
-	assert_eq(Layout.placed_by_uid(state, pod).rotated, true, "rotated")
-	editor.hold_placed(state, pod)
-	assert_eq(editor.store(state, data), GameLoop.OK, "2 Pods for 1 Synth: one can go")
-	editor.hold_placed(state, state.placed.filter(func(p: PlacedPiece) -> bool: return p.piece_id == "pod")[0].uid)
-	assert_eq(editor.store(state, data), GameLoop.POD_IN_USE, "the starter needs the last Pod")
+	assert_eq(editor.drop(state, Vector2i(7, 4), data), GameLoop.OK, "rotated into the last column")
+	assert_eq(Layout.placed_by_uid(state, stove).rotated, true, "rotated")
+	GameLoop.start_cooking(state, 1, "tea", data)
+	editor.hold_placed(state, stove)
+	assert_eq(editor.store(state, data), GameLoop.STOVE_BUSY, "a cooking stove stays")
 	assert_true(editor.is_holding(), "still holding after a refusal")
 	editor.cancel()
 	var fern := _place(state, "fern", Vector2i(0, 5), data)
@@ -74,7 +73,7 @@ func test_move_rotate_store_and_sell() -> void:
 	assert_eq(editor.sell(state, data), GameLoop.OK, "sold")
 	assert_eq(state.coins, coins + 25, "half back")
 	assert_true(not editor.is_holding(), "hands empty")
-	var seat := state.placed[4].uid
+	var seat: String = state.placed.filter(func(p: PlacedPiece) -> bool: return p.piece_id == "seat")[0].uid
 	editor.hold_placed(state, seat)
 	assert_eq(editor.sell(state, data), GameLoop.NOT_FOR_SALE, "seats are not sold")
 	assert_eq(editor.store(state, data), GameLoop.OK, "seat stored")

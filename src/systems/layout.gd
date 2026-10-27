@@ -1,8 +1,9 @@
 class_name Layout
 extends RefCounted
 ## The café floor: a grid floor_width tiles across and state.floor_rows deep.
-## Seats, stoves, Sync Pods and décor stand on it without overlapping; only
-## placed pieces count (seats seat customers, stoves cook, Pods hold Synths).
+## Seats, stoves, counters and décor stand on it without overlapping; only
+## placed pieces count (seats seat customers, stoves cook). Sync Pods are not on
+## the floor: they stand in the Pod bay outside (state.pods).
 ## Pieces not on the floor wait in storage.
 ##
 ## Vibe works in a range: each piece's share is its own Vibe plus half of every
@@ -105,7 +106,7 @@ static func move(state: GameState, uid: String, cell: Vector2i, rotated: bool, d
 	return GameLoop.OK
 
 
-## Back to storage. A cooking stove, a Pod a Synth needs, or the last counter stays put.
+## Back to storage. A cooking stove or the last counter stays put.
 static func pick_up(state: GameState, uid: String, data: GameData) -> String:
 	var placed := placed_by_uid(state, uid)
 	if placed == null:
@@ -161,10 +162,9 @@ static func refund(piece: Piece, b: BalanceConfig) -> int:
 	return int(piece.price * b.sell_refund)
 
 
-## Recomputes what the layout provides: seats, Pods and Vibe (per seat and total).
+## Recomputes what the layout provides: seats and Vibe (per seat and total).
 static func refresh(state: GameState, data: GameData) -> void:
 	state.seats = count_placed(state, Piece.SEAT, data)
-	state.pods = count_placed(state, Piece.POD, data)
 	state.seat_vibe = seat_vibes(state, data)
 	state.vibe = 0.0
 	for value: float in state.seat_vibe.values():
@@ -362,9 +362,6 @@ static func _can_remove(state: GameState, placed: PlacedPiece, data: GameData) -
 			var stove := stove_of(state, placed.uid)
 			if stove != null and not stove.is_idle():
 				return GameLoop.STOVE_BUSY
-		Piece.POD:
-			if state.synths.size() > state.pods - 1:
-				return GameLoop.POD_IN_USE
 		Piece.COUNTER:
 			if count_placed(state, Piece.COUNTER, data) <= 1:
 				return GameLoop.COUNTER_NEEDED

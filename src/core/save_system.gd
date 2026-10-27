@@ -16,7 +16,8 @@ extends RefCounted
 ## 5: the café floor (placed pieces, storage, floor rows); seats and Pods are no
 ##    longer saved, they come from the floor.
 ## 6: the counter piece (older saves get one placed on load).
-const VERSION: int = 6
+## 7: Sync Pods leave the floor for the Pod bay: saved as a count again.
+const VERSION: int = 7
 const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
 
@@ -42,6 +43,7 @@ static func to_dict(state: GameState) -> Dictionary:
 		"cores": state.cores,
 		"power": state.power,
 		"security": state.security,
+		"pods": state.pods,
 		"floor_rows": state.floor_rows,
 		"placed": state.placed.map(func(placed: PlacedPiece) -> Dictionary: return placed.to_dict()),
 		"storage": state.storage,
@@ -80,6 +82,7 @@ static func from_dict(raw: Dictionary) -> GameState:
 	state.cores = int(raw.get("cores", 0))
 	state.power = float(raw.get("power", 0.0))
 	state.security = float(raw.get("security", 0.0))
+	state.pods = int(raw.get("pods", 0))
 	state.floor_rows = int(raw.get("floor_rows", 0))
 	for entry: Dictionary in _objects(raw, "placed"):
 		state.placed.append(PlacedPiece.from_dict(entry))
@@ -199,10 +202,27 @@ static func _migrate_step(version: int, raw: Dictionary) -> Dictionary:
 			# Before the counter: one is placed on load (needs GameData, see _add_counter).
 			raw["needs_counter"] = true
 			return raw
+		6:
+			# Pods move off the floor to the Pod bay: count the placed and stored ones.
+			# (Saves from before v5 still carry their old "pods" count.)
+			var pods := int(raw.get("pods", 0))
+			var placed: Array = []
+			for entry: Variant in raw.get("placed", []):
+				if entry is Dictionary and str(entry.get("piece_id", "")) == "pod":
+					pods += 1
+				else:
+					placed.append(entry)
+			raw["placed"] = placed
+			var storage: Variant = raw.get("storage", {})
+			if storage is Dictionary and storage.has("pod"):
+				pods += int(storage["pod"])
+				storage.erase("pod")
+			raw["pods"] = pods
+			return raw
 	return {}
 
 
-## Puts a pre-floor save's seats, stoves (keeping what they cook) and Pods on
+## Puts a pre-floor save's seats and stoves (keeping what they cook) on
 ## the floor, adding rows until everything fits.
 static func _lay_out_old(state: GameState, raw: Dictionary, data: GameData) -> void:
 	var old_stoves := state.stoves.duplicate()
@@ -210,8 +230,6 @@ static func _lay_out_old(state: GameState, raw: Dictionary, data: GameData) -> v
 	var wanted: Array[String] = []
 	for stove: Stove in old_stoves:
 		wanted.append(Piece.STOVE)
-	for i: int in int(raw.get("pods", 0)):
-		wanted.append(Piece.POD)
 	for i: int in int(raw.get("seats", 0)):
 		wanted.append(Piece.SEAT)
 	for piece_id: String in wanted:

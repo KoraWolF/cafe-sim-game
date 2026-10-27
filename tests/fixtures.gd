@@ -22,8 +22,8 @@ extends RefCounted
 ## Upgrades: stove 50 (x2 per level, max 2), seat 20 (+2 seats, max 3),
 ## pod 100 (max 1), menu slot 40 (max 1), security 30 (+10 hp, max 2).
 ## Floor 8 x 6; the floor upgrade adds 2 rows (100 coins, max 2). Pieces: seat 1x1,
-## stove 2x1, pod 1x2 (new game lays out stoves, then pods, then seats, row by
-## row); décor fern 1x1 (50 coins, 10 Vibe, plant), lamp 1x1 (30, 5, light),
+## stove 2x1, counter 2x1 (a new game puts the stoves at (0, 0) and (2, 0), the
+## seats at (6, 0) and (7, 0); 2 Pods in the Pod bay); décor fern 1x1 (50 coins, 10 Vibe, plant), lamp 1x1 (30, 5, light),
 ## tank 2x2 (200, 40, plant); light next to plant +3. Vibe: waiting loss / (1 +
 ## 0.01 x Vibe), +0.1 x Vibe per dish (max 10); selling returns 50%.
 ## Menu: 2 slots, tea on it by default (jelly needs an alien). Favourites x3,
@@ -38,7 +38,8 @@ static func content(balance_overrides := {}) -> Dictionary:
 		"star_window_seconds": 10, "delivery_seconds": 4, "eat_seconds": 5, "tip_rate": 0.5, "min_pay_share": 0.5,
 		"low_battery_share": 0.2, "low_battery_factor": 0.5, "late_shift_start": 0.7,
 		"start_coins": 100, "start_nanobrew": 1, "start_cores": 0, "start_power": 10.0, "start_seats": 2,
-		"start_stoves": 2, "start_pods": 2, "start_counters": 0, "start_menu_slots": 2, "favorite_weight": 3.0,
+		"start_stoves": 2, "start_pods": 2, "start_counters": 0,
+		"start_layout": [{"piece": "seat", "cell": [6, 0]}, {"piece": "seat", "cell": [7, 0]}], "start_menu_slots": 2, "favorite_weight": 3.0,
 		"floor_width": 8, "start_floor_rows": 6, "vibe_decay_per_point": 0.01, "vibe_meal_bonus": 0.1,
 		"vibe_meal_bonus_max": 10.0, "sell_refund": 0.5,
 		"favorite_satisfaction": 10.0, "start_security": 0.0, "start_district": "town",
@@ -101,7 +102,6 @@ static func content(balance_overrides := {}) -> Dictionary:
 		"pieces": [
 			{"id": "seat", "kind": "seat", "size": [1, 1], "tags": ["seat"]},
 			{"id": "stove", "kind": "stove", "size": [2, 1], "tags": ["kitchen"]},
-			{"id": "pod", "kind": "pod", "size": [1, 2], "tags": ["tech"]},
 			{"id": "counter", "kind": "counter", "size": [2, 1], "tags": ["kitchen"]},
 			{"id": "fern", "kind": "decor", "size": [1, 1], "price": 50, "vibe": 10, "tags": ["plant"]},
 			{"id": "lamp", "kind": "decor", "size": [1, 1], "price": 30, "vibe": 5, "tags": ["light"]},

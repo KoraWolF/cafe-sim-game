@@ -30,6 +30,8 @@ const KIND_COLORS: Dictionary[String, Color] = {
 }
 const HEAD_HIT_RADIUS: float = 30.0
 const DRAG_THRESHOLD: float = 8.0
+## Tiles between Pods in the Pod bay.
+const BAY_SPACING: float = 1.1
 ## Customers walk this many tiles per second at 1x.
 const WALK_SPEED: float = 3.0
 ## Screen space taken by the HUD's top bar and the night hub.
@@ -143,7 +145,8 @@ func fit_camera(right_panel := -1.0) -> void:
 func floor_rect() -> Rect2:
 	var size := Vector2(Session.data.balance.floor_width, Session.state.floor_rows)
 	var points := [Iso.to_world(Vector2.ZERO), Iso.to_world(Vector2(size.x, 0)), Iso.to_world(size),
-		Iso.to_world(Vector2(0, size.y)), Iso.to_world(Vector2(size.x + 5, size.y)), Iso.to_world(Vector2(size.x + 2, 0))]
+		Iso.to_world(Vector2(0, size.y)), Iso.to_world(Vector2(size.x + 5, size.y)), Iso.to_world(Vector2(size.x + 2, 0)),
+		Iso.to_world(Vector2(0, size.y + 2.6)), Iso.to_world(Vector2(size.x, size.y + 2.6))]
 	var rect := Rect2(points[0], Vector2.ZERO)
 	for point: Vector2 in points:
 		rect = rect.expand(point)
@@ -315,6 +318,7 @@ func _draw_floor(state: GameState, data: GameData) -> void:
 	draw_colored_polygon(PackedVector2Array([Iso.to_world(door), Iso.to_world(door + Vector2(0.6, 0)),
 		Iso.to_world(door + Vector2(0.6, 1)), Iso.to_world(door + Vector2(0, 1))]), UiTheme.ACCENT.darkened(0.4))
 	_draw_call_board(width, float(state.floor_rows))
+	_draw_pod_bay(state, data)
 
 
 ## The café door: a frame on the front-right edge with a neon OPEN sign.
@@ -329,6 +333,34 @@ func _draw_door(door: Vector2) -> void:
 	draw_rect(Rect2(sign_at - Vector2(30, 11), Vector2(60, 20)), Color("1a1428"))
 	var on := UiTheme.ACCENT if Session.state.phase == GameState.Phase.SHIFT else UiTheme.TEXT_DIM
 	_text(sign_at + Vector2(0, 6), tr("ui.door_open") if on == UiTheme.ACCENT else tr("ui.door_closed"), 14, on)
+
+
+## Where Pod i stands in the Pod bay, outside the front-left wall (cell units).
+func _bay_slot(i: int, state: GameState, data: GameData) -> Vector2:
+	var per_row := maxi(int(data.balance.floor_width / BAY_SPACING), 1)
+	return Vector2(0.6 + (i % per_row) * BAY_SPACING, state.floor_rows + 0.9 + (i / per_row) * 1.2)
+
+
+## The Pod bay: a platform outside the front-left wall with one glass Pod per Sync Pod.
+func _draw_pod_bay(state: GameState, data: GameData) -> void:
+	var rows := float(state.floor_rows)
+	var deep := 0.3 + ceilf(float(state.pods) / maxi(int(data.balance.floor_width / BAY_SPACING), 1)) * 1.2
+	var corners := PackedVector2Array([Iso.to_world(Vector2(0, rows + 0.25)), Iso.to_world(Vector2(data.balance.floor_width, rows + 0.25)),
+		Iso.to_world(Vector2(data.balance.floor_width, rows + 0.25 + deep)), Iso.to_world(Vector2(0, rows + 0.25 + deep))])
+	draw_colored_polygon(corners, Color("252046"))
+	corners.append(corners[0])
+	draw_polyline(corners, Color(UiTheme.PANEL_BORDER, 0.5), 2.0)
+	_text(Iso.to_world(Vector2(0.2, rows + 0.25 + deep)) + Vector2(-30, 26), tr("ui.pod_bay") % [state.synths.size(), state.pods],
+		14, UiTheme.PANEL_BORDER)
+	for i: int in state.pods:
+		var base := Iso.to_world(_bay_slot(i, state, data))
+		draw_set_transform(base, 0, Vector2(1, 0.45))
+		draw_circle(Vector2.ZERO, 22, Color("3a4a7a"))
+		draw_set_transform(Vector2.ZERO)
+		var glass := Rect2(base + Vector2(-17, -70), Vector2(34, 66))
+		draw_rect(glass, Color(UiTheme.PANEL_BORDER, 0.14))
+		draw_rect(glass, Color(UiTheme.PANEL_BORDER, 0.7), false, 2.0)
+		draw_rect(Rect2(base + Vector2(-20, -76), Vector2(40, 8)), Color("5a6a9a"))
 
 
 ## The board outside where starred customers line up to be converted.
@@ -518,10 +550,6 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 		result.append([_draw_leaver.bind(leaver), leaver["at"]])
 	var pass_point := _pass_point(state, data)
 	var counts: Dictionary[String, int] = {}
-	var pod_cells: Array[Vector2] = []
-	for placed: PlacedPiece in state.placed:
-		if data.pieces[placed.piece_id].kind == Piece.POD:
-			pod_cells.append(Vector2(placed.cell) + Vector2(data.pieces["pod"].footprint(placed.rotated)) * 0.5)
 	var rest_index := 0
 	for synth: Synth in state.synths:
 		var index: int = counts.get(synth.role, 0)
@@ -538,7 +566,8 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 			Synth.GREETER:
 				at = Vector2(width - 0.5, rows - 1.6 - index * 0.7)
 			_:
-				at = pod_cells[rest_index] if rest_index < pod_cells.size() else Vector2(0.5, rows - 0.5)
+				# Resting in a Sync Pod in the Pod bay (every Synth has one).
+				at = _bay_slot(rest_index, state, data) + Vector2(0, 0.05)
 				rest_index += 1
 		result.append([_draw_synth.bind(synth, at), at])
 	return result

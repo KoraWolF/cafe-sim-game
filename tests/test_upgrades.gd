@@ -29,13 +29,13 @@ func test_each_upgrade_applies() -> void:
 	var state := _night(data)
 	for upgrade_id: String in ["seat", "pod", "security", "floor"]:
 		assert_eq(GameLoop.buy_upgrade(state, upgrade_id, data), GameLoop.OK, upgrade_id)
-	assert_eq(state.storage, {"seat": 2, "pod": 1} as Dictionary[String, int], "2 seats and a Pod to place")
+	assert_eq(state.storage, {"seat": 2} as Dictionary[String, int], "2 seats to place")
 	assert_eq(state.seats, 2, "stored seats do not count")
-	for piece_id: String in ["seat", "seat", "pod"]:
+	assert_eq(state.pods, 3, "the Pod went straight to the Pod bay")
+	for piece_id: String in ["seat", "seat"]:
 		var spot := Layout.find_spot(state, piece_id, data)
 		assert_eq(GameLoop.place_piece(state, piece_id, spot["cell"], spot["rotated"], data), GameLoop.OK, "placed")
 	assert_eq(state.seats, 4, "2 + 2 seats")
-	assert_eq(state.pods, 3, "2 + 1 pods")
 	assert_eq(state.floor_rows, 8, "6 + 2 rows")
 	assert_eq(state.security, 10.0, "+10 security")
 	assert_eq(state.upgrades, {"seat": 1, "pod": 1, "security": 1, "floor": 1} as Dictionary[String, int], "levels")
@@ -72,9 +72,9 @@ func test_new_stove_cooks_and_upgrades_survive_saving() -> void:
 
 
 func test_furniture_needs_room_on_the_floor() -> void:
-	var data := TestFixtures.data({"start_seats": 40})
+	var data := TestFixtures.data({"start_seats": 44})
 	var state := _night(data)
-	assert_eq(state.seats, 40, "the floor is full: 4 + 4 + 40 tiles")
+	assert_eq(state.seats, 44, "the floor is full: 4 stove tiles + 44 seats")
 	assert_eq(GameLoop.buy_upgrade(state, "seat", data), GameLoop.NO_ROOM, "no space")
 	assert_eq(GameLoop.buy_upgrade(state, "floor", data), GameLoop.OK, "expand")
 	assert_eq(GameLoop.buy_upgrade(state, "seat", data), GameLoop.OK, "room now")

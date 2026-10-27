@@ -41,7 +41,6 @@ const NONE_STORED: String = "none_stored"
 const OUT_OF_BOUNDS: String = "out_of_bounds"
 const OVERLAP: String = "overlap"
 const UNKNOWN_PLACED: String = "unknown_placed"
-const POD_IN_USE: String = "pod_in_use"
 const COUNTER_NEEDED: String = "counter_needed"
 const EMPTY_NAME: String = "empty_name"
 const NAME_TOO_LONG: String = "name_too_long"
@@ -160,8 +159,8 @@ static func upgrade_cost(state: GameState, upgrade_id: String, data: GameData) -
 
 
 ## Buys one level of an upgrade. Only at night, while the café is closed.
-## Stove, seat and Pod upgrades put the piece in storage to be placed, and need
-## a free spot for it on the floor (expand the floor first).
+## Stove and seat upgrades put the piece in storage to be placed, and need a
+## free spot for it on the floor (expand the floor first). Pods go to the Pod bay.
 static func buy_upgrade(state: GameState, upgrade_id: String, data: GameData) -> String:
 	if state.phase != GameState.Phase.NIGHT:
 		return WRONG_PHASE
@@ -173,7 +172,7 @@ static func buy_upgrade(state: GameState, upgrade_id: String, data: GameData) ->
 		return MAXED
 	if state.coins < cost:
 		return NOT_ENOUGH_COINS
-	var furniture := [Upgrade.STOVE, Upgrade.SEAT, Upgrade.POD].has(upgrade_id)
+	var furniture := [Upgrade.STOVE, Upgrade.SEAT].has(upgrade_id)
 	if furniture and Layout.find_spot(state, upgrade_id, data).is_empty():
 		return NO_ROOM
 	state.coins -= cost
@@ -181,6 +180,8 @@ static func buy_upgrade(state: GameState, upgrade_id: String, data: GameData) ->
 	if furniture:
 		state.storage[upgrade_id] = state.storage.get(upgrade_id, 0) + roundi(upgrade.step)
 	match upgrade_id:
+		Upgrade.POD:
+			state.pods += roundi(upgrade.step)
 		Upgrade.FLOOR:
 			state.floor_rows += roundi(upgrade.step)
 			Layout.refresh(state, data)

@@ -2,13 +2,11 @@ extends TestCase
 ## Playtest 1 fixes: start layout, traits rolled on arrival, explanations.
 
 
-func test_real_start_layout_puts_pods_on_the_left_wall() -> void:
+func test_real_start_puts_pods_in_the_bay_not_on_the_floor() -> void:
 	var data := GameData.load_default()
 	var state := GameState.new_game(1, data)
-	var pods := state.placed.filter(func(p: PlacedPiece) -> bool: return p.piece_id == "pod")
-	assert_eq(pods.size(), 2, "two Pods")
-	for pod: PlacedPiece in pods:
-		assert_eq(pod.cell.x, 0, "Pod against the left wall (x = 0)")
+	assert_eq(state.pods, 2, "two Pods in the Pod bay")
+	assert_true(state.placed.all(func(p: PlacedPiece) -> bool: return p.piece_id != "pod"), "no Pod takes floor space")
 	assert_eq(state.seats, 4, "all four seats placed")
 	assert_eq(state.stoves.size(), 2, "both stoves placed")
 

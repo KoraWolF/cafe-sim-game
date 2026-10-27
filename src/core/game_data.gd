@@ -136,7 +136,7 @@ func check() -> PackedStringArray:
 				errors.append("rival %s: duplicate id or no defenders" % rival.id)
 			rival_ids[rival.id] = true
 	# Furniture pieces share their kind's id: the stove upgrade gives a "stove" piece.
-	for kind: String in [Piece.SEAT, Piece.STOVE, Piece.POD, Piece.COUNTER]:
+	for kind: String in [Piece.SEAT, Piece.STOVE, Piece.COUNTER]:
 		if not pieces.has(kind) or pieces[kind].kind != kind:
 			errors.append("furniture piece '%s' is missing" % kind)
 	for piece: Piece in pieces.values():
