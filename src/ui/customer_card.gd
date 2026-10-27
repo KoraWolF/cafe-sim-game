@@ -1,8 +1,8 @@
 class_name CustomerCard
 extends PanelContainer
-## Shown while the mouse is over a customer: who they are, what they want, how
-## happy they are, and what they would become as a Synth (species and the trait
-## they arrived with, and their max battery), so the player can choose who to convert.
+## Shown while the mouse is over a customer: who they are, what they are doing,
+## the max battery they would have as a Synth, their order, mood and Vibe, and
+## the species and trait name they would become (details: the Info button).
 
 var customer_id: String = ""
 var _title := UiTheme.label("", 20, UiTheme.PANEL_BORDER)
@@ -42,8 +42,9 @@ func refresh() -> void:
 	var data: GameData = session.data
 	var type := data.customer_types[customer.type_id]
 	_title.text = UiText.name(customer.type_id)
-	var lines: Array[String] = []
-	lines.append(tr("customer.stage_%d" % customer.stage))
+	var lines: Array[String] = [tr("customer.stage_%d" % customer.stage)]
+	if customer.battery_max > 0:
+		lines.append(tr("customer.battery_max") % customer.battery_max)
 	if customer.recipe_id != "":
 		var favourite := tr("customer.favourite") if type.favorites.has(customer.recipe_id) else ""
 		lines.append(tr("customer.order") % [UiText.name(customer.recipe_id), favourite])
@@ -52,11 +53,6 @@ func refresh() -> void:
 		lines.append(tr("customer.seat_vibe") % roundi(session.state.seat_vibe.get(customer.seat_uid, 0.0)))
 	lines.append(tr("customer.converts") % [UiText.name(type.synth_species),
 		UiText.name(customer.trait_id) if customer.trait_id != "" else tr("ui.card_no_trait")])
-	if customer.battery_max > 0:
-		lines.append(tr("customer.battery_max") % customer.battery_max)
-	lines.append(tr("species.%s.desc" % type.synth_species))
-	if customer.trait_id != "":
-		lines.append(tr("trait.%s.desc" % customer.trait_id))
 	if customer.can_convert():
 		lines.append(tr("customer.click_convert"))
 	_body.text = "\n".join(lines)

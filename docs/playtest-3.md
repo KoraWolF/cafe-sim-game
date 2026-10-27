@@ -12,7 +12,7 @@ It is the café's electricity stock. At night it recharges Synths' batteries: 0.
 | 2 | `live-build` | Shop, upgrades, décor and floor editing open at any time from the top bar (not only at night) | built |
 | 3 | `tables` | Tables apart from seats, seats must face a table, dish shown and eaten on the table; starter café 8×8 with 3 tables, 3 chairs, 1 bin | built |
 | 4 | `cashier` | Cashier role and cashier counter, everyone pays on the way out, star wait spot removed, start with 2 staff | built |
-| 5 | `unit-cards` | New worker and customer cards, a draggable Details window (Work, Fight, Trait, Gear tabs), an Info button | |
+| 5 | `unit-cards` | New worker and customer cards, a draggable Details window (Work, Fight, Trait, Gear tabs), an Info button | built |
 | 6 | `items` | Inventory: EXP bottles, equipment (5 tiers), fashion, selling, crafting from raid materials | |
 | 7 | `quests` | 3 daily quests (real-time reset), story quests, achievements | |
 
@@ -96,7 +96,23 @@ Original decisions:
 - Rewards: EXP bottles, coins, NanoBrew, Nano Cores, fashion.
 - They're found in a Quests tab in the night hub plus a small tracker on the shift HUD.
 
-**Cards (branch 5)**
+**Cards (branch 5, built)**
+- **Worker card:**
+  - name with pencil
+  - species, best role and trait name
+  - level and XP bar, with **HP under the level**
+  - battery % with max battery
+  - role buttons (5, including Cashier)
+  - **Details** and Close. No long descriptions.
+- **Details window**, which you can drag by its title:
+  - **Work:** best role and current role with what they do, plus Speed, Cooking and Appeal, each with a line on what it does.
+  - **Fight:** Power with its formula, HP, fight strength now from battery. There's no speed stat in battles (raiders strike first, then turns alternate), so instead of Speed the tab says so.
+  - **Trait:** trait and species with their strengths and weaknesses.
+  - **Fashion** and **Equipment:** placeholders until the items branch.
+- **Customer card:** type, what they're doing, max battery as a Synth, order, mood, seat Vibe, and the species and trait name they'd become. No long descriptions.
+- **Info** (top bar): Stats, Roles and Traits tabs explaining everything.
+
+Original decisions:
 - Equipment gets its own tab next to Fashion.
 - "Core trait" on the worker card means species plus best role.
 - A customer's max battery is the one they'd have as a Synth.

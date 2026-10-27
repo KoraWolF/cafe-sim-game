@@ -29,6 +29,9 @@ var _card := SynthCard.new()
 var _pause := Modal.new()
 var confirm := ConfirmModal.new()
 var customer_card := CustomerCard.new()
+var details := UnitDetails.new()
+var info := InfoPanel.new()
+var info_button := UiTheme.button(tr("ui.info_button"), func() -> void: info.open())
 
 
 func _ready() -> void:
@@ -48,6 +51,8 @@ func _ready() -> void:
 	_recipe_menu.id_pressed.connect(_on_recipe_chosen)
 	_card.visible = false
 	add_child(_card)
+	_card.details_requested.connect(details.open)
+	add_child(details)
 	add_child(customer_card)
 	_build_pause_menu()
 	Session.toast.connect(show_toast)
@@ -82,6 +87,8 @@ func _build_top_bar() -> void:
 		button.toggle_mode = true
 		_speed_buttons[speed] = button
 		_speed_box.add_child(button)
+	info_button.tooltip_text = tr("tip.info")
+	row.add_child(info_button)
 	shop_button.tooltip_text = tr("tip.shop")
 	arrange_button.tooltip_text = tr("tip.arrange")
 	row.add_child(shop_button)
@@ -99,6 +106,7 @@ func _build_top_bar() -> void:
 func _build_pause_menu() -> void:
 	add_child(_pause)
 	add_child(confirm)
+	add_child(info)
 	_pause.panel.custom_minimum_size = Vector2(360, 0)
 	var column := _pause.content
 	column.add_child(UiTheme.label(tr("ui.paused"), 28, UiTheme.PANEL_BORDER))
@@ -143,6 +151,8 @@ func refresh() -> void:
 	_auto.tooltip_text = tr("tip.auto") if unlocked else tr("tip.auto_locked") % data.balance.auto_unlock_day
 	if _card.visible:
 		_card.refresh()
+	if details.visible:
+		details.refresh()
 	if customer_card.visible:
 		customer_card.refresh()
 

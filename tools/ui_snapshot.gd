@@ -61,6 +61,22 @@ func _run() -> void:
 	await _click(_centre_of(game.hud._card._edit))
 	await _type("Barista\n")
 	print("CHECK typing a name -> Synth renamed: ", state.synths[0].name == "Barista")
+	# Details: a real click opens the window; dragging its title moves it; tabs work.
+	await _click(_centre_of(game.hud._card.find_children("*", "Button", true, false).filter(
+		func(b: Button) -> bool: return b.text == tr("ui.details"))[0]))
+	print("CHECK Details -> window open: ", game.hud.details.visible and game.hud.details.synth_id == state.synths[0].id)
+	_shot("03b_details_work")
+	var before: Vector2 = game.hud.details.position
+	await _drag_by(_centre_of(game.hud.details._title), Vector2(-150, 60))
+	print("CHECK drag the title -> window moved: ", game.hud.details.position.distance_to(before + Vector2(-150, 60)) < 2.0)
+	game.hud.details._tabs.current_tab = 1
+	await _frames(2)
+	_shot("03c_details_fight")
+	game.hud.details.visible = false
+	await _click(_centre_of(game.hud.info_button))
+	print("CHECK Info button -> info open: ", game.hud.info.visible)
+	_shot("03d_info")
+	game.hud.info.hide_modal()
 	# Customers walk in through the door: give them a few seconds, then everyone seated is at their seat.
 	await _frames(300)
 	var stuck := 0
@@ -261,6 +277,32 @@ func _type(text: String) -> void:
 		var release := event.duplicate()
 		release.pressed = false
 		root.push_input(release)
+	await _frames(2)
+
+
+## Presses at from, moves by delta in two steps, releases (a real mouse drag).
+func _drag_by(from: Vector2, delta: Vector2) -> void:
+	var transform := root.get_final_transform()
+	var press := InputEventMouseButton.new()
+	press.button_index = MOUSE_BUTTON_LEFT
+	press.pressed = true
+	press.position = transform * from
+	press.global_position = press.position
+	root.push_input(press)
+	await _frames(1)
+	for step: int in 2:
+		var motion := InputEventMouseMotion.new()
+		motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+		motion.position = transform * (from + delta * (step + 1) / 2.0)
+		motion.global_position = motion.position
+		motion.relative = transform.basis_xform(delta / 2.0)
+		root.push_input(motion)
+		await _frames(1)
+	var release := press.duplicate() as InputEventMouseButton
+	release.pressed = false
+	release.position = transform * (from + delta)
+	release.global_position = release.position
+	root.push_input(release)
 	await _frames(2)
 
 
