@@ -43,7 +43,6 @@ ui.card_level,Level %d
 ui.card_xp,XP %d / %d
 ui.card_xp_max,Max level
 ui.card_battery,Battery %d%% (max %d)
-ui.card_trait,Trait: %s
 ui.card_no_trait,No trait
 ui.card_role,Role
 ui.close,Close
@@ -210,8 +209,6 @@ ui.cancel,Cancel
 ui.confirm_convert,Convert this %s into a %s (trait: %s)?
 ui.confirm_convert_details,"Uses 1 NanoBrew (%d → %d) and a Sync Pod (%d / %d). Suspicion goes up."
 ui.confirm_convert_yes,Use NanoBrew
-ui.card_role_now,"%s: %s"
-ui.card_stats,"Speed %.1f · Cooking +%d%% · Appeal +%d%% · Power %d (damage per hit) · HP %d"
 ui.ops_security,"Security level %d: every Synth defending the café at night gets +%d HP."
 customer.stage_0,Waiting in line for a seat
 customer.stage_1,Seated and waiting for food
@@ -280,3 +277,37 @@ tip.upgrade.register,"One more register (1x1). Each needs its own Cashier; custo
 error.register_needed,The café needs at least one register.
 customer.stage_4,Paying at the register
 ui.register_label,Register
+ui.card_core,"%s · best: %s · trait: %s"
+ui.card_hp,HP %d
+ui.details,Details
+ui.info_button,Info
+tip.info,"What every stat, role and trait means."
+ui.details_title,%s — details
+ui.tab_work,Work
+ui.tab_fight,Fight
+ui.tab_trait,Trait
+ui.tab_fashion,Fashion
+ui.tab_gear,Equipment
+ui.gear_soon,Nothing here yet — fashion and equipment arrive with the items update.
+ui.details_best_role,"Best role: %s"
+ui.details_role_now,"Now: %s"
+ui.details_speed,Speed %.2f
+ui.details_cook,Cooking +%d%%
+ui.details_appeal,Appeal +%d%%
+ui.details_power,Power %d
+ui.details_hp,HP %d
+ui.details_strength,"Fight strength now: %d%% (battery %d%%)"
+ui.details_no_speed,"Speed doesn't matter in fights: raiders always strike first, then the sides take turns."
+ui.details_species,Species
+ui.details_drag,Drag the title to move this window.
+info.title,Info
+info.tab_stats,Stats
+info.tab_roles,Roles
+info.tab_traits,Traits
+info.stat.speed,"Speed: how fast a Server carries dishes and batches, and how fast a Cashier takes payments. 1.0 is normal; +8% per level."
+info.stat.cook,"Cooking: as Chef, added to every stove's cooking speed (+60% makes stoves 1.6× faster). Several Chefs add up; +8% per level."
+info.stat.appeal,"Appeal: as Greeter, customers arrive more often (+50% means 1.5× as many)."
+info.stat.power,"Power: damage per hit in raids and when defending the café. Grows 8% per level; low battery halves it."
+info.stat.hp,"HP: how much damage a Synth takes before it's knocked out of a fight. +8% per level; Security adds HP at home."
+info.stat.battery,"Battery: drains every second on duty. Below 20% a Synth works and fights at half strength; at 0 it stops. Max battery is rolled per unit (70–200). Recharged at night with Energy."
+info.stat.level,"Level: XP comes from work (deliveries, batches, payments, greeting) and fights. Each level raises the stats that grow."
