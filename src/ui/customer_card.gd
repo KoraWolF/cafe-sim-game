@@ -30,7 +30,7 @@ func show_for(id: String, at: Vector2) -> void:
 		return
 	reset_size()
 	var area := get_parent_area_size()
-	position = Vector2(clampf(at.x + 24, 8, area.x - size.x - 8), clampf(at.y - size.y - 16, 60, area.y - size.y - 8))
+	position = Vector2(clampf(at.x + 24, 8, area.x - size.x - 8), clampf(at.y - size.y - 16, UiTheme.TOP_BAR_HEIGHT + 8, area.y - size.y - 8))
 
 
 func refresh() -> void:

@@ -50,6 +50,11 @@ func _run() -> void:
 	_session.advance(70)
 	await _frames(2)
 	_shot("02_shift_with_pops")
+	var view_width: float = game.hud.get_viewport_rect().size.x
+	var buttons_fit: bool = game.hud.bar.find_children("*", "Button", true, false).all(func(b: Button) -> bool:
+		return b.get_global_rect().end.x <= view_width + 0.5)
+	print("CHECK top bar fits: two rows within %d px, every button on screen: %s" % [UiTheme.TOP_BAR_HEIGHT,
+		game.hud.bar.size.y <= UiTheme.TOP_BAR_HEIGHT + 0.5 and buttons_fit])
 
 	# Real clicks through the window, as a player would make them.
 	var canvas: Transform2D = game.cafe.get_viewport().get_canvas_transform()

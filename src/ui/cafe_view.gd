@@ -39,7 +39,7 @@ const BAY_SPACING: float = 1.1
 ## Customers walk this many tiles per second at 1x.
 const WALK_SPEED: float = 3.0
 ## Screen space taken by the HUD's top bar and the night hub.
-const TOP_BAR: float = 50.0
+const TOP_BAR: float = UiTheme.TOP_BAR_HEIGHT
 const NIGHT_PANEL: float = 790.0
 
 ## Set while arranging the floor; null otherwise.

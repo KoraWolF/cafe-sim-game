@@ -3,6 +3,8 @@ extends RefCounted
 ## Placeholder look: a dark neon-city palette and one Theme for every screen.
 ## Real art and fonts replace these later without touching screen code.
 
+## Height of the HUD's top bar (two rows); panels and the camera start below it.
+const TOP_BAR_HEIGHT: float = 100.0
 const BACKGROUND := Color("141225")
 const PANEL := Color("1e1b36ee")
 const PANEL_BORDER := Color("38e1ff")
