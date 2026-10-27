@@ -34,8 +34,9 @@ const SPEEDS: Array[int] = [0, 1, 2, 4]
 @export var placed: Array[PlacedPiece] = []
 ## Pieces owned but not on the floor: piece id -> count.
 @export var storage: Dictionary[String, int] = {}
-## From the layout (Layout.refresh); not saved.
+## From the layout (Layout.refresh); not saved. vibe is the total over seats.
 var vibe: float = 0.0
+var seat_vibe: Dictionary[String, float] = {}
 ## Extra HP for each home defender.
 @export var security: float = 0.0
 @export var stoves: Array[Stove] = []

@@ -1,6 +1,6 @@
 extends TestCase
-## UI helpers that do not need a window: error texts, isometric math, seat
-## assignment and the night report lines.
+## UI helpers that do not need a window: error texts, isometric math and the
+## night report lines.
 
 
 func test_every_error_code_has_a_message() -> void:
@@ -27,26 +27,6 @@ func test_iso_round_trip() -> void:
 		var back := Iso.to_cell(Iso.to_world(cell))
 		assert_true(back.is_equal_approx(cell), "%s -> %s" % [cell, back])
 	assert_eq(Iso.tile_at(Iso.centre(Vector2i(4, 2), Vector2i.ONE)), Vector2i(4, 2), "tile under a tile centre")
-
-
-func test_seat_map_keeps_seats_and_fills_free_ones() -> void:
-	var data := TestFixtures.data()
-	var state := GameState.new_game(1, data)
-	var seats := SeatMap.new()
-	var a := _seated(state, "a")
-	var b := _seated(state, "b")
-	seats.update(state, data)
-	var seat_a := seats.seat_of["a"]
-	assert_true(seat_a != seats.seat_of["b"], "different seats")
-	state.customers.erase(b)
-	var c := _seated(state, "c")
-	seats.update(state, data)
-	assert_eq(seats.seat_of["a"], seat_a, "a stays put")
-	assert_true(not seats.seat_of.has("b"), "b left")
-	assert_true(seats.seat_of.has("c") and seats.seat_of["c"] != seat_a, "c took the free seat")
-	a.stage = Customer.Stage.STAR
-	seats.update(state, data)
-	assert_true(not seats.seat_of.has("a"), "a stood up with a star")
 
 
 func test_report_lines() -> void:

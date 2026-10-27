@@ -57,26 +57,39 @@ func test_rotation_swaps_the_footprint() -> void:
 	assert_eq(state.pods, 3, "counts once placed")
 
 
-func test_vibe_from_decor_and_adjacency() -> void:
+## The fixture's two seats stand at (6, 0) and (7, 0); décor reaches 2 tiles.
+func test_vibe_reaches_seats_in_range() -> void:
 	var data := TestFixtures.data()
 	var state := _night(data)
-	_put(state, "fern", Vector2i(7, 5), data)
-	assert_eq(state.vibe, 10.0, "fern")
-	var lamp := _put(state, "lamp", Vector2i(6, 5), data)
-	assert_eq(state.vibe, 18.0, "10 + 5 + 3 for light next to plant")
-	assert_eq(GameLoop.move_piece(state, lamp, Vector2i(7, 3), false, data), GameLoop.OK, "moved away")
-	assert_eq(state.vibe, 15.0, "no longer touching")
-	assert_eq(GameLoop.move_piece(state, lamp, Vector2i(7, 4), false, data), GameLoop.OK, "above the fern")
-	assert_eq(state.vibe, 18.0, "touching again")
-	assert_eq(GameLoop.move_piece(state, lamp, Vector2i(7, 5), false, data), GameLoop.OVERLAP, "onto the fern")
+	var fern := _put(state, "fern", Vector2i(7, 3), data)
+	assert_eq(state.vibe, 0.0, "3 tiles from both seats: out of range")
+	assert_eq(GameLoop.move_piece(state, fern, Vector2i(7, 2), false, data), GameLoop.OK, "closer")
+	assert_eq(state.vibe, 20.0, "2 tiles: 10 at each of the two seats")
+	var lamp := _put(state, "lamp", Vector2i(6, 2), data)
+	# Light next to plant +3, split between them: fern 11.5, lamp 6.5, both reach both seats.
+	assert_eq(state.vibe, 36.0, "18 at each seat")
+	var seat: PlacedPiece = state.placed.filter(func(p: PlacedPiece) -> bool: return p.piece_id == "seat")[0]
+	assert_eq(state.seat_vibe[seat.uid], 18.0, "per seat")
+	assert_eq(GameLoop.move_piece(state, lamp, Vector2i(5, 4), false, data), GameLoop.OK, "lamp away")
+	assert_eq(state.vibe, 20.0, "lamp out of range and no longer touching")
+	assert_eq(GameLoop.move_piece(state, lamp, Vector2i(7, 2), false, data), GameLoop.OVERLAP, "onto the fern")
+
+
+func test_seats_in_range_and_distance() -> void:
+	var data := TestFixtures.data()
+	var state := _night(data)
+	var seats := Layout.seats_in_range(state, "fern", Vector2i(7, 2), false, data)
+	assert_eq(seats.size(), 2, "both seats within 2 tiles")
+	assert_eq(Layout.seats_in_range(state, "fern", Vector2i(3, 5), false, data).size(), 0, "none from far away")
 
 
 func test_vibe_slows_satisfaction_loss() -> void:
 	var data := TestFixtures.data()
 	var plain := GameState.new_game(1, data)
 	var cozy := GameState.new_game(1, data)
-	cozy.vibe = 100.0
-	# No food: seated at 3, 5 s free, then 2/s (halved by 100 Vibe).
+	for seat_uid: String in cozy.seat_vibe:
+		cozy.seat_vibe[seat_uid] = 100.0
+	# No food: seated at 3, 5 s free, then 2/s (halved by 100 Vibe at their seat).
 	GameLoop.advance(plain, 23, data)
 	GameLoop.advance(cozy, 23, data)
 	assert_eq(plain.customers[0].satisfaction, 70.0, "lost 30")
@@ -86,11 +99,12 @@ func test_vibe_slows_satisfaction_loss() -> void:
 func test_vibe_adds_to_every_meal() -> void:
 	var data := TestFixtures.data()
 	var state := GameState.new_game(1, data)
-	state.vibe = 300.0
 	state.counter["tea"] = 1
 	var customer := Customer.new()
 	customer.id = "guest"
 	customer.type_id = "regular"
+	customer.seat_uid = state.seat_vibe.keys()[0]
+	state.seat_vibe[customer.seat_uid] = 300.0
 	customer.stage = Customer.Stage.WAITING_FOOD
 	customer.recipe_id = "tea"
 	customer.satisfaction = 50.0
@@ -137,8 +151,8 @@ func test_floor_survives_saving_and_bad_layouts_are_refused() -> void:
 	var data := TestFixtures.data()
 	var path := "user://test_saves/floor.json"
 	var state := _night(data)
-	_put(state, "fern", Vector2i(7, 5), data)
-	_put(state, "lamp", Vector2i(6, 5), data)
+	_put(state, "fern", Vector2i(7, 2), data)
+	_put(state, "lamp", Vector2i(6, 2), data)
 	GameLoop.buy_decor(state, "tank", data)
 	SaveSystem.save(state, path)
 	var errors: PackedStringArray = []
@@ -146,9 +160,9 @@ func test_floor_survives_saving_and_bad_layouts_are_refused() -> void:
 	assert_true(loaded != null, "loaded: %s" % ", ".join(errors))
 	if loaded != null:
 		assert_eq(SaveSystem.to_dict(loaded), SaveSystem.to_dict(state), "same floor")
-		assert_eq(loaded.vibe, 18.0, "Vibe recomputed")
+		assert_eq(loaded.vibe, 36.0, "Vibe recomputed")
 		assert_eq(loaded.storage, {"tank": 1} as Dictionary[String, int], "storage")
-	state.placed[-1].cell = Vector2i(7, 5)
+	state.placed[-1].cell = Vector2i(7, 2)
 	SaveSystem.save(state, path)
 	SaveSystem.save(state, path)
 	errors.clear()
@@ -186,3 +200,12 @@ func test_pre_floor_save_is_laid_out_and_keeps_cooking() -> void:
 	assert_eq(loaded.seats, 5, "5 seats laid out")
 	assert_eq(loaded.pods, 3, "3 Pods laid out")
 	assert_eq(loaded.floor_rows, 6, "it all fits the 6 starting rows")
+
+
+func test_customers_get_their_own_seats() -> void:
+	var data := TestFixtures.data({"arrival_min_seconds": 1, "arrival_max_seconds": 1})
+	var state := GameState.new_game(1, data)
+	GameLoop.advance(state, 6, data)
+	var seated := state.customers.filter(func(c: Customer) -> bool: return c.is_seated())
+	assert_eq(seated.size(), 2, "both seats taken")
+	assert_true(seated[0].seat_uid != "" and seated[0].seat_uid != seated[1].seat_uid, "each has their own seat")

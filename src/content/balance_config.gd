@@ -58,7 +58,9 @@ var start_floor_rows: int = 6
 ## Where a new game's furniture stands: [{"piece": id, "cell": [x, y], "rotated": bool}].
 ## Empty, or a piece that does not fit there: the first free spot instead.
 var start_layout: Array = []
-## Vibe (décor): waiting customers lose satisfaction / (1 + vibe * vibe_decay_per_point);
+## Décor reaches seats within this many tiles (counted like a king's move).
+var decor_range: int = 2
+## Vibe (décor) at a customer's seat: waiting there loses satisfaction / (1 + vibe * vibe_decay_per_point);
 ## every served dish adds vibe * vibe_meal_bonus satisfaction, at most vibe_meal_bonus_max.
 var vibe_decay_per_point: float = 0.01
 var vibe_meal_bonus: float = 0.1

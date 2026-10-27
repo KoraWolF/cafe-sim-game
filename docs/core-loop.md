@@ -89,3 +89,9 @@ The bot buys the décor piece that adds the most Vibe per coin at its best spot,
 | k = 0.004 | 0.04 × Vibe, max 6 | 97.1% | 5,200 |
 | **k = 0.003 (chosen)** | **0.03 × Vibe, max 5** | **96.6%** | **5,100** |
 | k = 0.002 | 0.02 × Vibe, max 4 | 96.4% | 5,300 |
+
+## Décor range (2026-10-27, playtest 1)
+
+Décor now works in a range. Each piece's share is its own Vibe plus half of every adjacency bonus it's part of. A seat's Vibe is the sum of the shares of all pieces within 2 tiles of it, counted in king's moves (`decor_range`). A customer's mood uses the Vibe at **their own seat**: waiting loses satisfaction divided by (1 + 0.005 × seat Vibe), and each served dish adds 0.05 × seat Vibe, up to +5. Customers in the queue outside get no Vibe. The game logic now assigns seats (`Customer.seat_uid`), and the café's Vibe shown on screen is the total over seats.
+
+Balance (40 days × 5 seeds): 96.8% stars, the Alley taken on day 11–15, Neon Market in all 5 runs (day 19–33), about 5,800 coins at day 40, about 4,800 coins spent on décor. Strength sweep: k = 0.003 → 95.4%, 0.005 → 96.8% (chosen), 0.008 → 97.1%, 0.015 → 97.7%, 0.025 → 98.6%.

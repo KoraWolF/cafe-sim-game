@@ -11,7 +11,7 @@ extends Node2D
 ## with its Vibe change, and the pieces it would combine with are outlined.
 ##
 ## The logic has no positions for people, so they are placed here: seated
-## customers at their SeatMap seat, the queue outside the entrance, servers
+## customers at the seat the game gave them, the queue outside the entrance, servers
 ## walking from the counter to the table as their delivery progresses.
 
 signal stove_clicked(stove_index: int, screen_position: Vector2)
@@ -38,7 +38,6 @@ const NIGHT_PANEL: float = 790.0
 
 ## Set while arranging the floor; null otherwise.
 var editor: FloorEditor = null
-var seats := SeatMap.new()
 var _hover := Vector2i(-100, -100)
 ## Where each customer is drawn (cell units); they walk toward where the game puts them.
 var _walk: Dictionary[String, Vector2] = {}
@@ -275,7 +274,6 @@ func _draw() -> void:
 		return
 	var state := Session.state
 	var data := Session.data
-	seats.update(state, data)
 	_heads.clear()
 	_draw_floor(state, data)
 	# Everything standing on the floor, far to near.
@@ -395,7 +393,7 @@ func _draw_dishes_on(placed: PlacedPiece, size: Vector2, height: float) -> void:
 	var top := Iso.centre(placed.cell, Vector2i(size)) - Vector2(0, height)
 	for i: int in ready.size():
 		var recipe_id := ready[i]
-		var spot := top + Vector2((i - (ready.size() - 1) * 0.5) * 30.0, 0)
+		var spot := top + Vector2((i - (ready.size() - 1) * 0.5) * 64.0, 0)
 		var color := Color.from_hsv(fmod(recipe_id.hash() * 0.618, 1.0), 0.55, 0.95)
 		for cup: int in mini(state.counter[recipe_id], 6):
 			var at := spot + Vector2(0, -cup * 6.0)
@@ -415,6 +413,10 @@ func _draw_editing(state: GameState, data: GameData) -> void:
 	if not editor.is_holding():
 		var under := Layout.piece_at(state, _hover, data)
 		if under != null:
+			if data.pieces[under.piece_id].kind == Piece.DECOR:
+				_draw_range(under.cell, data.pieces[under.piece_id].footprint(under.rotated), state, data)
+				for seat_uid: String in Layout.seats_in_range(state, under.piece_id, under.cell, under.rotated, data, under.uid):
+					_outline(Layout.placed_by_uid(state, seat_uid), UiTheme.GOOD)
 			_outline(under, UiTheme.PANEL_BORDER)
 		return
 	if _hover.x < -50:
@@ -426,6 +428,10 @@ func _draw_editing(state: GameState, data: GameData) -> void:
 	var size := Vector2(piece.footprint(editor.rotated))
 	var color := UiTheme.GOOD if ok else UiTheme.BAD
 	color.a = 0.55
+	if piece.kind == Piece.DECOR:
+		_draw_range(cell, Vector2i(size), state, data)
+		for seat_uid: String in preview["seats"]:
+			_outline(Layout.placed_by_uid(state, seat_uid), UiTheme.GOOD)
 	_draw_block(Vector2(cell), size, HEIGHTS.get(piece.kind, 20.0), color)
 	for uid: String in preview["matches"]:
 		_outline(Layout.placed_by_uid(state, uid), UiTheme.WARN)
@@ -433,6 +439,17 @@ func _draw_editing(state: GameState, data: GameData) -> void:
 	var text: String = tr("ui.edit_vibe_delta") % roundi(preview["delta"]) if ok else UiText.error(preview["error"])
 	var text_color := (UiTheme.GOOD if preview["delta"] >= 0.0 else UiTheme.WARN) if ok else UiTheme.BAD
 	_text(label_at, text, 16, text_color)
+
+
+## The floor tiles a décor piece at cell reaches (its range), softly lit.
+func _draw_range(cell: Vector2i, size: Vector2i, state: GameState, data: GameData) -> void:
+	var reach := data.balance.decor_range
+	var glow := Color(UiTheme.PANEL_BORDER, 0.13)
+	for y: int in range(maxi(cell.y - reach, 0), mini(cell.y + size.y + reach, state.floor_rows)):
+		for x: int in range(maxi(cell.x - reach, 0), mini(cell.x + size.x + reach, data.balance.floor_width)):
+			var tile := Vector2(x, y)
+			draw_colored_polygon(PackedVector2Array([Iso.to_world(tile), Iso.to_world(tile + Vector2(1, 0)),
+				Iso.to_world(tile + Vector2(1, 1)), Iso.to_world(tile + Vector2(0, 1))]), glow)
 
 
 ## Outlines the top of a placed piece.
@@ -531,7 +548,8 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 
 
 func _seat_position(customer_id: String, state: GameState, data: GameData) -> Vector2:
-	var placed := Layout.placed_by_uid(state, seats.seat_of.get(customer_id, ""))
+	var customer := state.customer_by_id(customer_id)
+	var placed := Layout.placed_by_uid(state, customer.seat_uid if customer != null else "")
 	if placed == null:
 		return Vector2(data.balance.floor_width - 1, state.floor_rows - 1)
 	return Vector2(placed.cell) + Vector2(0.5, 0.5)

@@ -49,14 +49,16 @@ func cancel() -> void:
 
 
 ## What dropping the held piece at cell would do:
-## {"error": code or OK, "vibe": total Vibe after, "delta": change, "matches": uids it would combine with}.
+## {"error": code or OK, "vibe": total seat Vibe after, "delta": change, "matches": uids it would
+## combine with, "seats": seat uids within its range}.
 func preview(state: GameState, cell: Vector2i, data: GameData) -> Dictionary:
 	var error := Layout.check_spot(state, held_piece, cell, rotated, data, held_uid)
 	if error != GameLoop.OK:
-		return {"error": error, "vibe": state.vibe, "delta": 0.0, "matches": [] as Array[String]}
+		return {"error": error, "vibe": state.vibe, "delta": 0.0, "matches": [] as Array[String], "seats": [] as Array[String]}
 	var after := Layout.vibe_if(state, held_piece, cell, rotated, data, held_uid)
 	return {"error": GameLoop.OK, "vibe": after, "delta": after - state.vibe,
-		"matches": Layout.matching_neighbours(state, held_piece, cell, rotated, data, held_uid)}
+		"matches": Layout.matching_neighbours(state, held_piece, cell, rotated, data, held_uid),
+		"seats": Layout.seats_in_range(state, held_piece, cell, rotated, data, held_uid)}
 
 
 ## Drops the held piece at cell. A stored piece stays in hand while more of it

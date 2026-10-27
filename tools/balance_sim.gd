@@ -235,7 +235,9 @@ func _best_spot(state: GameState, piece: Piece) -> Dictionary:
 				trial.cell = Vector2i(x, y)
 				trial.rotated = rotated
 				state.placed.append(trial)
-				var gain := Layout.vibe(state, data) - before
+				var gain := -before
+				for value: float in Layout.seat_vibes(state, data).values():
+					gain += value
 				state.placed.pop_back()
 				if best.is_empty() or gain > best["gain"]:
 					best = {"cell": trial.cell, "rotated": rotated, "gain": gain}

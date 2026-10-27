@@ -5,8 +5,8 @@ extends RefCounted
 ## Each second, in order: stoves cook (base speed 1 + chefs' cook), customers
 ## arrive (greeters shorten the gap), queued customers take free seats and
 ## order from the menu (favourites more often), servers carry ready servings to tables, customers wait / eat / leave,
-## and on-duty Synths drain battery. Vibe (décor) slows satisfaction loss
-## and adds to every served dish. When the shift time is up, customers
+## and on-duty Synths drain battery. The Vibe at a customer's seat (décor in
+## range) slows their satisfaction loss and adds to their dish. When the shift time is up, customers
 ## still eating pay and everyone leaves; the phase becomes NIGHT. A shift shut
 ## by a lost Corporate Audit goes straight to NIGHT.
 
@@ -180,7 +180,23 @@ static func _pick_type(data: GameData, rng: RandomNumberGenerator) -> String:
 	return last
 
 
+## The first placed seat nobody sits at ("" if none).
+static func _free_seat(state: GameState, data: GameData) -> String:
+	var taken: Dictionary[String, bool] = {}
+	for customer: Customer in state.customers:
+		if customer.is_seated() and customer.seat_uid != "":
+			taken[customer.seat_uid] = true
+	for placed: PlacedPiece in state.placed:
+		if data.pieces[placed.piece_id].kind == Piece.SEAT and not taken.has(placed.uid):
+			return placed.uid
+	return ""
+
+
 static func _seat(state: GameState, data: GameData, rng: RandomNumberGenerator) -> void:
+	# Seated customers from older saves get a seat first.
+	for customer: Customer in state.customers:
+		if customer.is_seated() and Layout.placed_by_uid(state, customer.seat_uid) == null:
+			customer.seat_uid = _free_seat(state, data)
 	var free := state.seats - seated_count(state)
 	if free <= 0:
 		return
@@ -191,6 +207,7 @@ static func _seat(state: GameState, data: GameData, rng: RandomNumberGenerator) 
 		if customer.stage != Customer.Stage.QUEUED:
 			continue
 		customer.stage = Customer.Stage.WAITING_FOOD
+		customer.seat_uid = _free_seat(state, data)
 		customer.waited = 0
 		customer.recipe_id = _pick_order(data.customer_types[customer.type_id], menu, data.balance, rng)
 		free -= 1
@@ -256,7 +273,7 @@ static func _deliver(state: GameState, synth: Synth, data: GameData, rng: Random
 	customer.stage = Customer.Stage.EATING
 	customer.timer = data.balance.eat_seconds
 	var bonus := SynthStats.stat(synth, "satisfaction", data) \
-		+ minf(state.vibe * data.balance.vibe_meal_bonus, data.balance.vibe_meal_bonus_max)
+		+ minf(state.seat_vibe.get(customer.seat_uid, 0.0) * data.balance.vibe_meal_bonus, data.balance.vibe_meal_bonus_max)
 	if data.customer_types[customer.type_id].favorites.has(customer.recipe_id):
 		bonus += data.balance.favorite_satisfaction
 	customer.satisfaction = clampf(customer.satisfaction + bonus, 0.0, 100.0)
@@ -270,11 +287,11 @@ static func _update_customers(state: GameState, data: GameData, events: Events) 
 		var type := data.customer_types[customer.type_id]
 		match customer.stage:
 			Customer.Stage.QUEUED:
-				_wait(customer, type, b, state.vibe)
+				_wait(customer, type, b, 0.0)  # outside, no décor
 				if customer.waited >= roundi(b.queue_patience_seconds * type.patience):
 					_leave_angry(state, customer, events)
 			Customer.Stage.WAITING_FOOD:
-				_wait(customer, type, b, state.vibe)
+				_wait(customer, type, b, state.seat_vibe.get(customer.seat_uid, 0.0))
 				if customer.satisfaction <= 0.0:
 					_leave_angry(state, customer, events)
 			Customer.Stage.EATING:
