@@ -183,7 +183,7 @@ func _night_shopping(state: GameState) -> int:
 
 
 func _place_stored_furniture(state: GameState) -> void:
-	for piece_id: String in [Piece.STOVE, Piece.POD, Piece.SEAT]:
+	for piece_id: String in [Piece.STOVE, Piece.COUNTER, Piece.SEAT]:
 		while state.storage.get(piece_id, 0) > 0:
 			var spot := Layout.find_spot(state, piece_id, data)
 			if spot.is_empty():

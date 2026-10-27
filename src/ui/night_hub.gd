@@ -177,7 +177,7 @@ func _fill_upgrades(page: VBoxContainer) -> void:
 
 func _buy_upgrade(upgrade_id: String) -> void:
 	if Session.act(GameLoop.buy_upgrade(Session.state, upgrade_id, Session.data)) \
-			and [Upgrade.STOVE, Upgrade.SEAT, Upgrade.POD].has(upgrade_id):
+			and [Upgrade.STOVE, Upgrade.SEAT].has(upgrade_id):
 		Session.auto_place(upgrade_id)
 		Session.state_changed.emit()
 

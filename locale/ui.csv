@@ -199,7 +199,7 @@ ui.fx_new_synth,NEW SYNTH!
 tip.resources,"Coins pay for dishes, upgrades and décor. NanoBrew converts a starred customer. Nano Cores (from raids) brew NanoBrew. Power recharges Synths at night. Suspicion brings MegaBean raids — and at 90, a Corporate Audit. Influence unlocks the district's flagship."
 tip.upgrade.stove,One more stove to cook on (place it on the floor).
 tip.upgrade.seat,One more seat. More seats also bring customers in faster.
-tip.upgrade.pod,One more Sync Pod: room for one more Synth.
+tip.upgrade.pod,One more Sync Pod in the Pod bay outside: room for one more Synth.
 tip.upgrade.menu_slot,One more dish on the daily menu.
 tip.upgrade.floor,Two more rows of floor for furniture and décor.
 tip.upgrade.security,Extra HP for every Synth defending the café at night.
@@ -243,3 +243,4 @@ ui.card_rename_hint,Click to rename (Enter to save)
 ui.card_power_help,"Power is how hard this Synth hits in raids and defending the café. Power = species base × (1 + 8% per level above 1) + trait bonus (Night Owl +3). Each hit deals power × battery (×0.5 below 20%, nothing when empty) × a random 0.8–1.2. Bases: Clerkbot 6, Bulkform 14, Glitchling 8, Hypeform 5, Steady-unit 7, Xeno 10."
 error.empty_name,A name can't be empty.
 error.name_too_long,That name is too long (20 letters at most).
+ui.pod_bay,SYNC POD BAY  %d / %d

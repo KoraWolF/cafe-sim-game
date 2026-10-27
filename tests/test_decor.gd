@@ -20,10 +20,10 @@ func _put(state: GameState, piece_id: String, cell: Vector2i, data: GameData, ro
 func test_new_game_lays_out_the_starting_furniture() -> void:
 	var data := TestFixtures.data()
 	var state := GameState.new_game(1, data)
-	assert_eq(state.placed.size(), 6, "2 stoves, 2 pods, 2 seats")
+	assert_eq(state.placed.size(), 4, "2 stoves, 2 seats (Pods are in the Pod bay, not on the floor)")
 	assert_eq(state.stoves.size(), 2, "a stove state for each stove piece")
 	assert_eq(state.seats, 2, "seats")
-	assert_eq(state.pods, 2, "pods")
+	assert_eq(state.pods, 2, "2 Pods in the bay")
 	assert_eq(state.placed[0].cell, Vector2i(0, 0), "first stove top-left")
 	assert_eq(state.placed[1].cell, Vector2i(2, 0), "second stove beside it")
 	assert_eq(state.vibe, 0.0, "no décor yet")
@@ -50,11 +50,11 @@ func test_buying_and_placing_rules() -> void:
 func test_rotation_swaps_the_footprint() -> void:
 	var data := TestFixtures.data()
 	var state := _night(data)
-	# A 1x2 pod rotated is 2x1: fits the bottom row only when rotated.
-	state.storage["pod"] = 1
-	assert_eq(GameLoop.place_piece(state, "pod", Vector2i(6, 5), false, data), GameLoop.OUT_OF_BOUNDS, "upright: too deep")
-	assert_eq(GameLoop.place_piece(state, "pod", Vector2i(6, 5), true, data), GameLoop.OK, "rotated")
-	assert_eq(state.pods, 3, "counts once placed")
+	# A 2x1 stove rotated is 1x2: fits the last column only when rotated.
+	state.storage["stove"] = 1
+	assert_eq(GameLoop.place_piece(state, "stove", Vector2i(7, 4), false, data), GameLoop.OUT_OF_BOUNDS, "lengthwise: too wide")
+	assert_eq(GameLoop.place_piece(state, "stove", Vector2i(7, 4), true, data), GameLoop.OK, "rotated")
+	assert_eq(state.stoves.size(), 3, "counts once placed")
 
 
 ## The fixture's two seats stand at (6, 0) and (7, 0); décor reaches 2 tiles.
@@ -120,10 +120,7 @@ func test_pick_up_rules() -> void:
 	var stove := state.placed[0].uid
 	GameLoop.start_cooking(state, 0, "tea", data)
 	assert_eq(GameLoop.pick_up_piece(state, stove, data), GameLoop.STOVE_BUSY, "cooking")
-	var pod := state.placed[2].uid
-	state.add_synth("worker", "", data)
-	assert_eq(GameLoop.pick_up_piece(state, pod, data), GameLoop.POD_IN_USE, "2 Synths need 2 Pods")
-	var seat := state.placed[4].uid
+	var seat := state.placed[2].uid
 	assert_eq(GameLoop.pick_up_piece(state, seat, data), GameLoop.OK, "seat stored")
 	assert_eq(state.seats, 1, "one seat left")
 	assert_eq(state.storage, {"seat": 1} as Dictionary[String, int], "in storage")
@@ -140,7 +137,7 @@ func test_selling_decor_refunds_half() -> void:
 	assert_eq(GameLoop.sell_piece(state, fern, data), GameLoop.OK, "sold")
 	assert_eq(state.coins, 1000 - 50 + 25, "half back")
 	assert_eq(state.vibe, 0.0, "gone")
-	assert_eq(GameLoop.sell_piece(state, state.placed[4].uid, data), GameLoop.NOT_FOR_SALE, "seats are not sold")
+	assert_eq(GameLoop.sell_piece(state, state.placed[2].uid, data), GameLoop.NOT_FOR_SALE, "seats are not sold")
 	GameLoop.buy_decor(state, "lamp", data)
 	assert_eq(GameLoop.sell_stored_piece(state, "lamp", data), GameLoop.OK, "sold from storage")
 	assert_eq(GameLoop.sell_stored_piece(state, "lamp", data), GameLoop.NONE_STORED, "none left")

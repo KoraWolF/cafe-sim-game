@@ -25,8 +25,8 @@ const SPEEDS: Array[int] = [0, 1, 2, 4]
 @export var cores: int = 0
 @export var power: float = 0.0
 
-## Placed seats and Sync Pods (one per Synth: the staff cap), kept up to date
-## by Layout.refresh from the floor.
+## Placed seats (kept up to date by Layout.refresh from the floor) and Sync Pods
+## in the Pod bay outside (one per Synth: the staff cap).
 @export var seats: int = 0
 @export var pods: int = 0
 ## Floor depth in tiles (width is floor_width).
@@ -88,20 +88,20 @@ static func new_game(seed_value: int, data: GameData) -> GameState:
 	state.power = b.start_power
 	state.security = b.start_security
 	state.floor_rows = b.start_floor_rows
-	var wanted: Dictionary[String, int] = {Piece.STOVE: b.start_stoves, Piece.COUNTER: b.start_counters, Piece.POD: b.start_pods,
-		Piece.SEAT: b.start_seats}
-	for entry: Variant in b.start_layout:
-		if not entry is Dictionary or wanted.get(str(entry.get("piece", "")), 0) <= 0:
-			continue
-		var piece_id := str(entry["piece"])
-		var spot: Variant = entry.get("cell", [])
-		var rotated := bool(entry.get("rotated", false))
-		if spot is Array and spot.size() == 2:
-			var cell := Vector2i(int(spot[0]), int(spot[1]))
-			if Layout.check_spot(state, piece_id, cell, rotated, data) == GameLoop.OK:
-				Layout.place_new(state, piece_id, cell, rotated, data)
-				wanted[piece_id] -= 1
-	for piece_id: String in [Piece.STOVE, Piece.COUNTER, Piece.POD, Piece.SEAT]:
+	state.pods = b.start_pods
+	# Kind by kind (stoves, counters, seats): the start layout's spots first, then the first free spot.
+	var wanted: Dictionary[String, int] = {Piece.STOVE: b.start_stoves, Piece.COUNTER: b.start_counters, Piece.SEAT: b.start_seats}
+	for piece_id: String in wanted:
+		for entry: Variant in b.start_layout:
+			if wanted[piece_id] <= 0 or not entry is Dictionary or str(entry.get("piece", "")) != piece_id:
+				continue
+			var spot: Variant = entry.get("cell", [])
+			var rotated := bool(entry.get("rotated", false))
+			if spot is Array and spot.size() == 2:
+				var cell := Vector2i(int(spot[0]), int(spot[1]))
+				if Layout.check_spot(state, piece_id, cell, rotated, data) == GameLoop.OK:
+					Layout.place_new(state, piece_id, cell, rotated, data)
+					wanted[piece_id] -= 1
 		for i: int in wanted[piece_id]:
 			if not Layout.auto_place(state, piece_id, data):
 				push_error("GameState: the starting furniture does not fit the floor")

@@ -3,7 +3,8 @@ extends RefCounted
 ## A café upgrade bought at night. Its id says what it adds (see IDS); the
 ## numbers come from /data/upgrades.json.
 
-## Stove, seat and Pod upgrades put a piece in storage, to be placed on the floor.
+## Stove and seat upgrades put a piece in storage, to be placed on the floor.
+## Pod upgrades add a Sync Pod to the Pod bay outside the café.
 const STOVE: String = "stove"
 const SEAT: String = "seat"
 const POD: String = "pod"
