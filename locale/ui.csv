@@ -18,7 +18,7 @@ ui.shift_time,%s / %s
 ui.coins,Coins
 ui.nanobrew,NanoBrew
 ui.cores,Nano Cores
-ui.power,Power
+ui.power,Energy
 ui.suspicion,Suspicion
 ui.influence,Influence %d / %d
 ui.district,District
@@ -32,7 +32,7 @@ ui.cook_title,Cook on stove %d
 ui.cook_item,"%s — %d coins (%d servings, %ds)"
 ui.cooking,Cooking %s
 ui.customer,A customer
-ui.converted,%s became a %s!
+ui.converted,"%s became a %s! It walks to its Pod to rest (30%% battery used in the Pod)."
 ui.level_up,%s reached level %d!
 ui.tip,+%d coins (tip +%d)
 ui.broke_dish,A dish was dropped!
@@ -42,7 +42,7 @@ ui.glitch,Glitch!
 ui.card_level,Level %d
 ui.card_xp,XP %d / %d
 ui.card_xp_max,Max level
-ui.card_battery,Battery %d / %d
+ui.card_battery,Battery %d%% (max %d)
 ui.card_trait,Trait: %s
 ui.card_no_trait,No trait
 ui.card_role,Role
@@ -85,11 +85,11 @@ ui.edit_take,%s ×%d
 ui.edit_vibe_delta,%+d Vibe
 ui.floor_line,"Floor %d x %d, Vibe %d"
 ui.no_room_stored,No room on the floor — the piece waits in storage.
-ui.staff_line,"%s (%s%s) — Lv %d, battery %d / %d"
+ui.staff_line,"%s (%s%s) — Lv %d, battery %d%% (max %d)"
 ui.brew,Brew NanoBrew (%d core + %d coins)
 ui.nanobrew_count,NanoBrew: %d   Nano Cores: %d
-ui.power_line,"Power: %d (full recharge needs %d)"
-ui.buy_power,Buy %d Power (%d coins)
+ui.power_line,"Energy: %d (full recharge needs %d)"
+ui.buy_power,Buy %d Energy (%d coins)
 ui.ops_district,"%s — Influence %d / %d, Suspicion %d"
 ui.ops_owned,Owned districts: %s (income %d per night)
 ui.ops_none_owned,No districts owned yet.
@@ -98,7 +98,7 @@ ui.ops_audit,"Suspicion is %d or more: a Corporate Audit WILL come tonight. Keep
 ui.ops_target,"%s — %d guards (power %d, HP %d), loot %d coins + %d cores, +%d Influence"
 ui.ops_flagship,FLAGSHIP — beat it to take the district
 ui.ops_squad,Squad (up to %d):
-ui.ops_member,"%s — power %d, HP %d, battery %d"
+ui.ops_member,"%s — power %d, HP %d, battery %d%%"
 ui.ops_plan,Plan raid
 ui.ops_cancel,Cancel raid
 ui.ops_planned,Tonight: raid %s with %d Synths
@@ -118,8 +118,8 @@ ui.report_audit_lost_none,The Corporate Audit took %d coins. The café is shut t
 ui.report_quiet,A quiet night.
 ui.report_stolen,%s pocketed %d coins.
 ui.report_income,District income: +%d coins.
-ui.report_power,Recharging used %d Power.
-ui.report_undercharged,Not enough Power: %d Synths are not fully charged.
+ui.report_power,Recharging used %d Energy.
+ui.report_undercharged,Not enough Energy: %d Synths are not fully charged.
 ui.report_level,%s reached level %d.
 ui.continue_day,Start Day %d
 ui.battle_raid,Raid on %s
@@ -196,7 +196,7 @@ tutorial.end_night,Press End Night to see the night play out.
 tutorial.done,That's the basics! Take over the Alley by beating its flagship. Good luck.
 ui.fx_level_up,LEVEL UP!
 ui.fx_new_synth,NEW SYNTH!
-tip.resources,"Coins pay for dishes, upgrades and décor. NanoBrew converts a starred customer. Nano Cores (from raids) brew NanoBrew. Power recharges Synths at night. Suspicion brings MegaBean raids — and at 90, a Corporate Audit. Influence unlocks the district's flagship."
+tip.resources,"Coins pay for dishes, upgrades and décor. NanoBrew converts a starred customer. Nano Cores (from raids) brew NanoBrew. Energy recharges Synths' batteries at night (2 coins each). Suspicion brings MegaBean raids — and at 90, a Corporate Audit. Influence unlocks the district's flagship."
 tip.upgrade.stove,One more stove to cook on (place it on the floor).
 tip.upgrade.seat,One more seat. More seats also bring customers in faster.
 tip.upgrade.pod,One more Sync Pod in the Pod bay outside: room for one more Synth.
@@ -239,7 +239,7 @@ ui.call_board_1,Starred?
 ui.call_board_2,Wait here!
 error.counter_needed,The café needs at least one counter for finished dishes.
 customer.seat_vibe,Vibe at their seat: %d (décor within 2 tiles)
-ui.card_rename_hint,Click to rename (Enter to save)
+ui.card_rename_hint,Click the pencil to rename (Enter to save)
 ui.card_power_help,"Power is how hard this Synth hits in raids and defending the café. Power = species base × (1 + 8% per level above 1) + trait bonus (Night Owl +3). Each hit deals power × battery (×0.5 below 20%, nothing when empty) × a random 0.8–1.2. Bases: Clerkbot 6, Bulkform 14, Glitchling 8, Hypeform 5, Steady-unit 7, Xeno 10."
 error.empty_name,A name can't be empty.
 error.name_too_long,That name is too long (20 letters at most).
@@ -248,3 +248,21 @@ error.counter_busy,Dishes are on that counter — serve them first.
 ui.stove_waiting,That stove's batch is waiting for a server to carry it to a free counter.
 ui.stove_ready,Ready ×%d
 tip.upgrade.counter,"One more counter (1x1, place it on the floor). Each counter holds one dish; servers carry finished batches to the closest free one."
+customer.battery_max,Max battery as a Synth: %d
+error.nothing_to_throw,There is no food there to throw away.
+error.no_bin,Place a bin on the floor first.
+error.batch_on_the_way,A server is already carrying that batch to a counter.
+tip.upgrade.bin,"One more bin (1x1, place it on the floor). Servers throw unwanted food into the nearest one."
+ui.confirm_throw,Throw away %d × %s?
+ui.confirm_throw_details,"A server carries it all to the nearest bin. No refund. At night it happens first thing tomorrow."
+ui.confirm_throw_yes,Throw away
+ui.throw_marked,To the bin
+error.auto_locked,Auto unlocks after your first two days.
+ui.auto,Auto
+ui.auto_on,"Auto on: nights pass by themselves (same menu, no raid)."
+tip.auto,"Auto: each night passes by itself — same menu, no raid, batteries recharged with the Energy you have. It stops for a Corporate Audit, and MegaBean raids on the café still play out."
+tip.auto_locked,Auto unlocks on day %d.
+ui.auto_stopped_audit,Auto stopped: a Corporate Audit is coming tonight — plan the night yourself.
+ui.auto_low_energy,Low Energy: %d of the %d needed to fully recharge. Buy Energy at night.
+ui.auto_night_done,Auto: the night passed quietly (+%d district income).
+ui.auto_night_done_plain,Auto: the night passed quietly.

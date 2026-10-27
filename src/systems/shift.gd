@@ -29,6 +29,8 @@ class Events:
 	var tips_earned: int = 0
 	## Recipe id per finished batch.
 	var dishes_ready: Array[String] = []
+	## Servings thrown into a bin.
+	var thrown_away: int = 0
 	var dishes_broken: int = 0
 	var glitches: int = 0
 	var shift_ended: bool = false
@@ -161,6 +163,7 @@ static func _arrive(state: GameState, data: GameData, rng: RandomNumberGenerator
 	var pool := data.customer_types[type_id].trait_pool
 	if not pool.is_empty():
 		customer.trait_id = pool[rng.randi_range(0, pool.size() - 1)]
+	customer.battery_max = data.species[data.customer_types[type_id].synth_species].roll_battery_max(rng)
 	state.customers.append(customer)
 	events.arrived.append(customer.id)
 	var greeting: Array[Synth] = []
@@ -243,14 +246,17 @@ static func _serve(state: GameState, data: GameData, rng: RandomNumberGenerator,
 		if factor <= 0.0:
 			continue
 		if not synth.is_busy():
-			# Serving waiting customers comes first, then carrying finished batches.
-			if not _take_order(state, synth, data):
+			# The player's throw-away orders come first, then serving waiting customers,
+			# then carrying finished batches.
+			if not _take_discard(state, synth, data, events) and not _take_order(state, synth, data):
 				_take_batch(state, synth, data)
 			continue
 		synth.task_remaining -= SynthStats.speed(synth, data) * factor
 		if synth.task_remaining <= 0.0:
 			if synth.is_delivering():
 				_deliver(state, synth, data, rng, events)
+			elif synth.is_discarding():
+				_clear_task(synth)
 			else:
 				_finish_carry(state, synth, data, events)
 
@@ -269,6 +275,50 @@ static func _take_order(state: GameState, synth: Synth, data: GameData) -> bool:
 		synth.task_remaining = data.balance.delivery_seconds
 		return true
 	return false
+
+
+## Picks up all the food on the first counter or stove marked to throw away
+## and heads for the nearest bin. Marks with nothing left to take are dropped.
+static func _take_discard(state: GameState, synth: Synth, data: GameData, events: Events) -> bool:
+	for uid: String in state.discard.duplicate():
+		var placed := Layout.placed_by_uid(state, uid)
+		var stove := Layout.stove_of(state, uid)
+		var count: int = stove.ready if stove != null else state.counter_count.get(uid, 0)
+		if placed == null or count <= 0:
+			state.discard.erase(uid)
+			continue
+		if stove != null and stove.carrier != "":
+			continue
+		var bin := _nearest(state, Piece.BIN, placed, data)
+		if bin == "":
+			return false
+		if stove != null:
+			synth.task_recipe_id = stove.recipe_id
+			stove.ready = 0
+			stove.recipe_id = ""
+		else:
+			synth.task_recipe_id = state.counter_dish.get(uid, "")
+			state.counter[synth.task_recipe_id] = maxi(state.counter.get(synth.task_recipe_id, 0) - count, 0)
+			state.counter_dish.erase(uid)
+			state.counter_count.erase(uid)
+		state.discard.erase(uid)
+		synth.task_counter_uid = uid
+		synth.task_bin_uid = bin
+		synth.task_remaining = data.balance.carry_seconds
+		events.thrown_away += count
+		return true
+	return false
+
+
+## The uid of the placed piece of a kind closest to from ("" if none).
+static func _nearest(state: GameState, kind: String, from: PlacedPiece, data: GameData) -> String:
+	var best := ""
+	var best_distance := 1 << 30
+	for placed: PlacedPiece in state.placed:
+		if data.pieces[placed.piece_id].kind == kind and Layout.distance(from, placed, data) < best_distance:
+			best = placed.uid
+			best_distance = Layout.distance(from, placed, data)
+	return best
 
 
 ## Picks up a finished batch from a stove, bound for the nearest free counter.
@@ -413,6 +463,9 @@ static func _close(state: GameState, data: GameData, events: Events) -> void:
 	for synth: Synth in state.synths:
 		if synth.is_delivering():
 			_return_dish(state, synth, data)
+		elif synth.is_discarding():
+			# The food is already out of the counter: it is thrown away.
+			_clear_task(synth)
 		elif synth.is_carrying():
 			# The batch stays on its stove for tomorrow.
 			var stove := Layout.stove_of(state, synth.task_stove_uid)
@@ -435,3 +488,4 @@ static func _clear_task(synth: Synth) -> void:
 	synth.task_remaining = 0.0
 	synth.task_stove_uid = ""
 	synth.task_counter_uid = ""
+	synth.task_bin_uid = ""

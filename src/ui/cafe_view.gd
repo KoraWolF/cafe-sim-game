@@ -15,6 +15,8 @@ extends Node2D
 ## walking from the counter to the table as their delivery progresses.
 
 signal stove_clicked(stove_index: int, screen_position: Vector2)
+## A counter was clicked (to throw its food away).
+signal counter_clicked(counter_uid: String)
 signal synth_clicked(synth_id: String)
 signal customer_clicked(customer_id: String)
 ## The mouse moved onto a customer ("" when it left them), with the screen position.
@@ -24,9 +26,11 @@ signal editor_changed
 ## Esc pressed while editing with nothing in hand.
 signal edit_exit_requested
 
-const HEIGHTS: Dictionary[String, float] = {"seat": 14.0, "stove": 30.0, "pod": 56.0, "counter": 26.0, "decor": 22.0}
+const HEIGHTS: Dictionary[String, float] = {"seat": 14.0, "stove": 30.0, "pod": 56.0, "counter": 26.0, "bin": 24.0,
+	"decor": 22.0}
 const KIND_COLORS: Dictionary[String, Color] = {
 	"seat": Color("8a6a4a"), "stove": Color("8c95a8"), "pod": Color("5a6a9a"), "counter": Color("c9a27a"),
+	"bin": Color("4f6b5a"),
 }
 const HEAD_HIT_RADIUS: float = 30.0
 const DRAG_THRESHOLD: float = 8.0
@@ -49,6 +53,9 @@ var _walk_delta: float = 0.0
 var _walk_types: Dictionary[String, String] = {}
 ## Customers who left angry (they stomp out with a red mark).
 var _angry: Dictionary[String, bool] = {}
+## New Synths walking from where they were converted to their Pod:
+## id -> {"at": Vector2, "via": Array of Vector2 waypoints}.
+var _to_pod: Dictionary[String, Dictionary] = {}
 ## Short-lived feedback drawn over the café: {"kind", "at", "age", "life", "text", "color"}.
 var _effects: Array[Dictionary] = []
 var camera := Camera2D.new()
@@ -98,6 +105,13 @@ func _level_up_effects(level_ups: Dictionary[String, int]) -> void:
 
 
 func _on_converted(customer_id: String, synth: Synth) -> void:
+	if _walk.has(customer_id):
+		# The customer becomes the Synth and walks round the front of the café into a free Pod.
+		var width := float(Session.data.balance.floor_width)
+		var rows := float(Session.state.floor_rows)
+		_to_pod[synth.id] = {"at": _walk[customer_id], "via": [Vector2(width + 0.5, rows + 0.6)]}
+		_walk.erase(customer_id)
+		_walk_types.erase(customer_id)
 	if not _heads.has(customer_id):
 		return
 	var glow: Color = UiTheme.SPECIES_GLOW.get(synth.species_id, Color.CYAN)
@@ -264,6 +278,9 @@ func _click(world: Vector2, screen: Vector2) -> void:
 		if placed != null and Layout.cells(placed, Session.data).has(tile):
 			stove_clicked.emit(i, screen)
 			return
+	var piece := Layout.piece_at(state, tile, Session.data)
+	if piece != null and Session.data.pieces[piece.piece_id].kind == Piece.COUNTER:
+		counter_clicked.emit(piece.uid)
 
 
 func _hit(person_id: String, world: Vector2) -> bool:
@@ -415,6 +432,14 @@ func _draw_piece(placed: PlacedPiece) -> void:
 		var state := Session.state
 		_draw_cups(Iso.centre(placed.cell, Vector2i(size)) - Vector2(0, HEIGHTS["counter"]),
 			state.counter_dish.get(placed.uid, ""), state.counter_count.get(placed.uid, 0), false)
+	elif piece.kind == Piece.BIN:
+		# A lid on top.
+		var top := Iso.centre(placed.cell, Vector2i(size)) - Vector2(0, HEIGHTS["bin"])
+		draw_rect(Rect2(top + Vector2(-16, -4), Vector2(32, 6)), color.lightened(0.3))
+		draw_rect(Rect2(top + Vector2(-5, -9), Vector2(10, 5)), color.lightened(0.3))
+	if Session.state.discard.has(placed.uid):
+		# Waiting for a server to take it to the bin.
+		_text(label_at + Vector2(0, -34), tr("ui.throw_marked"), 13, UiTheme.BAD)
 
 
 ## A stack of cups (one per serving, up to 6) with the dish name and count above;
@@ -562,6 +587,11 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 					var progress := clampf(1.0 - synth.task_remaining / data.balance.delivery_seconds, 0.0, 1.0)
 					var from := _piece_front(synth.task_counter_uid, state, data, at)
 					at = from.lerp(_seat_position(synth.task_customer_id, state, data) + Vector2(0.3, 0.3), progress)
+				elif synth.is_discarding():
+					# From the counter or stove to the bin, with the food to throw away.
+					var progress := clampf(1.0 - synth.task_remaining / data.balance.carry_seconds, 0.0, 1.0)
+					at = _piece_front(synth.task_counter_uid, state, data, at).lerp(
+						_piece_front(synth.task_bin_uid, state, data, at), progress)
 				elif synth.is_carrying():
 					# From the stove to the counter, carrying the batch.
 					var progress := clampf(1.0 - synth.task_remaining / data.balance.carry_seconds, 0.0, 1.0)
@@ -575,8 +605,29 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 				# Resting in a Sync Pod in the Pod bay (every Synth has one).
 				at = _bay_slot(rest_index, state, data) + Vector2(0, 0.05)
 				rest_index += 1
+				if _to_pod.has(synth.id):
+					at = _walk_to_pod(synth.id, at)
+		if synth.role != Synth.REST:
+			_to_pod.erase(synth.id)
 		result.append([_draw_synth.bind(synth, at), at])
 	return result
+
+
+## Moves a new Synth along its way to its Pod; returns where to draw it (the
+## Pod once it is there).
+func _walk_to_pod(synth_id: String, pod: Vector2) -> Vector2:
+	var trip := _to_pod[synth_id]
+	var via: Array = trip["via"]
+	var target: Vector2 = via[0] if not via.is_empty() else pod
+	var speed := 0.0 if Session.paused else WALK_SPEED * maxf(Session.state.speed, 1.0)
+	var at: Vector2 = (trip["at"] as Vector2).move_toward(target, speed * _walk_delta)
+	trip["at"] = at
+	if at.distance_to(target) < 0.01:
+		if via.is_empty():
+			_to_pod.erase(synth_id)
+			return pod
+		via.pop_front()
+	return at
 
 
 func _seat_position(customer_id: String, state: GameState, data: GameData) -> Vector2:

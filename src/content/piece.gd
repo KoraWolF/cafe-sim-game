@@ -1,14 +1,16 @@
 class_name Piece
 extends RefCounted
-## Something that stands on the café floor: furniture (seat, stove, counter),
+## Something that stands on the café floor: furniture (seat, stove, counter, bin),
 ## which comes from upgrades, or décor, which is bought for coins and adds Vibe.
 
 const SEAT: String = "seat"
 const STOVE: String = "stove"
 ## Where finished dishes wait for servers. A café always keeps at least one.
 const COUNTER: String = "counter"
+## Where servers throw away food the player no longer wants (no refund).
+const BIN: String = "bin"
 const DECOR: String = "decor"
-const KINDS: Array[String] = [SEAT, STOVE, COUNTER, DECOR]
+const KINDS: Array[String] = [SEAT, STOVE, COUNTER, BIN, DECOR]
 
 var id: String = ""
 var kind: String = DECOR

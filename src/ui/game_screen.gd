@@ -46,6 +46,7 @@ func _ready() -> void:
 	battle.finished.connect(_play_next_battle)
 	Session.night_resolved.connect(_on_night_resolved)
 	cafe.stove_clicked.connect(hud.open_recipe_menu)
+	cafe.counter_clicked.connect(hud.confirm_throw)
 	cafe.synth_clicked.connect(hud.open_synth_card)
 	cafe.customer_clicked.connect(hud.confirm_convert)
 	cafe.customer_hovered.connect(hud.show_customer_card)
@@ -89,6 +90,11 @@ func _on_night_resolved(night_report: NightOps.Report) -> void:
 		_battles.append({"battle": night_report.defense, "attacks": false, "mine": home,
 			"theirs": _numbered("ui.battle_auditor" if night_report.audit else "ui.battle_raider", night_report.defense.attackers.size()),
 			"title": tr("ui.battle_audit") if night_report.audit else tr("ui.battle_defense")})
+	if Session.auto_running and _battles.is_empty():
+		# A quiet night on Auto: no report, the next shift just carries on.
+		Session.toast.emit(tr("ui.auto_night_done") % night_report.income if night_report.income > 0 else tr("ui.auto_night_done_plain"))
+		Sfx.music_for_phase()
+		return
 	Session.paused = true
 	_play_next_battle()
 

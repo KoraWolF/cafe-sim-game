@@ -56,9 +56,9 @@ func _run() -> void:
 	await _click(canvas * game.cafe._heads[state.synths[0].id])
 	print("CHECK click Synth -> card open: ", game.hud._card.visible)
 	_shot("03_synth_card")
-	# Rename by clicking the name and typing, as a player would.
-	await _click(_centre_of(game.hud._card._title))
-	game.hud._card._title.select_all()
+	# Rename: the name is locked until the pencil is clicked, then type, as a player would.
+	print("CHECK name locked before the pencil: ", not game.hud._card._title.editable)
+	await _click(_centre_of(game.hud._card._edit))
 	await _type("Barista\n")
 	print("CHECK typing a name -> Synth renamed: ", state.synths[0].name == "Barista")
 	# Customers walk in through the door: give them a few seconds, then everyone seated is at their seat.
@@ -91,6 +91,32 @@ func _run() -> void:
 	await _click(_centre_of(game.hud.confirm._yes))
 	print("CHECK confirm -> converted: ", state.synths.size() == synths_before + 1,
 		" (star stage now %s, pods %d, synths %d, nanobrew %d)" % [star.stage, state.pods, state.synths.size(), state.nanobrew])
+	var newcomer: Synth = state.synths[-1]
+	print("CHECK new Synth rests at 70%% battery and walks to its Pod: ", newcomer.role == Synth.REST
+		and SynthStats.battery_percent(newcomer, data) == 70 and game.cafe._to_pod.has(newcomer.id))
+	await _frames(240)
+	print("CHECK ...and reaches it: ", not game.cafe._to_pod.has(newcomer.id))
+	_shot("04c_new_synth_in_pod")
+	print("CHECK Auto locked on day 1: ", game.hud._auto.disabled)
+
+	# Throwing food away: click a counter with food, confirm, a server takes it to the bin.
+	var full: PlacedPiece = null
+	for placed: PlacedPiece in state.placed:
+		if state.counter_count.get(placed.uid, 0) > 0:
+			full = placed
+	if full == null:
+		full = state.placed.filter(func(p: PlacedPiece) -> bool: return p.piece_id == "counter")[0]
+		Counters.put(state, full.uid, state.menu[0], 2)
+	await _click(game.cafe.get_viewport().get_canvas_transform() * Iso.centre(full.cell, Vector2i.ONE))
+	print("CHECK click counter -> throw-away confirmation shown: ", game.hud.confirm.visible)
+	_shot("04d_confirm_throw")
+	await _click(_centre_of(game.hud.confirm._yes))
+	print("CHECK confirm -> marked for the bin: ", state.discard.has(full.uid))
+	for second: int in 10:
+		if state.counter_count.get(full.uid, 0) == 0:
+			break
+		_session.advance(1)
+	print("CHECK a server emptied it: ", state.counter_count.get(full.uid, 0) == 0 and not state.discard.has(full.uid))
 
 	# Play the rest of the shift, cooking for demand and converting stars.
 	while state.phase == GameState.Phase.SHIFT:
@@ -189,12 +215,15 @@ func _centre_of(control: Control) -> Vector2:
 func _click(at: Vector2) -> void:
 	# Press and release in the same frame: a real mouse move from the OS cursor
 	# landing in between would turn the click into a drag (or move it off a button).
+	# at is in game (viewport) pixels; input arrives in window pixels, which differ
+	# when the window is scaled to fit the screen.
+	var window_at := root.get_final_transform() * at
 	for pressed: bool in [true, false]:
 		var event := InputEventMouseButton.new()
 		event.button_index = MOUSE_BUTTON_LEFT
 		event.pressed = pressed
-		event.position = at
-		event.global_position = at
+		event.position = window_at
+		event.global_position = window_at
 		root.push_input(event)
 	await _frames(3)
 
@@ -217,8 +246,8 @@ func _type(text: String) -> void:
 
 func _move(to: Vector2) -> void:
 	var event := InputEventMouseMotion.new()
-	event.position = to
-	event.global_position = to
+	event.position = root.get_final_transform() * to
+	event.global_position = event.position
 	root.push_input(event)
 	await _frames(2)
 

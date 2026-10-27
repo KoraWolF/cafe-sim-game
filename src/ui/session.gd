@@ -47,6 +47,9 @@ var day_log := DayLog.new()
 var paused: bool = false
 ## Arranging the floor: keys go to the floor editor, not the HUD.
 var editing: bool = false
+## True while a night is being passed by Auto (the game screen skips the report
+## unless there was a fight).
+var auto_running: bool = false
 ## Synth id -> name, taken just before the night resolves, so a Synth the
 ## Audit takes can still be named in the battle scene.
 var synth_names: Dictionary[String, String] = {}
@@ -120,7 +123,26 @@ func advance(seconds: int) -> Shift.Events:
 		toast.emit(tr("ui.closed_today") if events.closed else tr("ui.shift_over"))
 		SaveSystem.autosave(state)
 		phase_changed.emit()
+		if state.auto_night:
+			auto_night.call_deferred()
 	return events
+
+
+## Auto: the night passes by itself with the same menu, no raid and whatever
+## recharge the Energy covers (warns when it runs short). Stops for the player
+## when a Corporate Audit is coming.
+func auto_night() -> void:
+	if state == null or state.phase != GameState.Phase.NIGHT or not state.auto_night:
+		return
+	if GameLoop.auto_stop_reason(state, data) != "":
+		toast.emit(tr("ui.auto_stopped_audit"))
+		return
+	if state.power < NightOps.recharge_cost(state, data):
+		toast.emit(tr("ui.auto_low_energy") % [roundi(state.power), ceili(NightOps.recharge_cost(state, data))])
+	GameLoop.cancel_raid(state)
+	auto_running = true
+	end_night()
+	auto_running = false
 
 
 func end_night() -> NightOps.Report:

@@ -23,6 +23,7 @@ const SPEEDS: Array[int] = [0, 1, 2, 4]
 @export var nanobrew: int = 0
 ## Nano Cores: the rare raid ingredient NanoBrew is brewed from.
 @export var cores: int = 0
+## Energy (shown as "Energy"; not a Synth's fight power): recharges batteries at night.
 @export var power: float = 0.0
 
 ## Placed seats (kept up to date by Layout.refresh from the floor) and Sync Pods
@@ -44,6 +45,12 @@ var seat_vibe: Dictionary[String, float] = {}
 @export var upgrades: Dictionary[String, int] = {}
 ## Ready servings on the counters: recipe id -> count (see Counters).
 @export var counter: Dictionary[String, int] = {}
+## Auto on: each night passes by itself with the same menu and no raid
+## (see Session.auto_night). Unlocks on auto_unlock_day.
+@export var auto_night: bool = false
+## Placed counters and stoves whose food the player asked to throw away; an
+## idle server takes it all to the nearest bin (no refund).
+@export var discard: Array[String] = []
 ## Counter piece uid -> the dish on it, and how many servings.
 @export var counter_dish: Dictionary[String, String] = {}
 @export var counter_count: Dictionary[String, int] = {}
@@ -92,8 +99,9 @@ static func new_game(seed_value: int, data: GameData) -> GameState:
 	state.security = b.start_security
 	state.floor_rows = b.start_floor_rows
 	state.pods = b.start_pods
-	# Kind by kind (stoves, counters, seats): the start layout's spots first, then the first free spot.
-	var wanted: Dictionary[String, int] = {Piece.STOVE: b.start_stoves, Piece.COUNTER: b.start_counters, Piece.SEAT: b.start_seats}
+	# Kind by kind (stoves, counters, seats, bins): the start layout's spots first, then the first free spot.
+	var wanted: Dictionary[String, int] = {Piece.STOVE: b.start_stoves, Piece.COUNTER: b.start_counters,
+		Piece.SEAT: b.start_seats, Piece.BIN: b.start_bins}
 	for piece_id: String in wanted:
 		for entry: Variant in b.start_layout:
 			if wanted[piece_id] <= 0 or not entry is Dictionary or str(entry.get("piece", "")) != piece_id:
@@ -115,7 +123,9 @@ static func new_game(seed_value: int, data: GameData) -> GameState:
 	rng.seed = seed_value
 	state.rng_seed = rng.seed
 	state.rng_state = rng.state
-	var starter := state.add_synth(b.starter_species, "", data)
+	var starter := state.add_synth(b.starter_species, "", data, data.species[b.starter_species].roll_battery_max(rng))
+	state.store_rng(rng)
+	starter.battery = SynthStats.stat(starter, "battery_max", data)
 	starter.name = b.starter_name
 	starter.role = Synth.SERVER
 	state.menu_slots = b.start_menu_slots
@@ -143,11 +153,13 @@ func new_id(prefix: String) -> String:
 
 
 ## Adds a Synth at full battery in its species' best role. Does not check pods.
-func add_synth(species_id: String, trait_id: String, data: GameData) -> Synth:
+## battery_max 0 = the species' battery_max.
+func add_synth(species_id: String, trait_id: String, data: GameData, battery_max := 0) -> Synth:
 	var synth := Synth.new()
 	synth.id = new_id("synth")
 	synth.species_id = species_id
 	synth.trait_id = trait_id
+	synth.battery_max = battery_max
 	synth.role = data.species[species_id].best_role
 	synth.battery = SynthStats.stat(synth, "battery_max", data)
 	synths.append(synth)

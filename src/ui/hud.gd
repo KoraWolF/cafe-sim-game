@@ -15,6 +15,7 @@ var _resources := Label.new()
 var _shift_bar := ProgressBar.new()
 var _speed_box := HBoxContainer.new()
 var _speed_buttons: Dictionary[int, Button] = {}
+var _auto := Button.new()
 var _toasts := VBoxContainer.new()
 var _feed := VBoxContainer.new()
 var _recipe_menu := PopupMenu.new()
@@ -76,6 +77,13 @@ func _build_top_bar() -> void:
 		button.toggle_mode = true
 		_speed_buttons[speed] = button
 		_speed_box.add_child(button)
+	_auto.text = tr("ui.auto")
+	_auto.toggle_mode = true
+	_auto.toggled.connect(func(on: bool) -> void:
+		if Session.act(GameLoop.set_auto(Session.state, on, Session.data)) and on:
+			show_toast(tr("ui.auto_on"))
+			Session.auto_night())
+	row.add_child(_auto)
 	row.add_child(UiTheme.button(tr("ui.menu_button"), toggle_pause))
 
 
@@ -120,6 +128,10 @@ func refresh() -> void:
 	_speed_box.visible = in_shift
 	for speed: int in _speed_buttons:
 		_speed_buttons[speed].set_pressed_no_signal(speed == state.speed)
+	var unlocked := state.day >= data.balance.auto_unlock_day
+	_auto.disabled = not unlocked
+	_auto.set_pressed_no_signal(state.auto_night)
+	_auto.tooltip_text = tr("tip.auto") if unlocked else tr("tip.auto_locked") % data.balance.auto_unlock_day
 	if _card.visible:
 		_card.refresh()
 	if customer_card.visible:
@@ -170,7 +182,7 @@ func open_recipe_menu(stove_index: int, at: Vector2) -> void:
 	var state := Session.state
 	var data := Session.data
 	if state.stoves[stove_index].has_batch():
-		show_toast(tr("ui.stove_waiting"))
+		confirm_throw(state.stoves[stove_index].piece_uid)
 		return
 	if not state.stoves[stove_index].is_idle():
 		show_toast(UiText.error(GameLoop.STOVE_BUSY))
@@ -202,6 +214,20 @@ func show_customer_card(customer_id: String, at: Vector2) -> void:
 
 
 ## Clicking a starred customer: say why it can't happen, or ask before spending NanoBrew.
+## Asks before a server throws a counter's food, or a stove's waiting batch, into the bin.
+func confirm_throw(uid: String) -> void:
+	var state := Session.state
+	var stove := Layout.stove_of(state, uid)
+	var recipe_id: String = stove.recipe_id if stove != null else state.counter_dish.get(uid, "")
+	var count: int = stove.ready if stove != null else state.counter_count.get(uid, 0)
+	var error := GameLoop.throw_away_error(state, uid, Session.data)
+	if error != GameLoop.OK:
+		show_toast(UiText.error(error))
+		return
+	confirm.ask(tr("ui.confirm_throw") % [count, UiText.name(recipe_id)], tr("ui.confirm_throw_details"),
+		tr("ui.confirm_throw_yes"), func() -> void: Session.act(GameLoop.throw_away(Session.state, uid, Session.data)))
+
+
 func confirm_convert(customer_id: String) -> void:
 	var state := Session.state
 	var customer := state.customer_by_id(customer_id)

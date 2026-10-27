@@ -51,6 +51,8 @@ var start_stoves: int = 2
 var start_pods: int = 2
 ## Counters a new game starts with (0 only in tests that lay out by hand).
 var start_counters: int = 1
+## Bins a new game starts with.
+var start_bins: int = 0
 ## Dishes the player can put on the daily menu.
 var start_menu_slots: int = 2
 ## The café floor: floor_width tiles across, start_floor_rows deep (the floor
@@ -85,6 +87,10 @@ var power_price: int = 2
 ## Power per battery point recharged, times the species' recharge_multiplier.
 var power_per_battery: float = 0.2
 var conversion_suspicion: float = 8.0
+## Day the Auto button unlocks (after two full days).
+var auto_unlock_day: int = 3
+## Share of max battery a new Synth loses in the Sync Pod (it starts Resting).
+var conversion_battery_loss: float = 0.3
 var raid_suspicion: float = 12.0
 ## Suspicion each district loses every night.
 var suspicion_decay: float = 5.0

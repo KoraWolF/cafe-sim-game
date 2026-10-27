@@ -46,6 +46,10 @@ const COUNTER_BUSY: String = "counter_busy"
 const EMPTY_NAME: String = "empty_name"
 const NAME_TOO_LONG: String = "name_too_long"
 const MAXED: String = "maxed"
+const NOTHING_TO_THROW: String = "nothing_to_throw"
+const NO_BIN: String = "no_bin"
+const BATCH_ON_THE_WAY: String = "batch_on_the_way"
+const AUTO_LOCKED: String = "auto_locked"
 
 
 ## Passes shift time. Returns empty events outside a shift. A shift shut by a
@@ -75,7 +79,8 @@ static func start_cooking(state: GameState, stove_index: int, recipe_id: String,
 
 
 ## Turns a starred customer into a Synth: 1 NanoBrew, a free Pod, +Suspicion.
-## The Synth gets the trait the customer arrived with.
+## The Synth gets the trait and max battery the customer arrived with, starts
+## Resting in its Pod and loses conversion_battery_loss of its battery.
 ## The new Synth is returned through out_synth when given.
 static func convert_customer(state: GameState, customer_id: String, data: GameData,
 		out_synth: Array[Synth] = []) -> String:
@@ -92,15 +97,54 @@ static func convert_customer(state: GameState, customer_id: String, data: GameDa
 		return NO_FREE_POD
 	var type := data.customer_types[customer.type_id]
 	var trait_id := customer.trait_id
-	if trait_id == "" and not type.trait_pool.is_empty():
-		# Customers from saves made before traits were rolled on arrival.
+	var battery_max := customer.battery_max
+	if (trait_id == "" and not type.trait_pool.is_empty()) or battery_max <= 0:
+		# Customers from saves made before traits and batteries were rolled on arrival.
 		var rng := state.rng()
-		trait_id = type.trait_pool[rng.randi_range(0, type.trait_pool.size() - 1)]
+		if trait_id == "" and not type.trait_pool.is_empty():
+			trait_id = type.trait_pool[rng.randi_range(0, type.trait_pool.size() - 1)]
+		if battery_max <= 0:
+			battery_max = data.species[type.synth_species].roll_battery_max(rng)
 		state.store_rng(rng)
 	state.nanobrew -= 1
 	state.customers.erase(customer)
 	state.add_suspicion(data.balance.conversion_suspicion)
-	out_synth.append(state.add_synth(type.synth_species, trait_id, data))
+	var synth := state.add_synth(type.synth_species, trait_id, data, battery_max)
+	synth.role = Synth.REST
+	synth.battery *= 1.0 - data.balance.conversion_battery_loss
+	out_synth.append(synth)
+	return OK
+
+
+## Asks a server to throw away all the food on a counter, or a stove's waiting
+## batch, into the nearest bin. No refund. Any phase: at night the servers do
+## it first thing next shift.
+static func throw_away(state: GameState, uid: String, data: GameData) -> String:
+	var error := throw_away_error(state, uid, data)
+	if error == OK and not state.discard.has(uid):
+		state.discard.append(uid)
+	return error
+
+
+## Why throw_away would fail for this piece (OK if it would work). Changes nothing.
+static func throw_away_error(state: GameState, uid: String, data: GameData) -> String:
+	var placed := Layout.placed_by_uid(state, uid)
+	if placed == null:
+		return UNKNOWN_PLACED
+	match data.pieces[placed.piece_id].kind:
+		Piece.COUNTER:
+			if state.counter_count.get(uid, 0) <= 0:
+				return NOTHING_TO_THROW
+		Piece.STOVE:
+			var stove := Layout.stove_of(state, uid)
+			if not stove.has_batch():
+				return NOTHING_TO_THROW
+			if stove.carrier != "":
+				return BATCH_ON_THE_WAY
+		_:
+			return NOTHING_TO_THROW
+	if Layout.count_placed(state, Piece.BIN, data) == 0:
+		return NO_BIN
 	return OK
 
 
@@ -173,7 +217,7 @@ static func buy_upgrade(state: GameState, upgrade_id: String, data: GameData) ->
 		return MAXED
 	if state.coins < cost:
 		return NOT_ENOUGH_COINS
-	var furniture := [Upgrade.STOVE, Upgrade.COUNTER, Upgrade.SEAT].has(upgrade_id)
+	var furniture := Upgrade.FURNITURE.has(upgrade_id)
 	if furniture and Layout.find_spot(state, upgrade_id, data).is_empty():
 		return NO_ROOM
 	state.coins -= cost
@@ -221,6 +265,22 @@ static func sell_piece(state: GameState, uid: String, data: GameData) -> String:
 ## Sells one stored décor piece for sell_refund of its price.
 static func sell_stored_piece(state: GameState, piece_id: String, data: GameData) -> String:
 	return Layout.sell_stored(state, piece_id, data) if state.phase == GameState.Phase.NIGHT else WRONG_PHASE
+
+
+## Turns Auto on or off. It unlocks on balance.auto_unlock_day.
+static func set_auto(state: GameState, on: bool, data: GameData) -> String:
+	if on and state.day < data.balance.auto_unlock_day:
+		return AUTO_LOCKED
+	state.auto_night = on
+	return OK
+
+
+## Why Auto would not pass tonight by itself ("" = it can): a Corporate Audit
+## is coming, so the player decides.
+static func auto_stop_reason(state: GameState, data: GameData) -> String:
+	if state.current_suspicion() >= data.balance.audit_suspicion:
+		return "audit"
+	return ""
 
 
 ## Longest Synth name.
