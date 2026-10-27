@@ -70,7 +70,7 @@ ui.decor_owned,In storage: %d
 ui.decor_note,New pieces go to the first free spot. Use Arrange Floor to move them.
 ui.arrange,Arrange Floor
 ui.edit_title,Arrange the floor
-ui.edit_hint,"Click a piece to pick it up, click again to drop it. R rotates, right-click puts it back. Esc leaves."
+ui.edit_hint,"Click a piece to pick it up, click again to drop it. R rotates, right-click puts it back. Esc leaves. Décor only lifts seats within 2 tiles: the lit area shows its reach, and the seats it reaches turn green."
 ui.edit_holding,Holding: %s
 ui.edit_holding_rotated,Holding: %s (rotated)
 ui.edit_nothing,Nothing in hand.
@@ -238,3 +238,4 @@ ui.door_closed,CLOSED
 ui.call_board_1,Starred?
 ui.call_board_2,Wait here!
 error.counter_needed,The café needs at least one counter for finished dishes.
+customer.seat_vibe,Vibe at their seat: %d (décor within 2 tiles)

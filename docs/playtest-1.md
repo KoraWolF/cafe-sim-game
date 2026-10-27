@@ -11,7 +11,7 @@ Feedback from @Boss's first playtest, with the agreed answers.
 
 ## Agreed changes, in four branches
 
-1. **`playtest-fixes`** (UI and UX):
+1. **`playtest-fixes`** (built) (UI and UX):
    - Dim the background behind Settings and other pop-ups.
    - Confirm before spending NanoBrew on a customer.
    - The Synth card explains the current role, the trait and what each stat does.
@@ -20,8 +20,8 @@ Feedback from @Boss's first playtest, with the agreed answers.
    - Sync Pods start on the left side of the café.
    - Starred customers queue at a **call board** beside the café, away from the tables.
    - **A door:** customers walk in through it and walk out again. Movement is visual only; the rules don't change.
-2. **`counter-piece`:** a real counter (2×1 furniture). Ready dishes are stacked on it, and servers walk to it to pick up. Save format v6 places a counter in older saves.
-3. **`decor-aura`:** décor works in a range. Each piece boosts only the seats within N tiles, shown as a glowing range while placing. A customer's mood uses the Vibe around their own seat. This moves seat assignment into the game logic and needs a balance re-check.
+2. **`counter-piece` (built):** a real counter (2×1 furniture). Ready dishes are stacked on it, and servers walk to it to pick up. Save format v6 places a counter in older saves.
+3. **`decor-aura` (built, range 2 tiles):** décor works in a range. Each piece boosts only the seats within N tiles, shown as a glowing range while placing. A customer's mood uses the Vibe around their own seat. This moves seat assignment into the game logic and needs a balance re-check.
 4. **`synth-outfits`:** fashion progression. Cosmetic outfits and accessories for Synths, unlocked by progress, with no stat effect. **Questions to ask first:** how outfits are unlocked, which slots there are, and where they're equipped.
 
 Art: see `docs/art-guide.md` for how to make customer and Synth models.

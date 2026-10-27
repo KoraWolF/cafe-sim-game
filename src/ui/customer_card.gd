@@ -48,6 +48,8 @@ func refresh() -> void:
 		var favourite := tr("customer.favourite") if type.favorites.has(customer.recipe_id) else ""
 		lines.append(tr("customer.order") % [UiText.name(customer.recipe_id), favourite])
 	lines.append(tr("customer.mood") % roundi(customer.satisfaction))
+	if customer.is_seated():
+		lines.append(tr("customer.seat_vibe") % roundi(session.state.seat_vibe.get(customer.seat_uid, 0.0)))
 	lines.append(tr("customer.converts") % [UiText.name(type.synth_species),
 		UiText.name(customer.trait_id) if customer.trait_id != "" else tr("ui.card_no_trait")])
 	lines.append(tr("species.%s.desc" % type.synth_species))

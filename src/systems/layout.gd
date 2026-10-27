@@ -3,8 +3,11 @@ extends RefCounted
 ## The café floor: a grid floor_width tiles across and state.floor_rows deep.
 ## Seats, stoves, Sync Pods and décor stand on it without overlapping; only
 ## placed pieces count (seats seat customers, stoves cook, Pods hold Synths).
-## Pieces not on the floor wait in storage. Vibe = the décor's own Vibe plus
-## every adjacency rule matched by a pair of touching pieces.
+## Pieces not on the floor wait in storage.
+##
+## Vibe works in a range: each piece's share is its own Vibe plus half of every
+## adjacency bonus it is part of; a seat's Vibe is the sum of the shares of all
+## pieces within decor_range tiles of it. The café's Vibe is the total over seats.
 ##
 ## Changes go through GameLoop (night only); these functions do not check the
 ## phase. After any change refresh() updates state.seats, state.pods and state.vibe.
@@ -158,11 +161,76 @@ static func refund(piece: Piece, b: BalanceConfig) -> int:
 	return int(piece.price * b.sell_refund)
 
 
-## Recomputes what the layout provides: seats, Pods and Vibe.
+## Recomputes what the layout provides: seats, Pods and Vibe (per seat and total).
 static func refresh(state: GameState, data: GameData) -> void:
 	state.seats = count_placed(state, Piece.SEAT, data)
 	state.pods = count_placed(state, Piece.POD, data)
-	state.vibe = vibe(state, data)
+	state.seat_vibe = seat_vibes(state, data)
+	state.vibe = 0.0
+	for value: float in state.seat_vibe.values():
+		state.vibe += value
+
+
+## Seat uid -> the Vibe there: shares of every piece within decor_range tiles.
+static func seat_vibes(state: GameState, data: GameData) -> Dictionary[String, float]:
+	var shares := _shares(state, data)
+	var result: Dictionary[String, float] = {}
+	for seat: PlacedPiece in state.placed:
+		if data.pieces[seat.piece_id].kind != Piece.SEAT:
+			continue
+		var total := 0.0
+		for i: int in state.placed.size():
+			if shares[i] != 0.0 and distance(state.placed[i], seat, data) <= data.balance.decor_range:
+				total += shares[i]
+		result[seat.uid] = total
+	return result
+
+
+## King's-move steps between the nearest tiles of two pieces (1 = touching, 0 = overlapping).
+static func distance(a: PlacedPiece, b: PlacedPiece, data: GameData) -> int:
+	var a_size := data.pieces[a.piece_id].footprint(a.rotated)
+	var b_size := data.pieces[b.piece_id].footprint(b.rotated)
+	var dx := maxi(0, maxi(a.cell.x - (b.cell.x + b_size.x - 1), b.cell.x - (a.cell.x + a_size.x - 1)))
+	var dy := maxi(0, maxi(a.cell.y - (b.cell.y + b_size.y - 1), b.cell.y - (a.cell.y + a_size.y - 1)))
+	return maxi(dx, dy)
+
+
+## Placed seats a piece reaches from cell (for the range preview).
+static func seats_in_range(state: GameState, piece_id: String, cell: Vector2i, rotated: bool, data: GameData,
+		uid := "") -> Array[String]:
+	var trial := _trial(state, piece_id, cell, rotated, uid)
+	var result: Array[String] = []
+	for seat: PlacedPiece in state.placed:
+		if data.pieces[seat.piece_id].kind == Piece.SEAT and seat != trial["placed"] \
+				and distance(trial["placed"], seat, data) <= data.balance.decor_range:
+			result.append(seat.uid)
+	_end_trial(state, trial)
+	return result
+
+
+## Each placed piece's share (same order as state.placed): own Vibe + half of its adjacency bonuses.
+static func _shares(state: GameState, data: GameData) -> Array[float]:
+	var shares: Array[float] = []
+	var owner: Dictionary[Vector2i, int] = {}
+	for i: int in state.placed.size():
+		shares.append(data.pieces[state.placed[i].piece_id].vibe)
+		for cell: Vector2i in cells(state.placed[i], data):
+			owner[cell] = i
+	for i: int in state.placed.size():
+		var touching: Dictionary[int, bool] = {}
+		for cell: Vector2i in cells(state.placed[i], data):
+			for step: Vector2i in NEIGHBOURS:
+				var j: int = owner.get(cell + step, -1)
+				if j > i:
+					touching[j] = true
+		var a := data.pieces[state.placed[i].piece_id]
+		for j: int in touching:
+			var b := data.pieces[state.placed[j].piece_id]
+			for rule: AdjacencyRule in data.adjacency:
+				if rule.matches(a, b):
+					shares[i] += rule.vibe * 0.5
+					shares[j] += rule.vibe * 0.5
+	return shares
 
 
 static func count_placed(state: GameState, kind: String, data: GameData) -> int:
@@ -170,7 +238,8 @@ static func count_placed(state: GameState, kind: String, data: GameData) -> int:
 		return data.pieces[placed.piece_id].kind == kind).size()
 
 
-static func vibe(state: GameState, data: GameData) -> float:
+## Vibe ignoring range: every piece's own Vibe plus every adjacency bonus.
+static func raw_vibe(state: GameState, data: GameData) -> float:
 	var total := 0.0
 	var owner: Dictionary[Vector2i, int] = {}
 	for i: int in state.placed.size():
@@ -201,11 +270,13 @@ static func piece_at(state: GameState, tile: Vector2i, data: GameData) -> Placed
 	return null
 
 
-## Total Vibe if a piece stood here: the placed piece uid moved, or (uid "") a
+## Total seat Vibe if a piece stood here: the placed piece uid moved, or (uid "") a
 ## new piece_id placed. The state is left as it was.
 static func vibe_if(state: GameState, piece_id: String, cell: Vector2i, rotated: bool, data: GameData, uid := "") -> float:
 	var trial := _trial(state, piece_id, cell, rotated, uid)
-	var total := vibe(state, data)
+	var total := 0.0
+	for value: float in seat_vibes(state, data).values():
+		total += value
 	_end_trial(state, trial)
 	return total
 
