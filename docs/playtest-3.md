@@ -14,7 +14,7 @@ It is the café's electricity stock. At night it recharges Synths' batteries: 0.
 | 4 | `cashier` | Cashier role and cashier counter, everyone pays on the way out, star wait spot removed, start with 2 staff | built |
 | 5 | `unit-cards` | New worker and customer cards, a draggable Details window (Work, Fight, Trait, Gear tabs), an Info button | built |
 | 6 | `items` | Inventory: EXP bottles, equipment (5 tiers), fashion, selling, crafting from raid materials | built |
-| 7 | `quests` | 3 daily quests (real-time reset), story quests, achievements | |
+| 7 | `quests` | 3 daily quests (real-time reset), story quests, achievements | built |
 
 ## Decisions (answers to the design questions)
 
@@ -114,7 +114,20 @@ Original decisions:
 - 5 tiers (common, magic, rare, epic, legendary), all in data so they're easy to change.
 - EXP bottles give small +20, medium +100 and large +350 XP. They get harder to find as the days and levels go up. They're used from the Details window.
 
-**Quests (branch 7)**
+**Quests (branch 7, built)**
+- A **Quests** button on the top bar opens the panel at any time, day or night (changed from "a tab in the night hub"). It shows how many rewards are ready, e.g. "Quests (2)".
+- The panel has three tabs: Daily, Story and Achievements. Each quest shows its progress and reward, and a Claim button once it's done.
+- **Daily:** 3 quests rolled per real-world date from 8 kinds.
+  - The kinds are serve, earn, stars, convert, win a raid, cook batches, reach café Vibe, and finish a day with nobody leaving angry.
+  - Targets grow with the game day. Progress counts from the moment the quest was rolled.
+  - Rewards are random: coins (more on later days), an EXP bottle, Scrap, a Nano Core or a NanoBrew.
+  - A small tracker under the top bar shows the open dailies during the shift.
+- **Story** (one step at a time): first conversion, a second stove, first décor, first raid win, take the Alley, take Neon Market. Rewards include the Beanie, Barista Apron, Top Hat and Hoodie.
+- **Achievements:** 12, for example serve 100 and 1,000 customers, 500 stars, 5 and 10 Synths, level 5 and 10, 10 raids, a Legendary piece, 500 Vibe, the whole city.
+- Counters such as served, stars and raids won are kept for the whole game. Save format v13: older games start these counters from zero.
+- Content is in `data/quests.json`.
+
+Original decisions:
 - 3 daily quests refresh each morning in real time.
 - Rewards: EXP bottles, coins, NanoBrew, Nano Cores, fashion.
 - They're found in a Quests tab in the night hub plus a small tracker on the shift HUD.

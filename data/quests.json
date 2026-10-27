@@ -1,0 +1,43 @@
+{
+	"daily_count": 3,
+	"daily": [
+		{"id": "serve", "stat": "served", "base": 15, "per_day": 2},
+		{"id": "earn", "stat": "coins_earned", "base": 200, "per_day": 30},
+		{"id": "stars", "stat": "stars", "base": 10, "per_day": 1},
+		{"id": "convert", "stat": "conversions", "base": 1, "per_day": 0},
+		{"id": "raid", "stat": "raids_won", "base": 1, "per_day": 0},
+		{"id": "batches", "stat": "batches", "base": 8, "per_day": 1},
+		{"id": "vibe", "check": "vibe", "base": 20, "per_day": 5},
+		{"id": "clean_day", "stat": "clean_days", "base": 1, "per_day": 0}
+	],
+	"daily_rewards": [
+		{"weight": 40, "reward": {"coins": 40}, "coins_per_day": 8},
+		{"weight": 20, "reward": {"bottle": "bottle_small"}},
+		{"weight": 8, "reward": {"bottle": "bottle_medium"}},
+		{"weight": 15, "reward": {"scrap": 3}},
+		{"weight": 10, "reward": {"cores": 1}},
+		{"weight": 7, "reward": {"nanobrew": 1}}
+	],
+	"story": [
+		{"id": "first_conversion", "check": "stat", "stat": "conversions", "target": 1, "reward": {"coins": 100}},
+		{"id": "second_stove", "check": "upgrade", "upgrade": "stove", "target": 1, "reward": {"coins": 150, "fashion": "beanie"}},
+		{"id": "first_decor", "check": "decor", "target": 1, "reward": {"bottle": "bottle_medium"}},
+		{"id": "first_raid", "check": "stat", "stat": "raids_won", "target": 1, "reward": {"scrap": 5, "fashion": "barista_apron"}},
+		{"id": "take_alley", "check": "district", "district": "alley", "reward": {"coins": 500, "nanobrew": 1, "fashion": "top_hat"}},
+		{"id": "take_neon_market", "check": "district", "district": "neon_market", "reward": {"coins": 1500, "fashion": "hoodie"}}
+	],
+	"achievements": [
+		{"id": "served_100", "check": "stat", "stat": "served", "target": 100, "reward": {"coins": 100}},
+		{"id": "served_1000", "check": "stat", "stat": "served", "target": 1000, "reward": {"bottle": "bottle_medium"}},
+		{"id": "stars_500", "check": "stat", "stat": "stars", "target": 500, "reward": {"scrap": 6}},
+		{"id": "earned_10000", "check": "stat", "stat": "coins_earned", "target": 10000, "reward": {"coins": 500}},
+		{"id": "synths_5", "check": "synths", "target": 5, "reward": {"nanobrew": 1}},
+		{"id": "synths_10", "check": "synths", "target": 10, "reward": {"cores": 2}},
+		{"id": "level_5", "check": "max_level", "target": 5, "reward": {"bottle": "bottle_small"}},
+		{"id": "level_10", "check": "max_level", "target": 10, "reward": {"bottle": "bottle_large"}},
+		{"id": "raids_10", "check": "stat", "stat": "raids_won", "target": 10, "reward": {"scrap": 10}},
+		{"id": "legendary", "check": "legendary", "target": 1, "reward": {"coins": 1000}},
+		{"id": "vibe_500", "check": "vibe", "target": 500, "reward": {"scrap": 8}},
+		{"id": "whole_city", "check": "districts", "target": 2, "reward": {"coins": 3000}}
+	]
+}

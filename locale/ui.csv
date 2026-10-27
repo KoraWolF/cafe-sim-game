@@ -368,3 +368,50 @@ ui.nothing_to_wear_equipment,"No spare equipment — win raids, or craft in the 
 ui.report_materials,"Salvage: +%d Scrap, +%d Chips."
 ui.report_item,"Loot: %s (%s)!"
 ui.report_bottle,Loot: a %s!
+error.unknown_quest,Unknown quest.
+error.not_done,That quest isn't finished yet.
+error.already_claimed,Already claimed.
+ui.quests_button,Quests
+tip.quests,"Daily quests, the story and achievements — check and claim any time."
+ui.quests_title,Quests
+ui.quests_tab_daily,Daily
+ui.quests_tab_story,Story
+ui.quests_tab_achievements,Achievements
+ui.quests_daily_note,Three new daily quests every real-world day. Targets grow as your café does.
+ui.quests_story_step,Step %d of %d
+ui.quests_story_done,"The story is done — the whole city is yours, for now."
+ui.quests_achievements_note,%d of %d claimed
+ui.quests_reward,Reward: %s
+ui.quests_claim,Claim
+ui.quests_claimed,Claimed
+ui.quests_got,Claimed: %s
+reward.coins,+%d coins
+reward.scrap,+%d Scrap
+reward.cores,+%d Nano Cores
+reward.nanobrew,+%d NanoBrew
+quest.daily.serve,Serve %d customers
+quest.daily.earn,Earn %d coins
+quest.daily.stars,Get %d stars
+quest.daily.convert,Convert %d customer
+quest.daily.raid,Win %d raid
+quest.daily.batches,Cook %d batches
+quest.daily.vibe,Reach %d café Vibe
+quest.daily.clean_day,Finish %d day with nobody leaving angry
+quest.story.first_conversion,Convert your first customer into a Synth
+quest.story.second_stove,Buy a second stove
+quest.story.first_decor,Place a piece of décor
+quest.story.first_raid,Win your first raid on MegaBean
+quest.story.take_alley,Take over the Alley
+quest.story.take_neon_market,Take over Neon Market
+quest.ach.served_100,Serve 100 customers
+quest.ach.served_1000,Serve 1000 customers
+quest.ach.stars_500,Get 500 stars
+quest.ach.earned_10000,Earn 10000 coins from customers
+quest.ach.synths_5,Have 5 Synths
+quest.ach.synths_10,Have 10 Synths
+quest.ach.level_5,Raise a Synth to level 5
+quest.ach.level_10,Raise a Synth to level 10
+quest.ach.raids_10,Win 10 raids
+quest.ach.legendary,Own a Legendary piece
+quest.ach.vibe_500,Reach 500 café Vibe
+quest.ach.whole_city,Take over the whole city

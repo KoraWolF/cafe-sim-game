@@ -26,7 +26,9 @@ extends RefCounted
 ##     a register and a Clerkbot Cashier (with a Pod of its own).
 ## 12: items: inventory, EXP bottles, Scrap and Chips, worn pieces. Older
 ##     games get the starter fashion.
-const VERSION: int = 12
+## 13: quests: lifetime counters, daily quests and their date, story step,
+##     achievements. Older games start them from zero.
+const VERSION: int = 13
 const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
 
@@ -65,6 +67,11 @@ static func to_dict(state: GameState) -> Dictionary:
 		"bottles": state.bottles,
 		"scrap": state.scrap,
 		"chips": state.chips,
+		"stats": state.stats,
+		"daily_quests": state.daily_quests,
+		"daily_date": state.daily_date,
+		"story_index": state.story_index,
+		"achievements": state.achievements,
 		"counter_dish": state.counter_dish,
 		"counter_count": state.counter_count,
 		"menu": state.menu,
@@ -126,6 +133,19 @@ static func from_dict(raw: Dictionary) -> GameState:
 			state.bottles[str(bottle_id)] = int(bottles[bottle_id])
 	state.scrap = int(raw.get("scrap", 0))
 	state.chips = int(raw.get("chips", 0))
+	var counters: Variant = raw.get("stats", {})
+	if counters is Dictionary:
+		for stat: Variant in counters:
+			state.stats[str(stat)] = int(counters[stat])
+	for quest: Dictionary in _objects(raw, "daily_quests"):
+		state.daily_quests.append({"id": str(quest.get("id", "")), "target": int(quest.get("target", 1)),
+			"start": int(quest.get("start", 0)), "reward": quest.get("reward", {}), "claimed": bool(quest.get("claimed", false))})
+	state.daily_date = str(raw.get("daily_date", ""))
+	state.story_index = int(raw.get("story_index", 0))
+	var claimed: Variant = raw.get("achievements", [])
+	if claimed is Array:
+		for id: Variant in claimed:
+			state.achievements.append(str(id))
 	var discard: Variant = raw.get("discard", [])
 	if discard is Array:
 		for uid: Variant in discard:
@@ -273,6 +293,8 @@ static func _migrate_step(version: int, raw: Dictionary) -> Dictionary:
 			return raw
 		11:
 			raw["needs_fashion"] = true
+			return raw
+		12:
 			return raw
 	return {}
 

@@ -12,6 +12,7 @@ var hud := Hud.new()
 var night := NightHub.new()
 var edit_panel := EditPanel.new()
 var shop := ShopPanel.new()
+var quests := QuestPanel.new()
 var report := ReportPanel.new()
 var battle := BattleView.new()
 var tutorial_box := TutorialBox.new()
@@ -33,6 +34,7 @@ func _ready() -> void:
 	root.add_child(night)
 	root.add_child(edit_panel)
 	root.add_child(shop)
+	root.add_child(quests)
 	root.add_child(hud)
 	root.add_child(report)
 	root.add_child(battle)
@@ -55,6 +57,8 @@ func _ready() -> void:
 	cafe.editor_changed.connect(edit_panel.refresh)
 	cafe.edit_exit_requested.connect(exit_edit)
 	hud.shop_requested.connect(open_shop)
+	hud.quests_requested.connect(open_quests)
+	quests.closed.connect(_layout)
 	hud.arrange_requested.connect(enter_edit)
 	shop.arrange_requested.connect(enter_edit)
 	shop.closed.connect(_layout)
@@ -135,6 +139,7 @@ func enter_edit() -> void:
 	if cafe.editor != null:
 		return
 	shop.visible = false
+	quests.visible = false
 	Session.editing = true
 	cafe.editor = FloorEditor.new()
 	edit_panel.open(cafe.editor)
@@ -157,14 +162,27 @@ func open_shop() -> void:
 		shop.close()
 		return
 	exit_edit()
+	quests.visible = false
 	shop.open()
 	_layout()
 
 
-## One panel on the right at a time: the edit panel, else the shop, else the
-## night hub at night. The camera fits the café beside it.
+## Quests, at any time; toggles from the top bar.
+func open_quests() -> void:
+	if quests.visible:
+		quests.close()
+		return
+	exit_edit()
+	shop.visible = false
+	quests.open()
+	_layout()
+
+
+## One panel on the right at a time: the edit panel, else the shop or quests,
+## else the night hub at night. The camera fits the café beside it.
 func _layout() -> void:
-	night.visible = Session.state.phase == GameState.Phase.NIGHT and cafe.editor == null and not shop.visible
+	night.visible = Session.state.phase == GameState.Phase.NIGHT and cafe.editor == null and not shop.visible \
+		and not quests.visible
 	if night.visible:
 		night.refresh()
 	var panel := 0.0
@@ -172,6 +190,8 @@ func _layout() -> void:
 		panel = EditPanel.WIDTH + 30.0
 	elif shop.visible:
 		panel = ShopPanel.WIDTH + 30.0
+	elif quests.visible:
+		panel = QuestPanel.WIDTH + 30.0
 	elif night.visible:
 		panel = CafeView.NIGHT_PANEL
 	cafe.fit_camera(panel)

@@ -40,6 +40,22 @@ static func item_effect(item: Item, catalog: ItemCatalog) -> String:
 	return TranslationServer.translate("item.effect_looks")
 
 
+## "+40 coins, Small EXP bottle, Beanie".
+static func reward(values: Dictionary) -> String:
+	var parts: Array[String] = []
+	for key: String in ["coins", "scrap", "cores", "nanobrew"]:
+		if int(values.get(key, 0)) > 0:
+			parts.append(TranslationServer.translate("reward." + key) % int(values[key]))
+	if values.has("bottle"):
+		parts.append(name(str(values["bottle"])))
+	if values.has("fashion"):
+		var piece := Item.new()
+		piece.kind = Item.FASHION
+		piece.type_id = str(values["fashion"])
+		parts.append(item_name(piece))
+	return ", ".join(parts)
+
+
 static func role(role_id: String) -> String:
 	return TranslationServer.translate("role." + role_id)
 
