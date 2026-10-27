@@ -47,6 +47,15 @@ static func lines(report: NightOps.Report) -> Array[Array]:
 		if report.raid.attackers_won:
 			result.append([TranslationServer.translate("ui.report_raid_won") % [UiText.name(report.raid_target),
 				report.loot_coins, report.loot_cores, report.influence_gained], UiTheme.GOOD])
+			if report.loot_scrap > 0 or report.loot_chips > 0:
+				result.append([TranslationServer.translate("ui.report_materials") % [report.loot_scrap, report.loot_chips], UiTheme.GOOD])
+			for uid: String in report.loot_items:
+				var item := Items.in_inventory(state, uid)
+				if item != null:
+					result.append([TranslationServer.translate("ui.report_item") % [UiText.item_name(item),
+						UiText.item_effect(item, data.items)], UiTheme.ACCENT])
+			if report.loot_bottle != "":
+				result.append([TranslationServer.translate("ui.report_bottle") % UiText.name(report.loot_bottle), UiTheme.ACCENT])
 		else:
 			result.append([TranslationServer.translate("ui.report_raid_lost") % UiText.name(report.raid_target), UiTheme.BAD])
 	if report.district_taken != "":

@@ -2,8 +2,9 @@ class_name UnitDetails
 extends PanelContainer
 ## A Synth's details in a window the player can drag by its title: Work (best
 ## role, speed, cooking, appeal), Fight (power, HP, strength now), Trait
-## (trait and species), and Fashion and Equipment (filled by the items update).
-## Each number comes with a line on what it does.
+## (trait and species), Fashion and Equipment.
+## Each number comes with a line on what it does. Fashion and Equipment wear
+## and take off pieces; EXP bottles are drunk from the Equipment tab.
 
 var synth_id: String = ""
 var _title := UiTheme.label("", 22, UiTheme.PANEL_BORDER)
@@ -71,8 +72,50 @@ func refresh() -> void:
 		traits.add_child(_line(tr("ui.card_no_trait"), ""))
 	traits.add_child(HSeparator.new())
 	traits.add_child(_line(tr("ui.details_species") + ": " + UiText.name(synth.species_id), tr("species.%s.desc" % synth.species_id)))
-	for key: String in ["fashion", "gear"]:
-		_clear(key).add_child(_line("", tr("ui.gear_soon")))
+	_fill_slots(_clear("fashion"), synth, Item.FASHION_SLOTS, Item.FASHION)
+	var gear := _clear("gear")
+	_fill_slots(gear, synth, Item.EQUIPMENT_SLOTS, Item.EQUIPMENT)
+	gear.add_child(HSeparator.new())
+	gear.add_child(UiTheme.label(tr("ui.bottles_title"), 18, UiTheme.PANEL_BORDER))
+	if Session.state.bottles.is_empty():
+		gear.add_child(_line("", tr("ui.bottles_none")))
+	for bottle_id: String in Session.state.bottles:
+		var use := UiTheme.button(tr("ui.bottle_use") % [UiText.name(bottle_id), data.items.bottles[bottle_id]["xp"],
+			Session.state.bottles[bottle_id]], func() -> void:
+				var level_ups: Dictionary[String, int] = {}
+				if Session.act(GameLoop.use_bottle(Session.state, synth_id, bottle_id, Session.data, level_ups)) and level_ups.has(synth_id):
+					Session.toast.emit(tr("ui.level_up") % [Session.synth_name(synth), level_ups[synth_id]]))
+		gear.add_child(use)
+
+
+## Each slot: what is worn (and Take off), then the inventory pieces for it (Wear).
+func _fill_slots(page: VBoxContainer, synth: Synth, slots: Array[String], kind: String) -> void:
+	var data := Session.data
+	var state := Session.state
+	for slot: String in slots:
+		var row := HBoxContainer.new()
+		var worn := Items.worn(synth, slot, data)
+		var text := "%s: %s" % [tr("slot." + slot), UiText.item_name(worn) + " (" + UiText.item_effect(worn, data.items) + ")"
+			if worn != null else tr("ui.slot_empty")]
+		var label := UiTheme.label(text, 17)
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(label)
+		if worn != null:
+			row.add_child(UiTheme.button(tr("ui.take_off"), func() -> void:
+				Session.act(GameLoop.unequip_item(Session.state, synth_id, slot, Session.data))))
+		page.add_child(row)
+		for item: Item in state.inventory:
+			if item.kind != kind or item.slot(data.items) != slot:
+				continue
+			var option := HBoxContainer.new()
+			var name := UiTheme.label("    %s — %s" % [UiText.item_name(item), UiText.item_effect(item, data.items)], 15, UiTheme.TEXT_DIM)
+			name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			option.add_child(name)
+			option.add_child(UiTheme.button(tr("ui.wear"), func() -> void:
+				Session.act(GameLoop.equip_item(Session.state, synth_id, item.uid, Session.data))))
+			page.add_child(option)
+	if not state.inventory.any(func(item: Item) -> bool: return item.kind == kind):
+		page.add_child(_line("", tr("ui.nothing_to_wear_" + kind)))
 
 
 ## A bold value and, under it, what it means.

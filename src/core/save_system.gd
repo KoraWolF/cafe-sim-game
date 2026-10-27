@@ -24,7 +24,9 @@ extends RefCounted
 ##     each seat (or in storage when there is no room).
 ## 11: registers and Cashiers: customers pay on the way out. Older cafés get
 ##     a register and a Clerkbot Cashier (with a Pod of its own).
-const VERSION: int = 11
+## 12: items: inventory, EXP bottles, Scrap and Chips, worn pieces. Older
+##     games get the starter fashion.
+const VERSION: int = 12
 const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
 
@@ -59,6 +61,10 @@ static func to_dict(state: GameState) -> Dictionary:
 		"counter": state.counter,
 		"discard": state.discard,
 		"auto_night": state.auto_night,
+		"inventory": state.inventory.map(func(item: Item) -> Dictionary: return item.to_dict()),
+		"bottles": state.bottles,
+		"scrap": state.scrap,
+		"chips": state.chips,
 		"counter_dish": state.counter_dish,
 		"counter_count": state.counter_count,
 		"menu": state.menu,
@@ -112,6 +118,14 @@ static func from_dict(raw: Dictionary) -> GameState:
 		for recipe_id: Variant in counter:
 			state.counter[str(recipe_id)] = int(counter[recipe_id])
 	state.auto_night = bool(raw.get("auto_night", false))
+	for entry: Dictionary in _objects(raw, "inventory"):
+		state.inventory.append(Item.from_dict(entry))
+	var bottles: Variant = raw.get("bottles", {})
+	if bottles is Dictionary:
+		for bottle_id: Variant in bottles:
+			state.bottles[str(bottle_id)] = int(bottles[bottle_id])
+	state.scrap = int(raw.get("scrap", 0))
+	state.chips = int(raw.get("chips", 0))
 	var discard: Variant = raw.get("discard", [])
 	if discard is Array:
 		for uid: Variant in discard:
@@ -257,6 +271,9 @@ static func _migrate_step(version: int, raw: Dictionary) -> Dictionary:
 		10:
 			raw["needs_register"] = true
 			return raw
+		11:
+			raw["needs_fashion"] = true
+			return raw
 	return {}
 
 
@@ -368,6 +385,14 @@ static func validate(state: GameState, data: GameData) -> PackedStringArray:
 			var carrier := state.synth_by_id(stove.carrier)
 			if carrier == null or carrier.task_stove_uid != stove.piece_uid:
 				errors.append("stove '%s': broken carrier" % stove.piece_uid)
+	var owned: Array[Item] = state.inventory.duplicate()
+	for synth: Synth in state.synths:
+		owned.append_array(synth.items)
+	for item: Item in owned:
+		var known: bool = data.items.equipment.has(item.type_id) and data.items.tiers.has(item.tier) \
+			if item.kind == Item.EQUIPMENT else data.items.fashion.has(item.type_id)
+		if not known:
+			errors.append("unknown item '%s'" % item.type_id)
 	for uid: String in state.discard:
 		if Layout.placed_by_uid(state, uid) == null:
 			errors.append("throw-away mark on missing piece '%s'" % uid)
@@ -499,6 +524,9 @@ static func _load_one(path: String, data: GameData, errors: PackedStringArray) -
 			state.floor_rows += 2
 	if current.get("needs_bin", false) and Layout.count_placed(state, Piece.BIN, data) == 0 			and data.balance.start_bins > 0 and not Layout.auto_place(state, Piece.BIN, data):
 		state.storage[Piece.BIN] = state.storage.get(Piece.BIN, 0) + 1
+	if current.get("needs_fashion", false):
+		for fashion_id: String in data.items.starter_fashion:
+			state.inventory.append(Items.make(state, Item.FASHION, fashion_id))
 	if current.get("needs_tables", false):
 		Layout.give_tables(state, data)
 	if current.get("needs_register", false) and data.balance.start_registers > 0:

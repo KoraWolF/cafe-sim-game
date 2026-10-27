@@ -77,6 +77,30 @@ func _run() -> void:
 	print("CHECK Info button -> info open: ", game.hud.info.visible)
 	_shot("03d_info")
 	game.hud.info.hide_modal()
+	# Items: wear the starter hat from Details > Fashion, craft boots in the Shop, wear and sell.
+	var worker: Synth = state.synths[0]
+	game.hud.details.open(worker.id)
+	game.hud.details._tabs.current_tab = 3
+	await _frames(2)
+	await _click(_centre_of(_button_with(game.hud.details, tr("ui.wear"))))
+	print("CHECK Wear -> hat on: ", Items.worn(worker, "hat", data) != null)
+	_shot("03e_wearing_hat")
+	game.hud.details.visible = false
+	state.scrap = 10
+	game.open_shop()
+	game.shop.tabs.current_tab = 1
+	await _frames(2)
+	var owned := state.inventory.size()
+	await _click(_centre_of(_button_with(game.shop.items_page, tr("ui.craft"))))
+	print("CHECK Craft -> a new piece, Scrap spent: ", state.inventory.size() == owned + 1 and state.scrap == 5)
+	_shot("03f_shop_items")
+	var crafted: Item = state.inventory[-1]
+	var coins_before := state.coins
+	await _click(_centre_of(_button_with(game.shop.items_page, tr("ui.sell") % int(data.items.tiers[crafted.tier]["sell"]))))
+	print("CHECK Sell -> coins for its tier: ", state.coins == coins_before + int(data.items.tiers[crafted.tier]["sell"]))
+	game.shop.tabs.current_tab = 0
+	game.shop.close()
+	await _frames(2)
 	# Customers walk in through the door: give them a few seconds, then everyone seated is at their seat.
 	await _frames(300)
 	var stuck := 0
@@ -241,6 +265,15 @@ func _run() -> void:
 	_shot("15_report")
 	Settings.set_tutorial_done(tutorial_was_done)
 	quit()
+
+
+## The first visible button under a control whose text starts with text.
+func _button_with(under: Node, text: String) -> Button:
+	for button: Button in under.find_children("*", "Button", true, false):
+		if button.is_visible_in_tree() and button.text.begins_with(text):
+			return button
+	push_error("no button '%s'" % text)
+	return null
 
 
 func _centre_of(control: Control) -> Vector2:

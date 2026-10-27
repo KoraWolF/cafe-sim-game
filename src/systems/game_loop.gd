@@ -52,6 +52,11 @@ const NOTHING_TO_THROW: String = "nothing_to_throw"
 const NO_BIN: String = "no_bin"
 const BATCH_ON_THE_WAY: String = "batch_on_the_way"
 const AUTO_LOCKED: String = "auto_locked"
+const UNKNOWN_ITEM: String = "unknown_item"
+const NOTHING_WORN: String = "nothing_worn"
+const UNKNOWN_CRAFT: String = "unknown_craft"
+const NOT_ENOUGH_MATERIALS: String = "not_enough_materials"
+const NONE_LEFT: String = "none_left"
 
 
 ## Passes shift time. Returns empty events outside a shift. A shift shut by a
@@ -285,6 +290,28 @@ static func auto_stop_reason(state: GameState, data: GameData) -> String:
 	if state.current_suspicion() >= data.balance.audit_suspicion:
 		return "audit"
 	return ""
+
+
+## Items, any time (see Items).
+static func equip_item(state: GameState, synth_id: String, uid: String, data: GameData) -> String:
+	return Items.equip(state, synth_id, uid, data)
+
+
+static func unequip_item(state: GameState, synth_id: String, slot: String, data: GameData) -> String:
+	return Items.unequip(state, synth_id, slot, data)
+
+
+static func sell_item(state: GameState, uid: String, data: GameData) -> String:
+	return Items.sell(state, uid, data)
+
+
+static func craft_item(state: GameState, craft_id: String, data: GameData, out_item: Array[Item] = []) -> String:
+	return Items.craft(state, craft_id, data, out_item)
+
+
+static func use_bottle(state: GameState, synth_id: String, bottle_id: String, data: GameData,
+		level_ups: Dictionary[String, int] = {}) -> String:
+	return Items.use_bottle(state, synth_id, bottle_id, data, level_ups)
 
 
 ## Longest Synth name.

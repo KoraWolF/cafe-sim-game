@@ -20,6 +20,26 @@ static func name(id: String) -> String:
 	return pretty(id) if text == key else text
 
 
+## "Rare Swift Boots", or a fashion piece's name.
+static func item_name(item: Item) -> String:
+	var name := TranslationServer.translate("item." + item.type_id)
+	if name == "item." + item.type_id:
+		name = pretty(item.type_id)
+	if item.kind != Item.EQUIPMENT:
+		return name
+	return "%s %s" % [TranslationServer.translate("tier." + item.tier), name]
+
+
+## What a piece does: "+18% speed", "+7 power", or "looks only".
+static func item_effect(item: Item, catalog: ItemCatalog) -> String:
+	for stat: String in item.bonus(catalog):
+		var amount: float = item.bonus(catalog)[stat]
+		if stat == "speed" or stat == "appeal":
+			return TranslationServer.translate("item.effect_share") % [roundi(amount * 100.0), TranslationServer.translate("stat." + stat)]
+		return TranslationServer.translate("item.effect_amount") % [roundi(amount), TranslationServer.translate("stat." + stat)]
+	return TranslationServer.translate("item.effect_looks")
+
+
 static func role(role_id: String) -> String:
 	return TranslationServer.translate("role." + role_id)
 

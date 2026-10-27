@@ -47,6 +47,12 @@ var seat_table: Dictionary[String, String] = {}
 @export var upgrades: Dictionary[String, int] = {}
 ## Ready servings on the counters: recipe id -> count (see Counters).
 @export var counter: Dictionary[String, int] = {}
+## Items not worn by anyone (equipment and fashion), EXP bottles by id, and
+## raid materials for crafting.
+@export var inventory: Array[Item] = []
+@export var bottles: Dictionary[String, int] = {}
+@export var scrap: int = 0
+@export var chips: int = 0
 ## Auto on: each night passes by itself with the same menu and no raid
 ## (see Session.auto_night). Unlocks on auto_unlock_day.
 @export var auto_night: bool = false
@@ -133,6 +139,8 @@ static func new_game(seed_value: int, data: GameData) -> GameState:
 	starter.role = Synth.SERVER
 	if b.starter_cashier_species != "":
 		state.add_starter_cashier(data)
+	for fashion_id: String in data.items.starter_fashion:
+		state.inventory.append(Items.make(state, Item.FASHION, fashion_id))
 	state.menu_slots = b.start_menu_slots
 	for recipe: Recipe in Shift.unlocked_recipes(state, data).slice(0, b.start_menu_slots):
 		state.menu.append(recipe.id)

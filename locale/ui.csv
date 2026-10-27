@@ -311,3 +311,60 @@ info.stat.power,"Power: damage per hit in raids and when defending the café. Gr
 info.stat.hp,"HP: how much damage a Synth takes before it's knocked out of a fight. +8% per level; Security adds HP at home."
 info.stat.battery,"Battery: drains every second on duty. Below 20% a Synth works and fights at half strength; at 0 it stops. Max battery is rolled per unit (70–200). Recharged at night with Energy."
 info.stat.level,"Level: XP comes from work (deliveries, batches, payments, greeting) and fights. Each level raises the stats that grow."
+error.unknown_item,That item isn't in your inventory.
+error.nothing_worn,Nothing is worn there.
+error.unknown_craft,Unknown crafting recipe.
+error.not_enough_materials,Not enough Scrap or Chips.
+error.none_left,You have none of those left.
+tier.common,Common
+tier.magic,Magic
+tier.rare,Rare
+tier.epic,Epic
+tier.legendary,Legendary
+item.swift_boots,Swift Boots
+item.charm_ring,Charm Ring
+item.spark_amulet,Spark Amulet
+item.plate_amulet,Plate Amulet
+item.neon_cap,Neon Cap
+item.beanie,Beanie
+item.top_hat,Top Hat
+item.teal_jacket,Teal Jacket
+item.barista_apron,Barista Apron
+item.hoodie,Hoodie
+item.effect_share,+%d%% %s
+item.effect_amount,+%d %s
+item.effect_looks,looks only
+stat.speed,speed
+stat.appeal,appeal
+stat.power,power
+stat.hp,HP
+slot.hat,Hat
+slot.outfit,Outfit
+slot.ring,Ring
+slot.boots,Boots
+slot.amulet,Amulet
+name.bottle_small,Small EXP bottle
+name.bottle_medium,Medium EXP bottle
+name.bottle_large,Large EXP bottle
+ui.shop_tab_buy,Buy
+ui.shop_tab_items,Items
+ui.materials,"Scrap %d · Chips %d (from won raids)"
+ui.craft_basic,"Basic craft: %d Scrap → a Common or Magic piece"
+ui.craft_advanced,"Advanced craft: %d Scrap + %d Chip → a Rare, Epic or Legendary piece"
+ui.craft,Craft
+ui.crafted,Crafted: %s (%s)
+ui.bottles_title,EXP bottles
+ui.bottles_none,No EXP bottles yet — won raids sometimes bring one.
+ui.bottle_line,%s (+%d XP) × %d
+ui.bottle_use,Use %s (+%d XP) — %d left
+ui.inventory_title,Owned pieces
+ui.inventory_note,"Wear them from a worker's Details (Fashion / Equipment). Equipment sells here; fashion is kept."
+ui.sell,Sell (%d)
+ui.slot_empty,empty
+ui.take_off,Take off
+ui.wear,Wear
+ui.nothing_to_wear_fashion,No spare fashion pieces — quests will bring more.
+ui.nothing_to_wear_equipment,"No spare equipment — win raids, or craft in the Shop's Items tab."
+ui.report_materials,"Salvage: +%d Scrap, +%d Chips."
+ui.report_item,"Loot: %s (%s)!"
+ui.report_bottle,Loot: a %s!

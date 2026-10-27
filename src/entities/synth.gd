@@ -35,6 +35,8 @@ const ROLES: Array[String] = [SERVER, CHEF, CASHIER, GREETER, REST]
 @export var task_counter_uid: String = ""
 ## Throwing food away: the bin it goes to ("" = not throwing away).
 @export var task_bin_uid: String = ""
+## Equipment and fashion it wears (one per slot; see Items).
+@export var items: Array[Item] = []
 
 
 func is_delivering() -> bool:
@@ -56,7 +58,8 @@ func is_busy() -> bool:
 func to_dict() -> Dictionary:
 	return {"id": id, "name": name, "species_id": species_id, "trait_id": trait_id, "role": role,
 		"battery": battery, "battery_max": battery_max, "level": level, "xp": xp, "task_customer_id": task_customer_id, "task_recipe_id": task_recipe_id,
-		"task_remaining": task_remaining, "task_stove_uid": task_stove_uid, "task_counter_uid": task_counter_uid, "task_bin_uid": task_bin_uid}
+		"task_remaining": task_remaining, "task_stove_uid": task_stove_uid, "task_counter_uid": task_counter_uid, "task_bin_uid": task_bin_uid,
+		"items": items.map(func(item: Item) -> Dictionary: return item.to_dict())}
 
 
 static func from_dict(values: Dictionary) -> Synth:
@@ -76,4 +79,9 @@ static func from_dict(values: Dictionary) -> Synth:
 	synth.task_stove_uid = str(values.get("task_stove_uid", ""))
 	synth.task_counter_uid = str(values.get("task_counter_uid", ""))
 	synth.task_bin_uid = str(values.get("task_bin_uid", ""))
+	var worn: Variant = values.get("items", [])
+	if worn is Array:
+		for entry: Variant in worn:
+			if entry is Dictionary:
+				synth.items.append(Item.from_dict(entry))
 	return synth

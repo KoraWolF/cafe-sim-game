@@ -1,0 +1,40 @@
+{
+	"tiers": [
+		{"id": "common", "sell": 20, "bonus": {"speed": 0.05, "appeal": 0.05, "power": 2, "hp": 6}},
+		{"id": "magic", "sell": 50, "bonus": {"speed": 0.10, "appeal": 0.10, "power": 4, "hp": 12}},
+		{"id": "rare", "sell": 120, "bonus": {"speed": 0.18, "appeal": 0.18, "power": 7, "hp": 20}},
+		{"id": "epic", "sell": 300, "bonus": {"speed": 0.28, "appeal": 0.28, "power": 11, "hp": 30}},
+		{"id": "legendary", "sell": 750, "bonus": {"speed": 0.40, "appeal": 0.40, "power": 16, "hp": 45}}
+	],
+	"equipment": [
+		{"id": "swift_boots", "slot": "boots", "stat": "speed"},
+		{"id": "charm_ring", "slot": "ring", "stat": "appeal"},
+		{"id": "spark_amulet", "slot": "amulet", "stat": "power"},
+		{"id": "plate_amulet", "slot": "amulet", "stat": "hp"}
+	],
+	"fashion": [
+		{"id": "neon_cap", "slot": "hat", "color": "38e1ff"},
+		{"id": "beanie", "slot": "hat", "color": "ff5fa2"},
+		{"id": "top_hat", "slot": "hat", "color": "2b2650"},
+		{"id": "teal_jacket", "slot": "outfit", "color": "2bb3a3"},
+		{"id": "barista_apron", "slot": "outfit", "color": "8a5a3a"},
+		{"id": "hoodie", "slot": "outfit", "color": "7b5cff"}
+	],
+	"starter_fashion": ["neon_cap", "teal_jacket"],
+	"bottles": [
+		{"id": "bottle_small", "xp": 20, "weight": 70, "min_day": 1},
+		{"id": "bottle_medium", "xp": 100, "weight": 25, "min_day": 1},
+		{"id": "bottle_large", "xp": 350, "weight": 5, "min_day": 10}
+	],
+	"crafts": [
+		{"id": "basic", "scrap": 5, "chips": 0, "tiers": {"common": 70, "magic": 30}},
+		{"id": "advanced", "scrap": 12, "chips": 1, "tiers": {"rare": 60, "epic": 30, "legendary": 10}}
+	],
+	"raid_loot": {
+		"scrap_min": 1, "scrap_max": 3, "flagship_chips": 1,
+		"item_chance": 0.25, "flagship_item_chance": 1.0,
+		"tiers": {"common": 50, "magic": 30, "rare": 15, "epic": 4, "legendary": 1},
+		"flagship_tiers": {"rare": 60, "epic": 30, "legendary": 10},
+		"bottle_chance": 0.5, "bottle_chance_per_day": -0.02, "bottle_chance_per_level": -0.02, "bottle_chance_min": 0.05
+	}
+}
