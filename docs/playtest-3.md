@@ -13,7 +13,7 @@ It is the café's electricity stock. At night it recharges Synths' batteries: 0.
 | 3 | `tables` | Tables apart from seats, seats must face a table, dish shown and eaten on the table; starter café 8×8 with 3 tables, 3 chairs, 1 bin | built |
 | 4 | `cashier` | Cashier role and cashier counter, everyone pays on the way out, star wait spot removed, start with 2 staff | built |
 | 5 | `unit-cards` | New worker and customer cards, a draggable Details window (Work, Fight, Trait, Gear tabs), an Info button | built |
-| 6 | `items` | Inventory: EXP bottles, equipment (5 tiers), fashion, selling, crafting from raid materials | |
+| 6 | `items` | Inventory: EXP bottles, equipment (5 tiers), fashion, selling, crafting from raid materials | built |
 | 7 | `quests` | 3 daily quests (real-time reset), story quests, achievements | |
 
 ## Decisions (answers to the design questions)
@@ -83,7 +83,30 @@ Original decisions:
 - Coins arrive when the customer pays. A customer who gets angry in the pay queue still pays, but without a tip.
 - The star wait spot goes away. Click a star customer anywhere to convert them.
 
-**Items (branch 6)**
+**Items (branch 6, built, agreed defaults)**
+All numbers are in `data/items.json`.
+- **Equipment:** one stat each.
+  - Swift Boots: speed, +5/10/18/28/40%.
+  - Charm Ring: appeal, +5/10/18/28/40%.
+  - Spark Amulet: power, +2/4/7/11/16.
+  - Plate Amulet: HP, +6/12/20/30/45.
+  - Tiers are common, magic, rare, epic and legendary. Slots are ring, boots and amulet.
+  - Sells for 20/50/120/300/750.
+- **Fashion:** 3 hats and 3 outfits, looks only, drawn as colours on the chibi. Every game starts with a Neon Cap and a Teal Jacket (older saves get them too, format v12).
+- **Raid wins:**
+  - 1–3 Scrap; a flagship also gives 1 Chip.
+  - 25% chance of equipment (a flagship gives one for sure, rare or better).
+  - An EXP bottle: 50% at first, −2% per day and −2% per average staff level above 1, floor 5%. Large bottles only from day 10.
+- **Crafting:**
+  - Basic: 5 Scrap gives Common 70% or Magic 30%.
+  - Advanced: 12 Scrap + 1 Chip gives Rare 60%, Epic 30% or Legendary 10%.
+- **EXP bottles:** +20 / +100 / +350, drunk from the Equipment tab.
+- **Where things are:**
+  - The Shop's **Items** tab has materials, Craft, bottles and owned pieces, with Sell for equipment.
+  - The Details window's **Fashion** and **Equipment** tabs wear and take off pieces.
+- **Rules:** a piece is either in the inventory or worn by one Synth. A Synth taken by an Audit leaves its pieces behind.
+
+Original decisions:
 - Fashion (clothes, hat) is cosmetic only. Equipment (ring, boots, amulet) gives stats: work speed, appeal, power, HP.
 - Each piece is unique and can be moved between workers at any time.
 - Equipment can be sold in the shop at any time.

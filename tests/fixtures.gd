@@ -118,6 +118,19 @@ static func content(balance_overrides := {}) -> Dictionary:
 		"adjacency": [
 			{"tags": ["light", "plant"], "vibe": 3},
 		],
+		"items": {
+			"tiers": [{"id": "common", "sell": 20, "bonus": {"speed": 0.5, "power": 2}},
+				{"id": "rare", "sell": 100, "bonus": {"speed": 1.0, "power": 10}}],
+			"equipment": [{"id": "boots", "slot": "boots", "stat": "speed"}],
+			"fashion": [{"id": "cap", "slot": "hat", "color": "ff0000"}, {"id": "coat", "slot": "outfit", "color": "00ff00"}],
+			"starter_fashion": [],
+			"bottles": [{"id": "small", "xp": 20, "weight": 1, "min_day": 1}, {"id": "big", "xp": 350, "weight": 1, "min_day": 10}],
+			"crafts": [{"id": "basic", "scrap": 5, "chips": 0, "tiers": {"common": 1}},
+				{"id": "advanced", "scrap": 12, "chips": 1, "tiers": {"rare": 1}}],
+			"raid_loot": {"scrap_min": 2, "scrap_max": 2, "flagship_chips": 1, "item_chance": 1.0,
+				"flagship_item_chance": 1.0, "tiers": {"common": 1}, "flagship_tiers": {"rare": 1},
+				"bottle_chance": 1.0, "bottle_chance_per_day": -0.1, "bottle_chance_per_level": 0.0, "bottle_chance_min": 0.0},
+		},
 	}
 
 

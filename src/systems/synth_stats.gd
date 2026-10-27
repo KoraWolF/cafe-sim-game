@@ -5,7 +5,7 @@ extends RefCounted
 
 
 ## Species base (or 0 for trait-only stats), grown by level, plus the trait's
-## modifier. Max battery starts from the unit's own rolled max.
+## modifier and worn equipment. Max battery starts from the unit's own rolled max.
 static func stat(synth: Synth, stat_name: String, data: GameData) -> float:
 	var base: float = data.species[synth.species_id].stats.get(stat_name, 0.0)
 	if stat_name == "battery_max" and synth.battery_max > 0:
@@ -13,6 +13,10 @@ static func stat(synth: Synth, stat_name: String, data: GameData) -> float:
 	var value: float = base * Leveling.stat_multiplier(synth, stat_name, data.balance)
 	if synth.trait_id != "":
 		value += data.traits[synth.trait_id].modifiers.get(stat_name, 0.0)
+	# Equipment: speed by a share, appeal, power and HP by an amount.
+	for item: Item in synth.items:
+		var bonus: float = item.bonus(data.items).get(stat_name, 0.0)
+		value = value * (1.0 + bonus) if stat_name == "speed" else value + bonus
 	return value
 
 

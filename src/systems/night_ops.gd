@@ -40,6 +40,11 @@ class Report:
 	var income: int = 0
 	## Synth id -> level reached (raiders and defenders earn XP).
 	var level_ups: Dictionary[String, int] = {}
+	## Won raid: Scrap and Chips, new equipment uids, an EXP bottle id ("" = none).
+	var loot_scrap: int = 0
+	var loot_chips: int = 0
+	var loot_items: Array[String] = []
+	var loot_bottle: String = ""
 
 
 ## Cafés in the current district that can be raided tonight: rivals off
@@ -165,6 +170,7 @@ static func _raid(state: GameState, data: GameData, rng: RandomNumberGenerator, 
 	state.cores += report.loot_cores
 	state.influence[district.id] = state.current_influence() + rival.influence
 	state.add_suspicion(b.raid_suspicion)
+	Items.raid_loot(state, district.is_flagship(rival.id), data, rng, report)
 	if district.is_flagship(rival.id):
 		_take_over(state, data, report)
 
@@ -226,6 +232,7 @@ static func _audit(state: GameState, data: GameData, rng: RandomNumberGenerator,
 	report.closed_next_shift = true
 	if state.synths.size() > 1:
 		var taken := state.synths[rng.randi_range(0, state.synths.size() - 1)]
+		Items.return_all(state, taken)
 		state.synths.erase(taken)
 		report.synth_lost = taken.id
 

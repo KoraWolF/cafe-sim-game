@@ -12,6 +12,7 @@ const PATHS: Dictionary[String, String] = {
 	"upgrades": "res://data/upgrades.json",
 	"pieces": "res://data/pieces.json",
 	"adjacency": "res://data/adjacency.json",
+	"items": "res://data/items.json",
 }
 
 var balance: BalanceConfig
@@ -25,6 +26,7 @@ var district_order: Array[String] = []
 var upgrades: Dictionary[String, Upgrade] = {}
 var pieces: Dictionary[String, Piece] = {}
 var adjacency: Array[AdjacencyRule] = []
+var items: ItemCatalog = ItemCatalog.new()
 
 
 ## Loads everything from /data. Returns null (and logs why) if it is invalid.
@@ -68,6 +70,8 @@ static func from_content(content: Dictionary) -> GameData:
 		data.pieces[piece.id] = piece
 	for entry: Dictionary in _objects(content.get("adjacency"), "adjacency"):
 		data.adjacency.append(AdjacencyRule.from_dict(entry))
+	var item_values: Variant = content.get("items", {})
+	data.items = ItemCatalog.from_dict(item_values if item_values is Dictionary else {})
 	var errors := data.check()
 	if not errors.is_empty():
 		push_error("GameData: invalid content: %s" % "; ".join(errors))
@@ -96,7 +100,7 @@ func next_district(district_id: String) -> String:
 
 ## Every broken cross-reference, so systems can trust ids.
 func check() -> PackedStringArray:
-	var errors: PackedStringArray = []
+	var errors: PackedStringArray = items.check()
 	if recipes.is_empty():
 		errors.append("no recipes")
 	if customer_types.is_empty():

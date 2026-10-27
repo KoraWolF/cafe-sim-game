@@ -1,8 +1,9 @@
 class_name ShopPanel
 extends PanelContainer
-## The shop, open at any time from the top bar: Energy, café upgrades and
-## décor. Bought furniture and décor go straight onto the first free spot (or
-## storage); "Arrange Floor" moves them. Rebuilds after every action.
+## The shop, open at any time from the top bar. Buy: Energy, café upgrades
+## and décor (bought furniture and décor go straight onto the first free spot,
+## or storage; "Arrange Floor" moves them). Items: Scrap and Chips, crafting,
+## EXP bottles and owned pieces (equipment sells). Rebuilds after every action.
 
 signal closed
 signal arrange_requested
@@ -10,6 +11,8 @@ signal arrange_requested
 const WIDTH: float = 560.0
 
 var _page := VBoxContainer.new()
+var items_page := VBoxContainer.new()
+var tabs := TabContainer.new()
 
 
 func _ready() -> void:
@@ -28,12 +31,15 @@ func _ready() -> void:
 	header.add_child(UiTheme.button(tr("ui.arrange"), arrange_requested.emit))
 	header.add_child(UiTheme.button(tr("ui.close"), close))
 	column.add_child(header)
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_page.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(_page)
-	column.add_child(scroll)
+	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	column.add_child(tabs)
+	for page: VBoxContainer in [_page, items_page]:
+		var scroll := ScrollContainer.new()
+		scroll.name = tr("ui.shop_tab_buy") if page == _page else tr("ui.shop_tab_items")
+		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		page.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		scroll.add_child(page)
+		tabs.add_child(scroll)
 	Session.state_changed.connect(refresh)
 
 
@@ -51,9 +57,11 @@ func close() -> void:
 func refresh() -> void:
 	if not visible or not Session.has_game():
 		return
-	for child: Node in _page.get_children():
-		_page.remove_child(child)
-		child.queue_free()
+	for page: VBoxContainer in [_page, items_page]:
+		for child: Node in page.get_children():
+			page.remove_child(child)
+			child.queue_free()
+	_fill_items()
 	var state := Session.state
 	var data := Session.data
 	var b := data.balance
@@ -98,6 +106,41 @@ func refresh() -> void:
 		buy.disabled = state.coins < piece.price
 		row.add_child(buy)
 		_page.add_child(row)
+
+
+func _fill_items() -> void:
+	var state := Session.state
+	var data := Session.data
+	var page := items_page
+	page.add_child(_wrap(tr("ui.materials") % [state.scrap, state.chips], 20, UiTheme.WARN))
+	for craft_id: String in data.items.crafts:
+		var recipe: Dictionary = data.items.crafts[craft_id]
+		var row := HBoxContainer.new()
+		var costs: Array = [recipe["scrap"], recipe["chips"]] if recipe["chips"] > 0 else [recipe["scrap"]]
+		row.add_child(_wrap(tr("ui.craft_" + craft_id) % costs, 16))
+		var make := UiTheme.button(tr("ui.craft"), func() -> void:
+			var made: Array[Item] = []
+			if Session.act(GameLoop.craft_item(Session.state, craft_id, Session.data, made)):
+				Session.toast.emit(tr("ui.crafted") % [UiText.item_name(made[0]), UiText.item_effect(made[0], Session.data.items)]))
+		make.disabled = state.scrap < recipe["scrap"] or state.chips < recipe["chips"]
+		row.add_child(make)
+		page.add_child(row)
+	page.add_child(HSeparator.new())
+	page.add_child(_wrap(tr("ui.bottles_title"), 22, UiTheme.PANEL_BORDER))
+	if state.bottles.is_empty():
+		page.add_child(_wrap(tr("ui.bottles_none"), 14, UiTheme.TEXT_DIM))
+	for bottle_id: String in state.bottles:
+		page.add_child(_wrap(tr("ui.bottle_line") % [UiText.name(bottle_id), data.items.bottles[bottle_id]["xp"], state.bottles[bottle_id]], 16))
+	page.add_child(HSeparator.new())
+	page.add_child(_wrap(tr("ui.inventory_title"), 22, UiTheme.PANEL_BORDER))
+	page.add_child(_wrap(tr("ui.inventory_note"), 14, UiTheme.TEXT_DIM))
+	for item: Item in state.inventory:
+		var row := HBoxContainer.new()
+		row.add_child(_wrap("%s — %s" % [UiText.item_name(item), UiText.item_effect(item, data.items)], 16))
+		if item.kind == Item.EQUIPMENT:
+			row.add_child(UiTheme.button(tr("ui.sell") % int(data.items.tiers[item.tier]["sell"]), func() -> void:
+				Session.act(GameLoop.sell_item(Session.state, item.uid, Session.data))))
+		page.add_child(row)
 
 
 func _buy_upgrade(upgrade_id: String) -> void:

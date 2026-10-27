@@ -760,9 +760,17 @@ func _draw_leaver(leaver: Dictionary) -> void:
 func _draw_synth(synth: Synth, at: Vector2) -> void:
 	var glow: Color = UiTheme.SPECIES_GLOW.get(synth.species_id, Color.CYAN)
 	draw_circle(Iso.to_world(at), 22, Color(glow, 0.18))
-	var head := _draw_body(at, Color("9aa3b8"), glow, synth.id, true)
-	var above := head + Vector2(0, -28)
 	var data := Session.data
+	var outfit := Items.worn(synth, "outfit", data)
+	var body := Color(data.items.fashion[outfit.type_id]["color"]) if outfit != null else Color("9aa3b8")
+	var head := _draw_body(at, body, glow, synth.id, true)
+	var hat := Items.worn(synth, "hat", data)
+	if hat != null:
+		var hat_color := Color(data.items.fashion[hat.type_id]["color"])
+		draw_rect(Rect2(head + Vector2(-13, -20), Vector2(26, 9)), hat_color)
+		draw_rect(Rect2(head + Vector2(-8, -27), Vector2(16, 8)), hat_color)
+		draw_rect(Rect2(head + Vector2(-13, -20), Vector2(26, 9)), hat_color.darkened(0.5), false, 1.5)
+	var above := head + Vector2(0, -38 if hat != null else -28)
 	_draw_bar(above + Vector2(0, 6), 34, synth.battery / SynthStats.stat(synth, "battery_max", data), _battery_color(synth, data))
 	_text(above + Vector2(0, -4), "Lv%d" % synth.level, 13, glow)
 	if synth.is_busy():
