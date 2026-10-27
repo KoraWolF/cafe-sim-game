@@ -44,7 +44,6 @@ func test_each_upgrade_applies() -> void:
 func test_upgrade_errors() -> void:
 	var data := TestFixtures.data()
 	var state := GameState.new_game(1, data)
-	assert_eq(GameLoop.buy_upgrade(state, "seat", data), GameLoop.WRONG_PHASE, "not during a shift")
 	state = _night(data)
 	assert_eq(GameLoop.buy_upgrade(state, "jacuzzi", data), GameLoop.UNKNOWN_UPGRADE, "unknown")
 	state.coins = 10

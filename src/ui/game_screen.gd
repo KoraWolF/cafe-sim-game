@@ -11,6 +11,7 @@ var cafe := CafeView.new()
 var hud := Hud.new()
 var night := NightHub.new()
 var edit_panel := EditPanel.new()
+var shop := ShopPanel.new()
 var report := ReportPanel.new()
 var battle := BattleView.new()
 var tutorial_box := TutorialBox.new()
@@ -31,6 +32,7 @@ func _ready() -> void:
 	layer.add_child(root)
 	root.add_child(night)
 	root.add_child(edit_panel)
+	root.add_child(shop)
 	root.add_child(hud)
 	root.add_child(report)
 	root.add_child(battle)
@@ -52,13 +54,16 @@ func _ready() -> void:
 	cafe.customer_hovered.connect(hud.show_customer_card)
 	cafe.editor_changed.connect(edit_panel.refresh)
 	cafe.edit_exit_requested.connect(exit_edit)
-	night.arrange_requested.connect(enter_edit)
+	hud.shop_requested.connect(open_shop)
+	hud.arrange_requested.connect(enter_edit)
+	shop.arrange_requested.connect(enter_edit)
+	shop.closed.connect(_layout)
 	edit_panel.done.connect(exit_edit)
 	hud.quit_to_menu.connect(func() -> void:
 		exit_edit()
 		SaveSystem.autosave(Session.state)
 		quit_to_menu.emit())
-	Session.phase_changed.connect(cafe.fit_camera)
+	Session.phase_changed.connect(_layout)
 
 
 func _process(delta: float) -> void:
@@ -124,15 +129,16 @@ func _numbered(key: String, count: int) -> Array[String]:
 	return names
 
 
-## Arranging the floor (night only): the hub steps aside for the edit panel.
+## Arranging the floor, at any time (the café keeps running in a shift): the
+## shop or night hub steps aside for the edit panel.
 func enter_edit() -> void:
-	if Session.state.phase != GameState.Phase.NIGHT:
+	if cafe.editor != null:
 		return
+	shop.visible = false
 	Session.editing = true
 	cafe.editor = FloorEditor.new()
-	night.visible = false
 	edit_panel.open(cafe.editor)
-	cafe.fit_camera(EditPanel.WIDTH + 30.0)
+	_layout()
 
 
 func exit_edit() -> void:
@@ -141,6 +147,32 @@ func exit_edit() -> void:
 	cafe.editor = null
 	Session.editing = false
 	edit_panel.visible = false
-	night.visible = Session.state.phase == GameState.Phase.NIGHT
 	night.refresh()
-	cafe.fit_camera()
+	_layout()
+
+
+## The shop, at any time; toggles from the top bar.
+func open_shop() -> void:
+	if shop.visible:
+		shop.close()
+		return
+	exit_edit()
+	shop.open()
+	_layout()
+
+
+## One panel on the right at a time: the edit panel, else the shop, else the
+## night hub at night. The camera fits the café beside it.
+func _layout() -> void:
+	night.visible = Session.state.phase == GameState.Phase.NIGHT and cafe.editor == null and not shop.visible
+	if night.visible:
+		night.refresh()
+	var panel := 0.0
+	if cafe.editor != null:
+		panel = EditPanel.WIDTH + 30.0
+	elif shop.visible:
+		panel = ShopPanel.WIDTH + 30.0
+	elif night.visible:
+		panel = CafeView.NIGHT_PANEL
+	cafe.fit_camera(panel)
+	hud.set_right_inset(panel)

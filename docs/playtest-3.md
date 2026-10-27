@@ -9,7 +9,7 @@ It is the café's electricity stock. At night it recharges Synths' batteries: 0.
 | # | Branch | What's in it | Status |
 | --- | --- | --- | --- |
 | 1 | `playtest-3-quick` | Pencil icon to rename, battery as %, max battery 70–200 rolled per unit, new Synths walk to their Pod at 70% on Rest, Power→Energy, Bin and throw-away (the counter bug), Auto button | built |
-| 2 | `live-build` | Shop, upgrades, décor and floor editing open at any time from the top bar (not only at night) | next |
+| 2 | `live-build` | Shop, upgrades, décor and floor editing open at any time from the top bar (not only at night) | built |
 | 3 | `tables` | Tables apart from seats, seats must face a table, dish shown and eaten on the table; starter café 8×8 with 3 tables, 3 chairs, 1 bin | |
 | 4 | `cashier` | Cashier role and cashier counter, everyone pays on the way out, star wait spot removed, start with 2 staff | |
 | 5 | `unit-cards` | New worker and customer cards, a draggable Details window (Work, Fight, Trait, Gear tabs), an Info button | |
@@ -43,9 +43,12 @@ It is the café's electricity stock. At night it recharges Synths' batteries: 0.
 - A MegaBean raid on the café still plays out and shows the report.
 - A quiet night shows only a toast.
 
-**Live building (branch 2)**
-- Buying, moving and selling furniture and décor (tables, seats, stoves, Pods and the rest) works at any time, not only at night.
-- The shop moves out of the night hub to the top bar.
+**Live building (branch 2, built)**
+- Buying, moving and selling furniture and décor (tables, seats, stoves, Pods and the rest) works at any time, not only at night. The café keeps running while you shop or arrange.
+- The top bar has **Shop** (Energy, café upgrades, décor) and **Arrange**. The night hub keeps Summary, Menu, Staff and Night Ops, and Energy moved into the Shop.
+- Pieces in use can always be **moved**, but can't be picked up or sold: a cooking stove or one with a waiting batch, a counter with food (or the last counter), a seat with a customer on it.
+- Still night only: the daily menu and planning a raid.
+- One panel on the right at a time (edit panel, shop, night hub). The Synth card opens beside it.
 
 **Tables (branch 3)**
 - A table is 1×1. A seat works only when it's beside a table (not diagonally) and rotated to face it.

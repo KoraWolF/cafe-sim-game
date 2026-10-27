@@ -118,6 +118,25 @@ func _run() -> void:
 		_session.advance(1)
 	print("CHECK a server emptied it: ", state.counter_count.get(full.uid, 0) == 0 and not state.discard.has(full.uid))
 
+	# Building mid-shift: the Shop and Arrange buttons on the top bar work while the café runs.
+	state.coins = 2000
+	await _click(_centre_of(game.hud.shop_button))
+	print("CHECK Shop button mid-shift -> shop open: ", game.shop.visible and state.phase == GameState.Phase.SHIFT)
+	_shot("04e_shop_mid_shift")
+	var seats_before: int = state.upgrades.get(Upgrade.SEAT, 0)
+	var seat_buy: Button = null
+	for row: Node in game.shop._page.get_children():
+		if row is HBoxContainer and row.get_child(0) is Label 				and (row.get_child(0) as Label).text.begins_with(UiText.name(Upgrade.SEAT)):
+			seat_buy = row.get_child(1)
+	await _click(_centre_of(seat_buy))
+	print("CHECK buy a seat mid-shift -> bought and placed: ", state.upgrades.get(Upgrade.SEAT, 0) == seats_before + 1
+		and state.storage.get("seat", 0) == 0)
+	await _click(_centre_of(game.hud.arrange_button))
+	print("CHECK Arrange mid-shift -> editing, shop closed: ", game.cafe.editor != null and not game.shop.visible)
+	game.edit_panel.done.emit()
+	await _frames(3)
+	print("CHECK Done mid-shift -> no night hub: ", game.cafe.editor == null and not game.night.visible)
+
 	# Play the rest of the shift, cooking for demand and converting stars.
 	while state.phase == GameState.Phase.SHIFT:
 		for i: int in state.stoves.size():
@@ -130,7 +149,7 @@ func _run() -> void:
 			await _frames(3)
 			_shot("05_busy_shift")
 	await _frames(5)
-	for tab: int in 5:
+	for tab: int in 4:
 		game.night._tabs.current_tab = tab
 		await _frames(3)
 		_shot("06_night_tab_%d" % tab)
@@ -168,7 +187,7 @@ func _run() -> void:
 	var raider := state.synths[-1]
 	GameLoop.plan_raid(state, "megabean_kiosk", [raider.id] as Array[String], data)
 	_session.state_changed.emit()
-	game.night._tabs.current_tab = 4
+	game.night._tabs.current_tab = 3
 	await _frames(3)
 	_shot("07_night_ops_planned")
 	# Settings: a real click on the Music slider's left end turns music down, and it is saved.
