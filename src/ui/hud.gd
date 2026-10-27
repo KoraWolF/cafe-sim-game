@@ -169,6 +169,9 @@ func _feed_line(text: String, color: Color) -> void:
 func open_recipe_menu(stove_index: int, at: Vector2) -> void:
 	var state := Session.state
 	var data := Session.data
+	if state.stoves[stove_index].has_batch():
+		show_toast(tr("ui.stove_waiting"))
+		return
 	if not state.stoves[stove_index].is_idle():
 		show_toast(UiText.error(GameLoop.STOVE_BUSY))
 		return

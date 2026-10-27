@@ -365,6 +365,8 @@ static func _can_remove(state: GameState, placed: PlacedPiece, data: GameData) -
 		Piece.COUNTER:
 			if count_placed(state, Piece.COUNTER, data) <= 1:
 				return GameLoop.COUNTER_NEEDED
+			if Counters.dish_on(state, placed.uid) != "":
+				return GameLoop.COUNTER_BUSY
 	return GameLoop.OK
 
 
@@ -373,6 +375,8 @@ static func _remove(state: GameState, placed: PlacedPiece, data: GameData) -> vo
 	var stove := stove_of(state, placed.uid)
 	if stove != null:
 		state.stoves.erase(stove)
+	state.counter_dish.erase(placed.uid)
+	state.counter_count.erase(placed.uid)
 	refresh(state, data)
 
 

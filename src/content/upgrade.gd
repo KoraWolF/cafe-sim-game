@@ -3,9 +3,11 @@ extends RefCounted
 ## A café upgrade bought at night. Its id says what it adds (see IDS); the
 ## numbers come from /data/upgrades.json.
 
-## Stove and seat upgrades put a piece in storage, to be placed on the floor.
+## Stove, counter and seat upgrades put a piece in storage, to be placed on the floor.
 ## Pod upgrades add a Sync Pod to the Pod bay outside the café.
 const STOVE: String = "stove"
+## One more counter (each holds one dish).
+const COUNTER: String = "counter"
 const SEAT: String = "seat"
 const POD: String = "pod"
 ## More floor rows.
@@ -14,7 +16,7 @@ const FLOOR: String = "floor"
 const MENU_SLOT: String = "menu_slot"
 ## Extra HP for each home defender.
 const SECURITY: String = "security"
-const IDS: Array[String] = [STOVE, SEAT, POD, MENU_SLOT, FLOOR, SECURITY]
+const IDS: Array[String] = [STOVE, COUNTER, SEAT, POD, MENU_SLOT, FLOOR, SECURITY]
 
 var id: String = ""
 ## How much one purchase adds.

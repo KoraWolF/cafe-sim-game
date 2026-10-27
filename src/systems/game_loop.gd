@@ -42,6 +42,7 @@ const OUT_OF_BOUNDS: String = "out_of_bounds"
 const OVERLAP: String = "overlap"
 const UNKNOWN_PLACED: String = "unknown_placed"
 const COUNTER_NEEDED: String = "counter_needed"
+const COUNTER_BUSY: String = "counter_busy"
 const EMPTY_NAME: String = "empty_name"
 const NAME_TOO_LONG: String = "name_too_long"
 const MAXED: String = "maxed"
@@ -172,7 +173,7 @@ static func buy_upgrade(state: GameState, upgrade_id: String, data: GameData) ->
 		return MAXED
 	if state.coins < cost:
 		return NOT_ENOUGH_COINS
-	var furniture := [Upgrade.STOVE, Upgrade.SEAT].has(upgrade_id)
+	var furniture := [Upgrade.STOVE, Upgrade.COUNTER, Upgrade.SEAT].has(upgrade_id)
 	if furniture and Layout.find_spot(state, upgrade_id, data).is_empty():
 		return NO_ROOM
 	state.coins -= cost
@@ -240,14 +241,14 @@ static func rename_synth(state: GameState, synth_id: String, new_name: String) -
 	return OK
 
 
-## A server carrying a dish has to finish the delivery first.
+## A server carrying a dish or a batch has to finish the trip first.
 static func assign_role(state: GameState, synth_id: String, role: String) -> String:
 	var synth := state.synth_by_id(synth_id)
 	if synth == null:
 		return UNKNOWN_SYNTH
 	if not Synth.ROLES.has(role):
 		return UNKNOWN_ROLE
-	if synth.is_delivering():
+	if synth.is_busy():
 		return SYNTH_BUSY
 	synth.role = role
 	return OK

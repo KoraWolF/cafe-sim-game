@@ -402,34 +402,33 @@ func _draw_piece(placed: PlacedPiece) -> void:
 	var label_at := Iso.centre(placed.cell, Vector2i(size)) - Vector2(0, HEIGHTS.get(piece.kind, 20.0) + 6)
 	if piece.kind == Piece.STOVE:
 		var stove := Layout.stove_of(Session.state, placed.uid)
-		if stove != null and not stove.is_idle():
+		if stove != null and stove.has_batch():
+			# Waiting for a server to carry it to a counter.
+			_draw_cups(label_at + Vector2(0, 6), stove.recipe_id, stove.ready, true)
+		elif stove != null and not stove.is_idle():
 			var recipe := data.recipes[stove.recipe_id]
 			_draw_bar(label_at + Vector2(0, -10), 60, 1.0 - stove.remaining / recipe.cook_seconds, UiTheme.WARN)
 			_text(label_at + Vector2(0, -20), UiText.name(recipe.id), 14, UiTheme.TEXT)
 	elif piece.kind == Piece.DECOR:
 		_text(label_at, UiText.name(piece.id), 12, UiTheme.TEXT_DIM)
-	elif piece.kind == Piece.COUNTER and placed == _first_counter(Session.state, data):
-		_draw_dishes_on(placed, size, HEIGHTS["counter"])
+	elif piece.kind == Piece.COUNTER:
+		var state := Session.state
+		_draw_cups(Iso.centre(placed.cell, Vector2i(size)) - Vector2(0, HEIGHTS["counter"]),
+			state.counter_dish.get(placed.uid, ""), state.counter_count.get(placed.uid, 0), false)
 
 
-## Ready dishes stacked on the counter: a cup per serving (up to 6 per dish) and a count.
-func _draw_dishes_on(placed: PlacedPiece, size: Vector2, height: float) -> void:
-	var state := Session.state
-	var ready: Array[String] = []
-	for recipe_id: String in state.counter:
-		if state.counter[recipe_id] > 0:
-			ready.append(recipe_id)
-	var top := Iso.centre(placed.cell, Vector2i(size)) - Vector2(0, height)
-	for i: int in ready.size():
-		var recipe_id := ready[i]
-		var spot := top + Vector2((i - (ready.size() - 1) * 0.5) * 64.0, 0)
-		var color := Color.from_hsv(fmod(recipe_id.hash() * 0.618, 1.0), 0.55, 0.95)
-		for cup: int in mini(state.counter[recipe_id], 6):
-			var at := spot + Vector2(0, -cup * 6.0)
-			draw_rect(Rect2(at + Vector2(-8, -8), Vector2(16, 8)), color)
-			draw_rect(Rect2(at + Vector2(-8, -8), Vector2(16, 8)), color.darkened(0.5), false, 1.5)
-		_text(spot + Vector2(0, -mini(state.counter[recipe_id], 6) * 6.0 - 14), "%s %d" % [UiText.name(recipe_id).left(6),
-			state.counter[recipe_id]], 12, UiTheme.TEXT)
+## A stack of cups (one per serving, up to 6) with the dish name and count above;
+## on a stove the label reads "Ready ×N".
+func _draw_cups(at: Vector2, recipe_id: String, count: int, on_stove: bool) -> void:
+	if recipe_id == "" or count <= 0:
+		return
+	var color := Color.from_hsv(fmod(recipe_id.hash() * 0.618, 1.0), 0.55, 0.95)
+	for cup: int in mini(count, 6):
+		var spot := at + Vector2(0, -cup * 6.0)
+		draw_rect(Rect2(spot + Vector2(-8, -8), Vector2(16, 8)), color)
+		draw_rect(Rect2(spot + Vector2(-8, -8), Vector2(16, 8)), color.darkened(0.5), false, 1.5)
+	var label := tr("ui.stove_ready") % count if on_stove else "%s %d" % [UiText.name(recipe_id).left(7), count]
+	_text(at + Vector2(0, -mini(count, 6) * 6.0 - 14), label, 12, UiTheme.WARN if on_stove else UiTheme.TEXT)
 
 
 static func piece_color(piece: Piece) -> Color:
@@ -559,8 +558,15 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 			Synth.SERVER:
 				at = pass_point + Vector2(0.7 * index, 0.4)
 				if synth.is_delivering():
+					# From the counter the dish came from to the customer's seat.
 					var progress := clampf(1.0 - synth.task_remaining / data.balance.delivery_seconds, 0.0, 1.0)
-					at = at.lerp(_seat_position(synth.task_customer_id, state, data) + Vector2(0.3, 0.3), progress)
+					var from := _piece_front(synth.task_counter_uid, state, data, at)
+					at = from.lerp(_seat_position(synth.task_customer_id, state, data) + Vector2(0.3, 0.3), progress)
+				elif synth.is_carrying():
+					# From the stove to the counter, carrying the batch.
+					var progress := clampf(1.0 - synth.task_remaining / data.balance.carry_seconds, 0.0, 1.0)
+					at = _piece_front(synth.task_stove_uid, state, data, at).lerp(
+						_piece_front(synth.task_counter_uid, state, data, at), progress)
 			Synth.CHEF:
 				at = _stove_front(index, state, data)
 			Synth.GREETER:
@@ -591,6 +597,15 @@ func _pass_point(state: GameState, data: GameData) -> Vector2:
 	if state.stoves.is_empty():
 		return Vector2(1, 1)
 	return _stove_front(0, state, data) + Vector2(0.4, 0.5)
+
+
+## The floor point in front of a placed piece (or fallback if it is gone).
+func _piece_front(uid: String, state: GameState, data: GameData, fallback: Vector2) -> Vector2:
+	var placed := Layout.placed_by_uid(state, uid)
+	if placed == null:
+		return fallback
+	var size := Vector2(data.pieces[placed.piece_id].footprint(placed.rotated))
+	return Vector2(placed.cell) + Vector2(size.x * 0.5, size.y + 0.35)
 
 
 func _first_counter(state: GameState, data: GameData) -> PlacedPiece:
@@ -640,8 +655,10 @@ func _draw_synth(synth: Synth, at: Vector2) -> void:
 	var data := Session.data
 	_draw_bar(above + Vector2(0, 6), 34, synth.battery / SynthStats.stat(synth, "battery_max", data), _battery_color(synth, data))
 	_text(above + Vector2(0, -4), "Lv%d" % synth.level, 13, glow)
-	if synth.is_delivering():
+	if synth.is_busy():
 		draw_circle(head + Vector2(16, 18), 7, Color.WHITE)
+		if synth.is_carrying():
+			draw_circle(head + Vector2(20, 12), 6, Color.WHITE)
 
 
 ## Shadow, body and head of a chibi; returns the head position. Synths get a visor.

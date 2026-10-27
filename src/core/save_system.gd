@@ -17,7 +17,8 @@ extends RefCounted
 ##    longer saved, they come from the floor.
 ## 6: the counter piece (older saves get one placed on load).
 ## 7: Sync Pods leave the floor for the Pod bay: saved as a count again.
-const VERSION: int = 7
+## 8: 1x1 counters holding one dish each; batches wait on stoves to be carried.
+const VERSION: int = 8
 const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
 
@@ -50,6 +51,8 @@ static func to_dict(state: GameState) -> Dictionary:
 		"upgrades": state.upgrades,
 		"stoves": state.stoves.map(func(stove: Stove) -> Dictionary: return stove.to_dict()),
 		"counter": state.counter,
+		"counter_dish": state.counter_dish,
+		"counter_count": state.counter_count,
 		"menu": state.menu,
 		"menu_slots": state.menu_slots,
 		"customers": state.customers.map(func(customer: Customer) -> Dictionary: return customer.to_dict()),
@@ -100,6 +103,14 @@ static func from_dict(raw: Dictionary) -> GameState:
 	if counter is Dictionary:
 		for recipe_id: Variant in counter:
 			state.counter[str(recipe_id)] = int(counter[recipe_id])
+	var dishes: Variant = raw.get("counter_dish", {})
+	if dishes is Dictionary:
+		for counter_uid: Variant in dishes:
+			state.counter_dish[str(counter_uid)] = str(dishes[counter_uid])
+	var counts: Variant = raw.get("counter_count", {})
+	if counts is Dictionary:
+		for counter_uid: Variant in counts:
+			state.counter_count[str(counter_uid)] = int(counts[counter_uid])
 	var menu: Variant = raw.get("menu", [])
 	if menu is Array:
 		for recipe_id: Variant in menu:
@@ -219,6 +230,10 @@ static func _migrate_step(version: int, raw: Dictionary) -> Dictionary:
 				storage.erase("pod")
 			raw["pods"] = pods
 			return raw
+		7:
+			# Counters held a shared pool: spread it over the counters on load (see Counters).
+			raw["needs_counter_fill"] = true
+			return raw
 	return {}
 
 
@@ -318,6 +333,23 @@ static func validate(state: GameState, data: GameData) -> PackedStringArray:
 			errors.append("customer '%s': served by unknown Synth" % customer.id)
 	if state.phase == GameState.Phase.NIGHT and not state.customers.is_empty():
 		errors.append("customers in the café at night")
+	for counter_uid: String in state.counter_count:
+		var counter := Layout.placed_by_uid(state, counter_uid)
+		if counter == null or data.pieces[counter.piece_id].kind != Piece.COUNTER or state.counter_count[counter_uid] <= 0 \
+				or not data.recipes.has(state.counter_dish.get(counter_uid, "")):
+			errors.append("bad counter contents on '%s'" % counter_uid)
+	for stove: Stove in state.stoves:
+		if stove.has_batch() and not data.recipes.has(stove.recipe_id):
+			errors.append("stove '%s': ready batch of an unknown dish" % stove.piece_uid)
+		if stove.carrier != "":
+			var carrier := state.synth_by_id(stove.carrier)
+			if carrier == null or carrier.task_stove_uid != stove.piece_uid:
+				errors.append("stove '%s': broken carrier" % stove.piece_uid)
+	for synth: Synth in state.synths:
+		if synth.is_carrying():
+			var stove := Layout.stove_of(state, synth.task_stove_uid)
+			if stove == null or stove.carrier != synth.id or Layout.placed_by_uid(state, synth.task_counter_uid) == null:
+				errors.append("Synth '%s': broken carry" % synth.id)
 	for synth: Synth in state.synths:
 		if synth.is_delivering():
 			var customer := state.customer_by_id(synth.task_customer_id)
@@ -440,5 +472,9 @@ static func _load_one(path: String, data: GameData, errors: PackedStringArray) -
 		while not Layout.auto_place(state, Piece.COUNTER, data):
 			state.floor_rows += 2
 	Layout.refresh(state, data)
+	if current.get("needs_counter_fill", false):
+		Counters.fill_from_pool(state, data)
+	elif Counters.in_use(state, data):
+		Counters.recount(state)
 	errors.append_array(validate(state, data))
 	return null if not errors.is_empty() else state

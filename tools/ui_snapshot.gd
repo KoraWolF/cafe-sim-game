@@ -73,6 +73,7 @@ func _run() -> void:
 
 	var stove: PlacedPiece = Layout.placed_by_uid(state, state.stoves[0].piece_uid)
 	state.stoves[0].recipe_id = ""
+	state.stoves[0].ready = 0
 	await _click(canvas * Iso.centre(stove.cell, Vector2i(2, 1)))
 	print("CHECK click stove -> recipe menu open: ", game.hud._recipe_menu.visible)
 	_shot("04_recipe_menu")

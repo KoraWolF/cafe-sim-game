@@ -2,6 +2,7 @@
 	{"id": "stove", "step": 1, "base_cost": 150, "cost_growth": 1.9, "max_level": 4},
 	{"id": "seat", "step": 1, "base_cost": 60, "cost_growth": 1.5, "max_level": 8},
 	{"id": "pod", "step": 1, "base_cost": 200, "cost_growth": 1.6, "max_level": 8},
+	{"id": "counter", "step": 1, "base_cost": 120, "cost_growth": 1.6, "max_level": 4},
 	{"id": "menu_slot", "step": 1, "base_cost": 250, "cost_growth": 2.0, "max_level": 2},
 	{"id": "floor", "step": 2, "base_cost": 500, "cost_growth": 2.0, "max_level": 4},
 	{"id": "security", "step": 15, "base_cost": 120, "cost_growth": 1.5, "max_level": 5}

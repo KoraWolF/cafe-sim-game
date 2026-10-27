@@ -30,6 +30,8 @@ var star_threshold: float = 80.0
 var star_window_seconds: int = 20
 ## Seconds a speed 1.0 server needs to carry a dish to a table.
 var delivery_seconds: int = 6
+## Seconds a speed 1.0 server needs to carry a finished batch from a stove to a counter.
+var carry_seconds: int = 3
 var eat_seconds: int = 15
 ## Tip = price * tip_rate * type tip * (1 + server tip bonus), only for starred customers.
 var tip_rate: float = 0.25
