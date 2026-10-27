@@ -42,6 +42,7 @@ const OUT_OF_BOUNDS: String = "out_of_bounds"
 const OVERLAP: String = "overlap"
 const UNKNOWN_PLACED: String = "unknown_placed"
 const POD_IN_USE: String = "pod_in_use"
+const COUNTER_NEEDED: String = "counter_needed"
 const MAXED: String = "maxed"
 
 

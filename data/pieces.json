@@ -2,6 +2,7 @@
 	{"id": "seat", "kind": "seat", "size": [1, 1], "tags": ["seat"]},
 	{"id": "stove", "kind": "stove", "size": [2, 1], "tags": ["kitchen"]},
 	{"id": "pod", "kind": "pod", "size": [1, 2], "tags": ["tech"]},
+	{"id": "counter", "kind": "counter", "size": [2, 1], "tags": ["kitchen"]},
 
 	{"id": "potted_fern", "kind": "decor", "size": [1, 1], "price": 100, "vibe": 3, "tags": ["plant"]},
 	{"id": "bubble_lamp", "kind": "decor", "size": [1, 1], "price": 180, "vibe": 4, "tags": ["light", "cozy"]},

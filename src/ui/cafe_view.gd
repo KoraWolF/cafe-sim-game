@@ -24,9 +24,9 @@ signal editor_changed
 ## Esc pressed while editing with nothing in hand.
 signal edit_exit_requested
 
-const HEIGHTS: Dictionary[String, float] = {"seat": 14.0, "stove": 30.0, "pod": 56.0, "decor": 22.0}
+const HEIGHTS: Dictionary[String, float] = {"seat": 14.0, "stove": 30.0, "pod": 56.0, "counter": 26.0, "decor": 22.0}
 const KIND_COLORS: Dictionary[String, Color] = {
-	"seat": Color("8a6a4a"), "stove": Color("8c95a8"), "pod": Color("5a6a9a"),
+	"seat": Color("8a6a4a"), "stove": Color("8c95a8"), "pod": Color("5a6a9a"), "counter": Color("c9a27a"),
 }
 const HEAD_HIT_RADIUS: float = 30.0
 const DRAG_THRESHOLD: float = 8.0
@@ -381,6 +381,28 @@ func _draw_piece(placed: PlacedPiece) -> void:
 			_text(label_at + Vector2(0, -20), UiText.name(recipe.id), 14, UiTheme.TEXT)
 	elif piece.kind == Piece.DECOR:
 		_text(label_at, UiText.name(piece.id), 12, UiTheme.TEXT_DIM)
+	elif piece.kind == Piece.COUNTER and placed == _first_counter(Session.state, data):
+		_draw_dishes_on(placed, size, HEIGHTS["counter"])
+
+
+## Ready dishes stacked on the counter: a cup per serving (up to 6 per dish) and a count.
+func _draw_dishes_on(placed: PlacedPiece, size: Vector2, height: float) -> void:
+	var state := Session.state
+	var ready: Array[String] = []
+	for recipe_id: String in state.counter:
+		if state.counter[recipe_id] > 0:
+			ready.append(recipe_id)
+	var top := Iso.centre(placed.cell, Vector2i(size)) - Vector2(0, height)
+	for i: int in ready.size():
+		var recipe_id := ready[i]
+		var spot := top + Vector2((i - (ready.size() - 1) * 0.5) * 30.0, 0)
+		var color := Color.from_hsv(fmod(recipe_id.hash() * 0.618, 1.0), 0.55, 0.95)
+		for cup: int in mini(state.counter[recipe_id], 6):
+			var at := spot + Vector2(0, -cup * 6.0)
+			draw_rect(Rect2(at + Vector2(-8, -8), Vector2(16, 8)), color)
+			draw_rect(Rect2(at + Vector2(-8, -8), Vector2(16, 8)), color.darkened(0.5), false, 1.5)
+		_text(spot + Vector2(0, -mini(state.counter[recipe_id], 6) * 6.0 - 14), "%s %d" % [UiText.name(recipe_id).left(6),
+			state.counter[recipe_id]], 12, UiTheme.TEXT)
 
 
 static func piece_color(piece: Piece) -> Color:
@@ -515,11 +537,23 @@ func _seat_position(customer_id: String, state: GameState, data: GameData) -> Ve
 	return Vector2(placed.cell) + Vector2(0.5, 0.5)
 
 
-## Where servers pick up dishes: in front of the first stove.
+## Where servers pick up dishes: in front of the first counter (or the first
+## stove in a café without one).
 func _pass_point(state: GameState, data: GameData) -> Vector2:
+	var counter := _first_counter(state, data)
+	if counter != null:
+		var size := Vector2(data.pieces[counter.piece_id].footprint(counter.rotated))
+		return Vector2(counter.cell) + Vector2(size.x * 0.5, size.y + 0.4)
 	if state.stoves.is_empty():
 		return Vector2(1, 1)
 	return _stove_front(0, state, data) + Vector2(0.4, 0.5)
+
+
+func _first_counter(state: GameState, data: GameData) -> PlacedPiece:
+	for placed: PlacedPiece in state.placed:
+		if data.pieces[placed.piece_id].kind == Piece.COUNTER:
+			return placed
+	return null
 
 
 func _stove_front(index: int, state: GameState, data: GameData) -> Vector2:
@@ -585,7 +619,10 @@ func _draw_body(at: Vector2, body: Color, head_color: Color, person_id: String, 
 	return head
 
 
+## Ready dishes as text, only for a café without a counter piece (the counter draws them).
 func _draw_counter(state: GameState, data: GameData) -> void:
+	if _first_counter(state, data) != null:
+		return
 	var at := Iso.to_world(_pass_point(state, data)) + Vector2(-150, 10)
 	var lines: Array[String] = []
 	for recipe_id: String in state.counter:

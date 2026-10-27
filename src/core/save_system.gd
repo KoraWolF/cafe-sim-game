@@ -15,7 +15,8 @@ extends RefCounted
 ## 4: daily menu and menu slots.
 ## 5: the café floor (placed pieces, storage, floor rows); seats and Pods are no
 ##    longer saved, they come from the floor.
-const VERSION: int = 5
+## 6: the counter piece (older saves get one placed on load).
+const VERSION: int = 6
 const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
 
@@ -193,6 +194,10 @@ static func _migrate_step(version: int, raw: Dictionary) -> Dictionary:
 			raw["floor_rows"] = 6
 			raw["placed"] = []
 			raw["storage"] = {}
+			return raw
+		5:
+			# Before the counter: one is placed on load (needs GameData, see _add_counter).
+			raw["needs_counter"] = true
 			return raw
 	return {}
 
@@ -413,6 +418,9 @@ static func _load_one(path: String, data: GameData, errors: PackedStringArray) -
 	var state := from_dict(current)
 	if current.get("needs_layout", false):
 		_lay_out_old(state, current, data)
+	if current.get("needs_counter", false) and Layout.count_placed(state, Piece.COUNTER, data) == 0:
+		while not Layout.auto_place(state, Piece.COUNTER, data):
+			state.floor_rows += 2
 	Layout.refresh(state, data)
 	errors.append_array(validate(state, data))
 	return null if not errors.is_empty() else state

@@ -102,7 +102,7 @@ static func move(state: GameState, uid: String, cell: Vector2i, rotated: bool, d
 	return GameLoop.OK
 
 
-## Back to storage. A cooking stove, or a Pod a Synth needs, stays put.
+## Back to storage. A cooking stove, a Pod a Synth needs, or the last counter stays put.
 static func pick_up(state: GameState, uid: String, data: GameData) -> String:
 	var placed := placed_by_uid(state, uid)
 	if placed == null:
@@ -294,6 +294,9 @@ static func _can_remove(state: GameState, placed: PlacedPiece, data: GameData) -
 		Piece.POD:
 			if state.synths.size() > state.pods - 1:
 				return GameLoop.POD_IN_USE
+		Piece.COUNTER:
+			if count_placed(state, Piece.COUNTER, data) <= 1:
+				return GameLoop.COUNTER_NEEDED
 	return GameLoop.OK
 
 
