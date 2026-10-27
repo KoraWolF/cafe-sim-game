@@ -237,3 +237,4 @@ ui.door_open,OPEN
 ui.door_closed,CLOSED
 ui.call_board_1,Starred?
 ui.call_board_2,Wait here!
+error.counter_needed,The café needs at least one counter for finished dishes.

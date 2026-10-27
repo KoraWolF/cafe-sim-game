@@ -47,6 +47,8 @@ var start_power: float = 50.0
 var start_seats: int = 4
 var start_stoves: int = 2
 var start_pods: int = 2
+## Counters a new game starts with (0 only in tests that lay out by hand).
+var start_counters: int = 1
 ## Dishes the player can put on the daily menu.
 var start_menu_slots: int = 2
 ## The café floor: floor_width tiles across, start_floor_rows deep (the floor
