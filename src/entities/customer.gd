@@ -23,6 +23,9 @@ enum Stage {
 @export var served_by: String = ""
 ## Tip bonus of the Synth who served the dish.
 @export var tip_bonus: float = 0.0
+## The trait this customer brings if converted, rolled on arrival so the player
+## can choose who to convert ("" = no trait; older saves roll at conversion).
+@export var trait_id: String = ""
 
 
 func is_seated() -> bool:
@@ -31,7 +34,8 @@ func is_seated() -> bool:
 
 func to_dict() -> Dictionary:
 	return {"id": id, "type_id": type_id, "stage": stage, "satisfaction": satisfaction, "waited": waited,
-		"timer": timer, "recipe_id": recipe_id, "served_by": served_by, "tip_bonus": tip_bonus}
+		"timer": timer, "recipe_id": recipe_id, "served_by": served_by, "tip_bonus": tip_bonus,
+		"trait_id": trait_id}
 
 
 static func from_dict(values: Dictionary) -> Customer:
@@ -45,4 +49,5 @@ static func from_dict(values: Dictionary) -> Customer:
 	customer.recipe_id = str(values.get("recipe_id", ""))
 	customer.served_by = str(values.get("served_by", ""))
 	customer.tip_bonus = float(values.get("tip_bonus", 0.0))
+	customer.trait_id = str(values.get("trait_id", ""))
 	return customer

@@ -75,6 +75,11 @@ static func place(state: GameState, piece_id: String, cell: Vector2i, rotated: b
 	return GameLoop.OK
 
 
+## Puts a piece (not from storage) at cell; the caller has checked the spot.
+static func place_new(state: GameState, piece_id: String, cell: Vector2i, rotated: bool, data: GameData) -> void:
+	_put(state, piece_id, cell, rotated, data)
+
+
 ## Puts a piece (not from storage) on the first free spot. False if the floor is full.
 static func auto_place(state: GameState, piece_id: String, data: GameData) -> bool:
 	var spot := find_spot(state, piece_id, data)

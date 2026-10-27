@@ -154,6 +154,7 @@ func _fill_upgrades(page: VBoxContainer) -> void:
 		name.mouse_filter = Control.MOUSE_FILTER_PASS
 		row.add_child(buy)
 		page.add_child(row)
+		page.add_child(_indent(_wrap(tr("tip.upgrade." + upgrade_id), 14, UiTheme.TEXT_DIM)))
 	page.add_child(HSeparator.new())
 	page.add_child(_wrap(tr("ui.decor_title"), 22, UiTheme.PANEL_BORDER))
 	page.add_child(_wrap(tr("ui.floor_line") % [data.balance.floor_width, state.floor_rows, roundi(state.vibe)], 16, UiTheme.TEXT_DIM))
@@ -240,6 +241,7 @@ func _fill_ops(page: VBoxContainer) -> void:
 		page.add_child(_wrap(tr("ui.ops_audit") % roundi(b.audit_suspicion), 18, UiTheme.BAD))
 	else:
 		page.add_child(_wrap(tr("ui.ops_defense") % roundi(100.0 * NightOps.defense_chance(state, b)), 16, UiTheme.WARN))
+	page.add_child(_wrap(tr("ui.ops_security") % [state.upgrades.get(Upgrade.SECURITY, 0), roundi(state.security)], 15, UiTheme.TEXT_DIM))
 	page.add_child(HSeparator.new())
 	var targets := NightOps.raid_targets(state, data)
 	if targets.is_empty():

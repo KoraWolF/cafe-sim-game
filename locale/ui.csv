@@ -207,3 +207,33 @@ tip.role.server,Carries dishes from the counter to the tables (uses speed).
 tip.role.chef,Makes every stove cook faster (uses cooking).
 tip.role.greeter,Brings customers in more often (uses appeal).
 tip.role.rest,Off duty: no work and no battery drain.
+ui.cancel,Cancel
+ui.confirm_convert,Convert this %s into a %s (trait: %s)?
+ui.confirm_convert_details,"Uses 1 NanoBrew (%d → %d) and a Sync Pod (%d / %d). Suspicion goes up."
+ui.confirm_convert_yes,Use NanoBrew
+ui.card_role_now,"%s: %s"
+ui.card_stats,"Speed %.1f · Cooking +%d%% · Appeal +%d%% · Power %d · HP %d"
+ui.ops_security,"Security level %d: every Synth defending the café at night gets +%d HP."
+customer.stage_0,Waiting in line for a seat
+customer.stage_1,Seated and waiting for food
+customer.stage_2,Eating
+customer.stage_3,Loved it! (star)
+customer.order,Order: %s%s
+customer.favourite, (favourite!)
+customer.mood,Mood: %d%%
+customer.converts,"Converts to: %s — %s"
+customer.click_convert,Click to convert with NanoBrew.
+species.clerkbot.desc,"Clerkbot: a fast, steady server, but slows down late in the shift."
+species.bulkform.desc,"Bulkform: strong with a big battery — great raider, but clumsy: sometimes drops dishes."
+species.glitchling.desc,"Glitchling: cooks very fast as a chef, but glitches now and then."
+species.hypeform.desc,"Hypeform: a greeter that brings more customers, but works slowly."
+species.steady_unit.desc,"Steady-unit: good at anything and barely uses battery, but slow."
+species.xeno.desc,"Xeno: a strong chef that unlocks Star Jelly, but needs special fuel (recharging costs 3× Power)."
+trait.night_owl.desc,"Night Owl: works faster late in the shift instead of slower, +3 power in fights."
+trait.perfectionist.desc,"Perfectionist: dishes it serves make customers happier (+10), but it works 15% slower."
+trait.chatty.desc,"Chatty: dishes it serves earn bigger tips (+30%) and it greets a little, but works 10% slower."
+trait.kleptomaniac.desc,"Kleptomaniac: brings back 30% more raid loot, but may pocket 10 coins at night."
+ui.door_open,OPEN
+ui.door_closed,CLOSED
+ui.call_board_1,Starred?
+ui.call_board_2,Wait here!

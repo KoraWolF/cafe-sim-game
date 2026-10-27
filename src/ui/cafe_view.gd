@@ -17,6 +17,8 @@ extends Node2D
 signal stove_clicked(stove_index: int, screen_position: Vector2)
 signal synth_clicked(synth_id: String)
 signal customer_clicked(customer_id: String)
+## The mouse moved onto a customer ("" when it left them), with the screen position.
+signal customer_hovered(customer_id: String, screen_position: Vector2)
 ## Floor editing: the held piece or the floor changed (the edit panel refreshes).
 signal editor_changed
 ## Esc pressed while editing with nothing in hand.
@@ -28,6 +30,8 @@ const KIND_COLORS: Dictionary[String, Color] = {
 }
 const HEAD_HIT_RADIUS: float = 30.0
 const DRAG_THRESHOLD: float = 8.0
+## Customers walk this many tiles per second at 1x.
+const WALK_SPEED: float = 3.0
 ## Screen space taken by the HUD's top bar and the night hub.
 const TOP_BAR: float = 50.0
 const NIGHT_PANEL: float = 790.0
@@ -36,6 +40,14 @@ const NIGHT_PANEL: float = 790.0
 var editor: FloorEditor = null
 var seats := SeatMap.new()
 var _hover := Vector2i(-100, -100)
+## Where each customer is drawn (cell units); they walk toward where the game puts them.
+var _walk: Dictionary[String, Vector2] = {}
+## Customers who left the café, still walking out: id -> {"at", "type_id", "angry"}.
+var _leaving: Dictionary[String, Dictionary] = {}
+var _walk_delta: float = 0.0
+var _walk_types: Dictionary[String, String] = {}
+## Customers who left angry (they stomp out with a red mark).
+var _angry: Dictionary[String, bool] = {}
 ## Short-lived feedback drawn over the café: {"kind", "at", "age", "life", "text", "color"}.
 var _effects: Array[Dictionary] = []
 var camera := Camera2D.new()
@@ -58,6 +70,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_time += delta
+	_walk_delta = delta
 	for effect: Dictionary in _effects:
 		effect["age"] += delta
 	_effects = _effects.filter(func(effect: Dictionary) -> bool: return effect["age"] < effect["life"])
@@ -67,6 +80,8 @@ func _process(delta: float) -> void:
 ## Coin pop-ups over paying customers and level-up rings. Heads are from the
 ## last frame, so a customer who just left can still be found.
 func _on_shift_advanced(events: Shift.Events) -> void:
+	for customer_id: String in events.left_angry:
+		_angry[customer_id] = true
 	for customer_id: String in events.payments:
 		if _heads.has(customer_id):
 			_effects.append({"kind": "pop", "at": _heads[customer_id] + Vector2(0, -50), "age": 0.0, "life": 1.2,
@@ -129,7 +144,7 @@ func fit_camera(right_panel := -1.0) -> void:
 func floor_rect() -> Rect2:
 	var size := Vector2(Session.data.balance.floor_width, Session.state.floor_rows)
 	var points := [Iso.to_world(Vector2.ZERO), Iso.to_world(Vector2(size.x, 0)), Iso.to_world(size),
-		Iso.to_world(Vector2(0, size.y)), Iso.to_world(Vector2(size.x + 5, size.y))]
+		Iso.to_world(Vector2(0, size.y)), Iso.to_world(Vector2(size.x + 5, size.y)), Iso.to_world(Vector2(size.x + 2, 0))]
 	var rect := Rect2(points[0], Vector2.ZERO)
 	for point: Vector2 in points:
 		rect = rect.expand(point)
@@ -163,6 +178,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventMouseMotion:
 		var motion := event as InputEventMouseMotion
 		_hover = Iso.tile_at(get_canvas_transform().affine_inverse() * motion.position)
+		_update_customer_hover(get_canvas_transform().affine_inverse() * motion.position, motion.position)
 		if not _pressed:
 			return
 		if not _dragging and motion.position.distance_to(_drag_from) > DRAG_THRESHOLD:
@@ -211,6 +227,21 @@ func ghost_cell(tile: Vector2i) -> Vector2i:
 	return tile - Vector2i((size.x - 1) / 2, (size.y - 1) / 2)
 
 
+var _hovered_customer: String = ""
+
+
+func _update_customer_hover(world: Vector2, screen: Vector2) -> void:
+	var found := ""
+	if editor == null:
+		for customer: Customer in Session.state.customers:
+			if _hit(customer.id, world):
+				found = customer.id
+				break
+	if found != _hovered_customer or found != "":
+		_hovered_customer = found
+		customer_hovered.emit(found, screen)
+
+
 func _zoom(factor: float) -> void:
 	camera.zoom = (camera.zoom * factor).clamp(Vector2.ONE * 0.3, Vector2.ONE * 3.0)
 
@@ -254,6 +285,9 @@ func _draw() -> void:
 		drawables.append([Iso.depth(Vector2(placed.cell) + Vector2(size) * 0.5), _draw_piece.bind(placed)])
 	for entry: Array in _people(state, data):
 		drawables.append([Iso.depth(entry[1]) + 0.3, entry[0]])
+	# The door stands on the front-right edge, sorted like everything else.
+	var door := Vector2(data.balance.floor_width, state.floor_rows - 1)
+	drawables.append([Iso.depth(door + Vector2(0, 1)), _draw_door.bind(door)])
 	drawables.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
 	for entry: Array in drawables:
 		entry[1].call()
@@ -282,6 +316,52 @@ func _draw_floor(state: GameState, data: GameData) -> void:
 	var door := Vector2(width, state.floor_rows - 1)
 	draw_colored_polygon(PackedVector2Array([Iso.to_world(door), Iso.to_world(door + Vector2(0.6, 0)),
 		Iso.to_world(door + Vector2(0.6, 1)), Iso.to_world(door + Vector2(0, 1))]), UiTheme.ACCENT.darkened(0.4))
+	_draw_call_board(width, float(state.floor_rows))
+
+
+## The café door: a frame on the front-right edge with a neon OPEN sign.
+func _draw_door(door: Vector2) -> void:
+	var up := Vector2(0, -78)
+	var a := Iso.to_world(door)
+	var b := Iso.to_world(door + Vector2(0, 1))
+	for post: Vector2 in [a, b]:
+		draw_line(post, post + up, Color("8a6a4a"), 6.0)
+	draw_line(a + up, b + up, Color("8a6a4a"), 8.0)
+	var sign_at := (a + b) * 0.5 + up + Vector2(0, -14)
+	draw_rect(Rect2(sign_at - Vector2(30, 11), Vector2(60, 20)), Color("1a1428"))
+	var on := UiTheme.ACCENT if Session.state.phase == GameState.Phase.SHIFT else UiTheme.TEXT_DIM
+	_text(sign_at + Vector2(0, 6), tr("ui.door_open") if on == UiTheme.ACCENT else tr("ui.door_closed"), 14, on)
+
+
+## The board outside where starred customers line up to be converted.
+func _draw_call_board(width: float, rows: float) -> void:
+	var foot := Iso.to_world(Vector2(width + 1.25, rows - 1.5))
+	draw_line(foot, foot + Vector2(0, -60), Color("8a6a4a"), 5.0)
+	var board := Rect2(foot + Vector2(-46, -112), Vector2(92, 54))
+	draw_rect(board, Color("2b2650"))
+	draw_rect(board, UiTheme.WARN, false, 3.0)
+	_draw_star(board.position + Vector2(18, 27), 10.0, UiTheme.WARN)
+	_text(board.position + Vector2(56, 24), tr("ui.call_board_1"), 13, UiTheme.TEXT)
+	_text(board.position + Vector2(56, 42), tr("ui.call_board_2"), 13, UiTheme.TEXT)
+
+
+## Street, door and where starred customers stand, in cell units.
+func _street(width: float, rows: float) -> Vector2:
+	return Vector2(width + 5.0, rows - 0.5)
+
+
+func _door_point(width: float, rows: float) -> Vector2:
+	return Vector2(width + 0.1, rows - 0.5)
+
+
+## Moves a customer's drawn position toward target, through the door when
+## going in or out. Walking speed follows the game speed (stops when paused).
+func _walk_to(at: Vector2, target: Vector2, width: float, rows: float) -> Vector2:
+	var speed := 0.0 if Session.paused else WALK_SPEED * maxf(Session.state.speed, 1.0)
+	var inside_now := at.x < width
+	var inside_target := target.x < width
+	var next := _door_point(width, rows) if inside_now != inside_target and at.distance_to(_door_point(width, rows)) > 0.05 else target
+	return at.move_toward(next, speed * _walk_delta)
 
 
 func _draw_piece(placed: PlacedPiece) -> void:
@@ -366,18 +446,40 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 	var rows := float(state.floor_rows)
 	var queue_index := 0
 	var star_index := 0
+	var present: Dictionary[String, bool] = {}
 	for customer: Customer in state.customers:
-		var at: Vector2
+		var target: Vector2
 		match customer.stage:
 			Customer.Stage.QUEUED:
-				at = Vector2(width + 0.6 + queue_index * 0.8, rows - 0.5)
+				target = Vector2(width + 0.6 + queue_index * 0.8, rows - 0.5)
 				queue_index += 1
 			Customer.Stage.STAR:
-				at = Vector2(width - 0.6 - star_index * 0.8, rows - 0.35)
+				# In line at the call board, beside the door.
+				target = Vector2(width + 0.55, rows - 2.3 - star_index * 0.75)
 				star_index += 1
 			_:
-				at = _seat_position(customer.id, state, data)
+				target = _seat_position(customer.id, state, data)
+		present[customer.id] = true
+		var at := _walk_to(_walk.get(customer.id, _street(width, rows)), target, width, rows)
+		_walk[customer.id] = at
 		result.append([_draw_customer.bind(customer, at), at])
+	# Whoever left the game's list walks out through the door to the street.
+	for customer_id: String in _walk.keys():
+		if not present.has(customer_id):
+			_leaving[customer_id] = {"at": _walk[customer_id], "type_id": _walk_types.get(customer_id, ""),
+				"angry": _angry.has(customer_id)}
+			_walk.erase(customer_id)
+	for customer: Customer in state.customers:
+		_walk_types[customer.id] = customer.type_id
+	for customer_id: String in _leaving.keys():
+		var leaver := _leaving[customer_id]
+		leaver["at"] = _walk_to(leaver["at"], _street(width, rows), width, rows)
+		if (leaver["at"] as Vector2).distance_to(_street(width, rows)) < 0.05:
+			_leaving.erase(customer_id)
+			_walk_types.erase(customer_id)
+			_angry.erase(customer_id)
+			continue
+		result.append([_draw_leaver.bind(leaver), leaver["at"]])
 	var pass_point := _pass_point(state, data)
 	var counts: Dictionary[String, int] = {}
 	var pod_cells: Array[Vector2] = []
@@ -445,6 +547,13 @@ func _draw_customer(customer: Customer, at: Vector2) -> void:
 			_draw_star(above + Vector2(0, -6), 16.0 * pulse, UiTheme.WARN)
 
 
+func _draw_leaver(leaver: Dictionary) -> void:
+	var color: Color = UiTheme.CUSTOMER_COLORS.get(leaver["type_id"], Color.GRAY)
+	var head := _draw_body(leaver["at"], color, Color("ffd9b8"), "")
+	if leaver["angry"]:
+		_text(head + Vector2(0, -26), "!", 24, UiTheme.BAD)
+
+
 func _draw_synth(synth: Synth, at: Vector2) -> void:
 	var glow: Color = UiTheme.SPECIES_GLOW.get(synth.species_id, Color.CYAN)
 	draw_circle(Iso.to_world(at), 22, Color(glow, 0.18))
@@ -471,7 +580,8 @@ func _draw_body(at: Vector2, body: Color, head_color: Color, person_id: String, 
 	if visor:
 		draw_rect(Rect2(head + Vector2(-12, -5), Vector2(24, 9)), head_color)
 	draw_arc(head, 15, 0, TAU, 24, Color("1a1428"), 2.0)
-	_heads[person_id] = head
+	if person_id != "":
+		_heads[person_id] = head
 	return head
 
 

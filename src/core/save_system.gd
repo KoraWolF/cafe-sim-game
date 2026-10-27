@@ -289,6 +289,8 @@ static func validate(state: GameState, data: GameData) -> PackedStringArray:
 			errors.append("customer '%s': unknown stage %d" % [customer.id, customer.stage])
 		if customer.stage != Customer.Stage.QUEUED and not data.recipes.has(customer.recipe_id):
 			errors.append("customer '%s': unknown recipe '%s'" % [customer.id, customer.recipe_id])
+		if customer.trait_id != "" and not data.traits.has(customer.trait_id):
+			errors.append("customer '%s': unknown trait '%s'" % [customer.id, customer.trait_id])
 		if customer.served_by != "" and state.synth_by_id(customer.served_by) == null:
 			errors.append("customer '%s': served by unknown Synth" % customer.id)
 	if state.phase == GameState.Phase.NIGHT and not state.customers.is_empty():

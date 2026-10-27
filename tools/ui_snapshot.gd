@@ -71,7 +71,10 @@ func _run() -> void:
 	var star: Customer = state.customers.filter(func(c: Customer) -> bool: return c.stage == Customer.Stage.STAR)[0]
 	var synths_before := state.synths.size()
 	await _click(game.cafe.get_viewport().get_canvas_transform() * game.cafe._heads[star.id])
-	print("CHECK click starred customer -> converted: ", state.synths.size() == synths_before + 1,
+	print("CHECK click starred customer -> NanoBrew confirmation shown: ", game.hud.confirm.visible)
+	_shot("04b_confirm_nanobrew")
+	await _click(_centre_of(game.hud.confirm._yes))
+	print("CHECK confirm -> converted: ", state.synths.size() == synths_before + 1,
 		" (star stage now %s, pods %d, synths %d, nanobrew %d)" % [star.stage, state.pods, state.synths.size(), state.nanobrew])
 
 	# Play the rest of the shift, cooking for demand and converting stars.

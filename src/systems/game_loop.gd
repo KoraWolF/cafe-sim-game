@@ -72,6 +72,7 @@ static func start_cooking(state: GameState, stove_index: int, recipe_id: String,
 
 
 ## Turns a starred customer into a Synth: 1 NanoBrew, a free Pod, +Suspicion.
+## The Synth gets the trait the customer arrived with.
 ## The new Synth is returned through out_synth when given.
 static func convert_customer(state: GameState, customer_id: String, data: GameData,
 		out_synth: Array[Synth] = []) -> String:
@@ -87,9 +88,12 @@ static func convert_customer(state: GameState, customer_id: String, data: GameDa
 	if state.synths.size() >= state.pods:
 		return NO_FREE_POD
 	var type := data.customer_types[customer.type_id]
-	var rng := state.rng()
-	var trait_id := "" if type.trait_pool.is_empty() else type.trait_pool[rng.randi_range(0, type.trait_pool.size() - 1)]
-	state.store_rng(rng)
+	var trait_id := customer.trait_id
+	if trait_id == "" and not type.trait_pool.is_empty():
+		# Customers from saves made before traits were rolled on arrival.
+		var rng := state.rng()
+		trait_id = type.trait_pool[rng.randi_range(0, type.trait_pool.size() - 1)]
+		state.store_rng(rng)
 	state.nanobrew -= 1
 	state.customers.erase(customer)
 	state.add_suspicion(data.balance.conversion_suspicion)

@@ -152,6 +152,9 @@ static func _arrive(state: GameState, data: GameData, rng: RandomNumberGenerator
 	var customer := Customer.new()
 	customer.id = state.new_id("customer")
 	customer.type_id = type_id
+	var pool := data.customer_types[type_id].trait_pool
+	if not pool.is_empty():
+		customer.trait_id = pool[rng.randi_range(0, pool.size() - 1)]
 	state.customers.append(customer)
 	events.arrived.append(customer.id)
 	var greeting: Array[Synth] = []
