@@ -26,11 +26,11 @@ signal editor_changed
 ## Esc pressed while editing with nothing in hand.
 signal edit_exit_requested
 
-const HEIGHTS: Dictionary[String, float] = {"seat": 14.0, "stove": 30.0, "pod": 56.0, "counter": 26.0, "bin": 24.0,
-	"decor": 22.0}
+const HEIGHTS: Dictionary[String, float] = {"seat": 14.0, "table": 24.0, "stove": 30.0, "pod": 56.0, "counter": 26.0,
+	"bin": 24.0, "decor": 22.0}
 const KIND_COLORS: Dictionary[String, Color] = {
 	"seat": Color("8a6a4a"), "stove": Color("8c95a8"), "pod": Color("5a6a9a"), "counter": Color("c9a27a"),
-	"bin": Color("4f6b5a"),
+	"bin": Color("4f6b5a"), "table": Color("b08a5a"),
 }
 const HEAD_HIT_RADIUS: float = 30.0
 const DRAG_THRESHOLD: float = 8.0
@@ -432,6 +432,32 @@ func _draw_piece(placed: PlacedPiece) -> void:
 		var state := Session.state
 		_draw_cups(Iso.centre(placed.cell, Vector2i(size)) - Vector2(0, HEIGHTS["counter"]),
 			state.counter_dish.get(placed.uid, ""), state.counter_count.get(placed.uid, 0), false)
+	elif piece.kind == Piece.SEAT:
+		var state := Session.state
+		var table := Layout.placed_by_uid(state, state.seat_table.get(placed.uid, ""))
+		if table != null:
+			# A backrest on the side away from its table: the seat faces the table.
+			var facing := table.cell - placed.cell
+			var back := Vector2(placed.cell) + Vector2(maxf(-facing.x, 0.0) * 0.8, maxf(-facing.y, 0.0) * 0.8)
+			var thin := Vector2(0.2, 1.0) if facing.x != 0 else Vector2(1.0, 0.2)
+			_draw_block(back, thin, 34.0, color.darkened(0.1))
+		else:
+			# Works only beside a table.
+			_text(label_at, tr("ui.seat_no_table"), 12, UiTheme.BAD)
+			if editor != null:
+				_outline(placed, UiTheme.BAD)
+	elif piece.kind == Piece.TABLE:
+		# The dish of the customer eating at this table's seat.
+		var state := Session.state
+		var seat_uid: String = state.seat_table.find_key(placed.uid) if state.seat_table.values().has(placed.uid) else ""
+		for customer: Customer in state.customers:
+			if seat_uid != "" and customer.seat_uid == seat_uid and customer.stage == Customer.Stage.EATING:
+				var top := Iso.centre(placed.cell, Vector2i.ONE) - Vector2(0, HEIGHTS["table"])
+				var dish := Color.from_hsv(fmod(customer.recipe_id.hash() * 0.618, 1.0), 0.55, 0.95)
+				draw_set_transform(top, 0, Vector2(1, 0.5))
+				draw_circle(Vector2.ZERO, 13, Color.WHITE)
+				draw_circle(Vector2.ZERO, 8, dish)
+				draw_set_transform(Vector2.ZERO)
 	elif piece.kind == Piece.BIN:
 		# A lid on top.
 		var top := Iso.centre(placed.cell, Vector2i(size)) - Vector2(0, HEIGHTS["bin"])

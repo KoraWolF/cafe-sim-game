@@ -197,7 +197,7 @@ ui.fx_level_up,LEVEL UP!
 ui.fx_new_synth,NEW SYNTH!
 tip.resources,"Coins pay for dishes, upgrades and décor. NanoBrew converts a starred customer. Nano Cores (from raids) brew NanoBrew. Energy recharges Synths' batteries at night (2 coins each). Suspicion brings MegaBean raids — and at 90, a Corporate Audit. Influence unlocks the district's flagship."
 tip.upgrade.stove,One more stove to cook on (place it on the floor).
-tip.upgrade.seat,One more seat. More seats also bring customers in faster.
+tip.upgrade.seat,"One more seat. It needs its own table right beside it (not diagonal). More working seats also bring customers in faster."
 tip.upgrade.pod,One more Sync Pod in the Pod bay outside: room for one more Synth.
 tip.upgrade.menu_slot,One more dish on the daily menu.
 tip.upgrade.floor,Two more rows of floor for furniture and décor.
@@ -274,3 +274,5 @@ ui.coins_line,Coins: %d
 ui.energy_in_shop,Buy Energy in the Shop (top bar) — at any time.
 tip.shop,"Energy, café upgrades and décor — open any time, the café keeps running."
 tip.arrange,"Move, rotate, place and sell furniture and décor — any time. Pieces in use (a cooking stove, a counter with food, an occupied seat) can be moved but not picked up."
+tip.upgrade.table,"One more table (1x1). A seat works only right beside a table — one seat per table, and the seat turns to face it."
+ui.seat_no_table,No table

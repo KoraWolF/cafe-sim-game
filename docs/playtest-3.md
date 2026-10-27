@@ -10,7 +10,7 @@ It is the café's electricity stock. At night it recharges Synths' batteries: 0.
 | --- | --- | --- | --- |
 | 1 | `playtest-3-quick` | Pencil icon to rename, battery as %, max battery 70–200 rolled per unit, new Synths walk to their Pod at 70% on Rest, Power→Energy, Bin and throw-away (the counter bug), Auto button | built |
 | 2 | `live-build` | Shop, upgrades, décor and floor editing open at any time from the top bar (not only at night) | built |
-| 3 | `tables` | Tables apart from seats, seats must face a table, dish shown and eaten on the table; starter café 8×8 with 3 tables, 3 chairs, 1 bin | |
+| 3 | `tables` | Tables apart from seats, seats must face a table, dish shown and eaten on the table; starter café 8×8 with 3 tables, 3 chairs, 1 bin | built |
 | 4 | `cashier` | Cashier role and cashier counter, everyone pays on the way out, star wait spot removed, start with 2 staff | |
 | 5 | `unit-cards` | New worker and customer cards, a draggable Details window (Work, Fight, Trait, Gear tabs), an Info button | |
 | 6 | `items` | Inventory: EXP bottles, equipment (5 tiers), fashion, selling, crafting from raid materials | |
@@ -50,7 +50,15 @@ It is the café's electricity stock. At night it recharges Synths' batteries: 0.
 - Still night only: the daily menu and planning a raid.
 - One panel on the right at a time (edit panel, shop, night hub). The Synth card opens beside it.
 
-**Tables (branch 3)**
+**Tables (branch 3, built)**
+- Seats **turn to face** a table right beside them by themselves (chosen after branch 2). A seat with no table shows "No table" and a red outline while arranging.
+- When a seat could use two tables (or two seats share one table), the seats with fewer choices pick first, so as many seats as possible work.
+- New tables and seats go beside a free partner when you buy them. Older saves (v10) get a table beside each seat, or in storage if there's no room.
+- A table whose seat has a customer on it can't be picked up (it can be moved).
+- Seat and Table upgrades cost 30 each (×1.5 per level, 8 levels), so a working seat costs what a seat alone did before.
+- Balance (40 days × 5 seeds): at 60 coins each, about 1,935 seated, 1,970 coins, and Neon Market taken in only 2 of 5 runs. At 30 each, about 2,544 seated, 95.6% stars, 5,130 coins, and the Alley taken on day 12–20 with Neon Market in 4 of 5 runs, close to branch 1.
+
+Original decisions:
 - A table is 1×1. A seat works only when it's beside a table (not diagonally) and rotated to face it.
 - One seat per table, and one dish per table. A seated customer locks that table.
 - Seats without a valid table give no customer slot (like décor) and show an outline warning in edit mode.

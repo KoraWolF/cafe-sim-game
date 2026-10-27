@@ -26,7 +26,7 @@ const SPEEDS: Array[int] = [0, 1, 2, 4]
 ## Energy (shown as "Energy"; not a Synth's fight power): recharges batteries at night.
 @export var power: float = 0.0
 
-## Placed seats (kept up to date by Layout.refresh from the floor) and Sync Pods
+## Working seats, each beside its own table (kept up to date by Layout.refresh) and Sync Pods
 ## in the Pod bay outside (one per Synth: the staff cap).
 @export var seats: int = 0
 @export var pods: int = 0
@@ -38,6 +38,8 @@ const SPEEDS: Array[int] = [0, 1, 2, 4]
 ## From the layout (Layout.refresh); not saved. vibe is the total over seats.
 var vibe: float = 0.0
 var seat_vibe: Dictionary[String, float] = {}
+## Working seat uid -> the table uid it faces (derived from the floor, not saved).
+var seat_table: Dictionary[String, String] = {}
 ## Extra HP for each home defender.
 @export var security: float = 0.0
 @export var stoves: Array[Stove] = []
@@ -99,9 +101,10 @@ static func new_game(seed_value: int, data: GameData) -> GameState:
 	state.security = b.start_security
 	state.floor_rows = b.start_floor_rows
 	state.pods = b.start_pods
-	# Kind by kind (stoves, counters, seats, bins): the start layout's spots first, then the first free spot.
+	# Kind by kind (stoves, counters, tables, seats, bins): the start layout's spots first,
+	# then the first free spot (seats and tables next to each other where they can).
 	var wanted: Dictionary[String, int] = {Piece.STOVE: b.start_stoves, Piece.COUNTER: b.start_counters,
-		Piece.SEAT: b.start_seats, Piece.BIN: b.start_bins}
+		Piece.TABLE: b.start_tables, Piece.SEAT: b.start_seats, Piece.BIN: b.start_bins}
 	for piece_id: String in wanted:
 		for entry: Variant in b.start_layout:
 			if wanted[piece_id] <= 0 or not entry is Dictionary or str(entry.get("piece", "")) != piece_id:

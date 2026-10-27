@@ -20,9 +20,9 @@ func _put(state: GameState, piece_id: String, cell: Vector2i, data: GameData, ro
 func test_new_game_lays_out_the_starting_furniture() -> void:
 	var data := TestFixtures.data()
 	var state := GameState.new_game(1, data)
-	assert_eq(state.placed.size(), 4, "2 stoves, 2 seats (Pods are in the Pod bay, not on the floor)")
+	assert_eq(state.placed.size(), 6, "2 stoves, 2 tables, 2 seats (Pods are in the Pod bay, not on the floor)")
 	assert_eq(state.stoves.size(), 2, "a stove state for each stove piece")
-	assert_eq(state.seats, 2, "seats")
+	assert_eq(state.seats, 2, "seats, each beside its table")
 	assert_eq(state.pods, 2, "2 Pods in the bay")
 	assert_eq(state.placed[0].cell, Vector2i(0, 0), "first stove top-left")
 	assert_eq(state.placed[1].cell, Vector2i(2, 0), "second stove beside it")
@@ -119,7 +119,7 @@ func test_pick_up_rules() -> void:
 	var stove := state.placed[0].uid
 	GameLoop.start_cooking(state, 0, "tea", data)
 	assert_eq(GameLoop.pick_up_piece(state, stove, data), GameLoop.STOVE_BUSY, "cooking")
-	var seat := state.placed[2].uid
+	var seat: String = state.seat_table.keys()[0]
 	assert_eq(GameLoop.pick_up_piece(state, seat, data), GameLoop.OK, "seat stored")
 	assert_eq(state.seats, 1, "one seat left")
 	assert_eq(state.storage, {"seat": 1} as Dictionary[String, int], "in storage")
@@ -193,7 +193,7 @@ func test_pre_floor_save_is_laid_out_and_keeps_cooking() -> void:
 		return
 	assert_eq(loaded.stoves.size(), 3, "3 stoves laid out")
 	assert_eq(loaded.stoves[1].recipe_id, "tea", "the cooking stove kept its dish")
-	assert_eq(loaded.seats, 5, "5 seats laid out")
+	assert_eq(loaded.seats, 5, "5 seats laid out, each given a table")
 	assert_eq(loaded.pods, 3, "3 Pods laid out")
 	assert_eq(loaded.floor_rows, 6, "it all fits the 6 starting rows")
 

@@ -7,7 +7,7 @@ func test_real_start_puts_pods_in_the_bay_not_on_the_floor() -> void:
 	var state := GameState.new_game(1, data)
 	assert_eq(state.pods, 2, "two Pods in the Pod bay")
 	assert_true(state.placed.all(func(p: PlacedPiece) -> bool: return p.piece_id != "pod"), "no Pod takes floor space")
-	assert_eq(state.seats, 4, "all four seats placed")
+	assert_eq(state.seats, 3, "all three seats placed, each at its table")
 	assert_eq(state.stoves.size(), 2, "both stoves placed")
 
 

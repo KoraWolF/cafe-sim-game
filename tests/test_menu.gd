@@ -32,7 +32,8 @@ func test_set_menu_at_night() -> void:
 
 
 func test_customers_order_only_from_the_menu() -> void:
-	var data := TestFixtures.data({"arrival_min_seconds": 3, "arrival_max_seconds": 3, "start_seats": 20})
+	var data := TestFixtures.data({"arrival_min_seconds": 3, "arrival_max_seconds": 3, "start_seats": 12,
+		"start_tables": 12})
 	var state := _night(data)
 	state.add_synth("alien", "", data)
 	GameLoop.set_menu(state, ["jelly"] as Array[String], data)

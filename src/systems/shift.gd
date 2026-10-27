@@ -189,14 +189,14 @@ static func _pick_type(data: GameData, rng: RandomNumberGenerator) -> String:
 	return last
 
 
-## The first placed seat nobody sits at ("" if none).
+## The first working seat (one with its table) nobody sits at ("" if none).
 static func _free_seat(state: GameState, data: GameData) -> String:
 	var taken: Dictionary[String, bool] = {}
 	for customer: Customer in state.customers:
 		if customer.is_seated() and customer.seat_uid != "":
 			taken[customer.seat_uid] = true
 	for placed: PlacedPiece in state.placed:
-		if data.pieces[placed.piece_id].kind == Piece.SEAT and not taken.has(placed.uid):
+		if state.seat_table.has(placed.uid) and not taken.has(placed.uid):
 			return placed.uid
 	return ""
 
@@ -206,7 +206,9 @@ static func _seat(state: GameState, data: GameData, rng: RandomNumberGenerator) 
 	for customer: Customer in state.customers:
 		if customer.is_seated() and Layout.placed_by_uid(state, customer.seat_uid) == null:
 			customer.seat_uid = _free_seat(state, data)
-	var free := state.seats - seated_count(state)
+	# Customers sitting at a seat that lost its table (moved mid-meal) still count.
+	var free := state.seats - state.customers.filter(func(customer: Customer) -> bool:
+		return customer.is_seated() and state.seat_table.has(customer.seat_uid)).size()
 	if free <= 0:
 		return
 	var menu := order_menu(state, data)

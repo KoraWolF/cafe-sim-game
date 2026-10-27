@@ -20,7 +20,9 @@ extends RefCounted
 ## 8: 1x1 counters holding one dish each; batches wait on stoves to be carried.
 ## 9: each unit's own max battery, bins and throw-away marks, Auto. Older
 ##    cafés get a bin (placed if there is room, else in storage).
-const VERSION: int = 9
+## 10: tables: a seat works only beside one. Older cafés get a table beside
+##     each seat (or in storage when there is no room).
+const VERSION: int = 10
 const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
 
@@ -246,6 +248,9 @@ static func _migrate_step(version: int, raw: Dictionary) -> Dictionary:
 		8:
 			# The starter café now has a bin: older cafés get one in storage to place.
 			raw["needs_bin"] = true
+			return raw
+		9:
+			raw["needs_tables"] = true
 			return raw
 	return {}
 
@@ -489,6 +494,8 @@ static func _load_one(path: String, data: GameData, errors: PackedStringArray) -
 			state.floor_rows += 2
 	if current.get("needs_bin", false) and Layout.count_placed(state, Piece.BIN, data) == 0 			and data.balance.start_bins > 0 and not Layout.auto_place(state, Piece.BIN, data):
 		state.storage[Piece.BIN] = state.storage.get(Piece.BIN, 0) + 1
+	if current.get("needs_tables", false):
+		Layout.give_tables(state, data)
 	Layout.refresh(state, data)
 	if current.get("needs_counter_fill", false):
 		Counters.fill_from_pool(state, data)

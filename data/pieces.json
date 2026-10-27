@@ -1,5 +1,6 @@
 [
 	{"id": "seat", "kind": "seat", "size": [1, 1], "tags": ["seat"]},
+	{"id": "table", "kind": "table", "size": [1, 1], "tags": ["table"]},
 	{"id": "stove", "kind": "stove", "size": [2, 1], "tags": ["kitchen"]},
 	{"id": "counter", "kind": "counter", "size": [1, 1], "tags": ["kitchen"]},
 	{"id": "bin", "kind": "bin", "size": [1, 1], "tags": ["kitchen"]},
