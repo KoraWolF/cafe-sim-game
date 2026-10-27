@@ -2,7 +2,8 @@ class_name Shift
 extends RefCounted
 ## The café open for business, one game second at a time.
 ##
-## Each second, in order: stoves cook (base speed 1 + chefs' cook), customers
+## Each second, in order: stoves cook (base speed 1 + chefs' cook; a finished
+## batch waits on its stove for a server to carry it to a counter), customers
 ## arrive (greeters shorten the gap), queued customers take free seats and
 ## order from the menu (favourites more often), servers carry ready servings to tables, customers wait / eat / leave,
 ## and on-duty Synths drain battery. The Vibe at a customer's seat (décor in
@@ -111,7 +112,7 @@ static func _tick(state: GameState, data: GameData, rng: RandomNumberGenerator, 
 
 
 static func _cook(state: GameState, data: GameData, rng: RandomNumberGenerator, events: Events) -> void:
-	if state.stoves.all(func(stove: Stove) -> bool: return stove.is_idle()):
+	if state.stoves.all(func(stove: Stove) -> bool: return stove.is_idle() or stove.has_batch()):
 		return
 	var rate := 1.0
 	var cooking: Array[Synth] = []
@@ -126,17 +127,22 @@ static func _cook(state: GameState, data: GameData, rng: RandomNumberGenerator, 
 			continue
 		rate += maxf(SynthStats.stat(synth, "cook", data), 0.0) * factor
 		cooking.append(synth)
+	var counters := Counters.in_use(state, data)
 	for stove: Stove in state.stoves:
-		if stove.is_idle():
+		if stove.is_idle() or stove.has_batch():
 			continue
 		stove.remaining -= rate
 		if stove.remaining <= 0.0:
 			var recipe := data.recipes[stove.recipe_id]
-			state.counter[recipe.id] = state.counter.get(recipe.id, 0) + recipe.servings
 			events.dishes_ready.append(recipe.id)
 			Leveling.share(cooking, data.balance.xp_per_batch, data.balance, events.level_ups)
-			stove.recipe_id = ""
 			stove.remaining = 0.0
+			if counters:
+				# Waits on the stove until a server carries it to a counter.
+				stove.ready = recipe.servings
+			else:
+				state.counter[recipe.id] = state.counter.get(recipe.id, 0) + recipe.servings
+				stove.recipe_id = ""
 
 
 static func _arrive(state: GameState, data: GameData, rng: RandomNumberGenerator, events: Events) -> void:
@@ -236,27 +242,71 @@ static func _serve(state: GameState, data: GameData, rng: RandomNumberGenerator,
 		var factor := SynthStats.work_factor(synth, state, data)
 		if factor <= 0.0:
 			continue
-		if not synth.is_delivering():
-			_take_order(state, synth, data)
+		if not synth.is_busy():
+			# Serving waiting customers comes first, then carrying finished batches.
+			if not _take_order(state, synth, data):
+				_take_batch(state, synth, data)
 			continue
 		synth.task_remaining -= SynthStats.speed(synth, data) * factor
 		if synth.task_remaining <= 0.0:
-			_deliver(state, synth, data, rng, events)
+			if synth.is_delivering():
+				_deliver(state, synth, data, rng, events)
+			else:
+				_finish_carry(state, synth, data, events)
 
 
 ## Picks up a serving for the longest-seated customer whose dish is ready.
-static func _take_order(state: GameState, synth: Synth, data: GameData) -> void:
+static func _take_order(state: GameState, synth: Synth, data: GameData) -> bool:
 	for customer: Customer in state.customers:
 		if customer.stage != Customer.Stage.WAITING_FOOD or customer.served_by != "":
 			continue
 		if state.counter.get(customer.recipe_id, 0) <= 0:
 			continue
-		state.counter[customer.recipe_id] -= 1
+		synth.task_counter_uid = Counters.take(state, customer.recipe_id, data)
 		customer.served_by = synth.id
 		synth.task_customer_id = customer.id
 		synth.task_recipe_id = customer.recipe_id
 		synth.task_remaining = data.balance.delivery_seconds
+		return true
+	return false
+
+
+## Picks up a finished batch from a stove, bound for the nearest free counter.
+static func _take_batch(state: GameState, synth: Synth, data: GameData) -> bool:
+	for stove: Stove in state.stoves:
+		if not stove.has_batch() or stove.carrier != "":
+			continue
+		var counter_uid := Counters.free_counter(state, stove.recipe_id, stove.piece_uid, data)
+		if counter_uid == "":
+			continue
+		stove.carrier = synth.id
+		synth.task_stove_uid = stove.piece_uid
+		synth.task_counter_uid = counter_uid
+		synth.task_recipe_id = stove.recipe_id
+		synth.task_remaining = data.balance.carry_seconds
+		return true
+	return false
+
+
+## Puts the carried batch on its counter (or another free one; if none, it
+## stays on the stove) and frees the stove.
+static func _finish_carry(state: GameState, synth: Synth, data: GameData, events: Events) -> void:
+	var stove := Layout.stove_of(state, synth.task_stove_uid)
+	var counter_uid := synth.task_counter_uid
+	var recipe_id := synth.task_recipe_id
+	_clear_task(synth)
+	if stove == null or not stove.has_batch():
 		return
+	stove.carrier = ""
+	var dish := Counters.dish_on(state, counter_uid)
+	if Layout.placed_by_uid(state, counter_uid) == null or (dish != "" and dish != recipe_id):
+		counter_uid = Counters.free_counter(state, recipe_id, stove.piece_uid, data)
+		if counter_uid == "":
+			return
+	Counters.put(state, counter_uid, recipe_id, stove.ready)
+	stove.ready = 0
+	stove.recipe_id = ""
+	Leveling.add_xp(synth, data.balance.xp_per_delivery, data.balance, events.level_ups)
 
 
 static func _deliver(state: GameState, synth: Synth, data: GameData, rng: RandomNumberGenerator,
@@ -289,11 +339,11 @@ static func _update_customers(state: GameState, data: GameData, events: Events) 
 			Customer.Stage.QUEUED:
 				_wait(customer, type, b, 0.0)  # outside, no décor
 				if customer.waited >= roundi(b.queue_patience_seconds * type.patience):
-					_leave_angry(state, customer, events)
+					_leave_angry(state, customer, data, events)
 			Customer.Stage.WAITING_FOOD:
 				_wait(customer, type, b, state.seat_vibe.get(customer.seat_uid, 0.0))
 				if customer.satisfaction <= 0.0:
-					_leave_angry(state, customer, events)
+					_leave_angry(state, customer, data, events)
 			Customer.Stage.EATING:
 				customer.timer -= 1
 				if customer.timer <= 0:
@@ -340,11 +390,11 @@ static func _finish_meal(state: GameState, customer: Customer, data: GameData, e
 
 
 ## Leaves without paying; a dish already on its way goes back to the counter.
-static func _leave_angry(state: GameState, customer: Customer, events: Events) -> void:
+static func _leave_angry(state: GameState, customer: Customer, data: GameData, events: Events) -> void:
 	if customer.served_by != "":
 		var synth := state.synth_by_id(customer.served_by)
 		if synth != null:
-			_return_dish(state, synth)
+			_return_dish(state, synth, data)
 	state.customers.erase(customer)
 	events.left_angry.append(customer.id)
 
@@ -362,14 +412,20 @@ static func _close(state: GameState, data: GameData, events: Events) -> void:
 			_finish_meal(state, customer, data, events, false)
 	for synth: Synth in state.synths:
 		if synth.is_delivering():
-			_return_dish(state, synth)
+			_return_dish(state, synth, data)
+		elif synth.is_carrying():
+			# The batch stays on its stove for tomorrow.
+			var stove := Layout.stove_of(state, synth.task_stove_uid)
+			if stove != null:
+				stove.carrier = ""
+			_clear_task(synth)
 	state.customers.clear()
 	state.phase = GameState.Phase.NIGHT
 	events.shift_ended = true
 
 
-static func _return_dish(state: GameState, synth: Synth) -> void:
-	state.counter[synth.task_recipe_id] = state.counter.get(synth.task_recipe_id, 0) + 1
+static func _return_dish(state: GameState, synth: Synth, data: GameData) -> void:
+	Counters.give_back(state, synth.task_counter_uid, synth.task_recipe_id, data)
 	_clear_task(synth)
 
 
@@ -377,3 +433,5 @@ static func _clear_task(synth: Synth) -> void:
 	synth.task_customer_id = ""
 	synth.task_recipe_id = ""
 	synth.task_remaining = 0.0
+	synth.task_stove_uid = ""
+	synth.task_counter_uid = ""

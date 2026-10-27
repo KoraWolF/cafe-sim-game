@@ -42,8 +42,11 @@ var seat_vibe: Dictionary[String, float] = {}
 @export var stoves: Array[Stove] = []
 ## Upgrade id -> times bought.
 @export var upgrades: Dictionary[String, int] = {}
-## Ready servings: recipe id -> count.
+## Ready servings on the counters: recipe id -> count (see Counters).
 @export var counter: Dictionary[String, int] = {}
+## Counter piece uid -> the dish on it, and how many servings.
+@export var counter_dish: Dictionary[String, String] = {}
+@export var counter_count: Dictionary[String, int] = {}
 ## Recipe ids customers can order this shift (set at night, up to menu_slots).
 ## Empty = any unlocked recipe (saves from before the menu).
 @export var menu: Array[String] = []

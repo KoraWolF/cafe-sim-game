@@ -142,7 +142,7 @@ role.greeter,Greeter
 role.rest,Rest
 error.wrong_phase,You can't do that right now.
 error.unknown_stove,That stove doesn't exist.
-error.stove_busy,That stove is already cooking.
+error.stove_busy,That stove is busy (cooking, or its batch is waiting to be carried).
 error.unknown_recipe,Unknown dish.
 error.recipe_locked,You haven't unlocked that dish yet.
 error.not_enough_coins,Not enough coins.
@@ -185,7 +185,7 @@ tutorial.next,Next
 tutorial.skip_step,Skip step
 tutorial.skip_all,Skip tutorial
 tutorial.welcome,"Welcome to NanoBrew Café! Customers come in, sit down and order from your menu. Your job: keep the food coming and turn your happiest customers into Synth staff."
-tutorial.cook,Click a stove and pick a dish to cook. A finished batch goes to the counter.
+tutorial.cook,Click a stove and pick a dish to cook. A server carries the finished batch to a free counter.
 tutorial.deliver,Your server Synth carries dishes from the counter to the tables. Watch a customer get served and pay.
 tutorial.convert,"That customer has a star — they loved it! Click them to spend your NanoBrew: they become a Synth."
 tutorial.card,Click one of your Synths to see its level and battery and to change its role.
@@ -244,3 +244,7 @@ ui.card_power_help,"Power is how hard this Synth hits in raids and defending the
 error.empty_name,A name can't be empty.
 error.name_too_long,That name is too long (20 letters at most).
 ui.pod_bay,SYNC POD BAY  %d / %d
+error.counter_busy,Dishes are on that counter — serve them first.
+ui.stove_waiting,That stove's batch is waiting for a server to carry it to a free counter.
+ui.stove_ready,Ready ×%d
+tip.upgrade.counter,"One more counter (1x1, place it on the floor). Each counter holds one dish; servers carry finished batches to the closest free one."

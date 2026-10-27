@@ -95,6 +95,7 @@ static func content(balance_overrides := {}) -> Dictionary:
 			{"id": "stove", "step": 1, "base_cost": 50, "cost_growth": 2.0, "max_level": 2},
 			{"id": "seat", "step": 2, "base_cost": 20, "cost_growth": 1.0, "max_level": 3},
 			{"id": "pod", "step": 1, "base_cost": 100, "cost_growth": 1.0, "max_level": 1},
+			{"id": "counter", "step": 1, "base_cost": 30, "cost_growth": 1.0, "max_level": 2},
 			{"id": "menu_slot", "step": 1, "base_cost": 40, "cost_growth": 1.0, "max_level": 1},
 			{"id": "floor", "step": 2, "base_cost": 100, "cost_growth": 1.0, "max_level": 2},
 			{"id": "security", "step": 10, "base_cost": 30, "cost_growth": 1.0, "max_level": 2},
@@ -102,7 +103,7 @@ static func content(balance_overrides := {}) -> Dictionary:
 		"pieces": [
 			{"id": "seat", "kind": "seat", "size": [1, 1], "tags": ["seat"]},
 			{"id": "stove", "kind": "stove", "size": [2, 1], "tags": ["kitchen"]},
-			{"id": "counter", "kind": "counter", "size": [2, 1], "tags": ["kitchen"]},
+			{"id": "counter", "kind": "counter", "size": [1, 1], "tags": ["kitchen"]},
 			{"id": "fern", "kind": "decor", "size": [1, 1], "price": 50, "vibe": 10, "tags": ["plant"]},
 			{"id": "lamp", "kind": "decor", "size": [1, 1], "price": 30, "vibe": 5, "tags": ["light"]},
 			{"id": "tank", "kind": "decor", "size": [2, 2], "price": 200, "vibe": 40, "tags": ["plant"]},

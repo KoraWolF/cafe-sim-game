@@ -2,12 +2,13 @@ extends TestCase
 ## The counter piece: placed in a new game, the last one stays, older saves get one.
 
 
-func test_new_game_has_a_counter_next_to_the_stoves() -> void:
+func test_new_game_has_two_counters_next_to_the_stoves() -> void:
 	var data := GameData.load_default()
 	var state := GameState.new_game(1, data)
 	var counters := state.placed.filter(func(p: PlacedPiece) -> bool: return p.piece_id == "counter")
-	assert_eq(counters.size(), 1, "one counter")
+	assert_eq(counters.size(), 2, "two 1x1 counters")
 	assert_eq(counters[0].cell, Vector2i(4, 0), "beside the stoves on the back wall")
+	assert_eq(counters[1].cell, Vector2i(5, 0), "side by side")
 
 
 func test_the_last_counter_cannot_be_removed() -> void:
