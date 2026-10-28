@@ -172,16 +172,17 @@ func fit_camera(right_panel := -1.0) -> void:
 	camera.position = rect.get_center() - (free.get_center() - view * 0.5) / camera.zoom
 
 
-## World rectangle covering the floor and the queue outside.
+## World rectangle covering the floor, the queue outside and the Pod bay (with its label).
 func floor_rect() -> Rect2:
 	var size := Vector2(Session.state.floor_width, Session.state.floor_rows)
+	var bay := size.y + BAY_GAP + 2.6
 	var points := [Iso.to_world(Vector2.ZERO), Iso.to_world(Vector2(size.x, 0)), Iso.to_world(size),
 		Iso.to_world(Vector2(0, size.y)), Iso.to_world(Vector2(size.x + 5, size.y)), Iso.to_world(Vector2(size.x + 2, 0)),
-		Iso.to_world(Vector2(0, size.y + 2.6)), Iso.to_world(Vector2(size.x, size.y + 2.6))]
+		Iso.to_world(Vector2(0, bay)), Iso.to_world(Vector2(size.x, bay))]
 	var rect := Rect2(points[0], Vector2.ZERO)
 	for point: Vector2 in points:
 		rect = rect.expand(point)
-	return rect.grow_individual(20, 90, 20, 30)
+	return rect.grow_individual(140, 90, 20, 30)
 
 
 func _unhandled_input(event: InputEvent) -> void:

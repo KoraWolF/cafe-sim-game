@@ -2,7 +2,8 @@ class_name ShopPanel
 extends PanelContainer
 ## The shop (buying only), open at any time from the top bar: Furniture and
 ## Décor by the piece, as many as fit (Buy puts it in your hand in Arrange;
-## Store keeps it in storage for later), café Upgrades, and Energy.
+## Store keeps it in storage for later), café Upgrades, Energy, and the
+## Workshop (craft equipment from Scrap and Chips).
 ## Items you own live in the Bag. Rebuilds after every action.
 
 signal closed
@@ -11,7 +12,7 @@ signal arrange_requested
 signal place_requested(piece_id: String)
 
 const WIDTH: float = 600.0
-const TABS: Array[String] = ["furniture", "decor", "upgrades", "energy"]
+const TABS: Array[String] = ["furniture", "decor", "upgrades", "energy", "workshop"]
 
 var tabs := TabContainer.new()
 var _pages: Dictionary[String, VBoxContainer] = {}
@@ -101,6 +102,29 @@ func refresh() -> void:
 		buy.disabled = state.coins < price
 		row.add_child(buy)
 	energy.add_child(row)
+	_fill_workshop(_pages["workshop"])
+
+
+## Crafting: what each craft costs and makes; the new piece goes in the Bag.
+func _fill_workshop(page: VBoxContainer) -> void:
+	var state := Session.state
+	var data := Session.data
+	page.add_child(_wrap(tr("ui.materials") % [state.scrap, state.chips], 18, UiTheme.WARN))
+	for craft_id: String in data.items.crafts:
+		var recipe: Dictionary = data.items.crafts[craft_id]
+		var costs: Array = [recipe["scrap"], recipe["chips"]] if recipe["chips"] > 0 else [recipe["scrap"]]
+		var row := HBoxContainer.new()
+		var about := _wrap(tr("ui.craft_" + craft_id) % costs, 16)
+		about.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(about)
+		var make := UiTheme.button(tr("ui.craft"), func() -> void:
+			var made: Array[Item] = []
+			if Session.act(GameLoop.craft_item(Session.state, craft_id, Session.data, made)):
+				Session.toast.emit(tr("ui.crafted") % [UiText.item_name(made[0]), UiText.item_effect(made[0], Session.data.items)]))
+		make.disabled = state.scrap < recipe["scrap"] or state.chips < recipe["chips"]
+		row.add_child(make)
+		page.add_child(row)
+	page.add_child(_wrap(tr("ui.workshop_note"), 14, UiTheme.TEXT_DIM))
 
 
 ## A piece for sale: what it is, how many you have, Buy (and place now) and Store.
@@ -118,8 +142,6 @@ func _piece_row(piece: Piece, about: String, help: String) -> Control:
 	var store := UiTheme.button(tr("ui.buy_store"), func() -> void:
 		if Session.act(GameLoop.buy_piece(Session.state, piece.id, Session.data)):
 			Session.toast.emit(tr("ui.stored") % [UiText.name(piece.id), Session.state.storage.get(piece.id, 0)]))
-	buy.tooltip_text = tr("tip.buy_place")
-	store.tooltip_text = tr("tip.buy_store")
 	for button: Button in [buy, store]:
 		button.disabled = state.coins < piece.price
 		row.add_child(button)
