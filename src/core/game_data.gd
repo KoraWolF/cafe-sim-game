@@ -153,7 +153,7 @@ func check() -> PackedStringArray:
 	for piece: Piece in pieces.values():
 		if not Piece.KINDS.has(piece.kind):
 			errors.append("piece %s: unknown kind '%s'" % [piece.id, piece.kind])
-		if piece.size.x < 1 or piece.size.y < 1 or maxi(piece.size.x, piece.size.y) > balance.floor_width:
+		if piece.size.x < 1 or piece.size.y < 1 or maxi(piece.size.x, piece.size.y) > mini(balance.start_floor_width, balance.start_floor_rows):
 			errors.append("piece %s: bad size" % piece.id)
 		if piece.price <= 0:
 			errors.append("piece %s: needs a price" % piece.id)

@@ -84,11 +84,13 @@ func _fake(spot: Dictionary) -> PlacedPiece:
 	return placed
 
 
-func test_real_starter_cafe_is_8_by_8_with_three_tables() -> void:
+func test_real_starter_cafe_is_6_by_6_with_three_tables() -> void:
 	var data := GameData.load_default()
 	var state := GameState.new_game(1, data)
-	assert_eq(state.floor_rows, 8, "8 rows")
-	assert_eq(data.balance.floor_width, 8, "8 across")
+	assert_eq(Vector2i(state.floor_width, state.floor_rows), Vector2i(6, 6), "6 x 6")
+	assert_eq(Layout.count_placed(state, Piece.STOVE, data), 1, "1 stove")
+	assert_eq(Layout.count_placed(state, Piece.COUNTER, data), 3, "3 counters")
+	assert_eq(Layout.count_placed(state, Piece.REGISTER, data), 1, "1 register")
 	assert_eq(Layout.count_placed(state, Piece.TABLE, data), 3, "3 tables")
 	assert_eq(Layout.count_placed(state, Piece.SEAT, data), 3, "3 seats")
 	assert_eq(state.seats, 3, "all working")

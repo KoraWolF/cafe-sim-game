@@ -64,7 +64,7 @@ func test_story_goes_in_order_and_gives_fashion() -> void:
 	assert_eq(GameLoop.claim_quest(state, Quests.STORY, "", data), GameLoop.NOT_DONE, "not yet")
 	state.stats["conversions"] = 1
 	assert_eq(GameLoop.claim_quest(state, Quests.STORY, "", data), GameLoop.OK, "claimed")
-	assert_eq(Quests.story_quest(state, data)["id"], "third_stove", "next step")
+	assert_eq(Quests.story_quest(state, data)["id"], "second_stove", "next step")
 	state.coins += 500
 	GameLoop.buy_piece(state, "stove", data)
 	var spot := Layout.find_spot(state, "stove", data)

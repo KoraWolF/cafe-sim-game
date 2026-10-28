@@ -68,7 +68,7 @@ func refresh() -> void:
 		var page := _clear(key)
 		page.add_child(_wrap(tr("ui.coins_line") % state.coins, 20, UiTheme.WARN))
 	_pages["furniture"].add_child(_wrap(tr("ui.furniture_note"), 14, UiTheme.TEXT_DIM))
-	_pages["decor"].add_child(_wrap(tr("ui.floor_line") % [data.balance.floor_width, state.floor_rows, roundi(state.vibe)], 16,
+	_pages["decor"].add_child(_wrap(tr("ui.floor_line") % [state.floor_width, state.floor_rows, roundi(state.vibe)], 16,
 		UiTheme.TEXT_DIM))
 	for piece: Piece in data.pieces.values():
 		if piece.price <= 0:

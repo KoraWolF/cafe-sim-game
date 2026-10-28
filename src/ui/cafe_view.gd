@@ -174,7 +174,7 @@ func fit_camera(right_panel := -1.0) -> void:
 
 ## World rectangle covering the floor and the queue outside.
 func floor_rect() -> Rect2:
-	var size := Vector2(Session.data.balance.floor_width, Session.state.floor_rows)
+	var size := Vector2(Session.state.floor_width, Session.state.floor_rows)
 	var points := [Iso.to_world(Vector2.ZERO), Iso.to_world(Vector2(size.x, 0)), Iso.to_world(size),
 		Iso.to_world(Vector2(0, size.y)), Iso.to_world(Vector2(size.x + 5, size.y)), Iso.to_world(Vector2(size.x + 2, 0)),
 		Iso.to_world(Vector2(0, size.y + 2.6)), Iso.to_world(Vector2(size.x, size.y + 2.6))]
@@ -299,7 +299,7 @@ func _click(world: Vector2, screen: Vector2) -> void:
 			job_clicked.emit(piece.uid, screen)
 			return
 		var tile := Iso.tile_at(world)
-		if piece == null and tile.y >= state.floor_rows and tile.x >= 0 and tile.x < data.balance.floor_width:
+		if piece == null and tile.y >= state.floor_rows and tile.x >= 0 and tile.x < state.floor_width:
 			job_clicked.emit("", screen)  # the Pod bay
 			return
 	match kind:
@@ -358,7 +358,7 @@ func _draw() -> void:
 	for entry: Array in _people(state, data):
 		drawables.append([Iso.depth(entry[1]) + 0.3, entry[0]])
 	# The door stands on the front-right edge, sorted like everything else.
-	var door := Vector2(data.balance.floor_width, state.floor_rows - 1)
+	var door := Vector2(state.floor_width, state.floor_rows - 1)
 	drawables.append([Iso.depth(door + Vector2(0, 1)), _draw_door.bind(door)])
 	drawables.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
 	for entry: Array in drawables:
@@ -370,7 +370,7 @@ func _draw() -> void:
 
 
 func _draw_floor(state: GameState, data: GameData) -> void:
-	var width := data.balance.floor_width
+	var width := state.floor_width
 	# Back walls along the far edges.
 	var wall := Vector2(0, -70)
 	var top := Iso.to_world(Vector2.ZERO)
@@ -407,7 +407,7 @@ func _draw_door(door: Vector2) -> void:
 
 ## Where Pod i stands in the Pod bay, outside the front-left wall (cell units).
 func _bay_slot(i: int, state: GameState, data: GameData) -> Vector2:
-	var per_row := maxi(int(data.balance.floor_width / BAY_SPACING), 1)
+	var per_row := maxi(int(state.floor_width / BAY_SPACING), 1)
 	return Vector2(0.6 + (i % per_row) * BAY_SPACING, state.floor_rows + BAY_GAP + 0.9 + (i / per_row) * 1.2)
 
 
@@ -415,9 +415,9 @@ func _bay_slot(i: int, state: GameState, data: GameData) -> Vector2:
 ## (its glass Pods are drawn with everything else, far to near).
 func _draw_pod_bay(state: GameState, data: GameData) -> void:
 	var rows := float(state.floor_rows) + BAY_GAP
-	var deep := 0.3 + ceilf(float(state.pods) / maxi(int(data.balance.floor_width / BAY_SPACING), 1)) * 1.2
-	var corners := PackedVector2Array([Iso.to_world(Vector2(0, rows + 0.25)), Iso.to_world(Vector2(data.balance.floor_width, rows + 0.25)),
-		Iso.to_world(Vector2(data.balance.floor_width, rows + 0.25 + deep)), Iso.to_world(Vector2(0, rows + 0.25 + deep))])
+	var deep := 0.3 + ceilf(float(state.pods) / maxi(int(state.floor_width / BAY_SPACING), 1)) * 1.2
+	var corners := PackedVector2Array([Iso.to_world(Vector2(0, rows + 0.25)), Iso.to_world(Vector2(state.floor_width, rows + 0.25)),
+		Iso.to_world(Vector2(state.floor_width, rows + 0.25 + deep)), Iso.to_world(Vector2(0, rows + 0.25 + deep))])
 	draw_colored_polygon(corners, Color("252046"))
 	corners.append(corners[0])
 	draw_polyline(corners, Color(UiTheme.PANEL_BORDER, 0.5), 2.0)
@@ -568,7 +568,7 @@ func _draw_range(cell: Vector2i, size: Vector2i, state: GameState, data: GameDat
 	var reach := data.balance.decor_range
 	var glow := Color(UiTheme.PANEL_BORDER, 0.13)
 	for y: int in range(maxi(cell.y - reach, 0), mini(cell.y + size.y + reach, state.floor_rows)):
-		for x: int in range(maxi(cell.x - reach, 0), mini(cell.x + size.x + reach, data.balance.floor_width)):
+		for x: int in range(maxi(cell.x - reach, 0), mini(cell.x + size.x + reach, state.floor_width)):
 			var tile := Vector2(x, y)
 			draw_colored_polygon(PackedVector2Array([Iso.to_world(tile), Iso.to_world(tile + Vector2(1, 0)),
 				Iso.to_world(tile + Vector2(1, 1)), Iso.to_world(tile + Vector2(0, 1))]), glow)
@@ -604,7 +604,7 @@ func _draw_block(cell: Vector2, size: Vector2, height: float, color: Color) -> v
 func _people(state: GameState, data: GameData) -> Array[Array]:
 	paths.update(state, data)
 	var result: Array[Array] = []
-	var width := float(data.balance.floor_width)
+	var width := float(state.floor_width)
 	var rows := float(state.floor_rows)
 	var queue_index := 0
 	var line_index := 0
@@ -764,7 +764,7 @@ func _seat_position(customer_id: String, state: GameState, data: GameData) -> Ve
 	var customer := state.customer_by_id(customer_id)
 	var placed := Layout.placed_by_uid(state, customer.seat_uid if customer != null else "")
 	if placed == null:
-		return Vector2(data.balance.floor_width - 1, state.floor_rows - 1)
+		return Vector2(state.floor_width - 1, state.floor_rows - 1)
 	return Vector2(placed.cell) + Vector2(0.5, 0.5)
 
 
@@ -818,8 +818,8 @@ func _draw_customer(customer: Customer, at: Vector2) -> void:
 func _draw_glow_ring(feet: Vector2) -> void:
 	var pulse := 0.5 + 0.5 * sin(_time * 5.0)
 	draw_set_transform(feet, 0, Vector2(1, 0.5))
-	draw_circle(Vector2.ZERO, 26 + 3 * pulse, Color(UiTheme.ACCENT, 0.18 + 0.12 * pulse))
-	draw_arc(Vector2.ZERO, 26 + 3 * pulse, 0, TAU, 40, Color(UiTheme.ACCENT, 0.9), 3.0)
+	draw_circle(Vector2.ZERO, 26 + 3 * pulse, Color(UiTheme.PANEL_BORDER, 0.18 + 0.12 * pulse))
+	draw_arc(Vector2.ZERO, 26 + 3 * pulse, 0, TAU, 40, Color(UiTheme.PANEL_BORDER, 0.9), 3.0)
 	draw_set_transform(Vector2.ZERO)
 
 

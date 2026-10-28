@@ -34,7 +34,9 @@ extends RefCounted
 ##     the starred list. Greeters become Servers; stations are bound on load.
 ## 16: no daily menu: nobody orders, a server brings the nearest dish. The
 ##     menu and menu slots are dropped; seated customers forget their order.
-const VERSION: int = 16
+## 17: the floor's width is saved (it grows with the floor upgrade); older
+##     cafés were 8 across.
+const VERSION: int = 17
 const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
 
@@ -61,6 +63,7 @@ static func to_dict(state: GameState) -> Dictionary:
 		"power": state.power,
 		"security": state.security,
 		"pods": state.pods,
+		"floor_width": state.floor_width,
 		"floor_rows": state.floor_rows,
 		"placed": state.placed.map(func(placed: PlacedPiece) -> Dictionary: return placed.to_dict()),
 		"storage": state.storage,
@@ -112,6 +115,7 @@ static func from_dict(raw: Dictionary) -> GameState:
 	state.power = float(raw.get("power", 0.0))
 	state.security = float(raw.get("security", 0.0))
 	state.pods = int(raw.get("pods", 0))
+	state.floor_width = int(raw.get("floor_width", 0))
 	state.floor_rows = int(raw.get("floor_rows", 0))
 	for entry: Dictionary in _objects(raw, "placed"):
 		state.placed.append(PlacedPiece.from_dict(entry))
@@ -305,6 +309,9 @@ static func _migrate_step(version: int, raw: Dictionary) -> Dictionary:
 			return raw
 		14:
 			return raw
+		16:
+			raw["floor_width"] = 8
+			return raw
 		15:
 			raw.erase("menu")
 			raw.erase("menu_slots")
@@ -466,8 +473,8 @@ static func validate(state: GameState, data: GameData) -> PackedStringArray:
 ## state per placed stove; storage counts positive.
 static func _check_floor(state: GameState, data: GameData) -> PackedStringArray:
 	var errors: PackedStringArray = []
-	if state.floor_rows < 1:
-		errors.append("floor of %d rows" % state.floor_rows)
+	if state.floor_rows < 1 or state.floor_width < 1:
+		errors.append("floor of %d x %d" % [state.floor_width, state.floor_rows])
 		return errors
 	var uids: Dictionary[String, bool] = {}
 	for placed: PlacedPiece in state.placed:

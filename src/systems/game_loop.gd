@@ -226,7 +226,10 @@ static func buy_upgrade(state: GameState, upgrade_id: String, data: GameData) ->
 		Upgrade.POD:
 			state.pods += roundi(upgrade.step)
 		Upgrade.FLOOR:
-			state.floor_rows += roundi(upgrade.step)
+			var size: int = upgrade.sizes[state.upgrades[upgrade_id] - 1] if not upgrade.sizes.is_empty() \
+				else state.floor_rows + roundi(upgrade.step)
+			state.floor_width = maxi(state.floor_width, size)
+			state.floor_rows = maxi(state.floor_rows, size)
 			Layout.refresh(state, data)
 		Upgrade.SECURITY:
 			state.security += upgrade.step

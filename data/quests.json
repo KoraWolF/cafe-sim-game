@@ -20,7 +20,7 @@
 	],
 	"story": [
 		{"id": "first_conversion", "check": "stat", "stat": "conversions", "target": 1, "reward": {"coins": 100}},
-		{"id": "third_stove", "check": "placed", "kind": "stove", "target": 3, "reward": {"coins": 150, "fashion": "beanie"}},
+		{"id": "second_stove", "check": "placed", "kind": "stove", "target": 2, "reward": {"coins": 150, "fashion": "beanie"}},
 		{"id": "first_decor", "check": "decor", "target": 1, "reward": {"bottle": "bottle_medium"}},
 		{"id": "first_raid", "check": "stat", "stat": "raids_won", "target": 1, "reward": {"scrap": 5, "fashion": "barista_apron"}},
 		{"id": "take_alley", "check": "district", "district": "alley", "reward": {"coins": 500, "nanobrew": 1, "fashion": "top_hat"}},

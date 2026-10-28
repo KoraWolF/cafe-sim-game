@@ -168,12 +168,13 @@ func test_same_seed_same_shift() -> void:
 	assert_eq(a.coins, b.coins, "same coins")
 
 
-func test_extra_seats_bring_customers_faster() -> void:
-	var data := _data({"arrival_per_extra_seat": 0.25})
+func test_a_bigger_cafe_brings_customers_faster() -> void:
+	var data := _data()
 	var state := GameState.new_game(1, data)
-	assert_eq(Shift.arrival_rate(state, data), 1.0, "base rate at the starting seats")
-	state.seats += 4
-	assert_eq(Shift.arrival_rate(state, data), 2.0, "+25% per extra seat")
+	assert_eq(Shift.arrival_rate(state, data), 1.0, "8 x 6: the reference size 7")
+	state.floor_width = 14
+	state.floor_rows = 14
+	assert_eq(Shift.arrival_rate(state, data), 2.0, "twice the side, twice the customers")
 	state.synths[0].role = Synth.REST
 	var events := GameLoop.advance(state, 80, data)
 	# Gap 50 / 2 = 25 s: arrivals at 3, 28, 53, 78.

@@ -85,10 +85,12 @@ static func cashier_appeal(state: GameState, data: GameData) -> float:
 	return total
 
 
-## How many times faster than the base gap customers arrive: Cashiers' appeal plus extra seats.
+## How many times faster than the base gap customers arrive: the café's size
+## (its average side over arrival_reference_size: a small café gets fewer) times
+## 1 + the Cashiers' appeal.
 static func arrival_rate(state: GameState, data: GameData) -> float:
-	var extra_seats := maxi(state.seats - data.balance.start_seats, 0)
-	return 1.0 + cashier_appeal(state, data) + data.balance.arrival_per_extra_seat * extra_seats
+	var side := (state.floor_width + state.floor_rows) * 0.5
+	return side / maxf(data.balance.arrival_reference_size, 1.0) * (1.0 + cashier_appeal(state, data))
 
 
 static func seated_count(state: GameState) -> int:

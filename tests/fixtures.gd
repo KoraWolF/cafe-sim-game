@@ -21,7 +21,7 @@ extends RefCounted
 ## level n -> n + 1 costs 100 * n; max level 3; +50% of base per level.
 ## Upgrades: stove 50 (x2 per level, max 2), seat 20 (+2 seats, max 3),
 ## pod 100 (max 1), security 30 (+10 hp, max 2).
-## Floor 8 x 6; the floor upgrade adds 2 rows (100 coins, max 2). Pieces: seat 1x1,
+## Floor 8 x 6; the floor upgrade makes it 8 x 8, then 10 x 10 (100 coins each). Arrivals at 1x (size 7). Pieces: seat 1x1,
 ## stove 2x1, counter 2x1 (a new game puts the stoves at (0, 0) and (2, 0), the
 ## seats at (6, 0) and (7, 0); 2 Pods in the Pod bay); décor fern 1x1 (50 coins, 10 Vibe, plant), lamp 1x1 (30, 5, light),
 ## tank 2x2 (200, 40, plant); light next to plant +3. Vibe: waiting loss / (1 +
@@ -41,7 +41,7 @@ static func content(balance_overrides := {}) -> Dictionary:
 		"start_stoves": 2, "start_pods": 2, "start_counters": 0, "start_tables": 2,
 		"start_layout": [{"piece": "seat", "cell": [6, 0]}, {"piece": "seat", "cell": [7, 0]},
 			{"piece": "table", "cell": [6, 1]}, {"piece": "table", "cell": [7, 1]}],
-		"floor_width": 8, "start_floor_rows": 6, "vibe_decay_per_point": 0.01, "vibe_meal_bonus": 0.1,
+		"start_floor_width": 8, "start_floor_rows": 6, "arrival_reference_size": 7, "vibe_decay_per_point": 0.01, "vibe_meal_bonus": 0.1,
 		"vibe_meal_bonus_max": 10.0, "sell_refund": 0.5,
 		"start_security": 0.0, "start_district": "town",
 		"starter_species": "steady", "starter_name": "Proto", "brew_coin_cost": 30, "brew_core_cost": 1,
@@ -93,7 +93,7 @@ static func content(balance_overrides := {}) -> Dictionary:
 		],
 		"upgrades": [
 			{"id": "pod", "step": 1, "base_cost": 100, "cost_growth": 1.0, "max_level": 1},
-			{"id": "floor", "step": 2, "base_cost": 100, "cost_growth": 1.0, "max_level": 2},
+			{"id": "floor", "base_cost": 100, "cost_growth": 1.0, "sizes": [8, 10]},
 			{"id": "security", "step": 10, "base_cost": 30, "cost_growth": 1.0, "max_level": 2},
 		],
 		"pieces": [
