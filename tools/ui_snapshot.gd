@@ -280,6 +280,15 @@ func _run() -> void:
 	state.coins = 2000
 	await _click(_centre_of(game.hud.shop_button))
 	print("CHECK Shop button mid-shift -> shop open: ", game.shop.visible and state.phase == GameState.Phase.SHIFT)
+	var fits := true
+	for tab: int in game.shop.TABS.size():
+		game.shop.tabs.current_tab = tab
+		await _frames(2)
+		var bottom: float = game.shop.get_global_rect().end.y
+		if bottom > game.shop.get_viewport_rect().size.y + 0.5:
+			fits = false
+			print("  tab %s ends at %d" % [game.shop.TABS[tab], bottom])
+	print("CHECK every Menu tab fits on the screen (buttons visible): ", fits)
 	game.shop.tabs.current_tab = 0
 	await _frames(2)
 	_shot("04e_shop_mid_shift")
