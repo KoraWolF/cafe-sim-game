@@ -89,7 +89,7 @@ func test_bin_is_bought_and_starter_cafe_has_one() -> void:
 	var data := _data({"start_bins": 0})
 	state = GameState.new_game(1, data)
 	state.phase = GameState.Phase.NIGHT
-	assert_eq(GameLoop.buy_upgrade(state, Upgrade.BIN, data), GameLoop.OK, "bought")
+	assert_eq(GameLoop.buy_piece(state, "bin", data), GameLoop.OK, "bought")
 	assert_eq(state.storage.get("bin", 0), 1, "in storage to place")
 
 

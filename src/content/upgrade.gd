@@ -3,17 +3,9 @@ extends RefCounted
 ## A café upgrade bought at night. Its id says what it adds (see IDS); the
 ## numbers come from /data/upgrades.json.
 
-## Furniture upgrades (see FURNITURE) put a piece in storage, to be placed on the floor.
+## Things that are not on the floor: furniture and décor are bought by the
+## piece (Piece.price), as many as fit.
 ## Pod upgrades add a Sync Pod to the Pod bay outside the café.
-const STOVE: String = "stove"
-## One more counter (each holds one dish).
-const COUNTER: String = "counter"
-const SEAT: String = "seat"
-const TABLE: String = "table"
-const BIN: String = "bin"
-const REGISTER: String = "register"
-## The upgrades that are floor pieces (the piece has the upgrade's id).
-const FURNITURE: Array[String] = [STOVE, COUNTER, SEAT, TABLE, BIN, REGISTER]
 const POD: String = "pod"
 ## More floor rows.
 const FLOOR: String = "floor"
@@ -21,7 +13,7 @@ const FLOOR: String = "floor"
 const MENU_SLOT: String = "menu_slot"
 ## Extra HP for each home defender.
 const SECURITY: String = "security"
-const IDS: Array[String] = [STOVE, COUNTER, SEAT, TABLE, BIN, REGISTER, POD, MENU_SLOT, FLOOR, SECURITY]
+const IDS: Array[String] = [POD, MENU_SLOT, FLOOR, SECURITY]
 
 var id: String = ""
 ## How much one purchase adds.

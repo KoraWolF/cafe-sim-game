@@ -82,29 +82,40 @@ func _run() -> void:
 	print("CHECK Info button -> info open: ", game.hud.info.visible)
 	_shot("03d_info")
 	game.hud.info.hide_modal()
-	# Items: wear the starter hat from Details > Fashion, craft boots in the Shop, wear and sell.
+	# Bag: click the Neon Cap's card, Wear on the first worker; a Details slot opens its picker;
+	# craft in the Workshop (the new piece is selected) and sell it from its detail box.
 	var worker: Synth = state.synths[0]
+	await _click(_centre_of(game.hud.bag_button))
+	game.bag.tabs.current_tab = 1
+	await _frames(2)
+	await _click(_centre_of(_button_with(game.bag, UiText.item_name(state.inventory.filter(
+		func(i: Item) -> bool: return i.type_id == "neon_cap")[0]))))
+	print("CHECK Bag card -> detail with Wear: ", game.bag.selected != "" and _button_with(game.bag, tr("ui.bag_wear_on")) != null)
+	await _click(_centre_of(_button_with(game.bag, tr("ui.bag_wear_on"))))
+	print("CHECK Wear on -> hat on the first worker: ", Items.worn(worker, "hat", data) != null)
+	_shot("03e_bag_fashion")
+	state.scrap = 10
+	game.bag.tabs.current_tab = 3
+	await _frames(2)
+	var owned := state.inventory.size()
+	await _click(_centre_of(_button_with(game.bag, tr("ui.craft"))))
+	await _frames(2)
+	var crafted: Item = state.inventory[-1]
+	print("CHECK Craft -> new piece selected in Equipment: ", state.inventory.size() == owned + 1 and state.scrap == 5
+		and game.bag.tabs.current_tab == 0 and game.bag.selected == crafted.uid)
+	_shot("03f_bag_crafted")
+	var coins_before := state.coins
+	await _click(_centre_of(_button_with(game.bag, tr("ui.sell") % int(data.items.tiers[crafted.tier]["sell"]))))
+	print("CHECK Sell -> coins for its tier: ", state.coins == coins_before + int(data.items.tiers[crafted.tier]["sell"]))
+	game.bag.close()
 	game.hud.details.open(worker.id)
 	game.hud.details._tabs.current_tab = 3
 	await _frames(2)
-	await _click(_centre_of(_button_with(game.hud.details, tr("ui.wear"))))
-	print("CHECK Wear -> hat on: ", Items.worn(worker, "hat", data) != null)
-	_shot("03e_wearing_hat")
+	await _click(_centre_of(game.hud.details.slot_boxes["hat"]))
+	print("CHECK Details slot -> picker open: ", game.hud.details._picker.visible)
+	_shot("03g_slot_picker")
+	game.hud.details._picker.hide()
 	game.hud.details.visible = false
-	state.scrap = 10
-	game.open_shop()
-	game.shop.tabs.current_tab = 1
-	await _frames(2)
-	var owned := state.inventory.size()
-	await _click(_centre_of(_button_with(game.shop.items_page, tr("ui.craft"))))
-	print("CHECK Craft -> a new piece, Scrap spent: ", state.inventory.size() == owned + 1 and state.scrap == 5)
-	_shot("03f_shop_items")
-	var crafted: Item = state.inventory[-1]
-	var coins_before := state.coins
-	await _click(_centre_of(_button_with(game.shop.items_page, tr("ui.sell") % int(data.items.tiers[crafted.tier]["sell"]))))
-	print("CHECK Sell -> coins for its tier: ", state.coins == coins_before + int(data.items.tiers[crafted.tier]["sell"]))
-	game.shop.tabs.current_tab = 0
-	game.shop.close()
 	await _frames(2)
 	# Quests from the top bar, mid-shift: three dailies; a finished achievement is claimed by a real click.
 	state.stats["served"] = 100
@@ -188,14 +199,23 @@ func _run() -> void:
 	await _click(_centre_of(game.hud.shop_button))
 	print("CHECK Shop button mid-shift -> shop open: ", game.shop.visible and state.phase == GameState.Phase.SHIFT)
 	_shot("04e_shop_mid_shift")
-	var seats_before: int = state.upgrades.get(Upgrade.SEAT, 0)
-	var seat_buy: Button = null
-	for row: Node in game.shop._page.get_children():
-		if row is HBoxContainer and row.get_child(0) is Label 				and (row.get_child(0) as Label).text.begins_with(UiText.name(Upgrade.SEAT)):
-			seat_buy = row.get_child(1)
-	await _click(_centre_of(seat_buy))
-	print("CHECK buy a seat mid-shift -> bought and placed: ", state.upgrades.get(Upgrade.SEAT, 0) == seats_before + 1
-		and state.storage.get("seat", 0) == 0)
+	# Furniture: Buy puts it in your hand in Arrange; Store keeps it for later.
+	var stored_seats: int = state.storage.get("seat", 0)
+	await _click(_centre_of(_button_with(game.shop, tr("ui.buy_store"))))
+	print("CHECK Store (the first piece, a seat) -> in storage: ", state.storage.get("seat", 0) == stored_seats + 1)
+	var seat_row_buy: Button = null
+	for button: Button in game.shop.find_children("*", "Button", true, false):
+		var row := button.get_parent()
+		if button.is_visible_in_tree() and button.text == tr("ui.buy_place") % data.pieces["seat"].price 				and (row.get_child(0) as Label).text.begins_with(UiText.name("seat")):
+			seat_row_buy = button
+	await _click(_centre_of(seat_row_buy))
+	print("CHECK Buy a seat mid-shift -> Arrange opens holding it: ", game.cafe.editor != null
+		and game.cafe.editor.held_piece == "seat" and not game.shop.visible)
+	_shot("04f_buy_holding_seat")
+	game.edit_panel.done.emit()
+	await _frames(3)
+	game.open_shop()
+	await _frames(2)
 	await _click(_centre_of(game.hud.arrange_button))
 	print("CHECK Arrange mid-shift -> editing, shop closed: ", game.cafe.editor != null and not game.shop.visible)
 	game.edit_panel.done.emit()
@@ -221,9 +241,9 @@ func _run() -> void:
 
 	# Arranging the floor with real mouse input.
 	state.coins = 1000
-	GameLoop.buy_decor(state, "potted_fern", data)
+	GameLoop.buy_piece(state, "potted_fern", data)
 	_session.auto_place("potted_fern")
-	GameLoop.buy_decor(state, "bubble_lamp", data)
+	GameLoop.buy_piece(state, "bubble_lamp", data)
 	_session.state_changed.emit()
 	game.enter_edit()
 	await _frames(3)

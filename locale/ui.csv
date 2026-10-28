@@ -65,7 +65,6 @@ ui.maxed,Maxed
 ui.decor_title,Décor shop
 ui.decor_line,"%s — %dx%d, %d Vibe, tags: %s"
 ui.decor_owned,In storage: %d
-ui.decor_note,New pieces go to the first free spot. Use Arrange Floor to move them.
 ui.arrange,Arrange Floor
 ui.edit_title,Arrange the floor
 ui.edit_hint,"Click a piece to pick it up, click again to drop it. R rotates, right-click puts it back. Esc leaves. Décor only lifts seats within 2 tiles: the lit area shows its reach, and the seats it reaches turn green."
@@ -82,7 +81,6 @@ ui.edit_storage_empty,Storage is empty.
 ui.edit_take,%s ×%d
 ui.edit_vibe_delta,%+d Vibe
 ui.floor_line,"Floor %d x %d, Vibe %d"
-ui.no_room_stored,No room on the floor — the piece waits in storage.
 ui.staff_line,"%s (%s%s) — Lv %d, battery %d%% (max %d)"
 ui.brew,Brew NanoBrew (%d core + %d coins)
 ui.nanobrew_count,NanoBrew: %d   Nano Cores: %d
@@ -288,7 +286,6 @@ ui.tab_fight,Fight
 ui.tab_trait,Trait
 ui.tab_fashion,Fashion
 ui.tab_gear,Equipment
-ui.gear_soon,Nothing here yet — fashion and equipment arrive with the items update.
 ui.details_best_role,"Best role: %s"
 ui.details_role_now,"Now: %s"
 ui.details_speed,Speed %.2f
@@ -346,19 +343,12 @@ slot.amulet,Amulet
 name.bottle_small,Small EXP bottle
 name.bottle_medium,Medium EXP bottle
 name.bottle_large,Large EXP bottle
-ui.shop_tab_buy,Buy
-ui.shop_tab_items,Items
 ui.materials,"Scrap %d · Chips %d (from won raids)"
 ui.craft_basic,"Basic craft: %d Scrap → a Common or Magic piece"
 ui.craft_advanced,"Advanced craft: %d Scrap + %d Chip → a Rare, Epic or Legendary piece"
 ui.craft,Craft
 ui.crafted,Crafted: %s (%s)
-ui.bottles_title,EXP bottles
 ui.bottles_none,No EXP bottles yet — won raids sometimes bring one.
-ui.bottle_line,%s (+%d XP) × %d
-ui.bottle_use,Use %s (+%d XP) — %d left
-ui.inventory_title,Owned pieces
-ui.inventory_note,"Wear them from a worker's Details (Fashion / Equipment). Equipment sells here; fashion is kept."
 ui.sell,Sell (%d)
 ui.slot_empty,empty
 ui.take_off,Take off
@@ -398,7 +388,7 @@ quest.daily.batches,Cook %d batches
 quest.daily.vibe,Reach %d café Vibe
 quest.daily.clean_day,Finish %d day with nobody leaving angry
 quest.story.first_conversion,Convert your first customer into a Synth
-quest.story.second_stove,Buy a second stove
+quest.story.third_stove,Get a third stove on the floor
 quest.story.first_decor,Place a piece of décor
 quest.story.first_raid,Win your first raid on MegaBean
 quest.story.take_alley,Take over the Alley
@@ -415,3 +405,41 @@ quest.ach.raids_10,Win 10 raids
 quest.ach.legendary,Own a Legendary piece
 quest.ach.vibe_500,Reach 500 café Vibe
 quest.ach.whole_city,Take over the whole city
+ui.shop_tab_furniture,Furniture
+ui.shop_tab_decor,Décor
+ui.shop_tab_upgrades,Upgrades
+ui.shop_tab_energy,Energy
+ui.furniture_note,"Buy as many as you like — the floor is the limit. Buy puts it in your hand to place now; Store keeps it for later (Arrange shows your storage). Sell for half in Arrange."
+ui.furniture_line,%s (%dx%d)
+ui.piece_owned,"placed %d · stored %d"
+ui.buy_place,Buy (%d)
+ui.buy_store,Store
+tip.buy_place,Buy it and place it now (Arrange opens with it in your hand).
+tip.buy_store,Buy it into storage to place later from Arrange.
+ui.stored,%s stored (%d in storage).
+tip.piece.stove,Cooks one batch at a time. Click it to pick a dish.
+tip.piece.counter,Holds one dish; servers carry finished batches to the closest free counter.
+tip.piece.seat,A customer sits here — it needs its own table right beside it.
+tip.piece.table,"Where the dish is served and eaten; one seat per table."
+tip.piece.bin,Servers throw unwanted food into the nearest bin.
+tip.piece.register,"Customers pay here on the way out; each needs its own Cashier."
+ui.bag_button,Bag
+tip.bag,"Everything you own: equipment, fashion, EXP bottles, and the Workshop for crafting."
+ui.bag_title,Bag
+ui.bag_tab_equipment,Equipment
+ui.bag_tab_fashion,Fashion
+ui.bag_tab_bottles,Bottles
+ui.bag_tab_workshop,Workshop
+ui.bag_worn_by,Worn by %s
+ui.bag_spare,Spare
+ui.bag_pick,Click a card to see what you can do with it.
+ui.bag_wear_on,Wear on this worker
+ui.bag_use_on,Use on this worker
+ui.bag_sell_worn,Take it off before selling.
+ui.bottle_card,"%s
++%d XP
+× %d"
+ui.bottle_xp,+%d XP
+ui.workshop_note,Scrap and Chips come from won raids (Chips from a district's flagship). A new piece appears selected in Equipment.
+ui.slots_note,"Click a slot to wear a spare piece or take one off. Everything you own is in the Bag."
+ui.slot_nothing_spare,No spare pieces for this slot

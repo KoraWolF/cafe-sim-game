@@ -20,8 +20,9 @@ func test_buying_during_a_shift() -> void:
 	var state := GameState.new_game(1, data)
 	state.coins = 1000
 	assert_eq(state.phase, GameState.Phase.SHIFT, "setup: mid-shift")
-	assert_eq(GameLoop.buy_upgrade(state, Upgrade.SEAT, data), GameLoop.OK, "upgrade in a shift")
-	assert_eq(GameLoop.buy_decor(state, "fern", data), GameLoop.OK, "décor in a shift")
+	assert_eq(GameLoop.buy_upgrade(state, Upgrade.SECURITY, data), GameLoop.OK, "upgrade in a shift")
+	assert_eq(GameLoop.buy_piece(state, "seat", data), GameLoop.OK, "furniture in a shift")
+	assert_eq(GameLoop.buy_piece(state, "fern", data), GameLoop.OK, "décor in a shift")
 	var spot := Layout.find_spot(state, "fern", data)
 	assert_eq(GameLoop.place_piece(state, "fern", spot["cell"], spot["rotated"], data), GameLoop.OK, "placed in a shift")
 	assert_eq(GameLoop.buy_power(state, 10, data), GameLoop.OK, "Energy in a shift")

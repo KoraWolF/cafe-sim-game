@@ -11,8 +11,12 @@ extends SceneTree
 ## its squad (everyone but one Synth left home) is likely to beat.
 
 const RESERVE: int = 150
+## How many of each the bot buys beyond the start (what the old upgrades capped).
+const FURNITURE_CAPS: Dictionary[String, int] = {"stove": 4, "counter": 4, "seat_pair": 8}
 
 var decor_spend := 0
+## Furniture bought this run, by option.
+var bought: Dictionary[String, int] = {}
 
 var data: GameData
 
@@ -37,6 +41,7 @@ func _init() -> void:
 func _play(seed_value: int, days: int, daily: bool) -> Dictionary:
 	var state := GameState.new_game(seed_value, data)
 	decor_spend = 0
+	bought.clear()
 	var stats := {"seated": 0.0, "stars": 0.0, "angry": 0.0, "turned_away": 0.0, "conversions": 0.0,
 		"raids": 0.0, "raids_won": 0.0, "defenses": 0.0, "defenses_lost": 0.0, "coins_stolen": 0.0,
 		"undercharged_nights": 0.0, "upgrade_spend": 0.0, "max_suspicion": 0.0,
@@ -180,25 +185,58 @@ func _night_shopping(state: GameState) -> int:
 	var spent := 0
 	var refused: Array[String] = []
 	while true:
+		# The cheapest of: an upgrade, or a piece of furniture (a seat comes with its
+		# table) up to what the old furniture upgrades allowed.
 		var best := ""
-		for upgrade_id: String in Upgrade.IDS:
-			# More pods only help when NanoBrew is waiting for them; the bot never throws food away.
-			if refused.has(upgrade_id) or upgrade_id == Upgrade.BIN or upgrade_id == Upgrade.REGISTER 					or (upgrade_id == Upgrade.POD and state.synths.size() < state.pods):
+		var best_cost := 1 << 30
+		for option: String in Upgrade.IDS + FURNITURE_CAPS.keys():
+			# More pods only help when NanoBrew is waiting for them.
+			if refused.has(option) or (option == Upgrade.POD and state.synths.size() < state.pods):
 				continue
-			var cost := GameLoop.upgrade_cost(state, upgrade_id, data)
-			if cost > 0 and state.coins - cost >= RESERVE \
-					and (best == "" or cost < GameLoop.upgrade_cost(state, best, data)):
-				best = upgrade_id
+			var cost := _option_cost(state, option)
+			if cost > 0 and state.coins - cost >= RESERVE and cost < best_cost:
+				best = option
+				best_cost = cost
 		if best == "":
 			break
-		var cost := GameLoop.upgrade_cost(state, best, data)
-		if GameLoop.buy_upgrade(state, best, data) == GameLoop.OK:
-			spent += cost
+		if _buy_option(state, best):
+			spent += best_cost
 			_place_stored_furniture(state)
 		else:
 			refused.append(best)  # e.g. no room for more furniture
 	decor_spend += _buy_decor(state)
 	return spent
+
+
+## Coins for an upgrade or a furniture option (-1 = not available).
+func _option_cost(state: GameState, option: String) -> int:
+	if not FURNITURE_CAPS.has(option):
+		return GameLoop.upgrade_cost(state, option, data)
+	var piece_id: String = Piece.SEAT if option == "seat_pair" else option
+	if bought.get(option, 0) >= FURNITURE_CAPS[option]:
+		return -1
+	var cost := data.pieces[piece_id].price
+	return cost + data.pieces[Piece.TABLE].price if option == "seat_pair" else cost
+
+
+func _buy_option(state: GameState, option: String) -> bool:
+	if not FURNITURE_CAPS.has(option):
+		return GameLoop.buy_upgrade(state, option, data) == GameLoop.OK
+	var pieces: Array[String] = [option]
+	if option == "seat_pair":
+		pieces = [Piece.SEAT, Piece.TABLE]
+	var free := 0
+	var bounds := Layout.floor_size(state, data.balance)
+	for y: int in bounds.y:
+		for x: int in bounds.x:
+			if Layout.piece_at(state, Vector2i(x, y), data) == null:
+				free += 1
+	if free < pieces.size() * 2:
+		return false  # no room left
+	for piece_id: String in pieces:
+		GameLoop.buy_piece(state, piece_id, data)
+	bought[option] = bought.get(option, 0) + 1
+	return true
 
 
 func _place_stored_furniture(state: GameState) -> void:
@@ -234,7 +272,7 @@ func _buy_decor(state: GameState) -> int:
 		if best.is_empty():
 			return spent
 		spent += data.pieces[best["piece_id"]].price
-		GameLoop.buy_decor(state, best["piece_id"], data)
+		GameLoop.buy_piece(state, best["piece_id"], data)
 		GameLoop.place_piece(state, best["piece_id"], best["cell"], best["rotated"], data)
 	return spent
 

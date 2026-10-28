@@ -219,9 +219,7 @@ static func upgrade_cost(state: GameState, upgrade_id: String, data: GameData) -
 	return -1 if level >= upgrade.max_level else upgrade.cost_at(level)
 
 
-## Buys one level of an upgrade, at any time. Furniture upgrades put the piece
-## in storage to be placed, and need a free spot for it on the floor (expand
-## the floor first). Pods go to the Pod bay.
+## Buys one level of an upgrade (Pods, floor, menu slot, security), at any time.
 static func buy_upgrade(state: GameState, upgrade_id: String, data: GameData) -> String:
 	var upgrade: Upgrade = data.upgrades.get(upgrade_id)
 	if upgrade == null:
@@ -231,13 +229,8 @@ static func buy_upgrade(state: GameState, upgrade_id: String, data: GameData) ->
 		return MAXED
 	if state.coins < cost:
 		return NOT_ENOUGH_COINS
-	var furniture := Upgrade.FURNITURE.has(upgrade_id)
-	if furniture and Layout.find_spot(state, upgrade_id, data).is_empty():
-		return NO_ROOM
 	state.coins -= cost
 	state.upgrades[upgrade_id] = state.upgrades.get(upgrade_id, 0) + 1
-	if furniture:
-		state.storage[upgrade_id] = state.storage.get(upgrade_id, 0) + roundi(upgrade.step)
 	match upgrade_id:
 		Upgrade.POD:
 			state.pods += roundi(upgrade.step)
@@ -251,9 +244,10 @@ static func buy_upgrade(state: GameState, upgrade_id: String, data: GameData) ->
 	return OK
 
 
-## Buys a décor piece into storage. Any time, like every floor change below
-## (in a shift, pieces in use stay put: see Layout).
-static func buy_decor(state: GameState, piece_id: String, data: GameData) -> String:
+## Buys a piece of furniture or décor into storage, as many as you like (the
+## floor is the limit). Any time, like every floor change below (in a shift,
+## pieces in use stay put: see Layout).
+static func buy_piece(state: GameState, piece_id: String, data: GameData) -> String:
 	return Layout.buy(state, piece_id, data)
 
 
@@ -272,12 +266,13 @@ static func pick_up_piece(state: GameState, uid: String, data: GameData) -> Stri
 	return Layout.pick_up(state, uid, data)
 
 
-## Sells a placed décor piece for sell_refund of its price.
+## Sells a placed piece for sell_refund of its price (not one in use, nor the
+## last counter or register).
 static func sell_piece(state: GameState, uid: String, data: GameData) -> String:
 	return Layout.sell_placed(state, uid, data)
 
 
-## Sells one stored décor piece for sell_refund of its price.
+## Sells one stored piece for sell_refund of its price.
 static func sell_stored_piece(state: GameState, piece_id: String, data: GameData) -> String:
 	return Layout.sell_stored(state, piece_id, data)
 

@@ -13,6 +13,7 @@ var night := NightHub.new()
 var edit_panel := EditPanel.new()
 var shop := ShopPanel.new()
 var quests := QuestPanel.new()
+var bag := BagPanel.new()
 var report := ReportPanel.new()
 var battle := BattleView.new()
 var tutorial_box := TutorialBox.new()
@@ -35,6 +36,7 @@ func _ready() -> void:
 	root.add_child(edit_panel)
 	root.add_child(shop)
 	root.add_child(quests)
+	root.add_child(bag)
 	root.add_child(hud)
 	root.add_child(report)
 	root.add_child(battle)
@@ -58,9 +60,12 @@ func _ready() -> void:
 	cafe.edit_exit_requested.connect(exit_edit)
 	hud.shop_requested.connect(open_shop)
 	hud.quests_requested.connect(open_quests)
+	hud.bag_requested.connect(open_bag)
+	bag.closed.connect(_layout)
 	quests.closed.connect(_layout)
 	hud.arrange_requested.connect(enter_edit)
 	shop.arrange_requested.connect(enter_edit)
+	shop.place_requested.connect(place_bought)
 	shop.closed.connect(_layout)
 	edit_panel.done.connect(exit_edit)
 	hud.quit_to_menu.connect(func() -> void:
@@ -140,6 +145,7 @@ func enter_edit() -> void:
 		return
 	shop.visible = false
 	quests.visible = false
+	bag.visible = false
 	Session.editing = true
 	cafe.editor = FloorEditor.new()
 	edit_panel.open(cafe.editor)
@@ -156,6 +162,13 @@ func exit_edit() -> void:
 	_layout()
 
 
+## A piece just bought with "Buy": straight into Arrange, held to place (Esc
+## or Put back leaves it in storage).
+func place_bought(piece_id: String) -> void:
+	enter_edit()
+	edit_panel._take(piece_id)
+
+
 ## The shop, at any time; toggles from the top bar.
 func open_shop() -> void:
 	if shop.visible:
@@ -163,7 +176,20 @@ func open_shop() -> void:
 		return
 	exit_edit()
 	quests.visible = false
+	bag.visible = false
 	shop.open()
+	_layout()
+
+
+## The Bag, at any time; toggles from the top bar.
+func open_bag() -> void:
+	if bag.visible:
+		bag.close()
+		return
+	exit_edit()
+	shop.visible = false
+	quests.visible = false
+	bag.open()
 	_layout()
 
 
@@ -174,6 +200,7 @@ func open_quests() -> void:
 		return
 	exit_edit()
 	shop.visible = false
+	bag.visible = false
 	quests.open()
 	_layout()
 
@@ -182,7 +209,7 @@ func open_quests() -> void:
 ## else the night hub at night. The camera fits the café beside it.
 func _layout() -> void:
 	night.visible = Session.state.phase == GameState.Phase.NIGHT and cafe.editor == null and not shop.visible \
-		and not quests.visible
+		and not quests.visible and not bag.visible
 	if night.visible:
 		night.refresh()
 	var panel := 0.0
@@ -192,6 +219,8 @@ func _layout() -> void:
 		panel = ShopPanel.WIDTH + 30.0
 	elif quests.visible:
 		panel = QuestPanel.WIDTH + 30.0
+	elif bag.visible:
+		panel = BagPanel.WIDTH + 30.0
 	elif night.visible:
 		panel = CafeView.NIGHT_PANEL
 	cafe.fit_camera(panel)

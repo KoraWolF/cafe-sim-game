@@ -12,7 +12,7 @@ func _night(data: GameData) -> GameState:
 
 ## Buys a décor piece and places it; returns its uid.
 func _put(state: GameState, piece_id: String, cell: Vector2i, data: GameData, rotated := false) -> String:
-	assert_eq(GameLoop.buy_decor(state, piece_id, data), GameLoop.OK, "bought %s" % piece_id)
+	assert_eq(GameLoop.buy_piece(state, piece_id, data), GameLoop.OK, "bought %s" % piece_id)
 	assert_eq(GameLoop.place_piece(state, piece_id, cell, rotated, data), GameLoop.OK, "placed %s" % piece_id)
 	return state.placed[-1].uid
 
@@ -33,9 +33,11 @@ func test_buying_and_placing_rules() -> void:
 	var data := TestFixtures.data()
 	var state := GameState.new_game(1, data)
 	state = _night(data)
-	assert_eq(GameLoop.buy_decor(state, "seat", data), GameLoop.NOT_FOR_SALE, "furniture comes from upgrades")
-	assert_eq(GameLoop.buy_decor(state, "throne", data), GameLoop.UNKNOWN_PIECE, "unknown")
-	assert_eq(GameLoop.buy_decor(state, "tank", data), GameLoop.OK, "bought")
+	assert_eq(GameLoop.buy_piece(state, "seat", data), GameLoop.OK, "furniture is bought by the piece too")
+	state.storage.erase("seat")
+	state.coins += 20
+	assert_eq(GameLoop.buy_piece(state, "throne", data), GameLoop.UNKNOWN_PIECE, "unknown")
+	assert_eq(GameLoop.buy_piece(state, "tank", data), GameLoop.OK, "bought")
 	assert_eq(state.coins, 800, "paid 200")
 	assert_eq(GameLoop.place_piece(state, "fern", Vector2i(7, 5), false, data), GameLoop.NONE_STORED, "no fern owned")
 	assert_eq(GameLoop.place_piece(state, "tank", Vector2i(7, 5), false, data), GameLoop.OUT_OF_BOUNDS, "2x2 off the edge")
@@ -43,7 +45,7 @@ func test_buying_and_placing_rules() -> void:
 	assert_eq(GameLoop.place_piece(state, "tank", Vector2i(6, 4), false, data), GameLoop.OK, "fits the corner")
 	assert_true(state.storage.is_empty(), "storage used")
 	state.coins = 10
-	assert_eq(GameLoop.buy_decor(state, "fern", data), GameLoop.NOT_ENOUGH_COINS, "too poor")
+	assert_eq(GameLoop.buy_piece(state, "fern", data), GameLoop.NOT_ENOUGH_COINS, "too poor")
 
 
 func test_rotation_swaps_the_footprint() -> void:
@@ -136,8 +138,7 @@ func test_selling_decor_refunds_half() -> void:
 	assert_eq(GameLoop.sell_piece(state, fern, data), GameLoop.OK, "sold")
 	assert_eq(state.coins, 1000 - 50 + 25, "half back")
 	assert_eq(state.vibe, 0.0, "gone")
-	assert_eq(GameLoop.sell_piece(state, state.placed[2].uid, data), GameLoop.NOT_FOR_SALE, "seats are not sold")
-	GameLoop.buy_decor(state, "lamp", data)
+	GameLoop.buy_piece(state, "lamp", data)
 	assert_eq(GameLoop.sell_stored_piece(state, "lamp", data), GameLoop.OK, "sold from storage")
 	assert_eq(GameLoop.sell_stored_piece(state, "lamp", data), GameLoop.NONE_STORED, "none left")
 	assert_eq(state.coins, 1000 - 50 + 25 - 30 + 15, "coins")
@@ -149,7 +150,7 @@ func test_floor_survives_saving_and_bad_layouts_are_refused() -> void:
 	var state := _night(data)
 	_put(state, "fern", Vector2i(7, 2), data)
 	_put(state, "lamp", Vector2i(6, 2), data)
-	GameLoop.buy_decor(state, "tank", data)
+	GameLoop.buy_piece(state, "tank", data)
 	SaveSystem.save(state, path)
 	var errors: PackedStringArray = []
 	var loaded := SaveSystem.load_file(path, data, errors)
