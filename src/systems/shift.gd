@@ -263,7 +263,9 @@ static func _take_order(state: GameState, synth: Synth, data: GameData) -> bool:
 		customer.served_by = synth.id
 		synth.task_customer_id = customer.id
 		synth.task_recipe_id = taken[1]
-		_start_trip(state, synth, taken[0], customer.seat_uid, data.balance.delivery_seconds, data)
+		# The dish goes on the table at the customer's seat.
+		_start_trip(state, synth, taken[0], state.seat_table.get(customer.seat_uid, customer.seat_uid),
+			data.balance.delivery_seconds, data)
 		return true
 	return false
 
@@ -373,7 +375,7 @@ static func _deliver(state: GameState, synth: Synth, data: GameData, rng: Random
 	var customer := state.customer_by_id(synth.task_customer_id)
 	var recipe_id := synth.task_recipe_id
 	if customer != null:
-		synth.spot_uid = customer.seat_uid
+		synth.spot_uid = state.seat_table.get(customer.seat_uid, customer.seat_uid)
 	_clear_task(synth)
 	if customer == null:
 		return
