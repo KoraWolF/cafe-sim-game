@@ -159,15 +159,16 @@ func _draw_effects() -> void:
 
 
 ## Fits the whole floor into the free part of the screen: below the top bar,
-## and left of the panel on the right (the night hub at night by default).
-func fit_camera(right_panel := -1.0) -> void:
+## left of the panel on the right (the night hub at night by default) and above
+## a strip at the bottom (the shop).
+func fit_camera(right_panel := -1.0, bottom_panel := 0.0) -> void:
 	if not Session.has_game():
 		return
 	var rect := floor_rect()
 	var view := get_viewport_rect().size
 	if right_panel < 0.0:
 		right_panel = NIGHT_PANEL if Session.state.phase == GameState.Phase.NIGHT else 0.0
-	var free := Rect2(0, TOP_BAR, view.x - right_panel, view.y - TOP_BAR)
+	var free := Rect2(0, TOP_BAR, view.x - right_panel, view.y - TOP_BAR - bottom_panel)
 	var scale := minf(free.size.x * 0.92 / rect.size.x, free.size.y * 0.92 / rect.size.y)
 	camera.zoom = Vector2.ONE * clampf(scale, 0.3, 2.5)
 	# The camera looks at the screen centre; shift so the floor sits in the free area.
@@ -248,6 +249,11 @@ func _edit_click(button: MouseButton, world: Vector2) -> void:
 	var tile := Iso.tile_at(world)
 	if button == MOUSE_BUTTON_RIGHT:
 		editor.cancel()
+		editor.selected.clear()
+	elif button == MOUSE_BUTTON_LEFT and editor.selecting:
+		var picked := piece_at_point(world)
+		if picked != null:
+			editor.toggle(picked.uid)
 	elif button == MOUSE_BUTTON_LEFT:
 		if editor.is_holding():
 			Session.act(editor.drop(state, ghost_cell(tile), Session.data))
@@ -536,6 +542,10 @@ static func piece_color(piece: Piece) -> Color:
 ## The held piece's ghost with its Vibe change and the neighbours it combines
 ## with, or an outline on the piece under the mouse when nothing is held.
 func _draw_editing(state: GameState, data: GameData) -> void:
+	for uid: String in editor.selected:
+		var picked := Layout.placed_by_uid(state, uid)
+		if picked != null:
+			_outline(picked, UiTheme.ACCENT)
 	if not editor.is_holding():
 		var under := piece_at_point(_hover_world)
 		if under != null:
@@ -645,10 +655,16 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 			_routes.erase(customer_id)
 	for customer: Customer in state.customers:
 		_walk_types[customer.id] = customer.type_id
+	# Everyone the game still has walking out is drawn (from the door if they were never seen inside).
+	var walking_out: Dictionary[String, bool] = {}
+	for customer: Customer in state.leaving:
+		walking_out[customer.id] = true
+		if not _leaving.has(customer.id):
+			_leaving[customer.id] = {"id": customer.id, "at": _door_point(width, rows), "type_id": customer.type_id, "angry": false}
 	for customer_id: String in _leaving.keys():
 		var leaver := _leaving[customer_id]
 		leaver["at"] = _walk_on("leaving_" + customer_id, leaver["at"], _street(width, rows))
-		if (leaver["at"] as Vector2).distance_to(_street(width, rows)) < 0.05:
+		if (leaver["at"] as Vector2).distance_to(_street(width, rows)) < 0.05 and not walking_out.has(customer_id):
 			_leaving.erase(customer_id)
 			_walk_types.erase(customer_id)
 			_angry.erase(customer_id)

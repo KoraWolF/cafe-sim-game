@@ -248,6 +248,8 @@ func _run() -> void:
 		_session.advance(1)
 	await _frames(20)
 	var leaver: Customer = state.leaving[0]
+	state.nanobrew = 1
+	state.pods = state.synths.size() + 1
 	if game.cafe._heads.has(leaver.id):
 		await _click(game.cafe.get_viewport().get_canvas_transform() * game.cafe._heads[leaver.id])
 	print("CHECK click a customer walking out -> NanoBrew confirmation shown: ", game.hud.confirm.visible)
@@ -274,7 +276,7 @@ func _run() -> void:
 		_session.advance(1)
 	print("CHECK a server emptied it: ", state.counter_count.get(full.uid, 0) == 0 and not state.discard.has(full.uid))
 
-	# Building mid-shift: the Shop and Arrange buttons on the top bar work while the café runs.
+	# Building mid-shift: the round Shop button and Arrange on the top bar work while the café runs.
 	state.coins = 2000
 	await _click(_centre_of(game.hud.shop_button))
 	print("CHECK Shop button mid-shift -> shop open: ", game.shop.visible and state.phase == GameState.Phase.SHIFT)
@@ -287,8 +289,8 @@ func _run() -> void:
 	print("CHECK Store (the first piece, a seat) -> in storage: ", state.storage.get("seat", 0) == stored_seats + 1)
 	var seat_row_buy: Button = null
 	for button: Button in game.shop.find_children("*", "Button", true, false):
-		var row := button.get_parent()
-		if button.is_visible_in_tree() and button.text == tr("ui.buy_place") % data.pieces["seat"].price 				and (row.get_child(0) as Label).text.begins_with(UiText.name("seat")):
+		var card := button.get_parent().get_parent()  # a card: swatch, name, details, buttons
+		if button.is_visible_in_tree() and button.text == tr("ui.buy_place") % data.pieces["seat"].price 				and card.get_child_count() > 1 and card.get_child(1) is Label and (card.get_child(1) as Label).text == UiText.name("seat"):
 			seat_row_buy = button
 	await _click(_centre_of(seat_row_buy))
 	await _frames(2)
@@ -353,6 +355,21 @@ func _run() -> void:
 	await _click(canvas_edit * Iso.centre(Vector2i(3, 5), Vector2i.ONE))
 	print("CHECK drop lamp beside fern -> Vibe change %+d, as the ghost showed (%+d): %s" % [
 		roundi(state.vibe - vibe_before), roundi(promised), state.vibe - vibe_before == promised])
+	# Cancel puts back what is held.
+	print("CHECK Arrange has a Cancel button: ", game.edit_panel._cancel.text == tr("ui.edit_cancel") and tr("ui.edit_cancel") == "Cancel")
+	# Select several: click the fern and the lamp, Store selected, confirm -> both in storage.
+	await _click(_centre_of(game.edit_panel._select))
+	var lamp: PlacedPiece = state.placed[-1]
+	for piece: PlacedPiece in [fern, lamp]:
+		await _click(canvas_edit * (Iso.centre(piece.cell, Vector2i.ONE) - Vector2(0, game.cafe.HEIGHTS["decor"] + 4)))
+	print("CHECK Select several -> 2 pieces selected: ", game.cafe.editor.selected.size() == 2)
+	_shot("11c_select_several")
+	await _click(_centre_of(game.edit_panel._store_selected))
+	print("CHECK Store selected asks first: ", game.edit_panel._confirm.visible)
+	await _click(_centre_of(game.edit_panel._confirm._yes))
+	print("CHECK confirm -> both stored: ", state.storage.get("potted_fern", 0) >= 1 and state.storage.get("bubble_lamp", 0) >= 1
+		and game.cafe.editor.selected.is_empty())
+	await _click(_centre_of(game.edit_panel._select))
 	await _move(canvas_edit * Iso.centre(Vector2i(0, 0), Vector2i.ONE))
 	game.edit_panel.done.emit()
 	await _frames(3)

@@ -62,14 +62,14 @@ ui.decor_line,"%s — %dx%d, %d Vibe, tags: %s"
 ui.decor_owned,In storage: %d
 ui.arrange,Arrange Floor
 ui.edit_title,Arrange the floor
-ui.edit_hint,"Click a piece to pick it up, click again to drop it. R rotates, right-click puts it back. Esc leaves. Décor only lifts seats within 2 tiles: the lit area shows its reach, and the seats it reaches turn green."
+ui.edit_hint,"Click a piece to pick it up, click again to drop it. R rotates, Cancel or right-click puts it back. Select several to store or sell many at once. Esc leaves. Décor only lifts seats within 2 tiles: the lit area shows its reach, and the seats it reaches turn green."
 ui.edit_holding,Holding: %s
 ui.edit_holding_rotated,Holding: %s (rotated)
 ui.edit_nothing,Nothing in hand.
 ui.edit_rotate,Rotate (R)
 ui.edit_store,Store
 ui.edit_sell,Sell (+%d)
-ui.edit_cancel,Put back
+ui.edit_cancel,Cancel
 ui.edit_done,Done
 ui.edit_storage,Storage
 ui.edit_storage_empty,Storage is empty.
@@ -188,7 +188,7 @@ tip.upgrade.floor,"Café level: 6×6 grows to 8×8, then 9, 10, 12, 14, 15, 16, 
 tip.upgrade.security,Extra HP for every Synth defending the café at night.
 tip.role.server,Carries dishes from the counter to the tables (uses speed).
 tip.role.chef,Works its own stove and makes it cook faster (uses cooking). One Chef per stove.
-tip.role.rest,Off duty: no work and no battery drain.
+tip.role.rest,"Off duty in its Pod: no work and no battery drain. Be in the Pod at closing to recharge tonight."
 ui.cancel,Cancel
 ui.confirm_convert,Convert this %s into a %s (trait: %s)?
 ui.confirm_convert_details,"Uses 1 NanoBrew (%d → %d) and a Sync Pod (%d / %d). Suspicion goes up."
@@ -284,7 +284,7 @@ info.stat.cook,"Cooking: as Chef, added to its own stove's cooking speed (+60% m
 info.stat.appeal,"Appeal: as Cashier, customers arrive more often (+50% means 1.5× as many). Several Cashiers add up."
 info.stat.power,"Power: damage per hit in raids and when defending the café. Grows 15% per level; low battery halves it."
 info.stat.hp,"HP: how much damage a Synth takes before it's knocked out of a fight. +15% per level; Security adds HP at home."
-info.stat.battery,"Battery: drains every second on duty. Below 20% a Synth works and fights at half strength; at 0 it stops. Max battery is rolled per unit (70–200). Recharged at night with Energy."
+info.stat.battery,"Battery: drains every second on duty. Below 20% a Synth works and fights at 75%; empty, it still works at 50%. Max battery is rolled per unit (70–200). Only Synths resting in their Pod when the café closes recharge at night (with Energy)."
 info.stat.level,"Level: XP comes from work (deliveries, batches, payments, greeting) and fights. Each level raises the stats that grow."
 error.unknown_item,That item isn't in your inventory.
 error.nothing_worn,Nothing is worn there.
@@ -393,7 +393,7 @@ ui.piece_owned,"placed %d · stored %d"
 ui.buy_place,Buy (%d)
 ui.buy_store,Store
 ui.stored,%s stored (%d in storage).
-tip.piece.stove,Cooks one batch at a time. Click it to pick a dish.
+tip.piece.stove,"Cooks one batch at a time, only while its Chef works there. Click it to pick a dish."
 tip.piece.counter,Holds one dish; servers carry finished batches to the closest free counter.
 tip.piece.seat,A customer sits here — it needs its own table right beside it.
 tip.piece.table,"Where the dish is served and eaten; one seat per table."
@@ -433,15 +433,15 @@ ui.confirm_delete_save,Delete %s?
 ui.confirm_delete_save_details,The save and its backup are removed for good.
 ui.save_over,"Save to Slot %d (now: Day %d, %s)"
 info.tab_help,Help
-help.cooking,"Cooking: click a stove and pick any dish. Click a cooking stove to cancel its batch (full refund) or swap it for another dish. Servers carry finished batches to a free counter, then bring each seated customer the dish on the counter nearest them — that is what they pay for."
+help.cooking,"Cooking: click a stove and pick a dish. A stove only cooks while its Chef works there. Click a cooking stove to cancel its batch (full refund) or swap it for another dish. Servers carry finished batches to a free counter (up to 999 servings each), then bring each seated customer the dish on the counter nearest them — that is what they pay for. New dishes come from the story, achievements, won raids and holding off MegaBean."
 help.jobs,"Jobs: click a worker, then a place — a stove (Chef), a counter, table or bin (Server), a register (Cashier) or the Pod bay (Rest). Click another worker to switch; click empty floor to close the card."
 help.converting,"Converting: click any customer — in line, seated, eating, paying or walking out — to spend NanoBrew: they become a Synth. You can catch them until they walk out of sight."
 help.quests,"Quests: daily quests, the story and achievements. Today's dailies are listed at the top left — claim a finished one right there, or anything from the Quests button."
-help.shop,"Shop: furniture, décor, café upgrades, Energy and the Workshop, open any time while the café keeps running. Buy & place puts the piece in your hand; Store keeps it for later (place it from Arrange)."
-help.arrange,"Arrange: Move, rotate, place and sell furniture and décor — any time. Pieces in use (a cooking stove, a counter with food, an occupied seat) can be moved but not picked up."
+help.shop,"Shop: the round button at the bottom right. Furniture (with Sync Pods: one per tile along the café's side), décor, café upgrades, Energy and the Workshop — any time, the café keeps running. Buy puts the piece in your hand; Store keeps it for later (place it from Arrange)."
+help.arrange,"Arrange: move, rotate, place and sell furniture and décor — any time. Cancel puts back what you hold. Select several to store or sell many at once; storing and selling ask first. Pieces in use (a cooking stove, a counter with food, an occupied seat) can be moved but not picked up."
 help.bag,"Bag: everything you own — equipment, fashion and EXP bottles. Take a piece off before selling it."
-help.resources,"Resources: Coins pay for dishes, upgrades and décor. NanoBrew converts a glowing customer. Nano Cores (from raids) brew NanoBrew. Energy recharges Synths' batteries at night (2 coins each). Suspicion brings MegaBean raids — and at 90, a Corporate Audit. Influence unlocks the district's flagship."
-help.auto,"Auto: each night passes by itself — no raid, batteries recharged with the Energy you have. It stops for a Corporate Audit, and MegaBean raids on the café still play out. It unlocks on day 3."
+help.resources,"Resources: Coins pay for dishes, upgrades and décor. NanoBrew converts a customer. Nano Cores (from raids) brew NanoBrew. Energy recharges the batteries of Synths resting in their Pod at closing (2 coins each). Suspicion brings MegaBean raids — and at 90, a Corporate Audit. Influence unlocks the district's flagship. The district (e.g. Alley) is the part of the city you are taking over."
+help.auto,"Auto: each night passes by itself — no raid, batteries recharged (for those in their Pod) with the Energy you have. It stops for a Corporate Audit, and MegaBean raids on the café still play out. It unlocks on day 3."
 help.windows,"Windows: drag a worker's Details window by its title to move it. Click the pencil on a worker's card to rename it."
 ui.report_not_in_pod,"%d Synths were not in their Pod at closing: no recharge."
 ui.pod_row,"Sync Pod — room for one more Synth (%d / %d, max = café side)"
@@ -455,3 +455,17 @@ name.quantum_croissant,Quantum Croissant
 name.plasma_pho,Plasma Pho
 reward.dish,New dish: %s
 ui.report_dish,New dish unlocked: %s!
+ui.edit_select,Select several
+ui.edit_selected,%d selected (click pieces to add or remove)
+ui.edit_store_selected,Store selected
+ui.edit_sell_yes,Sell
+ui.confirm_store,Store %d piece(s)?
+ui.confirm_sell,Sell %d piece(s)?
+ui.confirm_sell_coins,You get %d coins back.
+ui.decor_card,"%d Vibe · %s"
+ui.energy_card,%d Energy
+ui.pod_name,Sync Pod
+ui.pod_card,"Room for one more Synth in the Pod bay. %d / %d (max = café side)."
+ui.upgrade_card,Level %d / %d
+ui.craft_title_basic,Basic craft
+ui.craft_title_advanced,Advanced craft
