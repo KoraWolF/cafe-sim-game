@@ -36,7 +36,9 @@ extends RefCounted
 ##     menu and menu slots are dropped; seated customers forget their order.
 ## 17: the floor's width is saved (it grows with the floor upgrade); older
 ##     cafés were 8 across.
-const VERSION: int = 17
+## 18: anyone can be converted: the starred list became the customers walking
+##     out (convertible until they reach the street). Patience by café level.
+const VERSION: int = 18
 const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
 
@@ -72,7 +74,7 @@ static func to_dict(state: GameState) -> Dictionary:
 		"counter": state.counter,
 		"discard": state.discard,
 		"auto_night": state.auto_night,
-		"star_list": state.star_list.map(func(customer: Customer) -> Dictionary: return customer.to_dict()),
+		"leaving": state.leaving.map(func(customer: Customer) -> Dictionary: return customer.to_dict()),
 		"inventory": state.inventory.map(func(item: Item) -> Dictionary: return item.to_dict()),
 		"bottles": state.bottles,
 		"scrap": state.scrap,
@@ -134,13 +136,14 @@ static func from_dict(raw: Dictionary) -> GameState:
 		for recipe_id: Variant in counter:
 			state.counter[str(recipe_id)] = int(counter[recipe_id])
 	state.auto_night = bool(raw.get("auto_night", false))
-	for entry: Dictionary in _objects(raw, "star_list"):
-		state.star_list.append(Customer.from_dict(entry))
-	# Older saves: starred customers lingering outside go to the starred list.
+	for entry: Dictionary in _objects(raw, "leaving"):
+		state.leaving.append(Customer.from_dict(entry))
+	# Older saves: starred customers lingering outside are walking out.
 	for customer: Customer in state.customers.duplicate():
-		if customer.stage == Customer.Stage.STAR:
+		if customer.stage == Customer.Stage.LEAVING:
 			state.customers.erase(customer)
-			state.star_list.append(customer)
+			customer.timer = maxi(customer.timer, 1)
+			state.leaving.append(customer)
 	for entry: Dictionary in _objects(raw, "inventory"):
 		state.inventory.append(Item.from_dict(entry))
 	var bottles: Variant = raw.get("bottles", {})
@@ -312,6 +315,15 @@ static func _migrate_step(version: int, raw: Dictionary) -> Dictionary:
 		16:
 			raw["floor_width"] = 8
 			return raw
+		17:
+			# The starred list became everyone walking out; they are nearly gone.
+			var leaving: Variant = raw.get("star_list", [])
+			raw.erase("star_list")
+			raw["leaving"] = leaving if leaving is Array else []
+			for customer: Variant in raw["leaving"]:
+				if customer is Dictionary:
+					customer["timer"] = 1
+			return raw
 		15:
 			raw.erase("menu")
 			raw.erase("menu_slots")
@@ -417,7 +429,7 @@ static func validate(state: GameState, data: GameData) -> PackedStringArray:
 			errors.append("customer '%s': unknown type '%s'" % [customer.id, customer.type_id])
 		if not Customer.Stage.values().has(customer.stage):
 			errors.append("customer '%s': unknown stage %d" % [customer.id, customer.stage])
-		if customer.stage in [Customer.Stage.EATING, Customer.Stage.PAYING, Customer.Stage.STAR] \
+		if customer.stage in [Customer.Stage.EATING, Customer.Stage.PAYING] \
 				and not data.recipes.has(customer.recipe_id):
 			errors.append("customer '%s': unknown recipe '%s'" % [customer.id, customer.recipe_id])
 		if customer.trait_id != "" and not data.traits.has(customer.trait_id):

@@ -14,6 +14,9 @@ var arrival_max_seconds: int = 18
 var arrival_reference_size: float = 8.0
 ## No new customers in the last part of the shift.
 var spawn_stop_before_end: int = 45
+## Customers in a new café wait 1 + patience_bonus times as long (in line and at
+## their seat); it shrinks to nothing at the top café level.
+var patience_bonus: float = 0.0
 ## Customers waiting for a seat; more are turned away.
 var max_queue: int = 6
 ## A queued customer leaves after this many seconds times their type's patience.

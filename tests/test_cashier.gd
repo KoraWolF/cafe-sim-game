@@ -102,7 +102,6 @@ func test_star_customer_pays_two_seconds_and_converts_anywhere_out() -> void:
 	var customer := _finished(state, data, 100.0)
 	var events := GameLoop.advance(state, 1, data)
 	assert_eq(events.starred, [customer.id] as Array[String], "starred when they finish eating")
-	assert_true(customer.can_convert(), "can be converted in the pay line")
 	var coins := state.coins
 	assert_eq(GameLoop.convert_customer(state, customer.id, data), GameLoop.OK, "converted in line")
 	assert_eq(state.coins, coins + customer.bill + customer.tip, "they paid first")
@@ -111,8 +110,10 @@ func test_star_customer_pays_two_seconds_and_converts_anywhere_out() -> void:
 	GameLoop.advance(state, 1, data)
 	assert_eq(second.pay_left, 1.0, "2 s at speed 1: half done after a second")
 	GameLoop.advance(state, 1, data)
-	assert_eq(second.stage, Customer.Stage.STAR, "paid, leaving with a star")
-	assert_true(second.can_convert(), "still convertible while leaving")
+	assert_eq(second.stage, Customer.Stage.LEAVING, "paid, walking out")
+	state.nanobrew = 1
+	state.pods += 1
+	assert_eq(GameLoop.convert_customer(state, second.id, data), GameLoop.OK, "still convertible while leaving")
 
 
 func test_shift_end_settles_the_line() -> void:

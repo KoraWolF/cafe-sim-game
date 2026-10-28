@@ -15,6 +15,10 @@ extends RefCounted
 ## by a lost Corporate Audit goes straight to NIGHT.
 
 
+## Tiles a customer walks along the street outside before going out of sight.
+const STREET_TILES: int = 5
+
+
 class Events:
 	extends RefCounted
 	var arrived: Array[String] = []
@@ -24,7 +28,6 @@ class Events:
 	## Customers who finished a meal (and paid), starred or not.
 	var served: Array[String] = []
 	var starred: Array[String] = []
-	var star_expired: Array[String] = []
 	## Customers who got angry in the pay line (they pay, but no tip).
 	var angry_in_line: Array[String] = []
 	## Pay and tips, in coins.
@@ -103,6 +106,7 @@ static func queued_count(state: GameState) -> int:
 
 
 static func _tick(state: GameState, data: GameData, rng: RandomNumberGenerator, events: Events) -> void:
+	_walk_out(state)  # first, so someone who just left is still there for a second
 	_cook(state, data, rng, events)
 	_arrive(state, data, rng, events)
 	_seat(state, data)
@@ -384,15 +388,16 @@ static func _deliver(state: GameState, synth: Synth, data: GameData, rng: Random
 
 static func _update_customers(state: GameState, data: GameData, events: Events) -> void:
 	var b := data.balance
+	var calm := patience(state, data)
 	for customer: Customer in state.customers.duplicate():
 		var type := data.customer_types[customer.type_id]
 		match customer.stage:
 			Customer.Stage.QUEUED:
-				_wait(customer, type, b, 0.0)  # outside, no décor
-				if customer.waited >= roundi(b.queue_patience_seconds * type.patience):
+				_wait(customer, type, b, 0.0, calm)  # outside, no décor
+				if customer.waited >= roundi(b.queue_patience_seconds * type.patience * calm):
 					_leave_angry(state, customer, data, events)
 			Customer.Stage.WAITING_FOOD:
-				_wait(customer, type, b, state.seat_vibe.get(customer.seat_uid, 0.0))
+				_wait(customer, type, b, state.seat_vibe.get(customer.seat_uid, 0.0), calm)
 				if customer.satisfaction <= 0.0:
 					_leave_angry(state, customer, data, events)
 			Customer.Stage.EATING:
@@ -404,16 +409,23 @@ static func _update_customers(state: GameState, data: GameData, events: Events) 
 					customer.timer -= 1  # still walking to the register
 				elif customer.cashier_id == "":
 					# Waiting in line: an angry customer still pays, but no tip.
-					_wait(customer, type, b, 0.0)
+					_wait(customer, type, b, 0.0, calm)
 					if customer.satisfaction <= 0.0 and customer.tip > 0:
 						customer.tip = 0
 						events.angry_in_line.append(customer.id)
 
 
-static func _wait(customer: Customer, type: CustomerType, b: BalanceConfig, vibe: float) -> void:
+## How much longer customers wait than normal: 1 + patience_bonus in a new
+## café, shrinking to 1 at the top café level.
+static func patience(state: GameState, data: GameData) -> float:
+	var top := maxi(data.upgrades[Upgrade.FLOOR].max_level, 1)
+	return 1.0 + data.balance.patience_bonus * (1.0 - clampf(float(state.cafe_level()) / top, 0.0, 1.0))
+
+
+static func _wait(customer: Customer, type: CustomerType, b: BalanceConfig, vibe: float, calm: float) -> void:
 	customer.waited += 1
-	if customer.waited > b.wait_grace_seconds:
-		var loss := b.satisfaction_decay_per_second / maxf(type.patience, 0.1) / (1.0 + maxf(vibe, 0.0) * b.vibe_decay_per_point)
+	if customer.waited > roundi(b.wait_grace_seconds * calm):
+		var loss := b.satisfaction_decay_per_second / maxf(type.patience * calm, 0.1) / (1.0 + maxf(vibe, 0.0) * b.vibe_decay_per_point)
 		customer.satisfaction = maxf(customer.satisfaction - loss, 0.0)
 
 
@@ -446,8 +458,7 @@ static func _finish_meal(state: GameState, customer: Customer, data: GameData, e
 	_pay(state, customer, data, events)
 
 
-## Takes the bill and tip; everyone leaves. A starred customer goes to the
-## starred list (convertible until the café closes).
+## Takes the bill and tip; the customer walks out (still convertible on the way).
 static func _pay(state: GameState, customer: Customer, data: GameData, events: Events) -> void:
 	state.coins += customer.bill + customer.tip
 	events.coins_earned += customer.bill
@@ -455,11 +466,28 @@ static func _pay(state: GameState, customer: Customer, data: GameData, events: E
 	events.served.append(customer.id)
 	events.payments[customer.id] = customer.bill + customer.tip
 	customer.cashier_id = ""
+	_send_out(state, customer, data)
+
+
+## The customer leaves the café and walks to the street: convertible until they
+## get there (the walk from where they were to the door, then out of sight).
+static func _send_out(state: GameState, customer: Customer, data: GameData) -> void:
+	var from := Layout.placed_by_uid(state, customer.seat_uid)
+	var door := Vector2i(state.floor_width, state.floor_rows - 1)
+	var tiles := STREET_TILES + (maxi(absi(door.x - from.cell.x), absi(door.y - from.cell.y)) if from != null else 0)
 	state.customers.erase(customer)
-	if customer.starred:
-		# Gone from the café, but can be converted from the starred list until closing.
-		customer.stage = Customer.Stage.STAR
-		state.star_list.append(customer)
+	customer.stage = Customer.Stage.LEAVING
+	customer.served_by = ""
+	customer.timer = maxi(roundi(tiles / maxf(data.balance.walk_tiles_per_second, 0.1)), 1)
+	state.leaving.append(customer)
+
+
+## Customers walking out disappear once they reach the street.
+static func _walk_out(state: GameState) -> void:
+	for customer: Customer in state.leaving.duplicate():
+		customer.timer -= 1
+		if customer.timer <= 0:
+			state.leaving.erase(customer)
 
 
 ## Each register's Cashier (working Cashiers paired with registers in floor
@@ -508,9 +536,9 @@ static func _leave_angry(state: GameState, customer: Customer, data: GameData, e
 	if customer.served_by != "":
 		var synth := state.synth_by_id(customer.served_by)
 		if synth != null:
-			_return_dish(state, synth, data)
-	state.customers.erase(customer)
+			return_dish(state, synth, data)
 	events.left_angry.append(customer.id)
+	_send_out(state, customer, data)
 
 
 static func _drain(state: GameState, data: GameData) -> void:
@@ -531,7 +559,7 @@ static func _close(state: GameState, data: GameData, events: Events) -> void:
 			_pay(state, customer, data, events)
 	for synth: Synth in state.synths:
 		if synth.is_delivering():
-			_return_dish(state, synth, data)
+			return_dish(state, synth, data)
 		elif synth.is_discarding():
 			# The food is already out of the counter: it is thrown away.
 			_clear_task(synth)
@@ -542,14 +570,13 @@ static func _close(state: GameState, data: GameData, events: Events) -> void:
 				stove.carrier = ""
 			_clear_task(synth)
 	state.customers.clear()
-	for customer: Customer in state.star_list:
-		events.star_expired.append(customer.id)
-	state.star_list.clear()
+	state.leaving.clear()
 	state.phase = GameState.Phase.NIGHT
 	events.shift_ended = true
 
 
-static func _return_dish(state: GameState, synth: Synth, data: GameData) -> void:
+## A dish on its way to a customer goes back to its counter.
+static func return_dish(state: GameState, synth: Synth, data: GameData) -> void:
 	Counters.give_back(state, synth.task_counter_uid, synth.task_recipe_id, data)
 	_clear_task(synth)
 

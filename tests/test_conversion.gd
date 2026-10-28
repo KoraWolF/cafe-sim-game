@@ -29,7 +29,7 @@ func test_convert_starred_customer() -> void:
 	assert_true(state.customer_by_id(setup[1]) == null, "customer is gone")
 
 
-func test_conversion_needs_star_brew_and_pod() -> void:
+func test_conversion_needs_brew_and_pod_but_no_star() -> void:
 	var data := TestFixtures.data()
 	var setup := _starred(data)
 	var state: GameState = setup[0]
@@ -41,7 +41,19 @@ func test_conversion_needs_star_brew_and_pod() -> void:
 	assert_eq(GameLoop.convert_customer(state, setup[1], data), GameLoop.NO_FREE_POD, "pods full")
 	state.convertible_by_id(setup[1]).starred = false
 	state.pods = 2
-	assert_eq(GameLoop.convert_customer(state, setup[1], data), GameLoop.NO_STAR, "no star")
+	assert_eq(GameLoop.convert_customer(state, setup[1], data), GameLoop.OK, "no star needed")
+
+
+func test_any_customer_converts_and_a_dish_on_its_way_goes_back() -> void:
+	var data := TestFixtures.data()
+	var state := GameState.new_game(1, data)
+	state.counter["tea"] = 1
+	GameLoop.advance(state, 4, data)
+	var customer := state.customers[0]
+	assert_true(customer.served_by != "", "setup: a dish on its way")
+	assert_eq(GameLoop.convert_customer(state, customer.id, data), GameLoop.OK, "a seated customer converts")
+	assert_eq(state.counter["tea"], 1, "the dish went back")
+	assert_true(not state.synths[0].is_busy(), "the server stopped")
 
 
 func test_converted_xeno_unlocks_its_recipe() -> void:
