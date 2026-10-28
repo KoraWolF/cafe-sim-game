@@ -32,6 +32,7 @@ func _ready() -> void:
 	offset_right = -12
 	offset_top = -HEIGHT - 12
 	offset_bottom = -12
+	grow_vertical = Control.GROW_DIRECTION_BEGIN  # if it ever needs more room, it grows up, never off the screen
 	visible = false
 	var column := VBoxContainer.new()
 	add_child(column)

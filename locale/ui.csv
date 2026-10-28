@@ -184,7 +184,7 @@ ui.fx_level_up,LEVEL UP!
 ui.fx_new_synth,NEW SYNTH!
 tip.upgrade.stove,One more stove to cook on (place it on the floor).
 tip.upgrade.seat,"One more seat. It needs its own table right beside it (not diagonal)."
-tip.upgrade.floor,"Café level: 6×6 grows to 8×8, then 9, 10, 12, 14, 15, 16, 18 and 20 tiles square. A bigger café brings more customers and holds more Pods (one per tile along a side). Customers in a small café are more patient."
+tip.upgrade.floor,"6×6 grows to 8, 9, 10, 12, 14, 15, 16, 18, then 20 tiles square: more customers and more Pods."
 tip.upgrade.security,Extra HP for every Synth defending the café at night.
 tip.role.server,Carries dishes from the counter to the tables (uses speed).
 tip.role.chef,Works its own stove and makes it cook faster (uses cooking). One Chef per stove.

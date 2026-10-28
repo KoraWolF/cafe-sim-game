@@ -16,6 +16,8 @@ signal place_requested(piece_id: String)
 ## Height of the strip at the bottom (the camera keeps the café above it).
 const HEIGHT: float = 330.0
 const CARD_SIZE: Vector2 = Vector2(210, 220)
+## Most lines of text on a card.
+const CARD_LINES: int = 6
 ## Pixels one press of an arrow scrolls the row.
 const SCROLL_STEP: float = 440.0
 const TABS: Array[String] = ["furniture", "decor", "upgrades", "energy", "workshop"]
@@ -34,6 +36,7 @@ func _ready() -> void:
 	offset_right = -12
 	offset_top = -HEIGHT - 12
 	offset_bottom = -12
+	grow_vertical = Control.GROW_DIRECTION_BEGIN  # if it ever needs more room, it grows up, never off the screen
 	var column := VBoxContainer.new()
 	add_child(column)
 	var header := HBoxContainer.new()
@@ -191,6 +194,7 @@ func _card(title: String, text: String, color: Color, buttons: Array[Button]) ->
 	column.add_child(heading)
 	var about := UiTheme.label(text, 13, UiTheme.TEXT_DIM)
 	about.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	about.max_lines_visible = CARD_LINES  # a long text never pushes the buttons out of the strip
 	about.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	about.custom_minimum_size = Vector2(CARD_SIZE.x - 24, 0)
 	column.add_child(about)
