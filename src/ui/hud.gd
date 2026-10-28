@@ -167,10 +167,12 @@ func toggle_pause() -> void:
 ## One line per unclaimed daily quest; a finished one gets a Claim button.
 func _fill_tracker(state: GameState, data: GameData) -> void:
 	var rows: Array[Array] = []
-	for quest: Dictionary in state.daily_quests:
+	for i: int in state.daily_quests.size():
+		var quest := state.daily_quests[i]
 		if not quest["claimed"]:
 			var done := Quests.daily_progress(state, quest, data)
-			rows.append([quest["id"], "%s %s %d/%d" % ["✓" if done[0] >= done[1] else "•",
+			# Quests.claim takes a daily's index, not its id.
+			rows.append([str(i), "%s %s %d/%d" % ["✓" if done[0] >= done[1] else "•",
 				tr("quest.daily." + quest["id"]) % quest["target"], done[0], done[1]], done[0] >= done[1]])
 	var key := str(rows)
 	if key == _tracker_key:
@@ -184,10 +186,10 @@ func _fill_tracker(state: GameState, data: GameData) -> void:
 		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		row.add_child(UiTheme.label(entry[1], 15, UiTheme.GOOD if entry[2] else UiTheme.TEXT_DIM))
 		if entry[2]:
-			var quest_id: String = entry[0]
+			var index: String = entry[0]
 			var claim := UiTheme.button(tr("ui.quests_claim"), func() -> void:
 				var given: Array[Dictionary] = []
-				if Session.act(GameLoop.claim_quest(Session.state, Quests.DAILY, quest_id, Session.data, given)):
+				if Session.act(GameLoop.claim_quest(Session.state, Quests.DAILY, index, Session.data, given)):
 					Session.toast.emit(tr("ui.quests_got") % UiText.reward(given[0])))
 			claim.add_theme_font_size_override("font_size", 14)
 			row.add_child(claim)

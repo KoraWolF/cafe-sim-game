@@ -157,14 +157,15 @@ func _run() -> void:
 	game.hud.details.visible = false
 	await _frames(2)
 	# A finished daily quest is claimed from the tracker at the top left.
+	# Finish the LAST daily that can be finished, so claiming the wrong one (the first) fails the check.
 	var daily: Dictionary = {}
 	for quest: Dictionary in state.daily_quests:
 		var start: Variant = quest["start"]
 		quest["start"] = -100000  # counts as done (a Vibe quest does not use it)
-		if daily.is_empty() and Quests.daily_progress(state, quest, data)[0] >= int(quest["target"]):
+		if Quests.daily_progress(state, quest, data)[0] >= int(quest["target"]):
 			daily = quest
-		else:
-			quest["start"] = start
+		quest["start"] = start
+	daily["start"] = -100000
 	_session.state_changed.emit()
 	await _frames(2)
 	var coins_daily := state.coins
