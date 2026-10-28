@@ -129,3 +129,18 @@ func test_missing_save() -> void:
 func test_slot_range() -> void:
 	var data := TestFixtures.data()
 	assert_eq(SaveSystem.save_slot(GameState.new_game(1, data), SaveSystem.SLOTS), ERR_PARAMETER_RANGE_ERROR, "slot 3 of 0..2")
+
+
+func test_summary_shows_a_save_without_loading_it() -> void:
+	var data := TestFixtures.data()
+	var path := "user://test_saves/summary.json"
+	assert_eq(SaveSystem.summary(path), {}, "no save, no summary")
+	var state := GameState.new_game(1, data)
+	state.coins = 345
+	SaveSystem.save(state, path)
+	var info := SaveSystem.summary(path)
+	assert_eq([info.get("day"), info.get("district_id"), info.get("coins"), info.get("staff")], [1, "town", 345, 1],
+		"day, district, coins, staff")
+	assert_true(int(info.get("saved_at", 0)) > 0, "when it was written")
+	SaveSystem.delete_save(path)
+	assert_true(not SaveSystem.has_save(path), "deleted, backup and all")

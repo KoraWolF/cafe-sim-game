@@ -29,6 +29,7 @@ var arrange_button := UiTheme.button(tr("ui.arrange_button"), arrange_requested.
 var _toasts := VBoxContainer.new()
 var _feed := VBoxContainer.new()
 var _recipe_menu := PopupMenu.new()
+var _save_buttons: Array[Button] = []
 ## The recipe menu's "cancel this batch" item.
 const CANCEL_COOKING: int = 1000
 var _recipe_stove: int = -1
@@ -147,7 +148,11 @@ func _build_pause_menu() -> void:
 	column.add_child(UiTheme.label(tr("ui.paused"), 28, UiTheme.PANEL_BORDER))
 	column.add_child(UiTheme.button(tr("ui.resume"), toggle_pause))
 	for slot: int in SaveSystem.SLOTS:
-		column.add_child(UiTheme.button(tr("ui.save_slot") % (slot + 1), Session.save_game.bind(slot)))
+		var save := UiTheme.button("", func() -> void:
+			Session.save_game(slot)
+			_label_save_buttons())
+		_save_buttons.append(save)
+		column.add_child(save)
 	column.add_child(UiTheme.button(tr("ui.settings"), settings_requested.emit))
 	column.add_child(UiTheme.button(tr("ui.main_menu"), func() -> void:
 		toggle_pause()
@@ -158,8 +163,16 @@ func toggle_pause() -> void:
 	if _pause.visible:
 		_pause.hide_modal()
 	else:
+		_label_save_buttons()
 		_pause.show_modal()
 	Session.paused = _pause.visible
+
+
+## Each save button says what it would overwrite.
+func _label_save_buttons() -> void:
+	for slot: int in _save_buttons.size():
+		var info := SaveSystem.summary(SaveSystem.slot_path(slot))
+		_save_buttons[slot].text = tr("ui.save_slot") % (slot + 1) if info.is_empty() 			else tr("ui.save_over") % [slot + 1, info["day"], UiText.name(info["district_id"])]
 
 
 func refresh() -> void:

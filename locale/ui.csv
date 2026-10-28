@@ -440,3 +440,11 @@ ui.star_line,"%s → %s (%s), max battery %d"
 ui.cook_cancel,"Cancel %s (refund %d coins)"
 customer.eating,Eating: %s
 error.not_cooking,That stove is not cooking.
+ui.delete_save,Delete
+ui.save_unreadable,This save can't be read.
+ui.save_details,"Day %d · %s · %d coins · %d staff · saved %s"
+ui.autosave,the autosave
+ui.slot_name,Slot %d
+ui.confirm_delete_save,Delete %s?
+ui.confirm_delete_save_details,The save and its backup are removed for good.
+ui.save_over,"Save to Slot %d (now: Day %d, %s)"
