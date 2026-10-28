@@ -190,6 +190,12 @@ func _fill_ops(page: VBoxContainer) -> void:
 		_squad.clear()
 		Session.state_changed.emit()))
 	page.add_child(row)
+	page.add_child(HSeparator.new())
+	page.add_child(_wrap(tr("ui.ops_formation"), 18))
+	page.add_child(_wrap(tr("ui.ops_formation_help"), 14, UiTheme.TEXT_DIM))
+	var board := FormationBoard.new()
+	board.squad = _squad
+	page.add_child(board)
 	var plan := tr("ui.ops_planned") % [UiText.name(state.raid_target), state.raid_squad.size()] \
 		if state.raid_target != "" else tr("ui.ops_no_plan")
 	page.add_child(_wrap(plan, 18, UiTheme.PANEL_BORDER))

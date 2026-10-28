@@ -116,10 +116,8 @@ ui.continue_day,Start Day %d
 ui.battle_raid,Raid on %s
 ui.battle_defense,MegaBean raids your café!
 ui.battle_audit,CORPORATE AUDIT!
-ui.battle_round,Round %d
 ui.battle_victory,VICTORY
 ui.battle_defeat,DEFEAT
-ui.battle_ko,KO!
 ui.battle_skip,Skip
 ui.battle_fast,2×
 ui.battle_continue,Continue
@@ -475,3 +473,7 @@ ui.brew_title,NanoBrew
 ui.brew_short,Brew (%d core + %d)
 ui.brew_note,Turns any customer into a Synth. Nano Cores come from won raids.
 ui.brew_in_menu,Brew NanoBrew in the Menu → Workshop.
+ui.battle_clock,%.1f s
+ui.ops_formation,Battle formation
+ui.ops_formation_help,"Where your Synths stand in fights (raids and defending): front row at the top, facing the enemy. Click a Synth, then a tile. T tank, F fighter, R ranged, X fragile. Gold ring = tonight's raid squad."
+help.combat,"Combat (raids and defending) is auto-chess style on a grid. Set where each Synth stands in Night Ops → Battle formation (front row faces the enemy). In the fight everyone walks to the nearest enemy and attacks when in range; fragile units go for the weakest. Classes: Tank (Bulkform: tough, armoured), Fighter (Steady-unit), Ranged (Clerkbot, Hypeform, Xeno: hit from 3 tiles), Fragile (Glitchling: fast, hard-hitting, frail). Mana fills from attacking and being hit; full mana casts the species skill: Slam (stun nearby), Fortify (shield), Overtime (attack faster), Chain spark (hits 3), Cheer (heal), Beam (big hit)."

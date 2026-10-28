@@ -125,8 +125,6 @@ var rival_growth_per_day: float = 0.0
 var raid_battery_cost: float = 25.0
 ## A raided rival can be raided again this many days later.
 var raid_cooldown_days: int = 2
-## A battle still going after this many rounds is won by the defenders.
-var battle_max_rounds: int = 30
 ## Each hit deals power * a random factor in [1 - variance, 1 + variance].
 var battle_damage_variance: float = 0.2
 ## Chance of a MegaBean raid on your café each night: base + suspicion * per, capped.

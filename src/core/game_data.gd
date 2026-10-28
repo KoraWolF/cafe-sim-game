@@ -14,6 +14,7 @@ const PATHS: Dictionary[String, String] = {
 	"adjacency": "res://data/adjacency.json",
 	"items": "res://data/items.json",
 	"quests": "res://data/quests.json",
+	"combat": "res://data/combat.json",
 }
 
 var balance: BalanceConfig
@@ -30,6 +31,8 @@ var adjacency: Array[AdjacencyRule] = []
 var items: ItemCatalog = ItemCatalog.new()
 ## Quest content as parsed (see Quests): "daily", "daily_rewards", "story", "achievements".
 var quests: Dictionary = {}
+## How grid battles work (classes, skills, board).
+var combat: CombatConfig = CombatConfig.new()
 
 
 ## Loads everything from /data. Returns null (and logs why) if it is invalid.
@@ -77,6 +80,8 @@ static func from_content(content: Dictionary) -> GameData:
 	data.items = ItemCatalog.from_dict(item_values if item_values is Dictionary else {})
 	var quest_values: Variant = content.get("quests", {})
 	data.quests = quest_values if quest_values is Dictionary else {}
+	var combat_values: Variant = content.get("combat", {})
+	data.combat = CombatConfig.from_dict(combat_values if combat_values is Dictionary else {})
 	var errors := data.check()
 	if not errors.is_empty():
 		push_error("GameData: invalid content: %s" % "; ".join(errors))
@@ -106,6 +111,12 @@ func next_district(district_id: String) -> String:
 ## Every broken cross-reference, so systems can trust ids.
 func check() -> PackedStringArray:
 	var errors: PackedStringArray = items.check()
+	errors.append_array(combat.check())
+	for one: Species in species.values():
+		if not combat.classes.has(one.combat_class):
+			errors.append("species %s: unknown combat class '%s'" % [one.id, one.combat_class])
+		if one.skill != "" and not combat.skills.has(one.skill):
+			errors.append("species %s: unknown skill '%s'" % [one.id, one.skill])
 	for kind: String in ["story", "achievements"]:
 		for entry: Variant in quests.get(kind, []):
 			var fashion_id := str(entry.get("reward", {}).get("fashion", ""))

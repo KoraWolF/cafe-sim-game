@@ -410,7 +410,7 @@ func _run() -> void:
 	_shot("12_battle_raid")
 	await _click(_centre_of(game.battle._skip))
 	await _frames(3)
-	print("CHECK Skip -> raid finished, Continue shown: ", game.battle.playback.is_finished() and game.battle._continue.visible)
+	print("CHECK Skip -> raid finished, Continue shown: ", game.battle.playback.is_finished(game.battle._time) and game.battle._continue.visible)
 	_shot("13_battle_raid_end")
 	await _click(_centre_of(game.battle._continue))
 	await _frames(45)

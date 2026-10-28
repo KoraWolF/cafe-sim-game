@@ -372,6 +372,24 @@ static func assign_role(state: GameState, synth_id: String, role: String) -> Str
 	return OK
 
 
+## Puts a Synth on a spot of its half of the battle board (column, row from the
+## front); a Synth already there swaps to the mover's old spot. Any time.
+static func set_formation(state: GameState, synth_id: String, spot: Vector2i, data: GameData) -> String:
+	if state.synth_by_id(synth_id) == null:
+		return UNKNOWN_SYNTH
+	if spot.x < 0 or spot.y < 0 or spot.x >= data.combat.board.x or spot.y >= data.combat.half():
+		return OUT_OF_BOUNDS
+	var old: Vector2i = state.formation.get(synth_id, Vector2i(-1, -1))
+	for other: String in state.formation.keys():
+		if other != synth_id and state.formation[other] == spot:
+			if old.x >= 0:
+				state.formation[other] = old
+			else:
+				state.formation.erase(other)
+	state.formation[synth_id] = spot
+	return OK
+
+
 ## Plans tonight's raid; replaces any earlier plan.
 static func plan_raid(state: GameState, rival_id: String, synth_ids: Array[String], data: GameData) -> String:
 	if state.phase != GameState.Phase.NIGHT:

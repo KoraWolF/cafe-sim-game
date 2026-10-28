@@ -125,7 +125,8 @@ static func rival_guards(rival: RivalCafe, days_open: int, b: BalanceConfig) -> 
 	var growth := 1.0 + b.rival_growth_per_day * maxi(days_open, 0)
 	var guards: Array[Battle.Fighter] = []
 	for defender: Dictionary in rival.defenders:
-		guards.append(Battle.Fighter.make("", defender["power"] * growth, defender["hp"] * growth))
+		guards.append(Battle.Fighter.make("", defender["power"] * growth, defender["hp"] * growth,
+			defender.get("class", CombatConfig.FIGHTER)))
 	return guards
 
 
@@ -141,10 +142,15 @@ static func days_open(state: GameState) -> int:
 	return state.day - state.district_started_day
 
 
-static func synth_fighter(synth: Synth, extra_hp: float, data: GameData) -> Battle.Fighter:
+static func synth_fighter(synth: Synth, extra_hp: float, data: GameData, state: GameState = null) -> Battle.Fighter:
 	# Low battery fights at the same reduced strength as it works.
 	var power := SynthStats.stat(synth, "power", data) * SynthStats.battery_factor(synth, data)
-	return Battle.Fighter.make(synth.id, power, SynthStats.stat(synth, "hp", data) + extra_hp)
+	var species := data.species[synth.species_id]
+	var fighter := Battle.Fighter.make(synth.id, power, SynthStats.stat(synth, "hp", data) + extra_hp,
+		species.combat_class, species.skill)
+	if state != null:
+		fighter.cell = state.formation.get(synth.id, Vector2i(-1, -1))
+	return fighter
 
 
 static func _raid(state: GameState, data: GameData, rng: RandomNumberGenerator, report: Report) -> void:
@@ -158,10 +164,10 @@ static func _raid(state: GameState, data: GameData, rng: RandomNumberGenerator, 
 	for synth_id: String in state.raid_squad:
 		var synth := state.synth_by_id(synth_id)
 		raiders.append(synth)
-		squad.append(synth_fighter(synth, 0.0, data))
+		squad.append(synth_fighter(synth, 0.0, data, state))
 		loot_bonus += SynthStats.stat(synth, "raid_loot", data)
 		synth.battery = maxf(synth.battery - b.raid_battery_cost, 0.0)
-	report.raid = Battle.run(squad, guards_for(state, rival, data), rng, b)
+	report.raid = Battle.run(squad, guards_for(state, rival, data), rng, data)
 	state.raid_cooldowns[rival.id] = state.day + b.raid_cooldown_days
 	for synth: Synth in raiders:
 		Leveling.add_xp(synth, b.xp_raid_win if report.raid.attackers_won else b.xp_raid_loss, b, report.level_ups)
@@ -198,16 +204,18 @@ static func _home_defenders(state: GameState, data: GameData) -> Array[Battle.Fi
 	var home: Array[Battle.Fighter] = []
 	for synth: Synth in state.synths:
 		if not state.raid_squad.has(synth.id) and synth.battery > 0.0:
-			home.append(synth_fighter(synth, state.security, data))
+			home.append(synth_fighter(synth, state.security, data, state))
 	return home
 
 
 ## size MegaBean raiders, each strength times the day's normal raider.
-static func _megabean_squad(state: GameState, size: int, strength: float, b: BalanceConfig) -> Array[Battle.Fighter]:
+static func _megabean_squad(state: GameState, size: int, strength: float, data: GameData) -> Array[Battle.Fighter]:
+	var b := data.balance
+	var order := data.combat.megabean_classes
 	var raiders: Array[Battle.Fighter] = []
 	for i: int in size:
 		raiders.append(Battle.Fighter.make("", (b.defense_power_base + b.defense_power_per_day * state.day) * strength,
-			(b.defense_hp_base + b.defense_hp_per_day * state.day) * strength))
+			(b.defense_hp_base + b.defense_hp_per_day * state.day) * strength, order[i % order.size()]))
 	return raiders
 
 
@@ -226,7 +234,7 @@ static func _drop_dish(state: GameState, source: String, data: GameData, rng: Ra
 static func _defend(state: GameState, data: GameData, rng: RandomNumberGenerator, report: Report) -> void:
 	var b := data.balance
 	var size := mini(1 + int(state.current_suspicion() / maxf(b.defense_size_step, 1.0)), b.defense_max_size)
-	report.defense = Battle.run(_megabean_squad(state, size, 1.0, b), _home_defenders(state, data), rng, b)
+	report.defense = Battle.run(_megabean_squad(state, size, 1.0, data), _home_defenders(state, data), rng, data)
 	_defender_xp(state, report, b)
 	if not report.defense.attackers_won:
 		_drop_dish(state, "defense", data, rng, report)
@@ -240,8 +248,8 @@ static func _defend(state: GameState, data: GameData, rng: RandomNumberGenerator
 static func _audit(state: GameState, data: GameData, rng: RandomNumberGenerator, report: Report) -> void:
 	var b := data.balance
 	report.audit = true
-	report.defense = Battle.run(_megabean_squad(state, b.audit_size, b.audit_strength, b), _home_defenders(state, data),
-		rng, b)
+	report.defense = Battle.run(_megabean_squad(state, b.audit_size, b.audit_strength, data), _home_defenders(state, data),
+		rng, data)
 	_defender_xp(state, report, b)
 	if not report.defense.attackers_won:
 		return
