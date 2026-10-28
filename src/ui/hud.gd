@@ -8,6 +8,7 @@ signal quit_to_menu
 signal settings_requested
 signal shop_requested
 signal quests_requested
+signal bag_requested
 signal arrange_requested
 
 const FEED_LINES: int = 6
@@ -35,6 +36,7 @@ var details := UnitDetails.new()
 var info := InfoPanel.new()
 var info_button := UiTheme.button(tr("ui.info_button"), func() -> void: info.open())
 var quests_button := UiTheme.button(tr("ui.quests_button"), quests_requested.emit)
+var bag_button := UiTheme.button(tr("ui.bag_button"), bag_requested.emit)
 ## Today's daily quests, small, under the top bar.
 var _tracker := UiTheme.label("", 15, UiTheme.TEXT_DIM)
 
@@ -107,6 +109,8 @@ func _build_top_bar() -> void:
 	row.add_child(info_button)
 	quests_button.tooltip_text = tr("tip.quests")
 	row.add_child(quests_button)
+	bag_button.tooltip_text = tr("tip.bag")
+	row.add_child(bag_button)
 	shop_button.tooltip_text = tr("tip.shop")
 	arrange_button.tooltip_text = tr("tip.arrange")
 	row.add_child(shop_button)

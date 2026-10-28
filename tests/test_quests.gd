@@ -64,8 +64,11 @@ func test_story_goes_in_order_and_gives_fashion() -> void:
 	assert_eq(GameLoop.claim_quest(state, Quests.STORY, "", data), GameLoop.NOT_DONE, "not yet")
 	state.stats["conversions"] = 1
 	assert_eq(GameLoop.claim_quest(state, Quests.STORY, "", data), GameLoop.OK, "claimed")
-	assert_eq(Quests.story_quest(state, data)["id"], "second_stove", "next step")
-	state.upgrades["stove"] = 1
+	assert_eq(Quests.story_quest(state, data)["id"], "third_stove", "next step")
+	state.coins += 500
+	GameLoop.buy_piece(state, "stove", data)
+	var spot := Layout.find_spot(state, "stove", data)
+	GameLoop.place_piece(state, "stove", spot["cell"], spot["rotated"], data)
 	var hats := state.inventory.size()
 	GameLoop.claim_quest(state, Quests.STORY, "", data)
 	assert_eq(state.inventory.size(), hats + 1, "a fashion piece")

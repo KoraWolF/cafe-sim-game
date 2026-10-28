@@ -81,6 +81,8 @@ static func progress(state: GameState, entry: Dictionary, data: GameData) -> Arr
 			value = int(state.upgrades.get(str(entry["upgrade"]), 0))
 		"decor":
 			value = Layout.count_placed(state, Piece.DECOR, data)
+		"placed":
+			value = Layout.count_placed(state, str(entry["kind"]), data)
 		"district":
 			value = 1 if state.owned_districts.has(str(entry["district"])) else 0
 		"districts":

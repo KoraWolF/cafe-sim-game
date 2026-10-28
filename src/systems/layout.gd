@@ -141,7 +141,7 @@ static func buy(state: GameState, piece_id: String, data: GameData) -> String:
 	var piece: Piece = data.pieces.get(piece_id)
 	if piece == null:
 		return GameLoop.UNKNOWN_PIECE
-	if piece.kind != Piece.DECOR:
+	if piece.price <= 0:
 		return GameLoop.NOT_FOR_SALE
 	if state.coins < piece.price:
 		return GameLoop.NOT_ENOUGH_COINS
@@ -155,8 +155,11 @@ static func sell_placed(state: GameState, uid: String, data: GameData) -> String
 	if placed == null:
 		return GameLoop.UNKNOWN_PLACED
 	var piece := data.pieces[placed.piece_id]
-	if piece.kind != Piece.DECOR:
+	if piece.price <= 0:
 		return GameLoop.NOT_FOR_SALE
+	var error := _can_remove(state, placed, data)
+	if error != GameLoop.OK:
+		return error
 	_remove(state, placed, data)
 	state.coins += refund(piece, data.balance)
 	return GameLoop.OK
@@ -166,7 +169,7 @@ static func sell_stored(state: GameState, piece_id: String, data: GameData) -> S
 	var piece: Piece = data.pieces.get(piece_id)
 	if piece == null:
 		return GameLoop.UNKNOWN_PIECE
-	if piece.kind != Piece.DECOR:
+	if piece.price <= 0:
 		return GameLoop.NOT_FOR_SALE
 	if state.storage.get(piece_id, 0) <= 0:
 		return GameLoop.NONE_STORED
@@ -299,6 +302,11 @@ static func _shares(state: GameState, data: GameData) -> Array[float]:
 					shares[i] += rule.vibe * 0.5
 					shares[j] += rule.vibe * 0.5
 	return shares
+
+
+## Placed pieces with this piece id.
+static func count_placed_id(state: GameState, piece_id: String) -> int:
+	return state.placed.filter(func(placed: PlacedPiece) -> bool: return placed.piece_id == piece_id).size()
 
 
 static func count_placed(state: GameState, kind: String, data: GameData) -> int:

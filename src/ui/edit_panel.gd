@@ -76,7 +76,7 @@ func refresh() -> void:
 	_rotate.disabled = not holding
 	_cancel.disabled = not holding
 	_store.disabled = editor.held_uid == ""
-	_sell.disabled = piece == null or piece.kind != Piece.DECOR
+	_sell.disabled = piece == null or piece.price <= 0
 	_sell.text = tr("ui.edit_sell") % (Layout.refund(piece, data.balance) if piece != null else 0)
 	for child: Node in _storage.get_children():
 		_storage.remove_child(child)

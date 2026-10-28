@@ -28,7 +28,9 @@ extends RefCounted
 ##     games get the starter fashion.
 ## 13: quests: lifetime counters, daily quests and their date, story step,
 ##     achievements. Older games start them from zero.
-const VERSION: int = 13
+## 14: furniture is bought by the piece, not as upgrades: old furniture
+##     upgrade levels are dropped (the pieces stay).
+const VERSION: int = 14
 const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
 
@@ -295,6 +297,12 @@ static func _migrate_step(version: int, raw: Dictionary) -> Dictionary:
 			raw["needs_fashion"] = true
 			return raw
 		12:
+			return raw
+		13:
+			var levels: Variant = raw.get("upgrades", {})
+			if levels is Dictionary:
+				for upgrade_id: String in ["stove", "counter", "seat", "table", "bin", "register"]:
+					levels.erase(upgrade_id)
 			return raw
 	return {}
 

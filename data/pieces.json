@@ -1,10 +1,10 @@
 [
-	{"id": "seat", "kind": "seat", "size": [1, 1], "tags": ["seat"]},
-	{"id": "table", "kind": "table", "size": [1, 1], "tags": ["table"]},
-	{"id": "stove", "kind": "stove", "size": [2, 1], "tags": ["kitchen"]},
-	{"id": "counter", "kind": "counter", "size": [1, 1], "tags": ["kitchen"]},
-	{"id": "bin", "kind": "bin", "size": [1, 1], "tags": ["kitchen"]},
-	{"id": "register", "kind": "register", "size": [1, 1], "tags": ["tech"]},
+	{"id": "seat", "kind": "seat", "size": [1, 1], "price": 30, "tags": ["seat"]},
+	{"id": "table", "kind": "table", "size": [1, 1], "price": 30, "tags": ["table"]},
+	{"id": "stove", "kind": "stove", "size": [2, 1], "price": 150, "tags": ["kitchen"]},
+	{"id": "counter", "kind": "counter", "size": [1, 1], "price": 120, "tags": ["kitchen"]},
+	{"id": "bin", "kind": "bin", "size": [1, 1], "price": 40, "tags": ["kitchen"]},
+	{"id": "register", "kind": "register", "size": [1, 1], "price": 150, "tags": ["tech"]},
 
 	{"id": "potted_fern", "kind": "decor", "size": [1, 1], "price": 100, "vibe": 3, "tags": ["plant"]},
 	{"id": "bubble_lamp", "kind": "decor", "size": [1, 1], "price": 180, "vibe": 4, "tags": ["light", "cozy"]},

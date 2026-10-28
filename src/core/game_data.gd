@@ -158,8 +158,8 @@ func check() -> PackedStringArray:
 			errors.append("piece %s: unknown kind '%s'" % [piece.id, piece.kind])
 		if piece.size.x < 1 or piece.size.y < 1 or maxi(piece.size.x, piece.size.y) > balance.floor_width:
 			errors.append("piece %s: bad size" % piece.id)
-		if piece.kind == Piece.DECOR and piece.price <= 0:
-			errors.append("piece %s: décor needs a price" % piece.id)
+		if piece.price <= 0:
+			errors.append("piece %s: needs a price" % piece.id)
 	for rule: AdjacencyRule in adjacency:
 		if rule.tag_a == "" or rule.tag_b == "":
 			errors.append("adjacency rule needs two tags")

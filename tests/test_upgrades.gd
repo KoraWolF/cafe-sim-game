@@ -1,6 +1,7 @@
 extends TestCase
-## Buying café upgrades at night: costs grow, caps hold, effects apply.
-## Stove, seat and Pod upgrades put a piece in storage to place on the floor.
+## Café upgrades (Pods, floor, menu slot, security): costs grow, caps hold,
+## effects apply. Furniture is not an upgrade: it is bought by the piece, as
+## many as fit on the floor, and sells back for half.
 
 
 func _night(data: GameData) -> GameState:
@@ -10,55 +11,59 @@ func _night(data: GameData) -> GameState:
 	return state
 
 
-func test_stove_cost_grows_and_caps() -> void:
+func test_pod_cost_and_cap() -> void:
 	var data := TestFixtures.data()
 	var state := _night(data)
-	assert_eq(GameLoop.upgrade_cost(state, "stove", data), 50, "first stove")
-	assert_eq(GameLoop.buy_upgrade(state, "stove", data), GameLoop.OK, "bought")
-	assert_eq(state.storage.get("stove", 0), 1, "a stove to place")
-	assert_eq(state.stoves.size(), 2, "not cooking until placed")
-	assert_eq(GameLoop.upgrade_cost(state, "stove", data), 100, "doubles")
-	assert_eq(GameLoop.buy_upgrade(state, "stove", data), GameLoop.OK, "bought again")
-	assert_eq(state.coins, 850, "paid 50 + 100")
-	assert_eq(GameLoop.upgrade_cost(state, "stove", data), -1, "maxed")
-	assert_eq(GameLoop.buy_upgrade(state, "stove", data), GameLoop.MAXED, "cap holds")
+	assert_eq(GameLoop.upgrade_cost(state, "pod", data), 100, "first Pod")
+	assert_eq(GameLoop.buy_upgrade(state, "pod", data), GameLoop.OK, "bought")
+	assert_eq(state.pods, 3, "straight to the Pod bay")
+	assert_eq(GameLoop.upgrade_cost(state, "pod", data), -1, "maxed")
+	assert_eq(GameLoop.buy_upgrade(state, "pod", data), GameLoop.MAXED, "cap holds")
 
 
 func test_each_upgrade_applies() -> void:
 	var data := TestFixtures.data()
 	var state := _night(data)
-	for upgrade_id: String in ["seat", "table", "pod", "security", "floor"]:
+	for upgrade_id: String in ["pod", "security", "floor", "menu_slot"]:
 		assert_eq(GameLoop.buy_upgrade(state, upgrade_id, data), GameLoop.OK, upgrade_id)
-	assert_eq(state.storage, {"seat": 2, "table": 2} as Dictionary[String, int], "2 seats and 2 tables to place")
-	assert_eq(state.seats, 2, "stored seats do not count")
-	assert_eq(state.pods, 3, "the Pod went straight to the Pod bay")
-	for piece_id: String in ["seat", "seat"]:
-		var spot := Layout.find_spot(state, piece_id, data)
-		assert_eq(GameLoop.place_piece(state, piece_id, spot["cell"], spot["rotated"], data), GameLoop.OK, "placed")
-	assert_eq(state.seats, 2, "seats without a table do not work")
-	for piece_id: String in ["table", "table"]:
-		var spot := Layout.find_spot(state, piece_id, data)
-		assert_eq(GameLoop.place_piece(state, piece_id, spot["cell"], spot["rotated"], data), GameLoop.OK, "placed")
-	assert_eq(state.seats, 4, "2 + 2 seats, each table placed beside a lone seat")
+	assert_eq(state.pods, 3, "+1 Pod")
 	assert_eq(state.floor_rows, 8, "6 + 2 rows")
 	assert_eq(state.security, 10.0, "+10 security")
-	assert_eq(state.upgrades, {"seat": 1, "table": 1, "pod": 1, "security": 1, "floor": 1} as Dictionary[String, int], "levels")
+	assert_eq(state.menu_slots, 3, "+1 menu slot")
+	assert_eq(state.upgrades, {"pod": 1, "security": 1, "floor": 1, "menu_slot": 1} as Dictionary[String, int], "levels")
+	assert_eq(GameLoop.buy_upgrade(state, "stove", data), GameLoop.UNKNOWN_UPGRADE, "furniture is not an upgrade")
 
 
 func test_upgrade_errors() -> void:
 	var data := TestFixtures.data()
-	var state := GameState.new_game(1, data)
-	state = _night(data)
+	var state := _night(data)
 	assert_eq(GameLoop.buy_upgrade(state, "jacuzzi", data), GameLoop.UNKNOWN_UPGRADE, "unknown")
 	state.coins = 10
-	assert_eq(GameLoop.buy_upgrade(state, "seat", data), GameLoop.NOT_ENOUGH_COINS, "too poor")
-	assert_eq(state.seats, 2, "nothing changed")
+	assert_eq(GameLoop.buy_upgrade(state, "security", data), GameLoop.NOT_ENOUGH_COINS, "too poor")
 
 
-func test_new_stove_cooks_and_upgrades_survive_saving() -> void:
+func test_furniture_has_no_limit_but_the_floor() -> void:
 	var data := TestFixtures.data()
 	var state := _night(data)
-	GameLoop.buy_upgrade(state, "stove", data)
+	state.coins = 100000
+	for i: int in 12:
+		assert_eq(GameLoop.buy_piece(state, "seat", data), GameLoop.OK, "seat %d" % (i + 1))
+	assert_eq(state.storage["seat"], 12, "as many as you like")
+	assert_eq(state.coins, 100000 - 12 * 20, "flat price, 20 each")
+	var placed := 0
+	while not Layout.find_spot(state, "seat", data).is_empty() and state.storage.get("seat", 0) > 0:
+		var spot := Layout.find_spot(state, "seat", data)
+		GameLoop.place_piece(state, "seat", spot["cell"], spot["rotated"], data)
+		placed += 1
+	assert_eq(placed, 12, "they all fit for now")
+	state.coins = 0
+	assert_eq(GameLoop.buy_piece(state, "stove", data), GameLoop.NOT_ENOUGH_COINS, "coins are the price")
+
+
+func test_new_stove_cooks_and_survives_saving() -> void:
+	var data := TestFixtures.data()
+	var state := _night(data)
+	assert_eq(GameLoop.buy_piece(state, "stove", data), GameLoop.OK, "bought a stove")
 	var spot := Layout.find_spot(state, "stove", data)
 	GameLoop.place_piece(state, "stove", spot["cell"], spot["rotated"], data)
 	assert_eq(GameLoop.start_cooking(state, 2, "tea", data), GameLoop.OK, "third stove usable")
@@ -69,18 +74,42 @@ func test_new_stove_cooks_and_upgrades_survive_saving() -> void:
 	SaveSystem.delete_save(path)
 	assert_true(loaded != null, "loaded: %s" % ", ".join(errors))
 	if loaded != null:
-		assert_eq(loaded.upgrades.get("stove", 0), 1, "level saved")
 		assert_eq(loaded.stoves.size(), 3, "stoves saved")
 		assert_eq(loaded.stoves[2].recipe_id, "tea", "still cooking")
 
 
-func test_furniture_needs_room_on_the_floor() -> void:
-	var data := TestFixtures.data({"start_tables": 42})
+func test_selling_furniture() -> void:
+	var data := TestFixtures.data({"start_counters": 1, "start_registers": 1})
 	var state := _night(data)
-	assert_eq(Layout.count_placed(state, Piece.TABLE, data), 42, "the floor is full: 4 stove tiles, 2 seats, 42 tables")
-	assert_eq(GameLoop.buy_upgrade(state, "seat", data), GameLoop.NO_ROOM, "no space")
-	assert_eq(GameLoop.buy_upgrade(state, "floor", data), GameLoop.OK, "expand")
-	assert_eq(GameLoop.buy_upgrade(state, "seat", data), GameLoop.OK, "room now")
+	var seat: PlacedPiece = state.placed.filter(func(p: PlacedPiece) -> bool: return p.piece_id == "seat")[0]
+	var coins := state.coins
+	assert_eq(GameLoop.sell_piece(state, seat.uid, data), GameLoop.OK, "a seat sells")
+	assert_eq(state.coins, coins + 10, "half its price")
+	var counter: PlacedPiece = state.placed.filter(func(p: PlacedPiece) -> bool: return p.piece_id == "counter")[0]
+	assert_eq(GameLoop.sell_piece(state, counter.uid, data), GameLoop.COUNTER_NEEDED, "not the last counter")
+	var register: PlacedPiece = state.placed.filter(func(p: PlacedPiece) -> bool: return p.piece_id == "register")[0]
+	assert_eq(GameLoop.sell_piece(state, register.uid, data), GameLoop.REGISTER_NEEDED, "not the last register")
+	GameLoop.start_cooking(state, 0, "tea", data)
+	assert_eq(GameLoop.sell_piece(state, state.stoves[0].piece_uid, data), GameLoop.STOVE_BUSY, "not a busy stove")
+
+
+func test_version_13_drops_furniture_upgrade_levels() -> void:
+	var data := TestFixtures.data()
+	var path := "user://test_saves/old_upgrades.json"
+	var state := _night(data)
+	var raw := SaveSystem.to_dict(state)
+	raw["upgrades"] = {"stove": 2, "seat": 3, "pod": 1}
+	raw["version"] = 13
+	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	file.store_string(JSON.stringify(raw))
+	file.close()
+	var errors: PackedStringArray = []
+	var loaded := SaveSystem.load_file(path, data, errors)
+	SaveSystem.delete_save(path)
+	assert_true(loaded != null, "loaded: %s" % ", ".join(errors))
+	if loaded != null:
+		assert_eq(loaded.upgrades, {"pod": 1} as Dictionary[String, int], "only real upgrades left")
 
 
 func test_missing_upgrade_data_is_rejected() -> void:

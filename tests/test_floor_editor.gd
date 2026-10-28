@@ -11,7 +11,7 @@ func _night(data: GameData) -> GameState:
 
 
 func _place(state: GameState, piece_id: String, cell: Vector2i, data: GameData) -> String:
-	GameLoop.buy_decor(state, piece_id, data)
+	GameLoop.buy_piece(state, piece_id, data)
 	GameLoop.place_piece(state, piece_id, cell, false, data)
 	return state.placed[-1].uid
 
@@ -36,8 +36,8 @@ func test_hold_from_storage_preview_and_drop() -> void:
 	_place(state, "fern", Vector2i(7, 2), data)
 	var editor := FloorEditor.new()
 	assert_eq(editor.hold_stored(state, "lamp"), GameLoop.NONE_STORED, "nothing stored")
-	GameLoop.buy_decor(state, "lamp", data)
-	GameLoop.buy_decor(state, "lamp", data)
+	GameLoop.buy_piece(state, "lamp", data)
+	GameLoop.buy_piece(state, "lamp", data)
 	assert_eq(editor.hold_stored(state, "lamp"), GameLoop.OK, "holding a lamp")
 	var bad := editor.preview(state, Vector2i(7, 2), data)
 	assert_eq(bad["error"], GameLoop.OVERLAP, "on the fern")
@@ -75,6 +75,5 @@ func test_move_rotate_store_and_sell() -> void:
 	assert_true(not editor.is_holding(), "hands empty")
 	var seat: String = state.placed.filter(func(p: PlacedPiece) -> bool: return p.piece_id == "seat")[0].uid
 	editor.hold_placed(state, seat)
-	assert_eq(editor.sell(state, data), GameLoop.NOT_FOR_SALE, "seats are not sold")
 	assert_eq(editor.store(state, data), GameLoop.OK, "seat stored")
 	assert_eq(state.storage.get("seat", 0), 1, "in storage")
