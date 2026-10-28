@@ -39,7 +39,7 @@ func test_conversion_needs_star_brew_and_pod() -> void:
 	state.nanobrew = 1
 	state.pods = 1
 	assert_eq(GameLoop.convert_customer(state, setup[1], data), GameLoop.NO_FREE_POD, "pods full")
-	state.customer_by_id(setup[1]).stage = Customer.Stage.EATING
+	state.convertible_by_id(setup[1]).starred = false
 	state.pods = 2
 	assert_eq(GameLoop.convert_customer(state, setup[1], data), GameLoop.NO_STAR, "no star")
 
@@ -95,7 +95,7 @@ func test_customer_brings_their_max_battery() -> void:
 	var data := TestFixtures.data()
 	var setup := _starred(data)
 	var state: GameState = setup[0]
-	var customer := state.customer_by_id(setup[1])
+	var customer := state.convertible_by_id(setup[1])
 	assert_eq(customer.battery_max, 50, "rolled on arrival")
 	customer.battery_max = 0
 	var created: Array[Synth] = []

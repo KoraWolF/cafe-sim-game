@@ -5,7 +5,7 @@
 		"battery_max": 150, "drain": 0.12, "break_chance": 0.12}},
 	{"id": "glitchling", "battery_range": [70, 200], "best_role": "chef", "stats": {"speed": 1.0, "cook": 0.6, "power": 8, "hp": 30,
 		"battery_max": 100, "drain": 0.12, "glitch_chance": 0.08}},
-	{"id": "hypeform", "battery_range": [70, 140], "best_role": "greeter", "stats": {"speed": 0.6, "cook": 0.05, "appeal": 0.5, "power": 5,
+	{"id": "hypeform", "battery_range": [70, 140], "best_role": "cashier", "stats": {"speed": 0.6, "cook": 0.05, "appeal": 0.5, "power": 5,
 		"hp": 25, "battery_max": 100, "drain": 0.12}},
 	{"id": "steady_unit", "battery_range": [70, 200], "best_role": "server", "stats": {"speed": 0.8, "cook": 0.2, "appeal": 0.1, "power": 7,
 		"hp": 40, "battery_max": 100, "drain": 0.04}},

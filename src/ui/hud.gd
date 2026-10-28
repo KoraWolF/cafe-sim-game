@@ -9,6 +9,8 @@ signal settings_requested
 signal shop_requested
 signal quests_requested
 signal bag_requested
+## The worker card was closed (the café drops its job selection).
+signal card_closed
 signal arrange_requested
 
 const FEED_LINES: int = 6
@@ -39,6 +41,8 @@ var quests_button := UiTheme.button(tr("ui.quests_button"), quests_requested.emi
 var bag_button := UiTheme.button(tr("ui.bag_button"), bag_requested.emit)
 ## Today's daily quests, small, under the top bar.
 var _tracker := UiTheme.label("", 15, UiTheme.TEXT_DIM)
+## Starred customers who paid and left: pick one to convert (until closing).
+var stars := MenuButton.new()
 
 
 func _ready() -> void:
@@ -48,6 +52,12 @@ func _ready() -> void:
 	_tracker.position = Vector2(16, UiTheme.TOP_BAR_HEIGHT + 8)
 	_tracker.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_tracker)
+	stars.flat = false
+	stars.tooltip_text = tr("tip.stars")
+	add_child(stars)
+	stars.get_popup().id_pressed.connect(func(index: int) -> void:
+		if index < Session.state.star_list.size():
+			confirm_convert(Session.state.star_list[index].id))
 	_toasts.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	_toasts.position = Vector2(-300, UiTheme.TOP_BAR_HEIGHT + 30)
 	_toasts.custom_minimum_size = Vector2(600, 0)
@@ -62,6 +72,7 @@ func _ready() -> void:
 	_card.visible = false
 	add_child(_card)
 	_card.details_requested.connect(details.open)
+	_card.closed.connect(card_closed.emit)
 	add_child(details)
 	add_child(customer_card)
 	_build_pause_menu()
@@ -177,6 +188,17 @@ func refresh() -> void:
 				done[0], done[1]])
 	_tracker.text = "\n".join(lines)
 	_tracker.visible = in_shift and not lines.is_empty()
+	# The starred list, under the tracker.
+	stars.visible = in_shift and not state.star_list.is_empty()
+	stars.text = tr("ui.stars_button") % state.star_list.size()
+	stars.position = Vector2(16, UiTheme.TOP_BAR_HEIGHT + 12 + (_tracker.size.y + 6 if _tracker.visible else 0))
+	var popup := stars.get_popup()
+	popup.clear()
+	for i: int in state.star_list.size():
+		var customer := state.star_list[i]
+		var type := data.customer_types[customer.type_id]
+		popup.add_item(tr("ui.star_line") % [UiText.name(customer.type_id), UiText.name(type.synth_species),
+			UiText.name(customer.trait_id) if customer.trait_id != "" else tr("ui.card_no_trait"), customer.battery_max], i)
 	var unlocked := state.day >= data.balance.auto_unlock_day
 	_auto.disabled = not unlocked
 	_auto.set_pressed_no_signal(state.auto_night)
@@ -281,7 +303,7 @@ func confirm_throw(uid: String) -> void:
 
 func confirm_convert(customer_id: String) -> void:
 	var state := Session.state
-	var customer := state.customer_by_id(customer_id)
+	var customer := state.convertible_by_id(customer_id)
 	if customer == null:
 		return
 	if state.nanobrew <= 0:

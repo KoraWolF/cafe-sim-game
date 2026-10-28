@@ -69,11 +69,12 @@ func test_customer_is_served_pays_tips_and_stars() -> void:
 	assert_eq(state.coins, 115, "coins")
 	assert_eq(state.counter["tea"], 2, "one serving used")
 	assert_eq(events.starred.size(), 1, "starred")
-	var customer := state.customer_by_id(events.starred[0])
-	assert_eq(customer.stage, Customer.Stage.STAR, "waits with a star")
-	events = GameLoop.advance(state, 10, data)
-	assert_eq(events.star_expired.size(), 1, "star window ends")
-	assert_true(state.customers.is_empty(), "gone")
+	assert_true(state.customers.is_empty(), "everyone leaves after paying")
+	assert_eq(state.star_list.size(), 1, "the starred customer is on the starred list")
+	assert_eq(state.star_list[0].stage, Customer.Stage.STAR, "convertible from the list")
+	events = GameLoop.advance(state, data.balance.shift_seconds, data)
+	assert_true(state.star_list.is_empty(), "the list empties at closing")
+	assert_true(events.star_expired.size() >= 1, "their chance ended")
 
 
 func test_customer_without_food_loses_satisfaction_and_leaves() -> void:

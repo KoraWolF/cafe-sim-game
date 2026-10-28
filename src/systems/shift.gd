@@ -4,7 +4,7 @@ extends RefCounted
 ##
 ## Each second, in order: stoves cook (base speed 1 + chefs' cook; a finished
 ## batch waits on its stove for a server to carry it to a counter), customers
-## arrive (greeters shorten the gap), queued customers take free seats and
+## arrive (Cashiers' appeal shortens the gap), queued customers take free seats and
 ## order from the menu (favourites more often), servers carry ready servings to tables, customers wait / eat / leave,
 ## and on-duty Synths drain battery. Customers who finish eating line up at the
 ## registers; each Cashier takes the next one (pay_seconds, star_pay_seconds
@@ -56,6 +56,7 @@ static func run(state: GameState, seconds: int, data: GameData) -> Events:
 		events.closed = true
 		_close(state, data, events)
 		return events
+	Roles.bind_free(state, data)
 	var rng := state.rng()
 	for i: int in maxi(seconds, 0):
 		_tick(state, data, rng, events)
@@ -83,19 +84,18 @@ static func order_menu(state: GameState, data: GameData) -> Array[Recipe]:
 	return unlocked if result.is_empty() else result
 
 
-## Total appeal of working greeters; the arrival gap is divided by 1 + this.
-static func greeter_appeal(state: GameState, data: GameData) -> float:
+## Total appeal of working Cashiers; the arrival gap is divided by 1 + this.
+static func cashier_appeal(state: GameState, data: GameData) -> float:
 	var total := 0.0
-	for synth: Synth in state.synths:
-		if synth.role == Synth.GREETER:
-			total += maxf(SynthStats.stat(synth, "appeal", data), 0.0) * SynthStats.work_factor(synth, state, data)
+	for synth: Synth in active_cashiers(state, data):
+		total += maxf(SynthStats.stat(synth, "appeal", data), 0.0) * SynthStats.work_factor(synth, state, data)
 	return total
 
 
-## How many times faster than the base gap customers arrive: greeters plus extra seats.
+## How many times faster than the base gap customers arrive: Cashiers' appeal plus extra seats.
 static func arrival_rate(state: GameState, data: GameData) -> float:
 	var extra_seats := maxi(state.seats - data.balance.start_seats, 0)
-	return 1.0 + greeter_appeal(state, data) + data.balance.arrival_per_extra_seat * extra_seats
+	return 1.0 + cashier_appeal(state, data) + data.balance.arrival_per_extra_seat * extra_seats
 
 
 static func seated_count(state: GameState) -> int:
@@ -121,23 +121,20 @@ static func _tick(state: GameState, data: GameData, rng: RandomNumberGenerator, 
 static func _cook(state: GameState, data: GameData, rng: RandomNumberGenerator, events: Events) -> void:
 	if state.stoves.all(func(stove: Stove) -> bool: return stove.is_idle() or stove.has_batch()):
 		return
-	var rate := 1.0
-	var cooking: Array[Synth] = []
-	for synth: Synth in state.synths:
-		if synth.role != Synth.CHEF:
-			continue
-		var factor := SynthStats.work_factor(synth, state, data)
-		if factor <= 0.0:
-			continue
-		if rng.randf() < SynthStats.stat(synth, "glitch_chance", data):
-			events.glitches += 1
-			continue
-		rate += maxf(SynthStats.stat(synth, "cook", data), 0.0) * factor
-		cooking.append(synth)
 	var counters := Counters.in_use(state, data)
 	for stove: Stove in state.stoves:
 		if stove.is_idle() or stove.has_batch():
 			continue
+		# Base speed 1, plus the cooking of the Chef at this stove (if working and not glitching).
+		var rate := 1.0
+		var cooking: Array[Synth] = []
+		var chef := Roles.at_station(state, stove.piece_uid)
+		if chef != null and chef.role == Synth.CHEF and SynthStats.work_factor(chef, state, data) > 0.0:
+			if rng.randf() < SynthStats.stat(chef, "glitch_chance", data):
+				events.glitches += 1
+			else:
+				rate += maxf(SynthStats.stat(chef, "cook", data), 0.0) * SynthStats.work_factor(chef, state, data)
+				cooking.append(chef)
 		stove.remaining -= rate
 		if stove.remaining <= 0.0:
 			var recipe := data.recipes[stove.recipe_id]
@@ -171,11 +168,7 @@ static func _arrive(state: GameState, data: GameData, rng: RandomNumberGenerator
 	customer.battery_max = data.species[data.customer_types[type_id].synth_species].roll_battery_max(rng)
 	state.customers.append(customer)
 	events.arrived.append(customer.id)
-	var greeting: Array[Synth] = []
-	for synth: Synth in state.synths:
-		if synth.role == Synth.GREETER and SynthStats.work_factor(synth, state, data) > 0.0:
-			greeting.append(synth)
-	Leveling.share(greeting, b.xp_per_arrival, b, events.level_ups)
+	Leveling.share(active_cashiers(state, data), b.xp_per_arrival, b, events.level_ups)
 
 
 static func _pick_type(data: GameData, rng: RandomNumberGenerator) -> String:
@@ -412,11 +405,6 @@ static func _update_customers(state: GameState, data: GameData, events: Events) 
 					if customer.satisfaction <= 0.0 and customer.tip > 0:
 						customer.tip = 0
 						events.angry_in_line.append(customer.id)
-			Customer.Stage.STAR:
-				customer.timer -= 1
-				if customer.timer <= 0:
-					state.customers.erase(customer)
-					events.star_expired.append(customer.id)
 
 
 static func _wait(customer: Customer, type: CustomerType, b: BalanceConfig, vibe: float) -> void:
@@ -451,8 +439,8 @@ static func _finish_meal(state: GameState, customer: Customer, data: GameData, e
 	_pay(state, customer, data, events)
 
 
-## Takes the bill and tip; a starred customer then leaves slowly (STAR, the
-## star window), anyone else is gone.
+## Takes the bill and tip; everyone leaves. A starred customer goes to the
+## starred list (convertible until the café closes).
 static func _pay(state: GameState, customer: Customer, data: GameData, events: Events) -> void:
 	state.coins += customer.bill + customer.tip
 	events.coins_earned += customer.bill
@@ -460,11 +448,11 @@ static func _pay(state: GameState, customer: Customer, data: GameData, events: E
 	events.served.append(customer.id)
 	events.payments[customer.id] = customer.bill + customer.tip
 	customer.cashier_id = ""
-	if not customer.starred:
-		state.customers.erase(customer)
-		return
-	customer.stage = Customer.Stage.STAR
-	customer.timer = data.balance.star_window_seconds
+	state.customers.erase(customer)
+	if customer.starred:
+		# Gone from the café, but can be converted from the starred list until closing.
+		customer.stage = Customer.Stage.STAR
+		state.star_list.append(customer)
 
 
 ## Each register's Cashier (working Cashiers paired with registers in floor
@@ -497,12 +485,13 @@ static func _cashiers(state: GameState, data: GameData, events: Events) -> void:
 			Leveling.add_xp(synth, data.balance.xp_per_delivery, data.balance, events.level_ups)
 
 
-## Cashiers who can work now, at most one per register.
+## Cashiers working now: each at its own register (see Roles).
 static func active_cashiers(state: GameState, data: GameData) -> Array[Synth]:
 	var result: Array[Synth] = []
-	var registers := Layout.count_placed(state, Piece.REGISTER, data)
 	for synth: Synth in state.synths:
-		if result.size() < registers and synth.role == Synth.CASHIER and SynthStats.work_factor(synth, state, data) > 0.0:
+		var register := Layout.placed_by_uid(state, synth.station_uid)
+		if synth.role == Synth.CASHIER and register != null and data.pieces[register.piece_id].kind == Piece.REGISTER \
+				and SynthStats.work_factor(synth, state, data) > 0.0:
 			result.append(synth)
 	return result
 
@@ -546,6 +535,9 @@ static func _close(state: GameState, data: GameData, events: Events) -> void:
 				stove.carrier = ""
 			_clear_task(synth)
 	state.customers.clear()
+	for customer: Customer in state.star_list:
+		events.star_expired.append(customer.id)
+	state.star_list.clear()
 	state.phase = GameState.Phase.NIGHT
 	events.shift_ended = true
 

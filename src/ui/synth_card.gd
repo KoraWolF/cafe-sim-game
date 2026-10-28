@@ -1,11 +1,13 @@
 class_name SynthCard
 extends PanelContainer
 ## A worker at a glance: name (pencil to rename), species and best role, trait,
-## level and XP, HP, battery and max battery, role buttons, and Details (the
-## Work, Fight, Trait and gear tabs). Explanations live in the Details window
+## level and XP, HP, battery and max battery, its job (change it by clicking a
+## place in the café while the card is open), and Details (the Work, Fight,
+## Trait and gear tabs). Explanations live in the Details window
 ## and the Info button.
 
 signal details_requested(synth_id: String)
+signal closed
 
 var synth_id: String = ""
 ## The name; editable only after clicking the pencil next to it.
@@ -17,7 +19,8 @@ var _xp := ProgressBar.new()
 var _hp := UiTheme.label("", 16)
 var _battery_text := UiTheme.label("", 16)
 var _battery := ProgressBar.new()
-var _roles: Dictionary[String, Button] = {}
+var _job := UiTheme.label("", 17, UiTheme.PANEL_BORDER)
+var _job_help := UiTheme.label("", 14, UiTheme.TEXT_DIM)
 
 
 func _ready() -> void:
@@ -52,18 +55,16 @@ func _ready() -> void:
 		bar.custom_minimum_size = Vector2(0, 14)
 	for control: Control in [_core, _level, _xp, _hp, _battery_text, _battery]:
 		column.add_child(control)
-	column.add_child(UiTheme.label(tr("ui.card_role"), 16, UiTheme.TEXT_DIM))
-	var roles := HBoxContainer.new()
-	column.add_child(roles)
-	for role: String in Synth.ROLES:
-		var button := UiTheme.button(UiText.role(role), _set_role.bind(role))
-		button.toggle_mode = true
-		button.tooltip_text = tr("tip.role." + role)
-		_roles[role] = button
-		roles.add_child(button)
+	column.add_child(_job)
+	_job_help.text = tr("ui.card_job_help")
+	_job_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_job_help.custom_minimum_size = Vector2(340, 0)
+	column.add_child(_job_help)
 	var buttons := HBoxContainer.new()
 	var details := UiTheme.button(tr("ui.details"), func() -> void: details_requested.emit(synth_id))
-	var close := UiTheme.button(tr("ui.close"), func() -> void: visible = false)
+	var close := UiTheme.button(tr("ui.close"), func() -> void:
+		visible = false
+		closed.emit())
 	for button: Button in [details, close]:
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		buttons.add_child(button)
@@ -92,8 +93,11 @@ func refresh() -> void:
 	_xp.value = synth.xp if synth.level < b.max_synth_level else _xp.max_value
 	_battery.max_value = battery_max
 	_battery.value = synth.battery
-	for role: String in _roles:
-		_roles[role].set_pressed_no_signal(role == synth.role)
+	var station := ""
+	var placed := Layout.placed_by_uid(Session.state, synth.station_uid)
+	if placed != null:
+		station = " · " + UiText.name(placed.piece_id)
+	_job.text = tr("ui.card_job") % [UiText.role(synth.role), station]
 
 
 func _start_rename() -> void:
@@ -125,7 +129,3 @@ func _draw_pencil() -> void:
 	_edit.draw_line(tip + along * 5.0, back, color, 7.0)
 	_edit.draw_line(back, back + along * 3.0, Color(color, 0.5), 7.0)
 
-
-func _set_role(role: String) -> void:
-	Session.act(GameLoop.assign_role(Session.state, synth_id, role))
-	refresh()

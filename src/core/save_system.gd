@@ -30,7 +30,9 @@ extends RefCounted
 ##     achievements. Older games start them from zero.
 ## 14: furniture is bought by the piece, not as upgrades: old furniture
 ##     upgrade levels are dropped (the pieces stay).
-const VERSION: int = 14
+## 15: jobs by place (Chef at a stove, Cashier at a register), no Greeter,
+##     the starred list. Greeters become Servers; stations are bound on load.
+const VERSION: int = 15
 const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
 
@@ -65,6 +67,7 @@ static func to_dict(state: GameState) -> Dictionary:
 		"counter": state.counter,
 		"discard": state.discard,
 		"auto_night": state.auto_night,
+		"star_list": state.star_list.map(func(customer: Customer) -> Dictionary: return customer.to_dict()),
 		"inventory": state.inventory.map(func(item: Item) -> Dictionary: return item.to_dict()),
 		"bottles": state.bottles,
 		"scrap": state.scrap,
@@ -127,6 +130,13 @@ static func from_dict(raw: Dictionary) -> GameState:
 		for recipe_id: Variant in counter:
 			state.counter[str(recipe_id)] = int(counter[recipe_id])
 	state.auto_night = bool(raw.get("auto_night", false))
+	for entry: Dictionary in _objects(raw, "star_list"):
+		state.star_list.append(Customer.from_dict(entry))
+	# Older saves: starred customers lingering outside go to the starred list.
+	for customer: Customer in state.customers.duplicate():
+		if customer.stage == Customer.Stage.STAR:
+			state.customers.erase(customer)
+			state.star_list.append(customer)
 	for entry: Dictionary in _objects(raw, "inventory"):
 		state.inventory.append(Item.from_dict(entry))
 	var bottles: Variant = raw.get("bottles", {})
@@ -297,6 +307,8 @@ static func _migrate_step(version: int, raw: Dictionary) -> Dictionary:
 			raw["needs_fashion"] = true
 			return raw
 		12:
+			return raw
+		14:
 			return raw
 		13:
 			var levels: Variant = raw.get("upgrades", {})
@@ -554,6 +566,7 @@ static func _load_one(path: String, data: GameData, errors: PackedStringArray) -
 			state.floor_rows += 2
 	if current.get("needs_bin", false) and Layout.count_placed(state, Piece.BIN, data) == 0 			and data.balance.start_bins > 0 and not Layout.auto_place(state, Piece.BIN, data):
 		state.storage[Piece.BIN] = state.storage.get(Piece.BIN, 0) + 1
+	Roles.bind_free(state, data)
 	if current.get("needs_fashion", false):
 		for fashion_id: String in data.items.starter_fashion:
 			state.inventory.append(Items.make(state, Item.FASHION, fashion_id))

@@ -44,6 +44,7 @@ const UNKNOWN_PLACED: String = "unknown_placed"
 const COUNTER_NEEDED: String = "counter_needed"
 const COUNTER_BUSY: String = "counter_busy"
 const SEAT_BUSY: String = "seat_busy"
+const NO_JOB_THERE: String = "no_job_there"
 const REGISTER_NEEDED: String = "register_needed"
 const EMPTY_NAME: String = "empty_name"
 const NAME_TOO_LONG: String = "name_too_long"
@@ -99,7 +100,7 @@ static func convert_customer(state: GameState, customer_id: String, data: GameDa
 		out_synth: Array[Synth] = []) -> String:
 	if state.phase != GameState.Phase.SHIFT:
 		return WRONG_PHASE
-	var customer := state.customer_by_id(customer_id)
+	var customer := state.convertible_by_id(customer_id)
 	if customer == null:
 		return UNKNOWN_CUSTOMER
 	if not customer.can_convert():
@@ -123,6 +124,7 @@ static func convert_customer(state: GameState, customer_id: String, data: GameDa
 	if customer.stage == Customer.Stage.PAYING:
 		state.coins += customer.bill + customer.tip
 	state.customers.erase(customer)
+	state.star_list.erase(customer)
 	state.add_suspicion(data.balance.conversion_suspicion)
 	var synth := state.add_synth(type.synth_species, trait_id, data, battery_max)
 	state.stats["conversions"] = state.stats.get("conversions", 0) + 1
@@ -339,7 +341,19 @@ static func rename_synth(state: GameState, synth_id: String, new_name: String) -
 	return OK
 
 
-## A server carrying a dish or a batch has to finish the trip first.
+## A job by place: click a worker, then a stove (Chef), counter or table
+## (Server), register (Cashier). See Roles.
+static func assign_to(state: GameState, synth_id: String, uid: String, data: GameData) -> String:
+	return Roles.assign_to(state, synth_id, uid, data)
+
+
+## Clicking the Pod bay: the worker rests.
+static func send_to_rest(state: GameState, synth_id: String) -> String:
+	return Roles.rest(state, synth_id)
+
+
+## Sets a role directly (Chefs and Cashiers then take a free station). A
+## server carrying a dish or a batch has to finish the trip first.
 static func assign_role(state: GameState, synth_id: String, role: String) -> String:
 	var synth := state.synth_by_id(synth_id)
 	if synth == null:

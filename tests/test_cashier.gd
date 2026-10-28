@@ -87,6 +87,7 @@ func test_one_cashier_per_register() -> void:
 	assert_eq(Shift.active_cashiers(state, data).size(), 1, "one register, one working Cashier")
 	state.storage["register"] = 1
 	GameLoop.place_piece(state, "register", Vector2i(5, 5), false, data)
+	Roles.bind_free(state, data)
 	assert_eq(Shift.active_cashiers(state, data).size(), 2, "a second register puts the second to work")
 	assert_eq(GameLoop.pick_up_piece(state, Layout.piece_at(state, Vector2i(5, 5), data).uid, data), GameLoop.OK, "one can go")
 	assert_eq(GameLoop.pick_up_piece(state, Layout.piece_at(state, Vector2i(5, 3), data).uid, data),

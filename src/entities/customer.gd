@@ -6,7 +6,7 @@ enum Stage {
 	QUEUED, ## Waiting for a free seat.
 	WAITING_FOOD, ## Seated, has ordered; a server may already be carrying it.
 	EATING,
-	STAR, ## Paid, starred and leaving: can be converted until the window ends.
+	STAR, ## Paid and gone, on the starred list: can be converted until the café closes.
 	PAYING, ## Finished eating: in line at the register, or paying.
 }
 

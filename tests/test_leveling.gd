@@ -37,26 +37,31 @@ func test_server_earns_xp_per_delivery() -> void:
 	assert_eq(state.synths[0].xp, 2, "one dish delivered")
 
 
-func test_chefs_share_batch_xp() -> void:
+func test_the_chef_at_the_stove_gets_batch_xp() -> void:
 	var data := TestFixtures.data()
 	var state := GameState.new_game(1, data)
 	state.synths[0].role = Synth.REST
 	var a := state.add_synth("chef", "", data)
 	var b := state.add_synth("chef", "", data)
+	assert_eq(GameLoop.assign_to(state, a.id, state.stoves[0].piece_uid, data), GameLoop.OK, "a at stove 1")
+	assert_eq(GameLoop.assign_to(state, b.id, state.stoves[1].piece_uid, data), GameLoop.OK, "b at stove 2")
 	GameLoop.start_cooking(state, 0, "tea", data)
 	var events := GameLoop.advance(state, 5, data)
-	assert_eq(events.dishes_ready.size(), 1, "setup: batch done")
-	assert_eq(a.xp, 3, "6 XP shared")
-	assert_eq(b.xp, 3, "6 XP shared")
+	assert_eq(events.dishes_ready.size(), 1, "setup: batch done (speed 1 + cook 1)")
+	assert_eq(a.xp, 6, "the stove's own Chef")
+	assert_eq(b.xp, 0, "not the other Chef")
 
 
-func test_greeters_earn_xp_per_arrival() -> void:
-	var data := TestFixtures.data()
+func test_cashiers_earn_xp_per_arrival() -> void:
+	var data := TestFixtures.data({"start_registers": 1, "start_layout": [{"piece": "seat", "cell": [6, 0]},
+		{"piece": "seat", "cell": [7, 0]}, {"piece": "table", "cell": [6, 1]}, {"piece": "table", "cell": [7, 1]}]})
 	var state := GameState.new_game(1, data)
-	var greeter := state.add_synth("worker", "", data)
-	greeter.role = Synth.GREETER
+	var cashier := state.add_synth("worker", "", data)
+	cashier.role = Synth.CASHIER
 	GameLoop.advance(state, 4, data)
-	assert_eq(greeter.xp, 1, "one arrival")
+	assert_eq(cashier.station_uid, state.placed.filter(func(p: PlacedPiece) -> bool: return p.piece_id == "register")[0].uid,
+		"took the free register")
+	assert_eq(cashier.xp, 1, "one arrival")
 
 
 func test_night_ops_xp() -> void:
