@@ -148,7 +148,15 @@ static func new_game(seed_value: int, data: GameData) -> GameState:
 	starter.name = b.starter_name
 	starter.role = Synth.SERVER
 	if b.starter_cashier_species != "":
-		state.add_starter_cashier(data)
+		var cashier := state.add_starter_cashier(data)
+		# Either starter may be the one at the register.
+		var generator := state.rng()
+		if generator.randi_range(0, 1) == 0:
+			cashier.role = Synth.SERVER
+			cashier.station_uid = ""
+			starter.role = Synth.CASHIER
+			Roles.bind_free(state, data)
+		state.store_rng(generator)
 	for fashion_id: String in data.items.starter_fashion:
 		state.inventory.append(Items.make(state, Item.FASHION, fashion_id))
 	state.menu_slots = b.start_menu_slots

@@ -61,6 +61,7 @@ func _ready() -> void:
 		cafe.selected_synth = synth_id
 		hud.open_synth_card(synth_id))
 	cafe.job_clicked.connect(_give_job)
+	cafe.blank_clicked.connect(hud.close_synth_card)
 	hud.card_closed.connect(func() -> void: cafe.selected_synth = "")
 	cafe.customer_clicked.connect(hud.confirm_convert)
 	cafe.customer_hovered.connect(hud.show_customer_card)
@@ -194,8 +195,9 @@ func _on_editor_changed() -> void:
 		exit_edit()
 
 
-## The selected worker takes the job of what was clicked ("" = the Pod bay: Rest).
-func _give_job(uid: String) -> void:
+## The selected worker takes the job of what was clicked ("" = the Pod bay:
+## Rest). A Chef put at an idle stove gets its dish menu straight away.
+func _give_job(uid: String, at: Vector2) -> void:
 	var state := Session.state
 	var code := GameLoop.send_to_rest(state, cafe.selected_synth) if uid == "" \
 		else GameLoop.assign_to(state, cafe.selected_synth, uid, Session.data)
@@ -203,6 +205,9 @@ func _give_job(uid: String) -> void:
 		var synth := state.synth_by_id(cafe.selected_synth)
 		Session.toast.emit(tr("ui.job_now") % [Session.synth_name(synth), UiText.role(synth.role)])
 		Sfx.play("ui_click")
+		var stove := Layout.stove_of(state, uid)
+		if stove != null and stove.is_idle():
+			hud.open_recipe_menu(state.stoves.find(stove), at)
 
 
 ## The shop, at any time; toggles from the top bar.

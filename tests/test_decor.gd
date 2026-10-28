@@ -25,7 +25,7 @@ func test_new_game_lays_out_the_starting_furniture() -> void:
 	assert_eq(state.seats, 2, "seats, each beside its table")
 	assert_eq(state.pods, 2, "2 Pods in the bay")
 	assert_eq(state.placed[0].cell, Vector2i(0, 0), "first stove top-left")
-	assert_eq(state.placed[1].cell, Vector2i(2, 0), "second stove beside it")
+	assert_eq(state.placed[1].cell, Vector2i(1, 0), "second stove beside it (stoves are 1x1)")
 	assert_eq(state.vibe, 0.0, "no décor yet")
 
 
@@ -51,11 +51,11 @@ func test_buying_and_placing_rules() -> void:
 func test_rotation_swaps_the_footprint() -> void:
 	var data := TestFixtures.data()
 	var state := _night(data)
-	# A 2x1 stove rotated is 1x2: fits the last column only when rotated.
-	state.storage["stove"] = 1
-	assert_eq(GameLoop.place_piece(state, "stove", Vector2i(7, 4), false, data), GameLoop.OUT_OF_BOUNDS, "lengthwise: too wide")
-	assert_eq(GameLoop.place_piece(state, "stove", Vector2i(7, 4), true, data), GameLoop.OK, "rotated")
-	assert_eq(state.stoves.size(), 3, "counts once placed")
+	# A 2x1 bench rotated is 1x2: fits the last column only when rotated.
+	state.storage["bench"] = 1
+	assert_eq(GameLoop.place_piece(state, "bench", Vector2i(7, 4), false, data), GameLoop.OUT_OF_BOUNDS, "lengthwise: too wide")
+	assert_eq(GameLoop.place_piece(state, "bench", Vector2i(7, 4), true, data), GameLoop.OK, "rotated")
+	assert_eq(Layout.piece_at(state, Vector2i(7, 5), data).piece_id, "bench", "covers two rows")
 
 
 ## The fixture's two seats stand at (6, 0) and (7, 0); décor reaches 2 tiles.

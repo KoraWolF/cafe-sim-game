@@ -56,3 +56,13 @@ The sim bot now buys furniture by the piece, capped at what the old upgrades all
 - **Back to the Shop:** after **Buy**, placing the piece (or putting it back) returns you to the Shop.
 - **Bug fixed:** the Buy click itself also reached the floor behind the Shop. Arrange now opens only after the click has finished.
 - The old door-lane code (`walk.gd`) is gone; routes do its job.
+
+## Fourth round (branch `click-polish`)
+- **Assigning a Chef to an idle stove** (not cooking, no batch waiting) opens that stove's dish menu straight away.
+- **Switching workers:** with a worker picked, clicking another worker switches to them; you don't need to close the card first. Clicking empty floor closes the card.
+- **Taking over a station:** a worker put on a stove or register that already has someone sends that person to **Server**, not Rest.
+- **Bins:** clicking a bin while a worker is picked makes it a Server.
+- **Clicking pieces:** pieces are hit by their drawn shape (the top and the visible sides), not only the floor tile, and the nearest piece wins. This also applies to picking pieces up in Arrange.
+- **Stoves** are now 1×1. The starter stoves stand at (1, 0) and (2, 0).
+- **New game:** one of the two starting staff, picked at random, is the Cashier at the register; the other is a Server. Converted customers still walk to their Pod and rest.
+- **Balance (40 days × 5 seeds):** about 2,040 customers seated, 95.6% stars. The Alley is taken around day 11 and Neon Market around day 26, in all 5 runs, with about 3,940 coins at day 40.

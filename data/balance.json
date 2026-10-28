@@ -37,7 +37,7 @@
 	"floor_width": 8,
 	"start_floor_rows": 8,
 	"start_layout": [
-		{"piece": "stove", "cell": [0, 0]}, {"piece": "stove", "cell": [2, 0]}, {"piece": "counter", "cell": [4, 0]}, {"piece": "counter", "cell": [5, 0]}, {"piece": "bin", "cell": [7, 0]},
+		{"piece": "stove", "cell": [1, 0]}, {"piece": "stove", "cell": [2, 0]}, {"piece": "counter", "cell": [4, 0]}, {"piece": "counter", "cell": [5, 0]}, {"piece": "bin", "cell": [7, 0]},
 		{"piece": "table", "cell": [2, 3]}, {"piece": "seat", "cell": [2, 4]},
 		{"piece": "table", "cell": [5, 3]}, {"piece": "seat", "cell": [5, 4]},
 		{"piece": "table", "cell": [3, 6]}, {"piece": "seat", "cell": [2, 6]},

@@ -443,7 +443,7 @@ ui.slots_note,"Click a slot to wear a spare piece or take one off. Everything yo
 ui.slot_nothing_spare,No spare pieces for this slot
 error.no_job_there,"No job there — click a stove (Chef), counter or table (Server), register (Cashier) or the Pod bay (Rest)."
 ui.card_job,Job: %s%s
-ui.card_job_help,"To change the job, click a place in the café: a stove (Chef), a counter or table (Server), a register (Cashier) or the Pod bay (Rest)."
+ui.card_job_help,"To change the job, click a place in the café: a stove (Chef), a counter, table or bin (Server), a register (Cashier) or the Pod bay (Rest). Click another worker to switch; click empty floor to close."
 ui.job_now,%s is now %s.
 ui.stars_button,★ Starred (%d) ▾
 tip.stars,Starred customers who paid and left. Pick one to convert with NanoBrew — until the café closes.

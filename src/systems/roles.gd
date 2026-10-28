@@ -2,8 +2,8 @@ class_name Roles
 extends RefCounted
 ## Jobs by place: the player clicks a worker, then a stove (Chef at that
 ## stove), a counter or table (Server), a register (Cashier at that register)
-## or the Pod bay (Rest). One Chef per stove and one Cashier per register; a
-## worker already there goes to Rest. A Chef or Cashier whose station is gone
+## or the Pod bay (Rest); a bin is a Server's job too. One Chef per stove and
+## one Cashier per register; a worker already there becomes a Server. A Chef or Cashier whose station is gone
 ## takes a free one (or waits); bind_free also covers older saves.
 
 
@@ -22,7 +22,7 @@ static func assign_to(state: GameState, synth_id: String, uid: String, data: Gam
 			_take_station(state, synth, Synth.CHEF, uid)
 		Piece.REGISTER:
 			_take_station(state, synth, Synth.CASHIER, uid)
-		Piece.COUNTER, Piece.TABLE:
+		Piece.COUNTER, Piece.TABLE, Piece.BIN:
 			synth.role = Synth.SERVER
 			synth.station_uid = ""
 		_:
@@ -45,7 +45,7 @@ static func rest(state: GameState, synth_id: String) -> String:
 static func _take_station(state: GameState, synth: Synth, role: String, uid: String) -> void:
 	for other: Synth in state.synths:
 		if other != synth and other.station_uid == uid:
-			other.role = Synth.REST
+			other.role = Synth.SERVER
 			other.station_uid = ""
 	synth.role = role
 	synth.station_uid = uid
