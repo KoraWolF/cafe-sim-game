@@ -65,6 +65,9 @@ var _walk_types: Dictionary[String, String] = {}
 var _angry: Dictionary[String, bool] = {}
 ## New Synths still walking from where they were converted to their Pod.
 var _to_pod: Dictionary[String, bool] = {}
+## Synth id -> the Pod it rests in: the lowest free one when it starts resting,
+## kept until it goes back to work (so nobody else moves).
+var _pod_of: Dictionary[String, int] = {}
 ## Walking routes round the furniture (see FloorPaths).
 var paths := FloorPaths.new()
 ## Where each Synth is drawn (cell units); they walk to where their job puts them.
@@ -673,7 +676,11 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 		result.append([_draw_leaver.bind(leaver), leaver["at"]])
 	var pass_point := _pass_point(state, data)
 	var counts: Dictionary[String, int] = {}
-	var rest_index := 0
+	# Pods of Synths no longer resting (or gone) are free again.
+	for synth_id: String in _pod_of.keys():
+		var resting := state.synth_by_id(synth_id)
+		if resting == null or resting.role != Synth.REST:
+			_pod_of.erase(synth_id)
 	for synth: Synth in state.synths:
 		var index: int = counts.get(synth.role, 0)
 		counts[synth.role] = index + 1
@@ -715,8 +722,7 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 					else _piece_front(registers[0] if not registers.is_empty() else "", state, data, pass_point) + Vector2(0.8, 0)
 			_:
 				# Resting in a Sync Pod in the Pod bay (every Synth has one).
-				target = _bay_slot(rest_index, state, data) + Vector2(0, 0.05)
-				rest_index += 1
+				target = _bay_slot(_pod_for(synth.id), state, data) + Vector2(0, 0.05)
 		var at: Vector2
 		if not trip.is_empty():
 			# A timed trip: drawn along its route as far as the work has got.
@@ -730,6 +736,17 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 			_to_pod.erase(synth.id)
 		result.append([_draw_synth.bind(synth, at), at])
 	return result
+
+
+## The Pod a resting Synth uses: the one it has, or the lowest free one.
+func _pod_for(synth_id: String) -> int:
+	if not _pod_of.has(synth_id):
+		var taken := _pod_of.values()
+		var pod := 0
+		while taken.has(pod):
+			pod += 1
+		_pod_of[synth_id] = pod
+	return _pod_of[synth_id]
 
 
 ## Moves a walker along its route round the furniture toward target (a new

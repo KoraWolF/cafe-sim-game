@@ -241,6 +241,16 @@ func _run() -> void:
 			break
 		await _frames(20)
 	print("CHECK ...and reaches it: ", not game.cafe._to_pod.has(newcomer.id))
+	# Another worker going to rest takes a free Pod; the resting one stays in its own.
+	var pod_before: int = game.cafe._pod_of.get(newcomer.id, -1)
+	var sleeper: Synth = state.synths.filter(func(x: Synth) -> bool: return x.role != Synth.REST and not x.is_busy())[0]
+	GameLoop.send_to_rest(state, sleeper.id)
+	_session.state_changed.emit()
+	await _frames(3)
+	print("CHECK resting in a free Pod, nobody else moves: ", pod_before >= 0 and game.cafe._pod_of.get(newcomer.id, -1) == pod_before
+		and game.cafe._pod_of.get(sleeper.id, -1) >= 0 and game.cafe._pod_of[sleeper.id] != pod_before)
+	GameLoop.assign_role(state, sleeper.id, Synth.SERVER)
+	_session.state_changed.emit()
 	_shot("04c_new_synth_in_pod")
 	print("CHECK Auto locked on day 1: ", game.hud._auto.disabled)
 	# A customer walking out can still be clicked on the way.
