@@ -71,11 +71,12 @@ static func run(state: GameState, seconds: int, data: GameData) -> Events:
 	return events
 
 
-## Recipes customers can order: those with no unlock species, or one the player has.
+## Dishes the stoves can cook: the ones unlocked, and species dishes while the
+## player has that species.
 static func unlocked_recipes(state: GameState, data: GameData) -> Array[Recipe]:
 	var result: Array[Recipe] = []
 	for recipe: Recipe in data.recipes.values():
-		if recipe.unlock_species == "" or state.has_species(recipe.unlock_species):
+		if state.dishes.has(recipe.id) if recipe.unlock_species == "" else state.has_species(recipe.unlock_species):
 			result.append(recipe)
 	return result
 

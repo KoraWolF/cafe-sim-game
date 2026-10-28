@@ -58,6 +58,8 @@ static func lines(report: NightOps.Report) -> Array[Array]:
 				result.append([TranslationServer.translate("ui.report_bottle") % UiText.name(report.loot_bottle), UiTheme.ACCENT])
 		else:
 			result.append([TranslationServer.translate("ui.report_raid_lost") % UiText.name(report.raid_target), UiTheme.BAD])
+	if report.new_dish != "":
+		result.append([TranslationServer.translate("ui.report_dish") % UiText.name(report.new_dish), UiTheme.ACCENT])
 	if report.district_taken != "":
 		result.append([TranslationServer.translate("ui.report_takeover") % [UiText.name(report.district_taken),
 			data.districts[report.district_taken].income], UiTheme.ACCENT])

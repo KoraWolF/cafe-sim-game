@@ -38,7 +38,7 @@ static func content(balance_overrides := {}) -> Dictionary:
 		"star_window_seconds": 10, "delivery_seconds": 4, "walk_tiles_per_second": 100000.0, "eat_seconds": 5, "tip_rate": 0.5, "min_pay_share": 0.5,
 		"low_battery_share": 0.2, "low_battery_factor": 0.5, "late_shift_start": 0.7,
 		"start_coins": 100, "start_nanobrew": 1, "start_cores": 0, "start_power": 10.0, "start_seats": 2,
-		"start_stoves": 2, "start_pods": 2, "pod_price": 100, "start_counters": 0, "start_tables": 2,
+		"start_stoves": 2, "start_pods": 2, "pod_price": 100, "start_dishes": ["tea"], "start_counters": 0, "start_tables": 2,
 		"start_layout": [{"piece": "seat", "cell": [6, 0]}, {"piece": "seat", "cell": [7, 0]},
 			{"piece": "table", "cell": [6, 1]}, {"piece": "table", "cell": [7, 1]}],
 		"start_floor_width": 8, "start_floor_rows": 6, "arrival_reference_size": 7, "vibe_decay_per_point": 0.01, "vibe_meal_bonus": 0.1,
@@ -60,7 +60,7 @@ static func content(balance_overrides := {}) -> Dictionary:
 	return {
 		"balance": balance,
 		"recipes": [
-			{"id": "tea", "cook_seconds": 10, "servings": 3, "cost": 10, "price": 10},
+			{"id": "tea", "cook_seconds": 10, "servings": 3, "cost": 10, "price": 10, "source": "start"},
 			{"id": "jelly", "cook_seconds": 10, "servings": 1, "cost": 5, "price": 50, "unlock_species": "alien"},
 		],
 		"customer_types": [

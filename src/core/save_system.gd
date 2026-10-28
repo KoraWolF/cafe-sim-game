@@ -40,7 +40,8 @@ extends RefCounted
 ##     out (convertible until they reach the street). Patience by café level.
 ## 19: Pods are bought in the shop (up to the café's side): the Pod upgrade
 ##     level is dropped (the Pods stay). Batteries recharge only in the Pod.
-const VERSION: int = 19
+## 20: dishes are unlocked one by one; older games keep every dish they could cook.
+const VERSION: int = 20
 const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
 
@@ -76,6 +77,7 @@ static func to_dict(state: GameState) -> Dictionary:
 		"counter": state.counter,
 		"discard": state.discard,
 		"auto_night": state.auto_night,
+		"dishes": state.dishes,
 		"leaving": state.leaving.map(func(customer: Customer) -> Dictionary: return customer.to_dict()),
 		"inventory": state.inventory.map(func(item: Item) -> Dictionary: return item.to_dict()),
 		"bottles": state.bottles,
@@ -138,6 +140,10 @@ static func from_dict(raw: Dictionary) -> GameState:
 		for recipe_id: Variant in counter:
 			state.counter[str(recipe_id)] = int(counter[recipe_id])
 	state.auto_night = bool(raw.get("auto_night", false))
+	var unlocked: Variant = raw.get("dishes", [])
+	if unlocked is Array:
+		for dish: Variant in unlocked:
+			state.dishes.append(str(dish))
 	for entry: Dictionary in _objects(raw, "leaving"):
 		state.leaving.append(Customer.from_dict(entry))
 	# Older saves: starred customers lingering outside are walking out.
@@ -317,6 +323,9 @@ static func _migrate_step(version: int, raw: Dictionary) -> Dictionary:
 		16:
 			raw["floor_width"] = 8
 			return raw
+		19:
+			raw["needs_dishes"] = true
+			return raw
 		18:
 			var levels: Variant = raw.get("upgrades", {})
 			if levels is Dictionary:
@@ -411,6 +420,9 @@ static func validate(state: GameState, data: GameData) -> PackedStringArray:
 	for stove: Stove in state.stoves:
 		if not stove.is_idle() and not data.recipes.has(stove.recipe_id):
 			errors.append("stove cooks unknown recipe '%s'" % stove.recipe_id)
+	for dish: String in state.dishes:
+		if not data.recipes.has(dish):
+			errors.append("unknown dish '%s'" % dish)
 	for recipe_id: String in state.counter:
 		if not data.recipes.has(recipe_id) or state.counter[recipe_id] < 0:
 			errors.append("counter: bad entry '%s'" % recipe_id)
@@ -612,6 +624,12 @@ static func _load_one(path: String, data: GameData, errors: PackedStringArray) -
 	if current.get("needs_bin", false) and Layout.count_placed(state, Piece.BIN, data) == 0 			and data.balance.start_bins > 0 and not Layout.auto_place(state, Piece.BIN, data):
 		state.storage[Piece.BIN] = state.storage.get(Piece.BIN, 0) + 1
 	Roles.bind_free(state, data)
+	if current.get("needs_dishes", false):
+		# Before dishes were unlocked one by one: every dish without a species.
+		state.dishes.clear()
+		for recipe: Recipe in data.recipes.values():
+			if recipe.unlock_species == "":
+				state.dishes.append(recipe.id)
 	if current.get("needs_fashion", false):
 		for fashion_id: String in data.items.starter_fashion:
 			state.inventory.append(Items.make(state, Item.FASHION, fashion_id))
