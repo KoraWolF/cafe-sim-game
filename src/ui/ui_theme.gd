@@ -83,6 +83,21 @@ static func _box(fill: Color, border: Color, width: int, radius: int, margin := 
 
 
 ## A label with a font size and colour (UI code uses it everywhere).
+## Makes the mouse wheel scroll a sideways ScrollContainer left and right.
+static func wheel_scrolls_sideways(scroll: ScrollContainer, step := 120.0) -> void:
+	scroll.gui_input.connect(func(event: InputEvent) -> void:
+		var button := event as InputEventMouseButton
+		if button == null or not button.pressed:
+			return
+		if button.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_LEFT]:
+			scroll.scroll_horizontal -= int(step)
+		elif button.button_index in [MOUSE_BUTTON_WHEEL_DOWN, MOUSE_BUTTON_WHEEL_RIGHT]:
+			scroll.scroll_horizontal += int(step)
+		else:
+			return
+		scroll.accept_event())
+
+
 static func label(text: String, size := 18, color := TEXT) -> Label:
 	var label := Label.new()
 	label.text = text

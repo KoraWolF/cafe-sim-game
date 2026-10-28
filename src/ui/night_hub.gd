@@ -18,8 +18,8 @@ var _squad: Array[String] = []
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_RIGHT_WIDE)
-	custom_minimum_size = Vector2(760, 0)
-	offset_left = -780
+	custom_minimum_size = Vector2(620, 0)
+	offset_left = -640
 	offset_top = UiTheme.TOP_BAR_HEIGHT + 12
 	offset_right = -12
 	offset_bottom = -12
@@ -44,7 +44,7 @@ func _ready() -> void:
 	_tabs.tab_changed.connect(func(index: int) -> void: tab_shown.emit(_pages.keys()[index]))
 	var end := UiTheme.button(tr("ui.end_night"), _end_night)
 	end.custom_minimum_size = Vector2(0, 54)
-	end.add_theme_font_size_override("font_size", 24)
+	end.add_theme_font_size_override("font_size", 20)
 	column.add_child(end)
 	Session.state_changed.connect(refresh)
 	Session.phase_changed.connect(_on_phase_changed)
@@ -71,7 +71,7 @@ func refresh() -> void:
 
 
 ## A label that wraps inside the hub instead of widening it.
-func _wrap(text: String, size := 18, color := UiTheme.TEXT) -> Label:
+func _wrap(text: String, size := 16, color := UiTheme.TEXT) -> Label:
 	var label := UiTheme.label(text, size, color)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -119,10 +119,7 @@ func _fill_staff(page: VBoxContainer) -> void:
 		page.add_child(row)
 	page.add_child(HSeparator.new())
 	page.add_child(_wrap(tr("ui.nanobrew_count") % [state.nanobrew, state.cores]))
-	var brew := UiTheme.button(tr("ui.brew") % [b.brew_core_cost, b.brew_coin_cost], func() -> void:
-		Session.act(GameLoop.brew_nanobrew(state, data)))
-	brew.disabled = state.cores < b.brew_core_cost or state.coins < b.brew_coin_cost
-	page.add_child(brew)
+	page.add_child(_wrap(tr("ui.brew_in_menu"), 14, UiTheme.TEXT_DIM))
 	page.add_child(HSeparator.new())
 	# Tonight's recharge; Energy is bought in the Shop.
 	page.add_child(_wrap(tr("ui.power_line") % [roundi(state.power), ceili(NightOps.recharge_cost(state, data))]))

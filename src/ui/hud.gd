@@ -127,7 +127,12 @@ func _build_top_bar() -> void:
 			show_toast(tr("ui.auto_on"))
 			Session.auto_night())
 	row.add_child(_auto)
-	row.add_child(UiTheme.button(tr("ui.menu_button"), toggle_pause))
+	# The pause menu (save, settings, quit): a cog.
+	var cog := UiTheme.button("", toggle_pause)
+	cog.icon = load("res://art/ui/cog.svg")
+	cog.expand_icon = true
+	cog.custom_minimum_size = Vector2(44, 40)
+	row.add_child(cog)
 
 
 ## The Shop: a round button in the bottom-right corner.
@@ -149,9 +154,12 @@ func _build_shop_button() -> void:
 	add_child(shop_button)
 
 
-## Hides the round Shop button (while the shop or Arrange is open).
-func show_shop_button(on: bool) -> void:
+## Hides the round Menu button (while a strip is open at the bottom) and keeps
+## it left of a panel on the right (the night hub).
+func show_shop_button(on: bool, right_panel := 0.0) -> void:
 	shop_button.visible = on
+	shop_button.offset_right = -24.0 - right_panel
+	shop_button.offset_left = shop_button.offset_right - SHOP_BUTTON
 
 
 func _build_pause_menu() -> void:
@@ -183,16 +191,28 @@ func toggle_pause() -> void:
 	Session.paused = _pause.visible
 
 
-## One line per unclaimed daily quest; a finished one gets a Claim button.
+## The story step, then each unclaimed daily quest, under small "Story" and
+## "Daily" headings; a finished one gets a Claim button.
 func _fill_tracker(state: GameState, data: GameData) -> void:
+	# [heading] or [claim kind, claim key, text, done].
 	var rows: Array[Array] = []
+	var story := Quests.story_quest(state, data)
+	if not story.is_empty():
+		var progress := Quests.progress(state, story, data)
+		rows.append([tr("ui.tracker_story")])
+		rows.append([Quests.STORY, "", "%s %s %d/%d" % ["✓" if progress[0] >= progress[1] else "•",
+			tr("quest.story." + story["id"]), progress[0], progress[1]], progress[0] >= progress[1]])
+	var dailies: Array[Array] = []
 	for i: int in state.daily_quests.size():
 		var quest := state.daily_quests[i]
 		if not quest["claimed"]:
 			var done := Quests.daily_progress(state, quest, data)
 			# Quests.claim takes a daily's index, not its id.
-			rows.append([str(i), "%s %s %d/%d" % ["✓" if done[0] >= done[1] else "•",
+			dailies.append([Quests.DAILY, str(i), "%s %s %d/%d" % ["✓" if done[0] >= done[1] else "•",
 				tr("quest.daily." + quest["id"]) % quest["target"], done[0], done[1]], done[0] >= done[1]])
+	if not dailies.is_empty():
+		rows.append([tr("ui.tracker_daily")])
+		rows.append_array(dailies)
 	var key := str(rows)
 	if key == _tracker_key:
 		return
@@ -201,14 +221,18 @@ func _fill_tracker(state: GameState, data: GameData) -> void:
 		_tracker.remove_child(child)
 		child.queue_free()
 	for entry: Array in rows:
+		if entry.size() == 1:
+			_tracker.add_child(UiTheme.label(entry[0], 14, UiTheme.PANEL_BORDER))
+			continue
 		var row := HBoxContainer.new()
 		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		row.add_child(UiTheme.label(entry[1], 15, UiTheme.GOOD if entry[2] else UiTheme.TEXT_DIM))
-		if entry[2]:
-			var index: String = entry[0]
+		row.add_child(UiTheme.label(entry[2], 15, UiTheme.GOOD if entry[3] else UiTheme.TEXT_DIM))
+		if entry[3]:
+			var kind: String = entry[0]
+			var index: String = entry[1]
 			var claim := UiTheme.button(tr("ui.quests_claim"), func() -> void:
 				var given: Array[Dictionary] = []
-				if Session.act(GameLoop.claim_quest(Session.state, Quests.DAILY, index, Session.data, given)):
+				if Session.act(GameLoop.claim_quest(Session.state, kind, index, Session.data, given)):
 					Session.toast.emit(tr("ui.quests_got") % UiText.reward(given[0])))
 			claim.add_theme_font_size_override("font_size", 14)
 			row.add_child(claim)

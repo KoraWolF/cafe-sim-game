@@ -241,12 +241,12 @@ ui.auto_low_energy,Low Energy: %d of the %d needed to fully recharge. Buy Energy
 ui.auto_night_done,Auto: the night passed quietly (+%d district income).
 ui.auto_night_done_plain,Auto: the night passed quietly.
 error.seat_busy,A customer is sitting there — move it instead, or wait until they leave.
-ui.shop_button,Shop
+ui.shop_button,Menu
 ui.arrange_button,Arrange
-ui.shop_title,Shop
+ui.shop_title,Menu
 ui.upgrades_title,Café upgrades
 ui.coins_line,Coins: %d
-ui.energy_in_shop,Buy Energy in the Shop (top bar) — at any time.
+ui.energy_in_shop,"Buy Energy in the Menu (round button, bottom right) — at any time."
 tip.upgrade.table,"One more table (1x1). A seat works only right beside a table — one seat per table, and the seat turns to face it."
 ui.seat_no_table,No table
 role.cashier,Cashier
@@ -437,7 +437,7 @@ help.cooking,"Cooking: click a stove and pick a dish. A stove only cooks while i
 help.jobs,"Jobs: click a worker, then a place — a stove (Chef), a counter, table or bin (Server), a register (Cashier) or the Pod bay (Rest). Click another worker to switch; click empty floor to close the card."
 help.converting,"Converting: click any customer — in line, seated, eating, paying or walking out — to spend NanoBrew: they become a Synth. You can catch them until they walk out of sight."
 help.quests,"Quests: daily quests, the story and achievements. Today's dailies are listed at the top left — claim a finished one right there, or anything from the Quests button."
-help.shop,"Shop: the round button at the bottom right. Furniture (with Sync Pods: one per tile along the café's side), décor, café upgrades, Energy and the Workshop — any time, the café keeps running. Buy puts the piece in your hand; Store keeps it for later (place it from Arrange)."
+help.shop,"Menu: the round button at the bottom right. Furniture (with Sync Pods: one per tile along the café's side), décor, café upgrades, Energy and the Workshop — any time, the café keeps running. Buy puts the piece in your hand; Store keeps it for later (place it from Arrange)."
 help.arrange,"Arrange: move, rotate, place and sell furniture and décor — any time. Cancel puts back what you hold. Select several to store or sell many at once; storing and selling ask first. Pieces in use (a cooking stove, a counter with food, an occupied seat) can be moved but not picked up."
 help.bag,"Bag: everything you own — equipment, fashion and EXP bottles. Take a piece off before selling it."
 help.resources,"Resources: Coins pay for dishes, upgrades and décor. NanoBrew converts a customer. Nano Cores (from raids) brew NanoBrew. Energy recharges the batteries of Synths resting in their Pod at closing (2 coins each). Suspicion brings MegaBean raids — and at 90, a Corporate Audit. Influence unlocks the district's flagship. The district (e.g. Alley) is the part of the city you are taking over."
@@ -469,3 +469,9 @@ ui.pod_card,"Room for one more Synth in the Pod bay. %d / %d (max = café side).
 ui.upgrade_card,Level %d / %d
 ui.craft_title_basic,Basic craft
 ui.craft_title_advanced,Advanced craft
+ui.tracker_story,Story
+ui.tracker_daily,Daily
+ui.brew_title,NanoBrew
+ui.brew_short,Brew (%d core + %d)
+ui.brew_note,Turns any customer into a Synth. Nano Cores come from won raids.
+ui.brew_in_menu,Brew NanoBrew in the Menu → Workshop.
