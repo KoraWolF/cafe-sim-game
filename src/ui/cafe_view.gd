@@ -687,9 +687,9 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 					else _synth_at[synth.id]
 				progress = 1.0 - synth.task_remaining / maxf(synth.task_total, 0.01)
 				if synth.is_delivering():
-					# From the counter the dish came from to the customer's seat.
+					# From the counter the dish came from to beside the customer's table.
 					trip = _trip(synth, _piece_front(synth.task_counter_uid, state, data, target),
-						_seat_position(synth.task_customer_id, state, data) + Vector2(0.3, 0.3))
+						_table_side(synth.task_customer_id, state, data))
 				elif synth.is_discarding():
 					# From the counter or stove to the bin, with the food to throw away.
 					trip = _trip(synth, _piece_front(synth.task_counter_uid, state, data, target),
@@ -786,6 +786,30 @@ func _seat_position(customer_id: String, state: GameState, data: GameData) -> Ve
 	if placed == null:
 		return Vector2(state.floor_width - 1, state.floor_rows - 1)
 	return Vector2(placed.cell) + Vector2(0.5, 0.5)
+
+
+## Where a server stands to put a customer's dish on their table: a free tile
+## next to the table (not the seat), the one nearest the counters, leaning in.
+func _table_side(customer_id: String, state: GameState, data: GameData) -> Vector2:
+	var customer := state.customer_by_id(customer_id)
+	var seat_uid := customer.seat_uid if customer != null else ""
+	var table := Layout.placed_by_uid(state, state.seat_table.get(seat_uid, ""))
+	if table == null:
+		return _seat_position(customer_id, state, data) + Vector2(0.3, 0.3)
+	var centre := Vector2(table.cell) + Vector2(0.5, 0.5)
+	var counter := _first_counter(state, data)
+	var toward := Vector2(counter.cell) + Vector2(0.5, 0.5) if counter != null else centre
+	var best := Vector2(-1, -1)
+	for direction: Vector2i in Layout.NEIGHBOURS:
+		var cell := table.cell + direction
+		if cell.x < 0 or cell.y < 0 or cell.x >= state.floor_width or cell.y >= state.floor_rows 				or Layout.piece_at(state, cell, data) != null:
+			continue
+		var spot := Vector2(cell) + Vector2(0.5, 0.5)
+		if best.x < 0 or spot.distance_to(toward) < best.distance_to(toward):
+			best = spot
+	if best.x < 0:
+		return centre + Vector2(0.45, 0.45)  # boxed in: reach over from the corner
+	return best.lerp(centre, 0.3)
 
 
 ## Where servers pick up dishes: in front of the first counter (or the first

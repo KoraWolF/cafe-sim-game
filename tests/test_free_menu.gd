@@ -86,3 +86,17 @@ func test_old_saves_drop_the_menu() -> void:
 	if loaded != null:
 		assert_eq(loaded.upgrades, {} as Dictionary[String, int], "menu slot upgrade dropped")
 		assert_eq(loaded.customers[0].recipe_id, "", "the old order is forgotten")
+
+
+func test_the_dish_goes_on_the_table() -> void:
+	var data := _data()
+	var state := GameState.new_game(1, data)
+	Counters.put(state, _counters(state)[0].uid, "tea", 2)
+	GameLoop.advance(state, 4, data)
+	var customer := state.customers[0]
+	var server := state.synth_by_id(customer.served_by)
+	assert_true(server != null, "setup: a dish on its way")
+	GameLoop.advance(state, roundi(server.task_total) + 1, data)
+	assert_eq(customer.stage, Customer.Stage.EATING, "served")
+	assert_eq(server.spot_uid, state.seat_table[customer.seat_uid], "the server stopped at the table, not the seat")
+
