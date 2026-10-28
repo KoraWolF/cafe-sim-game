@@ -45,3 +45,14 @@ The sim bot now buys furniture by the piece, capped at what the old upgrades all
 - **A worker on a trip** (carrying a dish or a batch) finishes it before changing jobs, as before.
 - **Save format v15:** Greeters become Servers, stations are bound on load, and starred customers from older saves go to the list.
 - **Balance (40 days × 5 seeds):** about 2,100 customers seated, 91.6% stars. The Alley is taken around day 13 and Neon Market around day 25, in all 5 runs, with about 4,070 coins at day 40.
+
+## Third round (branch `pathfinding`)
+- **Walking round furniture:** customers, workers and leavers never walk through a table, seat, register, counter, stove, bin or décor (`src/ui/floor_paths.gd`).
+  - Inside, they take the shortest path over empty tiles. They can move diagonally, but not by cutting a corner.
+  - Between the café and the street they go through the door. The Pod bay is reached round the front-right corner.
+  - The route is rebuilt whenever a piece moves.
+  - This is visual only: the game's timing is the same.
+- **No jumping:** workers walk to every new place, including to and from their Pod and between jobs. On a timed trip (carrying a dish, a batch or food to the bin), they're drawn along the route as far as the work has got.
+- **Back to the Shop:** after **Buy**, placing the piece (or putting it back) returns you to the Shop.
+- **Bug fixed:** the Buy click itself also reached the floor behind the Shop. Arrange now opens only after the click has finished.
+- The old door-lane code (`walk.gd`) is gone; routes do its job.

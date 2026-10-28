@@ -58,9 +58,16 @@ var _walk_delta: float = 0.0
 var _walk_types: Dictionary[String, String] = {}
 ## Customers who left angry (they stomp out with a red mark).
 var _angry: Dictionary[String, bool] = {}
-## New Synths walking from where they were converted to their Pod:
-## id -> {"at": Vector2, "via": Array of Vector2 waypoints}.
-var _to_pod: Dictionary[String, Dictionary] = {}
+## New Synths still walking from where they were converted to their Pod.
+var _to_pod: Dictionary[String, bool] = {}
+## Walking routes round the furniture (see FloorPaths).
+var paths := FloorPaths.new()
+## Where each Synth is drawn (cell units); they walk to where their job puts them.
+var _synth_at: Dictionary[String, Vector2] = {}
+## Walker id -> {"to": target, "key": floor version, "points": route, "next": index}.
+var _routes: Dictionary[String, Dictionary] = {}
+## Synth id -> the route of its current trip {"key": trip, "points": route}.
+var _trips: Dictionary[String, Dictionary] = {}
 ## Short-lived feedback drawn over the café: {"kind", "at", "age", "life", "text", "color"}.
 var _effects: Array[Dictionary] = []
 var camera := Camera2D.new()
@@ -112,9 +119,8 @@ func _level_up_effects(level_ups: Dictionary[String, int]) -> void:
 func _on_converted(customer_id: String, synth: Synth) -> void:
 	if _walk.has(customer_id):
 		# The customer becomes the Synth and walks round the front of the café into a free Pod.
-		var width := float(Session.data.balance.floor_width)
-		var rows := float(Session.state.floor_rows)
-		_to_pod[synth.id] = {"at": _walk[customer_id], "via": [Vector2(width + 0.5, rows + 0.6)]}
+		_synth_at[synth.id] = _walk[customer_id]
+		_to_pod[synth.id] = true
 		_walk.erase(customer_id)
 		_walk_types.erase(customer_id)
 	if not _heads.has(customer_id):
@@ -402,13 +408,6 @@ func _door_point(width: float, rows: float) -> Vector2:
 	return Vector2(width + 0.1, rows - 0.5)
 
 
-## Moves a customer's drawn position toward target, through the door when
-## going in or out. Walking speed follows the game speed (stops when paused).
-func _walk_to(at: Vector2, target: Vector2, width: float, rows: float) -> Vector2:
-	var speed := 0.0 if Session.paused else WALK_SPEED * maxf(Session.state.speed, 1.0)
-	return Walk.step(at, target, width, rows, speed * _walk_delta)
-
-
 func _draw_piece(placed: PlacedPiece) -> void:
 	var data := Session.data
 	var piece := data.pieces[placed.piece_id]
@@ -566,11 +565,11 @@ func _draw_block(cell: Vector2, size: Vector2, height: float, color: Color) -> v
 
 ## [draw callable, cell position] for every customer and Synth.
 func _people(state: GameState, data: GameData) -> Array[Array]:
+	paths.update(state, data)
 	var result: Array[Array] = []
 	var width := float(data.balance.floor_width)
 	var rows := float(state.floor_rows)
 	var queue_index := 0
-	var star_index := 0
 	var line_index := 0
 	var registers := _registers(state, data)
 	var cashier_at := _cashier_registers(state, data, registers)
@@ -581,10 +580,6 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 			Customer.Stage.QUEUED:
 				target = Vector2(width + 0.6 + queue_index * 0.8, rows - 0.5)
 				queue_index += 1
-			Customer.Stage.STAR:
-				# Paid and leaving: lingering on the street outside, still clickable.
-				target = Vector2(width + 1.3 + star_index * 0.75, rows + 0.4)
-				star_index += 1
 			Customer.Stage.PAYING:
 				if customer.cashier_id != "" and cashier_at.has(customer.cashier_id):
 					target = _piece_front(cashier_at[customer.cashier_id], state, data, Vector2.ZERO)
@@ -597,7 +592,7 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 			_:
 				target = _seat_position(customer.id, state, data)
 		present[customer.id] = true
-		var at := _walk_to(_walk.get(customer.id, _street(width, rows)), target, width, rows)
+		var at := _walk_on(customer.id, _walk.get(customer.id, _street(width, rows)), target)
 		_walk[customer.id] = at
 		result.append([_draw_customer.bind(customer, at), at])
 	# Whoever left the game's list walks out through the door to the street.
@@ -606,15 +601,17 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 			_leaving[customer_id] = {"at": _walk[customer_id], "type_id": _walk_types.get(customer_id, ""),
 				"angry": _angry.has(customer_id)}
 			_walk.erase(customer_id)
+			_routes.erase(customer_id)
 	for customer: Customer in state.customers:
 		_walk_types[customer.id] = customer.type_id
 	for customer_id: String in _leaving.keys():
 		var leaver := _leaving[customer_id]
-		leaver["at"] = _walk_to(leaver["at"], _street(width, rows), width, rows)
+		leaver["at"] = _walk_on("leaving_" + customer_id, leaver["at"], _street(width, rows))
 		if (leaver["at"] as Vector2).distance_to(_street(width, rows)) < 0.05:
 			_leaving.erase(customer_id)
 			_walk_types.erase(customer_id)
 			_angry.erase(customer_id)
+			_routes.erase("leaving_" + customer_id)
 			continue
 		result.append([_draw_leaver.bind(leaver), leaver["at"]])
 	var pass_point := _pass_point(state, data)
@@ -623,47 +620,87 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 	for synth: Synth in state.synths:
 		var index: int = counts.get(synth.role, 0)
 		counts[synth.role] = index + 1
-		var at: Vector2
+		var target: Vector2
+		var trip := PackedVector2Array()
+		var progress := 0.0
 		match synth.role:
 			Synth.SERVER:
-				at = pass_point + Vector2(0.7 * index, 0.4)
+				target = pass_point + Vector2(0.7 * index, 0.4)
 				if synth.is_delivering():
 					# From the counter the dish came from to the customer's seat.
-					var progress := clampf(1.0 - synth.task_remaining / data.balance.delivery_seconds, 0.0, 1.0)
-					var from := _piece_front(synth.task_counter_uid, state, data, at)
-					at = from.lerp(_seat_position(synth.task_customer_id, state, data) + Vector2(0.3, 0.3), progress)
+					progress = 1.0 - synth.task_remaining / data.balance.delivery_seconds
+					trip = _trip(synth, _piece_front(synth.task_counter_uid, state, data, target),
+						_seat_position(synth.task_customer_id, state, data) + Vector2(0.3, 0.3))
 				elif synth.is_discarding():
 					# From the counter or stove to the bin, with the food to throw away.
-					var progress := clampf(1.0 - synth.task_remaining / data.balance.carry_seconds, 0.0, 1.0)
-					at = _piece_front(synth.task_counter_uid, state, data, at).lerp(
-						_piece_front(synth.task_bin_uid, state, data, at), progress)
+					progress = 1.0 - synth.task_remaining / data.balance.carry_seconds
+					trip = _trip(synth, _piece_front(synth.task_counter_uid, state, data, target),
+						_piece_front(synth.task_bin_uid, state, data, target))
 				elif synth.is_carrying():
 					# From the stove to the counter, carrying the batch.
-					var progress := clampf(1.0 - synth.task_remaining / data.balance.carry_seconds, 0.0, 1.0)
-					at = _piece_front(synth.task_stove_uid, state, data, at).lerp(
-						_piece_front(synth.task_counter_uid, state, data, at), progress)
+					progress = 1.0 - synth.task_remaining / data.balance.carry_seconds
+					trip = _trip(synth, _piece_front(synth.task_stove_uid, state, data, target),
+						_piece_front(synth.task_counter_uid, state, data, target))
 			Synth.CHEF:
 				# At the front of its own stove (a Chef without a stove waits by the kitchen).
-				at = _piece_front(synth.station_uid, state, data, pass_point + Vector2(-0.8, 0))
+				target = _piece_front(synth.station_uid, state, data, pass_point + Vector2(-0.8, 0))
 			Synth.CASHIER:
 				# Behind its register; a Cashier without a register waits beside the first.
 				var spot := Layout.placed_by_uid(state, synth.station_uid)
-				at = Vector2(spot.cell) + Vector2(0.5, -0.2) if spot != null \
+				target = Vector2(spot.cell) + Vector2(0.5, -0.2) if spot != null \
 					else _piece_front(registers[0] if not registers.is_empty() else "", state, data, pass_point) + Vector2(0.8, 0)
 			_:
 				# Resting in a Sync Pod in the Pod bay (every Synth has one).
-				at = _bay_slot(rest_index, state, data) + Vector2(0, 0.05)
+				target = _bay_slot(rest_index, state, data) + Vector2(0, 0.05)
 				rest_index += 1
-				if _to_pod.has(synth.id):
-					at = _walk_to_pod(synth.id, at)
-		if synth.role != Synth.REST:
+		var at: Vector2
+		if not trip.is_empty():
+			# A timed trip: drawn along its route as far as the work has got.
+			at = FloorPaths.point_at(trip, clampf(progress, 0.0, 1.0))
+			_routes.erase(synth.id)
+		else:
+			_trips.erase(synth.id)
+			at = _walk_on(synth.id, _synth_at.get(synth.id, target), target)
+		_synth_at[synth.id] = at
+		if synth.role != Synth.REST or at.distance_to(target) < 0.02:
 			_to_pod.erase(synth.id)
 		result.append([_draw_synth.bind(synth, at), at])
 	return result
 
 
-## Moves a new Synth along its way to its Pod; returns where to draw it (the
-## Pod once it is there).
+## Moves a walker along its route round the furniture toward target (a new
+## route when the target or the floor changes); returns where it is now.
+func _walk_on(id: String, at: Vector2, target: Vector2) -> Vector2:
+	var route: Dictionary = _routes.get(id, {})
+	if route.is_empty() or (route["to"] as Vector2).distance_to(target) > 0.01 or route["key"] != paths.key():
+		route = {"to": target, "key": paths.key(), "points": paths.route(at, target), "next": 1}
+		_routes[id] = route
+	var left := (0.0 if Session.paused else WALK_SPEED * maxf(Session.state.speed, 1.0)) * _walk_delta
+	var points: PackedVector2Array = route["points"]
+	while left > 0.0 and route["next"] < points.size():
+		var next: Vector2 = points[route["next"]]
+		var step := at.distance_to(next)
+		if step <= left:
+			at = next
+			left -= step
+			route["next"] += 1
+		else:
+			at = at.move_toward(next, left)
+			left = 0.0
+	return at
+
+
+## The route of a Synth's timed trip from one point to another (kept while
+## the trip lasts).
+func _trip(synth: Synth, from: Vector2, to: Vector2) -> PackedVector2Array:
+	var key := "%s>%s|%s" % [from, to, paths.key()]
+	var trip: Dictionary = _trips.get(synth.id, {})
+	if trip.get("key", "") != key:
+		trip = {"key": key, "points": paths.route(from, to)}
+		_trips[synth.id] = trip
+	return trip["points"]
+
+
 ## Placed register uids in floor order.
 func _registers(state: GameState, data: GameData) -> Array[String]:
 	var result: Array[String] = []
@@ -679,21 +716,6 @@ func _cashier_registers(state: GameState, data: GameData, _registers: Array[Stri
 	for cashier: Synth in Shift.active_cashiers(state, data):
 		result[cashier.id] = cashier.station_uid
 	return result
-
-
-func _walk_to_pod(synth_id: String, pod: Vector2) -> Vector2:
-	var trip := _to_pod[synth_id]
-	var via: Array = trip["via"]
-	var target: Vector2 = via[0] if not via.is_empty() else pod
-	var speed := 0.0 if Session.paused else WALK_SPEED * maxf(Session.state.speed, 1.0)
-	var at: Vector2 = (trip["at"] as Vector2).move_toward(target, speed * _walk_delta)
-	trip["at"] = at
-	if at.distance_to(target) < 0.01:
-		if via.is_empty():
-			_to_pod.erase(synth_id)
-			return pod
-		via.pop_front()
-	return at
 
 
 func _seat_position(customer_id: String, state: GameState, data: GameData) -> Vector2:

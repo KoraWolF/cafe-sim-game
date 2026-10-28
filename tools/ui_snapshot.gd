@@ -149,6 +149,20 @@ func _run() -> void:
 	_shot("03h_quests_achievements")
 	game.quests.close()
 	await _frames(2)
+	# Nobody walks through furniture: watch a few seconds of walking at 4x.
+	_session.set_speed(4)
+	var through := 0
+	for frame: int in 180:
+		await _frames(1)
+		for customer: Customer in state.customers:
+			if not game.cafe._walk.has(customer.id):
+				continue
+			var at: Vector2 = game.cafe._walk[customer.id]
+			var piece := Layout.piece_at(state, Vector2i(floori(at.x), floori(at.y)), data)
+			if piece != null and piece.uid != customer.seat_uid:
+				through += 1
+	_session.set_speed(0)
+	print("CHECK customers walk round the furniture (%d frames on a piece): %s" % [through, through == 0])
 	# Customers walk in through the door: give them a few seconds, then everyone seated is at their seat.
 	await _frames(300)
 	var stuck := 0
@@ -237,13 +251,18 @@ func _run() -> void:
 		if button.is_visible_in_tree() and button.text == tr("ui.buy_place") % data.pieces["seat"].price 				and (row.get_child(0) as Label).text.begins_with(UiText.name("seat")):
 			seat_row_buy = button
 	await _click(_centre_of(seat_row_buy))
+	await _frames(2)
+	print("CHECK the Buy click doesn't also land on the floor: ", not game.hud._toasts.get_children().any(
+		func(n: Node) -> bool: return n is Label and [UiText.error(GameLoop.OVERLAP), UiText.error(GameLoop.OUT_OF_BOUNDS)].has((n as Label).text)))
 	print("CHECK Buy a seat mid-shift -> Arrange opens holding it: ", game.cafe.editor != null
 		and game.cafe.editor.held_piece == "seat" and not game.shop.visible)
 	_shot("04f_buy_holding_seat")
-	game.edit_panel.done.emit()
+	var seat_spot := Layout.find_spot(state, "seat", data)
+	var seats_placed := Layout.count_placed_id(state, "seat")
+	await _click(game.cafe.get_viewport().get_canvas_transform() * Iso.centre(seat_spot["cell"], Vector2i.ONE))
 	await _frames(3)
-	game.open_shop()
-	await _frames(2)
+	print("CHECK place the bought seat -> back in the Shop: ", Layout.count_placed_id(state, "seat") == seats_placed + 1
+		and game.cafe.editor == null and game.shop.visible)
 	await _click(_centre_of(game.hud.arrange_button))
 	print("CHECK Arrange mid-shift -> editing, shop closed: ", game.cafe.editor != null and not game.shop.visible)
 	game.edit_panel.done.emit()
