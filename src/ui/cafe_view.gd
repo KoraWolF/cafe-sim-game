@@ -699,8 +699,15 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 					trip = _trip(synth, _piece_front(synth.task_stove_uid, state, data, target),
 						_piece_front(synth.task_counter_uid, state, data, target))
 			Synth.CHEF:
-				# At the front of its own stove (a Chef without a stove waits by the kitchen).
+				# At the front of its own stove (a Chef without a stove waits by the kitchen);
+				# it carries each finished batch to a counter and walks back.
 				target = _piece_front(synth.station_uid, state, data, pass_point + Vector2(-0.8, 0))
+				progress = 1.0 - synth.task_remaining / maxf(synth.task_total, 0.01)
+				if synth.is_carrying():
+					trip = _trip(synth, _piece_front(synth.task_stove_uid, state, data, target),
+						_piece_front(synth.task_counter_uid, state, data, target))
+				elif synth.is_returning():
+					trip = _trip(synth, _piece_front(synth.spot_uid, state, data, target), target)
 			Synth.CASHIER:
 				# Behind its register; a Cashier without a register waits beside the first.
 				var spot := Layout.placed_by_uid(state, synth.station_uid)
