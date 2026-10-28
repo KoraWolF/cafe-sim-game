@@ -25,10 +25,10 @@ static func speed(synth: Synth, data: GameData) -> float:
 	return maxf(stat(synth, "speed", data), 0.1)
 
 
-## Battery factor alone: 0 when empty, low_battery_factor when low, else 1.
+## Battery factor alone: empty_battery_factor when empty, low_battery_factor when low, else 1.
 static func battery_factor(synth: Synth, data: GameData) -> float:
 	if synth.battery <= 0.0:
-		return 0.0
+		return data.balance.empty_battery_factor
 	if synth.battery < stat(synth, "battery_max", data) * data.balance.low_battery_share:
 		return data.balance.low_battery_factor
 	return 1.0

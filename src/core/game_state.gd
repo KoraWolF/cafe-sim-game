@@ -103,7 +103,7 @@ var seat_table: Dictionary[String, String] = {}
 
 
 ## Day 1, shift just opened: the starting stoves, Pods and seats laid out on
-## the floor, and the two starters (one at the register) at full battery.
+## the floor, and the starters (a Server, a Cashier at the register, a Chef at the stove) at full battery.
 static func new_game(seed_value: int, data: GameData) -> GameState:
 	var b := data.balance
 	var state := GameState.new()
@@ -155,6 +155,14 @@ static func new_game(seed_value: int, data: GameData) -> GameState:
 			starter.role = Synth.CASHIER
 			Roles.bind_free(state, data)
 		state.store_rng(generator)
+	if b.starter_chef_species != "":
+		var generator := state.rng()
+		var chef := state.add_synth(b.starter_chef_species, "", data, data.species[b.starter_chef_species].roll_battery_max(generator))
+		state.store_rng(generator)
+		chef.battery = SynthStats.stat(chef, "battery_max", data)
+		chef.name = b.starter_chef_name
+		chef.role = Synth.CHEF
+		Roles.bind_free(state, data)
 	for fashion_id: String in data.items.starter_fashion:
 		state.inventory.append(Items.make(state, Item.FASHION, fashion_id))
 	return state

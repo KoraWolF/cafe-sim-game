@@ -20,7 +20,7 @@ extends RefCounted
 ## XP: delivery 2, batch 6 (shared), arrival 1 (shared), raid 30 / 15, defense 20;
 ## level n -> n + 1 costs 100 * n; max level 3; +50% of base per level.
 ## Upgrades: stove 50 (x2 per level, max 2), seat 20 (+2 seats, max 3),
-## pod 100 (max 1), security 30 (+10 hp, max 2).
+## security 30 (+10 hp, max 2). Pods 100 each, up to the café's width.
 ## Floor 8 x 6; the floor upgrade makes it 8 x 8, then 10 x 10 (100 coins each). Arrivals at 1x (size 7). Pieces: seat 1x1,
 ## stove 2x1, counter 2x1 (a new game puts the stoves at (0, 0) and (2, 0), the
 ## seats at (6, 0) and (7, 0); 2 Pods in the Pod bay); décor fern 1x1 (50 coins, 10 Vibe, plant), lamp 1x1 (30, 5, light),
@@ -38,7 +38,7 @@ static func content(balance_overrides := {}) -> Dictionary:
 		"star_window_seconds": 10, "delivery_seconds": 4, "walk_tiles_per_second": 100000.0, "eat_seconds": 5, "tip_rate": 0.5, "min_pay_share": 0.5,
 		"low_battery_share": 0.2, "low_battery_factor": 0.5, "late_shift_start": 0.7,
 		"start_coins": 100, "start_nanobrew": 1, "start_cores": 0, "start_power": 10.0, "start_seats": 2,
-		"start_stoves": 2, "start_pods": 2, "start_counters": 0, "start_tables": 2,
+		"start_stoves": 2, "start_pods": 2, "pod_price": 100, "start_counters": 0, "start_tables": 2,
 		"start_layout": [{"piece": "seat", "cell": [6, 0]}, {"piece": "seat", "cell": [7, 0]},
 			{"piece": "table", "cell": [6, 1]}, {"piece": "table", "cell": [7, 1]}],
 		"start_floor_width": 8, "start_floor_rows": 6, "arrival_reference_size": 7, "vibe_decay_per_point": 0.01, "vibe_meal_bonus": 0.1,
@@ -92,14 +92,14 @@ static func content(balance_overrides := {}) -> Dictionary:
 			], "flagship": {"id": "tower", "defenders": [{"power": 2, "hp": 10}], "loot_coins": 300, "loot_cores": 3}},
 		],
 		"upgrades": [
-			{"id": "pod", "step": 1, "base_cost": 100, "cost_growth": 1.0, "max_level": 1},
 			{"id": "floor", "base_cost": 100, "cost_growth": 1.0, "sizes": [8, 10]},
 			{"id": "security", "step": 10, "base_cost": 30, "cost_growth": 1.0, "max_level": 2},
 		],
 		"pieces": [
 			{"id": "seat", "kind": "seat", "size": [1, 1], "price": 20, "tags": ["seat"]},
 			{"id": "table", "kind": "table", "size": [1, 1], "price": 20, "tags": ["table"]},
-			{"id": "stove", "kind": "stove", "size": [1, 1], "price": 50, "tags": ["kitchen"]},
+			{"id": "stove", "kind": "stove", "size": [1, 1], "price": 50, "tags": ["kitchen"], "auto_cook": true},
+			{"id": "chef_stove", "kind": "stove", "size": [1, 1], "price": 50, "tags": ["kitchen"]},
 			{"id": "counter", "kind": "counter", "size": [1, 1], "price": 30, "tags": ["kitchen"]},
 			{"id": "bin", "kind": "bin", "size": [1, 1], "price": 20, "tags": ["kitchen"]},
 			{"id": "register", "kind": "register", "size": [1, 1], "price": 20, "tags": ["tech"]},

@@ -38,7 +38,9 @@ extends RefCounted
 ##     cafés were 8 across.
 ## 18: anyone can be converted: the starred list became the customers walking
 ##     out (convertible until they reach the street). Patience by café level.
-const VERSION: int = 18
+## 19: Pods are bought in the shop (up to the café's side): the Pod upgrade
+##     level is dropped (the Pods stay). Batteries recharge only in the Pod.
+const VERSION: int = 19
 const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
 
@@ -314,6 +316,11 @@ static func _migrate_step(version: int, raw: Dictionary) -> Dictionary:
 			return raw
 		16:
 			raw["floor_width"] = 8
+			return raw
+		18:
+			var levels: Variant = raw.get("upgrades", {})
+			if levels is Dictionary:
+				levels.erase("pod")
 			return raw
 		17:
 			# The starred list became everyone walking out; they are nearly gone.

@@ -9,6 +9,10 @@ extends RefCounted
 ## straight into state.counter, as before counters existed.
 
 
+## Most servings one counter holds.
+const MAX_SERVINGS: int = 999
+
+
 static func in_use(state: GameState, data: GameData) -> bool:
 	return Layout.count_placed(state, Piece.COUNTER, data) > 0
 
@@ -26,6 +30,9 @@ static func free_counter(state: GameState, recipe_id: String, from_uid: String, 
 		var dish := dish_on(state, placed.uid)
 		if dish != "" and dish != recipe_id:
 			continue
+		var servings: int = data.recipes[recipe_id].servings if data.recipes.has(recipe_id) else 1
+		if state.counter_count.get(placed.uid, 0) + servings > MAX_SERVINGS:
+			continue  # full
 		var distance := Layout.distance(from, placed, data) if from != null else 0
 		if distance < best_distance:
 			best = placed.uid

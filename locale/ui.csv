@@ -184,8 +184,7 @@ ui.fx_level_up,LEVEL UP!
 ui.fx_new_synth,NEW SYNTH!
 tip.upgrade.stove,One more stove to cook on (place it on the floor).
 tip.upgrade.seat,"One more seat. It needs its own table right beside it (not diagonal)."
-tip.upgrade.pod,One more Sync Pod in the Pod bay outside: room for one more Synth.
-tip.upgrade.floor,"A bigger café: 6×6 grows to 8×8, then 9, 10, 12, 14, 15, 16, 18 and 20 tiles square. A bigger café brings in more customers."
+tip.upgrade.floor,"Café level: 6×6 grows to 8×8, then 9, 10, 12, 14, 15, 16, 18 and 20 tiles square. A bigger café brings more customers and holds more Pods (one per tile along a side). Customers in a small café are more patient."
 tip.upgrade.security,Extra HP for every Synth defending the café at night.
 tip.role.server,Carries dishes from the counter to the tables (uses speed).
 tip.role.chef,Works its own stove and makes it cook faster (uses cooking). One Chef per stove.
@@ -444,3 +443,7 @@ help.bag,"Bag: everything you own — equipment, fashion and EXP bottles. Take a
 help.resources,"Resources: Coins pay for dishes, upgrades and décor. NanoBrew converts a glowing customer. Nano Cores (from raids) brew NanoBrew. Energy recharges Synths' batteries at night (2 coins each). Suspicion brings MegaBean raids — and at 90, a Corporate Audit. Influence unlocks the district's flagship."
 help.auto,"Auto: each night passes by itself — no raid, batteries recharged with the Energy you have. It stops for a Corporate Audit, and MegaBean raids on the café still play out. It unlocks on day 3."
 help.windows,"Windows: drag a worker's Details window by its title to move it. Click the pencil on a worker's card to rename it."
+ui.report_not_in_pod,"%d Synths were not in their Pod at closing: no recharge."
+ui.pod_row,"Sync Pod — room for one more Synth (%d / %d, max = café side)"
+ui.buy_pod,Buy %d
+name.floor,Café level

@@ -203,6 +203,22 @@ static func buy_power(state: GameState, amount: int, data: GameData) -> String:
 	return OK
 
 
+## Most Sync Pods the café can hold: one per tile along its side.
+static func pod_cap(state: GameState) -> int:
+	return state.floor_width
+
+
+## Buys one more Sync Pod for the Pod bay, up to pod_cap. Any time.
+static func buy_pod(state: GameState, data: GameData) -> String:
+	if state.pods >= pod_cap(state):
+		return MAXED
+	if state.coins < data.balance.pod_price:
+		return NOT_ENOUGH_COINS
+	state.coins -= data.balance.pod_price
+	state.pods += 1
+	return OK
+
+
 ## Coins the next purchase of this upgrade costs, or -1 if it is maxed or unknown.
 static func upgrade_cost(state: GameState, upgrade_id: String, data: GameData) -> int:
 	var upgrade: Upgrade = data.upgrades.get(upgrade_id)
@@ -212,7 +228,7 @@ static func upgrade_cost(state: GameState, upgrade_id: String, data: GameData) -
 	return -1 if level >= upgrade.max_level else upgrade.cost_at(level)
 
 
-## Buys one level of an upgrade (Pods, floor, security), at any time.
+## Buys one level of an upgrade (café level, security), at any time.
 static func buy_upgrade(state: GameState, upgrade_id: String, data: GameData) -> String:
 	var upgrade: Upgrade = data.upgrades.get(upgrade_id)
 	if upgrade == null:
@@ -225,8 +241,6 @@ static func buy_upgrade(state: GameState, upgrade_id: String, data: GameData) ->
 	state.coins -= cost
 	state.upgrades[upgrade_id] = state.upgrades.get(upgrade_id, 0) + 1
 	match upgrade_id:
-		Upgrade.POD:
-			state.pods += roundi(upgrade.step)
 		Upgrade.FLOOR:
 			var size: int = upgrade.sizes[state.upgrades[upgrade_id] - 1] if not upgrade.sizes.is_empty() \
 				else state.floor_rows + roundi(upgrade.step)

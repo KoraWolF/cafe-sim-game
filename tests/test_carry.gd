@@ -126,3 +126,13 @@ func test_a_trip_takes_as_long_as_the_walk() -> void:
 	assert_eq(server.task_total, walked + 3.0, "tiles walked + 3 s")
 	GameLoop.advance(state, roundi(server.task_total), data)
 	assert_eq(server.spot_uid, _counters(state)[0].uid, "stands at the counter after")
+
+
+func test_a_counter_holds_at_most_999() -> void:
+	var data := _data()
+	var state := GameState.new_game(1, data)
+	var counters := _counters(state)
+	Counters.put(state, counters[0].uid, "tea", 998)
+	assert_eq(Counters.free_counter(state, "tea", "", data), counters[1].uid, "a batch of 3 won't fit: the next counter")
+	Counters.put(state, counters[1].uid, "tea", 997)
+	assert_eq(Counters.free_counter(state, "tea", "", data), "", "both full")

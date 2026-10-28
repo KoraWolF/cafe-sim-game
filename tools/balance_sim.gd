@@ -3,7 +3,10 @@ extends SceneTree
 ## staff, Suspicion and Night Ops develop. For tuning /data, not a test.
 ## Usage: godot --headless --path . -s res://tools/balance_sim.gd -- [days] [seeds] [--daily]
 ##
-## The bot: keeps a Cashier at the register, cooks whatever waiting customers want,
+## The bot: keeps a Cashier at the register and a Chef at every stove (while a
+## Server is left), cooks whenever there isn't food enough for everyone waiting,
+## sends everyone to their Pod for the last seconds of the shift (only they
+## recharge) and back to work in the morning,
 ## converts every star it can
 ## (and puts each new Synth to work in its best role),
 ## brews NanoBrew from every core, keeps enough Power for a full recharge, buys
@@ -11,6 +14,8 @@ extends SceneTree
 ## its squad (everyone but one Synth left home) is likely to beat.
 
 const RESERVE: int = 150
+## Seconds before closing the bot sends everyone to their Pod.
+const REST_BEFORE_CLOSE: int = 20
 ## How many of each the bot buys beyond the start (what the old upgrades capped).
 const FURNITURE_CAPS: Dictionary[String, int] = {"stove": 4, "counter": 4, "seat_pair": 8}
 
@@ -53,7 +58,10 @@ func _play(seed_value: int, days: int, daily: bool) -> Dictionary:
 		print(" day  coins  vibe synths pods seats stoves  stars%  angry  away  susp  raid                      defense")
 	for day: int in days:
 		var day_stats := {"seated": 0, "stars": 0, "angry": 0, "away": 0}
+		var jobs: Dictionary[String, String] = {}
 		while state.phase == GameState.Phase.SHIFT:
+			if state.shift_time >= data.balance.shift_seconds - REST_BEFORE_CLOSE:
+				_go_rest(state, jobs)
 			_cook(state)
 			var events := GameLoop.advance(state, 1, data)
 			day_stats["seated"] += events.served.size() + events.left_angry.size()
@@ -66,10 +74,14 @@ func _play(seed_value: int, days: int, daily: bool) -> Dictionary:
 					stats["conversions"] += 1
 					# New Synths start Resting: the bot puts them to work in their best role.
 					GameLoop.assign_role(state, created[0].id, data.species[created[0].species_id].best_role)
-		_keep_a_cashier(state)
 		var raid := _plan_raid(state)
 		stats["upgrade_spend"] += _night_shopping(state)
 		var report := GameLoop.end_night(state, data)
+		for synth_id: String in jobs:
+			if state.synth_by_id(synth_id) != null:
+				GameLoop.assign_role(state, synth_id, jobs[synth_id])
+		_keep_a_cashier(state)
+		_staff_stoves(state)
 		stats["seated"] += day_stats["seated"]
 		stats["stars"] += day_stats["stars"]
 		stats["angry"] += day_stats["angry"]
@@ -145,6 +157,26 @@ func _cook(state: GameState) -> void:
 
 
 ## Brews, buys Power for a full recharge, then upgrades. Returns coins spent on upgrades.
+## Everyone not busy goes to rest in their Pod (remembering their job for tomorrow).
+func _go_rest(state: GameState, jobs: Dictionary[String, String]) -> void:
+	for synth: Synth in state.synths:
+		var job := synth.role
+		if job != Synth.REST and GameLoop.send_to_rest(state, synth.id) == GameLoop.OK:
+			jobs[synth.id] = job
+
+
+## A stove cooks only with its Chef: the best cooks among the Servers take the
+## stoves without one, keeping at least one Server.
+func _staff_stoves(state: GameState) -> void:
+	var chefs := state.synths.filter(func(synth: Synth) -> bool: return synth.role == Synth.CHEF).size()
+	var servers := state.synths.filter(func(synth: Synth) -> bool: return synth.role == Synth.SERVER)
+	servers.sort_custom(func(a: Synth, b: Synth) -> bool:
+		return SynthStats.stat(a, "cook", data) > SynthStats.stat(b, "cook", data))
+	while chefs < state.stoves.size() and servers.size() > 1:
+		GameLoop.assign_role(state, servers.pop_front().id, Synth.CHEF)
+		chefs += 1
+
+
 ## Someone has to take payments: if the Cashier is gone (an Audit), the fastest
 ## server takes the register.
 func _keep_a_cashier(state: GameState) -> void:
@@ -177,9 +209,9 @@ func _night_shopping(state: GameState) -> int:
 		# table) up to what the old furniture upgrades allowed.
 		var best := ""
 		var best_cost := 1 << 30
-		for option: String in Upgrade.IDS + FURNITURE_CAPS.keys():
+		for option: String in Upgrade.IDS + FURNITURE_CAPS.keys() + ["pod"]:
 			# More pods only help when NanoBrew is waiting for them.
-			if refused.has(option) or (option == Upgrade.POD and state.synths.size() < state.pods):
+			if refused.has(option) or (option == "pod" and state.synths.size() < state.pods):
 				continue
 			var cost := _option_cost(state, option)
 			if cost > 0 and state.coins - cost >= RESERVE and cost < best_cost:
@@ -198,6 +230,8 @@ func _night_shopping(state: GameState) -> int:
 
 ## Coins for an upgrade or a furniture option (-1 = not available).
 func _option_cost(state: GameState, option: String) -> int:
+	if option == "pod":
+		return data.balance.pod_price if state.pods < GameLoop.pod_cap(state) else -1
 	if not FURNITURE_CAPS.has(option):
 		return GameLoop.upgrade_cost(state, option, data)
 	var piece_id: String = Piece.SEAT if option == "seat_pair" else option
@@ -208,6 +242,8 @@ func _option_cost(state: GameState, option: String) -> int:
 
 
 func _buy_option(state: GameState, option: String) -> bool:
+	if option == "pod":
+		return GameLoop.buy_pod(state, data) == GameLoop.OK
 	if not FURNITURE_CAPS.has(option):
 		return GameLoop.buy_upgrade(state, option, data) == GameLoop.OK
 	var pieces: Array[String] = [option]
