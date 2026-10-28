@@ -547,10 +547,14 @@ static func _leave_angry(state: GameState, customer: Customer, data: GameData, e
 	_send_out(state, customer, data)
 
 
+## Synths on duty drain their battery; those resting in their Pod charge it
+## (pod_charge_per_second, free), up to their max.
 static func _drain(state: GameState, data: GameData) -> void:
 	for synth: Synth in state.synths:
 		if SynthStats.on_duty(synth):
 			synth.battery = maxf(synth.battery - maxf(SynthStats.stat(synth, "drain", data), 0.0), 0.0)
+		else:
+			synth.battery = minf(synth.battery + data.balance.pod_charge_per_second, SynthStats.stat(synth, "battery_max", data))
 
 
 ## Customers eating or in the pay line pay (if a Cashier is working) and leave,
