@@ -3,13 +3,13 @@ extends PanelContainer
 ## The Bag, open at any time from the top bar: everything you own, in one
 ## place. Equipment and Fashion show a grid of cards (border colour = tier, a
 ## badge for who wears it); click one for its detail box with every action
-## (Wear on a worker, Take off, Sell). Bottles: Use on a worker. Workshop:
-## Scrap, Chips and crafting (a new piece is selected in Equipment).
+## (Wear on a worker, Take off, Sell). Bottles: Use on a worker. Crafting is in
+## the Shop's Workshop.
 
 signal closed
 
 const WIDTH: float = 760.0
-const TABS: Array[String] = ["equipment", "fashion", "bottles", "workshop"]
+const TABS: Array[String] = ["equipment", "fashion", "bottles"]
 ## Card border by tier.
 const TIER_COLORS: Dictionary[String, Color] = {"common": Color("9aa3b8"), "magic": Color("4fb3ff"),
 	"rare": Color("ffd34d"), "epic": Color("b36bff"), "legendary": Color("ff8a3d")}
@@ -19,7 +19,6 @@ var tabs := TabContainer.new()
 var selected: String = ""
 var _grids: Dictionary[String, GridContainer] = {}
 var _details: Dictionary[String, VBoxContainer] = {}
-var _workshop := VBoxContainer.new()
 
 
 func _ready() -> void:
@@ -40,14 +39,6 @@ func _ready() -> void:
 	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(tabs)
 	for key: String in TABS:
-		if key == "workshop":
-			var scroll := ScrollContainer.new()
-			scroll.name = tr("ui.bag_tab_workshop")
-			_workshop.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			_workshop.add_theme_constant_override("separation", 12)
-			scroll.add_child(_workshop)
-			tabs.add_child(scroll)
-			continue
 		var split := HBoxContainer.new()
 		split.name = tr("ui.bag_tab_" + key)
 		var scroll := ScrollContainer.new()
@@ -103,7 +94,6 @@ func refresh() -> void:
 	for key: String in _grids:
 		_clear(_grids[key])
 		_clear(_details[key])
-	_clear(_workshop)
 	for kind: String in [Item.EQUIPMENT, Item.FASHION]:
 		var key := "equipment" if kind == Item.EQUIPMENT else "fashion"
 		var pieces := owned(kind)
@@ -113,7 +103,6 @@ func refresh() -> void:
 			_grids[key].add_child(_item_card(entry[0], entry[1]))
 		_fill_item_detail(_details[key], pieces)
 	_fill_bottles()
-	_fill_workshop()
 
 
 ## A card: tier and name, what it does, and who wears it.
@@ -179,8 +168,9 @@ func _fill_item_detail(detail: VBoxContainer, pieces: Array[Array]) -> void:
 			if Session.act(GameLoop.sell_item(Session.state, item.uid, data)):
 				selected = "")
 		sell.disabled = wearer != null
-		sell.tooltip_text = tr("ui.bag_sell_worn") if wearer != null else ""
 		detail.add_child(sell)
+		if wearer != null:
+			detail.add_child(_note(tr("ui.bag_sell_worn")))
 
 
 ## A dropdown of workers (metadata = Synth id), the current wearer skipped.
@@ -218,28 +208,6 @@ func _fill_bottles() -> void:
 		var level_ups: Dictionary[String, int] = {}
 		if Session.act(GameLoop.use_bottle(Session.state, target, bottle_id, data, level_ups)) and level_ups.has(target):
 			Session.toast.emit(tr("ui.level_up") % [Session.synth_name(Session.state.synth_by_id(target)), level_ups[target]])))
-
-
-func _fill_workshop() -> void:
-	var state := Session.state
-	var data := Session.data
-	_workshop.add_child(UiTheme.label(tr("ui.materials") % [state.scrap, state.chips], 20, UiTheme.WARN))
-	for craft_id: String in data.items.crafts:
-		var recipe: Dictionary = data.items.crafts[craft_id]
-		var costs: Array = [recipe["scrap"], recipe["chips"]] if recipe["chips"] > 0 else [recipe["scrap"]]
-		_workshop.add_child(_note(tr("ui.craft_" + craft_id) % costs))
-		var make := UiTheme.button(tr("ui.craft"), func() -> void:
-			var made: Array[Item] = []
-			if Session.act(GameLoop.craft_item(Session.state, craft_id, Session.data, made)):
-				Session.toast.emit(tr("ui.crafted") % [UiText.item_name(made[0]), UiText.item_effect(made[0], Session.data.items)])
-				# Show the new piece, selected, in Equipment.
-				tabs.current_tab = TABS.find("equipment")
-				selected = made[0].uid
-				refresh())
-		make.custom_minimum_size = Vector2(0, 52)
-		make.disabled = state.scrap < recipe["scrap"] or state.chips < recipe["chips"]
-		_workshop.add_child(make)
-	_workshop.add_child(_note(tr("ui.workshop_note")))
 
 
 func _note(text: String) -> Label:

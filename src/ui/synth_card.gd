@@ -36,13 +36,11 @@ func _ready() -> void:
 	_title.add_theme_color_override("font_color", UiTheme.PANEL_BORDER)
 	_title.max_length = GameLoop.MAX_NAME_LENGTH
 	_title.placeholder_text = tr("ui.card_rename_hint")
-	_title.tooltip_text = tr("ui.card_rename_hint")
 	_title.editable = false
 	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_title.text_submitted.connect(_rename)
 	_title.focus_exited.connect(func() -> void: _rename(_title.text))
 	_edit.custom_minimum_size = Vector2(36, 36)
-	_edit.tooltip_text = tr("ui.card_rename_hint")
 	_edit.focus_mode = Control.FOCUS_NONE
 	_edit.pressed.connect(_start_rename)
 	_edit.draw.connect(_draw_pencil)

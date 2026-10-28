@@ -42,8 +42,10 @@ var info := InfoPanel.new()
 var info_button := UiTheme.button(tr("ui.info_button"), func() -> void: info.open())
 var quests_button := UiTheme.button(tr("ui.quests_button"), quests_requested.emit)
 var bag_button := UiTheme.button(tr("ui.bag_button"), bag_requested.emit)
-## Today's daily quests, small, under the top bar.
-var _tracker := UiTheme.label("", 15, UiTheme.TEXT_DIM)
+## Today's daily quests, small, under the top bar; a finished one has Claim.
+var _tracker := VBoxContainer.new()
+## What the tracker shows now (rebuilt only when it changes, so a click lands).
+var _tracker_key: String = ""
 ## Starred customers who paid and left: pick one to convert (until closing).
 var stars := MenuButton.new()
 
@@ -53,10 +55,10 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build_top_bar()
 	_tracker.position = Vector2(16, UiTheme.TOP_BAR_HEIGHT + 8)
-	_tracker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_tracker.add_theme_constant_override("separation", 2)
+	_tracker.mouse_filter = Control.MOUSE_FILTER_IGNORE  # only its Claim buttons take clicks
 	add_child(_tracker)
 	stars.flat = false
-	stars.tooltip_text = tr("tip.stars")
 	add_child(stars)
 	stars.get_popup().id_pressed.connect(func(index: int) -> void:
 		if index < Session.state.star_list.size():
@@ -104,7 +106,6 @@ func _build_top_bar() -> void:
 	_shift_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(_shift_bar)
 	_resources.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_resources.tooltip_text = tr("tip.resources")
 	_resources.mouse_filter = Control.MOUSE_FILTER_PASS
 	row.add_child(_resources)
 	row = HBoxContainer.new()
@@ -119,14 +120,9 @@ func _build_top_bar() -> void:
 		button.toggle_mode = true
 		_speed_buttons[speed] = button
 		_speed_box.add_child(button)
-	info_button.tooltip_text = tr("tip.info")
 	row.add_child(info_button)
-	quests_button.tooltip_text = tr("tip.quests")
 	row.add_child(quests_button)
-	bag_button.tooltip_text = tr("tip.bag")
 	row.add_child(bag_button)
-	shop_button.tooltip_text = tr("tip.shop")
-	arrange_button.tooltip_text = tr("tip.arrange")
 	row.add_child(shop_button)
 	row.add_child(arrange_button)
 	_auto.text = tr("ui.auto")
@@ -168,6 +164,36 @@ func toggle_pause() -> void:
 	Session.paused = _pause.visible
 
 
+## One line per unclaimed daily quest; a finished one gets a Claim button.
+func _fill_tracker(state: GameState, data: GameData) -> void:
+	var rows: Array[Array] = []
+	for quest: Dictionary in state.daily_quests:
+		if not quest["claimed"]:
+			var done := Quests.daily_progress(state, quest, data)
+			rows.append([quest["id"], "%s %s %d/%d" % ["✓" if done[0] >= done[1] else "•",
+				tr("quest.daily." + quest["id"]) % quest["target"], done[0], done[1]], done[0] >= done[1]])
+	var key := str(rows)
+	if key == _tracker_key:
+		return
+	_tracker_key = key
+	for child: Node in _tracker.get_children():
+		_tracker.remove_child(child)
+		child.queue_free()
+	for entry: Array in rows:
+		var row := HBoxContainer.new()
+		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(UiTheme.label(entry[1], 15, UiTheme.GOOD if entry[2] else UiTheme.TEXT_DIM))
+		if entry[2]:
+			var quest_id: String = entry[0]
+			var claim := UiTheme.button(tr("ui.quests_claim"), func() -> void:
+				var given: Array[Dictionary] = []
+				if Session.act(GameLoop.claim_quest(Session.state, Quests.DAILY, quest_id, Session.data, given)):
+					Session.toast.emit(tr("ui.quests_got") % UiText.reward(given[0])))
+			claim.add_theme_font_size_override("font_size", 14)
+			row.add_child(claim)
+		_tracker.add_child(row)
+
+
 ## Each save button says what it would overwrite.
 func _label_save_buttons() -> void:
 	for slot: int in _save_buttons.size():
@@ -195,18 +221,12 @@ func refresh() -> void:
 		_speed_buttons[speed].set_pressed_no_signal(speed == state.speed)
 	var ready := Quests.claimable(state, data)
 	quests_button.text = tr("ui.quests_button") + (" (%d)" % ready if ready > 0 else "")
-	var lines: Array[String] = []
-	for quest: Dictionary in state.daily_quests:
-		if not quest["claimed"]:
-			var done := Quests.daily_progress(state, quest, data)
-			lines.append("%s %s %d/%d" % ["✓" if done[0] >= done[1] else "•", tr("quest.daily." + quest["id"]) % quest["target"],
-				done[0], done[1]])
-	_tracker.text = "\n".join(lines)
-	_tracker.visible = in_shift and not lines.is_empty()
+	_fill_tracker(state, data)
+	_tracker.visible = _tracker.get_child_count() > 0
 	# The starred list, under the tracker.
 	stars.visible = in_shift and not state.star_list.is_empty()
 	stars.text = tr("ui.stars_button") % state.star_list.size()
-	stars.position = Vector2(16, UiTheme.TOP_BAR_HEIGHT + 12 + (_tracker.size.y + 6 if _tracker.visible else 0))
+	stars.position = Vector2(16, UiTheme.TOP_BAR_HEIGHT + 12 + (_tracker.get_combined_minimum_size().y + 6 if _tracker.visible else 0))
 	var popup := stars.get_popup()
 	popup.clear()
 	for i: int in state.star_list.size():
@@ -217,7 +237,6 @@ func refresh() -> void:
 	var unlocked := state.day >= data.balance.auto_unlock_day
 	_auto.disabled = not unlocked
 	_auto.set_pressed_no_signal(state.auto_night)
-	_auto.tooltip_text = tr("tip.auto") if unlocked else tr("tip.auto_locked") % data.balance.auto_unlock_day
 	if _card.visible:
 		_card.refresh()
 	if details.visible:

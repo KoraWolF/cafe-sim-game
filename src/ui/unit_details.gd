@@ -26,7 +26,6 @@ func _ready() -> void:
 	add_child(column)
 	_header.mouse_filter = Control.MOUSE_FILTER_STOP
 	_header.mouse_default_cursor_shape = Control.CURSOR_MOVE
-	_header.tooltip_text = tr("ui.details_drag")
 	_header.gui_input.connect(_drag)
 	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_header.add_child(_title)

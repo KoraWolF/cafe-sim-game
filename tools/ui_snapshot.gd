@@ -128,15 +128,21 @@ func _run() -> void:
 	print("CHECK Wear on -> hat on the first worker: ", Items.worn(worker, "hat", data) != null)
 	_shot("03e_bag_fashion")
 	state.scrap = 10
-	game.bag.tabs.current_tab = 3
+	game.bag.close()
+	await _click(_centre_of(game.hud.shop_button))
+	game.shop.tabs.current_tab = game.shop.TABS.find("workshop")
 	await _frames(2)
 	var owned := state.inventory.size()
-	await _click(_centre_of(_button_with(game.bag, tr("ui.craft"))))
+	await _click(_centre_of(_button_with(game.shop, tr("ui.craft"))))
 	await _frames(2)
 	var crafted: Item = state.inventory[-1]
-	print("CHECK Craft -> new piece selected in Equipment: ", state.inventory.size() == owned + 1 and state.scrap == 5
-		and game.bag.tabs.current_tab == 0 and game.bag.selected == crafted.uid)
-	_shot("03f_bag_crafted")
+	print("CHECK Shop Workshop Craft -> new piece in the Bag: ", state.inventory.size() == owned + 1 and state.scrap == 5)
+	_shot("03f_shop_workshop")
+	game.shop.close()
+	await _click(_centre_of(game.hud.bag_button))
+	game.bag.tabs.current_tab = 0
+	await _frames(2)
+	await _click(_centre_of(_button_with(game.bag, UiText.item_name(crafted))))
 	var coins_before := state.coins
 	await _click(_centre_of(_button_with(game.bag, tr("ui.sell") % int(data.items.tiers[crafted.tier]["sell"]))))
 	print("CHECK Sell -> coins for its tier: ", state.coins == coins_before + int(data.items.tiers[crafted.tier]["sell"]))
@@ -150,6 +156,21 @@ func _run() -> void:
 	game.hud.details._picker.hide()
 	game.hud.details.visible = false
 	await _frames(2)
+	# A finished daily quest is claimed from the tracker at the top left.
+	var daily: Dictionary = {}
+	for quest: Dictionary in state.daily_quests:
+		var start: Variant = quest["start"]
+		quest["start"] = -100000  # counts as done (a Vibe quest does not use it)
+		if daily.is_empty() and Quests.daily_progress(state, quest, data)[0] >= int(quest["target"]):
+			daily = quest
+		else:
+			quest["start"] = start
+	_session.state_changed.emit()
+	await _frames(2)
+	var coins_daily := state.coins
+	await _click(_centre_of(_button_with(game.hud._tracker, tr("ui.quests_claim"))))
+	print("CHECK Claim on the top-left tracker -> daily claimed: ", daily["claimed"])
+	_shot("03g0_tracker_claim")
 	# Quests from the top bar, mid-shift: three dailies; a finished achievement is claimed by a real click.
 	state.stats["served"] = 100
 	_session.state_changed.emit()
@@ -256,6 +277,8 @@ func _run() -> void:
 	state.coins = 2000
 	await _click(_centre_of(game.hud.shop_button))
 	print("CHECK Shop button mid-shift -> shop open: ", game.shop.visible and state.phase == GameState.Phase.SHIFT)
+	game.shop.tabs.current_tab = 0
+	await _frames(2)
 	_shot("04e_shop_mid_shift")
 	# Furniture: Buy puts it in your hand in Arrange; Store keeps it for later.
 	var stored_seats: int = state.storage.get("seat", 0)

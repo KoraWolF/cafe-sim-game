@@ -1,6 +1,11 @@
 class_name InfoPanel
 extends Modal
-## The top bar's Info: what every stat, role and trait means, in three tabs.
+## The top bar's Info: how the main features work (Help), and what every stat,
+## role and trait means.
+
+## The Help tab, in order.
+const HELP: Array[String] = ["cooking", "jobs", "converting", "quests", "shop", "arrange", "bag", "resources", "auto",
+	"windows"]
 
 var _tabs := TabContainer.new()
 
@@ -16,6 +21,10 @@ func _ready() -> void:
 	content.add_child(header)
 	_tabs.custom_minimum_size = Vector2(0, 480)
 	content.add_child(_tabs)
+	var help: Array[String] = []
+	for key: String in HELP:
+		help.append(tr("help." + key))
+	_add_tab("info.tab_help", help)
 	var stats: Array[String] = []
 	for stat: String in ["speed", "cook", "appeal", "power", "hp", "battery", "level"]:
 		stats.append(tr("info.stat." + stat))
