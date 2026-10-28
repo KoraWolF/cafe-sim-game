@@ -18,7 +18,6 @@ const RECIPE_LOCKED: String = "recipe_locked"
 const NOT_ENOUGH_COINS: String = "not_enough_coins"
 const NOT_ENOUGH_CORES: String = "not_enough_cores"
 const UNKNOWN_CUSTOMER: String = "unknown_customer"
-const NO_STAR: String = "no_star"
 const NO_NANOBREW: String = "no_nanobrew"
 const NO_FREE_POD: String = "no_free_pod"
 const UNKNOWN_SYNTH: String = "unknown_synth"
@@ -103,8 +102,9 @@ static func cancel_cooking(state: GameState, stove_index: int, data: GameData) -
 	return OK
 
 
-## Turns a starred customer (paying or leaving) into a Synth: 1 NanoBrew, a
-## free Pod, +Suspicion. One still in the pay line pays first.
+## Turns any customer (queued, seated, eating, paying or walking out) into a
+## Synth: 1 NanoBrew, a free Pod, +Suspicion. One still in the pay line pays
+## first; a dish on its way to them goes back to the counter.
 ## The Synth gets the trait and max battery the customer arrived with, starts
 ## Resting in its Pod and loses conversion_battery_loss of its battery.
 ## The new Synth is returned through out_synth when given.
@@ -115,8 +115,6 @@ static func convert_customer(state: GameState, customer_id: String, data: GameDa
 	var customer := state.convertible_by_id(customer_id)
 	if customer == null:
 		return UNKNOWN_CUSTOMER
-	if not customer.can_convert():
-		return NO_STAR
 	if state.nanobrew <= 0:
 		return NO_NANOBREW
 	if state.synths.size() >= state.pods:
@@ -135,8 +133,12 @@ static func convert_customer(state: GameState, customer_id: String, data: GameDa
 	state.nanobrew -= 1
 	if customer.stage == Customer.Stage.PAYING:
 		state.coins += customer.bill + customer.tip
+	if customer.served_by != "":
+		var server := state.synth_by_id(customer.served_by)
+		if server != null:
+			Shift.return_dish(state, server, data)
 	state.customers.erase(customer)
-	state.star_list.erase(customer)
+	state.leaving.erase(customer)
 	state.add_suspicion(data.balance.conversion_suspicion)
 	var synth := state.add_synth(type.synth_species, trait_id, data, battery_max)
 	state.stats["conversions"] = state.stats.get("conversions", 0) + 1

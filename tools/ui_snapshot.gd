@@ -219,15 +219,15 @@ func _run() -> void:
 	_shot("04_recipe_menu")
 	game.hud._recipe_menu.hide()
 
-	while state.customers.all(func(c: Customer) -> bool: return not c.can_convert()):
+	# Any customer converts: wait for one who is seated, then click them.
+	while state.customers.all(func(c: Customer) -> bool: return not c.is_seated()):
 		_session.advance(1)
-	await _frames(2)
 	state.nanobrew = 1
-	var star: Customer = state.customers.filter(func(c: Customer) -> bool: return c.can_convert())[0]
-	await _frames(30)  # let them walk to the register
+	var star: Customer = state.customers.filter(func(c: Customer) -> bool: return c.is_seated())[0]
+	await _frames(90)  # let them walk to their seat
 	var synths_before := state.synths.size()
 	await _click(game.cafe.get_viewport().get_canvas_transform() * game.cafe._heads[star.id])
-	print("CHECK click starred customer -> NanoBrew confirmation shown: ", game.hud.confirm.visible)
+	print("CHECK click a seated customer (no star) -> NanoBrew confirmation shown: ", game.hud.confirm.visible)
 	_shot("04b_confirm_nanobrew")
 	await _click(_centre_of(game.hud.confirm._yes))
 	print("CHECK confirm -> converted: ", state.synths.size() == synths_before + 1,
@@ -243,16 +243,16 @@ func _run() -> void:
 	print("CHECK ...and reaches it: ", not game.cafe._to_pod.has(newcomer.id))
 	_shot("04c_new_synth_in_pod")
 	print("CHECK Auto locked on day 1: ", game.hud._auto.disabled)
-	# Starred customers who paid go to the ★ list under the quests; its dropdown opens on a real click.
-	while state.star_list.is_empty() and state.phase == GameState.Phase.SHIFT:
+	# A customer walking out can still be clicked on the way.
+	while state.leaving.is_empty() and state.phase == GameState.Phase.SHIFT:
 		_session.advance(1)
-	await _frames(3)
-	print("CHECK a paid starred customer is in the star list, dropdown shown: ", not state.star_list.is_empty()
-		and game.hud.stars.visible)
-	await _click(_centre_of(game.hud.stars))
-	print("CHECK star dropdown opens: ", game.hud.stars.get_popup().visible)
-	_shot("04c2_star_list")
-	game.hud.stars.get_popup().hide()
+	await _frames(20)
+	var leaver: Customer = state.leaving[0]
+	if game.cafe._heads.has(leaver.id):
+		await _click(game.cafe.get_viewport().get_canvas_transform() * game.cafe._heads[leaver.id])
+	print("CHECK click a customer walking out -> NanoBrew confirmation shown: ", game.hud.confirm.visible)
+	_shot("04c2_convert_leaver")
+	game.hud.confirm._answer(false)
 	await _frames(2)
 
 	# Throwing food away: click a counter with food, confirm, a server takes it to the bin.
@@ -316,7 +316,8 @@ func _run() -> void:
 				GameLoop.start_cooking(state, i, ["coffee", "toast"][i % 2], data)
 		var events: Shift.Events = _session.advance(1)
 		for customer_id: String in events.starred:
-			_session.convert_customer(customer_id)
+			if state.convertible_by_id(customer_id) != null:
+				_session.convert_customer(customer_id)
 		if state.shift_time == 300:
 			await _frames(3)
 			_shot("05_busy_shift")

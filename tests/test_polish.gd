@@ -23,14 +23,13 @@ func test_tutorial_follows_the_first_day() -> void:
 	assert_eq(tutorial.text_key(state), "tutorial.deliver", "then watch a delivery")
 	log.served = 1
 	tutorial.update(state, log)
-	assert_eq(tutorial.text_key(state), "", "the convert tip waits for a star")
+	state.customers.clear()
+	assert_eq(tutorial.text_key(state), "", "the convert tip waits for a customer")
 	var star := Customer.new()
 	star.id = "s"
 	star.type_id = "regular"
-	star.stage = Customer.Stage.STAR
-	star.starred = true
 	state.customers.append(star)
-	assert_eq(tutorial.text_key(state), "tutorial.convert", "a star: convert tip shows")
+	assert_eq(tutorial.text_key(state), "tutorial.convert", "a customer: convert tip shows")
 	log.conversions = 1
 	tutorial.update(state, log)
 	assert_eq(tutorial.text_key(state), "tutorial.card", "then the Synth card")

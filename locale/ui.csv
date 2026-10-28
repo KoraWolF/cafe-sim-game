@@ -138,7 +138,6 @@ error.recipe_locked,You haven't unlocked that dish yet.
 error.not_enough_coins,Not enough coins.
 error.not_enough_cores,Not enough Nano Cores.
 error.unknown_customer,That customer has left.
-error.no_star,Only glowing customers (who loved it) can be converted.
 error.no_nanobrew,You need a NanoBrew to convert a customer.
 error.no_free_pod,Every Sync Pod is taken — buy and place another Pod.
 error.unknown_synth,Unknown Synth.
@@ -175,7 +174,7 @@ tutorial.skip_all,Skip tutorial
 tutorial.welcome,"Welcome to NanoBrew Café! Customers come in and sit down; your servers bring them whatever is ready on the nearest counter. Your job: keep the food coming and turn your happiest customers into Synth staff."
 tutorial.cook,Click a stove and pick a dish to cook. A server carries the finished batch to a free counter.
 tutorial.deliver,"Your server carries dishes from the counter to the tables. After eating, customers pay your Cashier at the register."
-tutorial.convert,"That customer is glowing — they loved it! Click them while they pay or walk out to spend your NanoBrew: they become a Synth."
+tutorial.convert,"Click any customer — waiting, eating, paying or walking out — to spend your NanoBrew: they become a Synth."
 tutorial.card,"Click one of your Synths to see its card — then click a stove, counter, register or the Pod bay to give it that job."
 tutorial.night,"The café is closed: it's night. Plan for tomorrow here, then press End Night."
 tutorial.raid,"Open Night Ops, pick a MegaBean café and a squad, then Plan raid. Raids bring Nano Cores (for NanoBrew) and Influence."
@@ -199,7 +198,7 @@ ui.ops_security,"Security level %d: every Synth defending the café at night get
 customer.stage_0,Waiting in line for a seat
 customer.stage_1,Seated and waiting for food
 customer.stage_2,Eating
-customer.stage_3,Loved it! Leaving (glowing)
+customer.stage_3,Walking out
 customer.mood,Mood: %d%%
 customer.converts,"Converts to: %s — %s"
 customer.click_convert,Click to convert with NanoBrew.
@@ -423,8 +422,6 @@ error.no_job_there,"No job there — click a stove (Chef), counter or table (Ser
 ui.card_job,Job: %s%s
 ui.card_job_help,"To change the job, click a place in the café: a stove (Chef), a counter, table or bin (Server), a register (Cashier) or the Pod bay (Rest). Click another worker to switch; click empty floor to close."
 ui.job_now,%s is now %s.
-ui.stars_button,Ready to convert (%d) ▾
-ui.star_line,"%s → %s (%s), max battery %d"
 ui.cook_cancel,"Cancel %s (refund %d coins)"
 customer.eating,Eating: %s
 error.not_cooking,That stove is not cooking.
@@ -439,7 +436,7 @@ ui.save_over,"Save to Slot %d (now: Day %d, %s)"
 info.tab_help,Help
 help.cooking,"Cooking: click a stove and pick any dish. Click a cooking stove to cancel its batch (full refund) or swap it for another dish. Servers carry finished batches to a free counter, then bring each seated customer the dish on the counter nearest them — that is what they pay for."
 help.jobs,"Jobs: click a worker, then a place — a stove (Chef), a counter, table or bin (Server), a register (Cashier) or the Pod bay (Rest). Click another worker to switch; click empty floor to close the card."
-help.converting,"Converting: a customer who loved their meal glows. Click them while they pay or walk out, or pick them from the Ready to convert list at the top left, to spend NanoBrew: they become a Synth. They stay convertible until the café closes."
+help.converting,"Converting: click any customer — in line, seated, eating, paying or walking out — to spend NanoBrew: they become a Synth. You can catch them until they walk out of sight."
 help.quests,"Quests: daily quests, the story and achievements. Today's dailies are listed at the top left — claim a finished one right there, or anything from the Quests button."
 help.shop,"Shop: furniture, décor, café upgrades, Energy and the Workshop, open any time while the café keeps running. Buy & place puts the piece in your hand; Store keeps it for later (place it from Arrange)."
 help.arrange,"Arrange: Move, rotate, place and sell furniture and décor — any time. Pieces in use (a cooking stove, a counter with food, an occupied seat) can be moved but not picked up."

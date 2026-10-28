@@ -52,6 +52,5 @@ func refresh() -> void:
 		lines.append(tr("customer.seat_vibe") % roundi(session.state.seat_vibe.get(customer.seat_uid, 0.0)))
 	lines.append(tr("customer.converts") % [UiText.name(type.synth_species),
 		UiText.name(customer.trait_id) if customer.trait_id != "" else tr("ui.card_no_trait")])
-	if customer.can_convert():
-		lines.append(tr("customer.click_convert"))
+	lines.append(tr("customer.click_convert"))
 	_body.text = "\n".join(lines)

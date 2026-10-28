@@ -6,7 +6,7 @@ enum Stage {
 	QUEUED, ## Waiting for a free seat.
 	WAITING_FOOD, ## Seated, has ordered; a server may already be carrying it.
 	EATING,
-	STAR, ## Paid and gone, on the starred list: can be converted until the café closes.
+	LEAVING, ## Gone from the café, walking out to the street (timer: seconds left): still convertible.
 	PAYING, ## Finished eating: in line at the register, or paying.
 }
 
@@ -29,8 +29,8 @@ enum Stage {
 @export var trait_id: String = ""
 ## The placed seat this customer sits at ("" while queued).
 @export var seat_uid: String = ""
-## Finished fully satisfied: shows a star and can be converted while paying
-## and leaving (STAR).
+## Loved the meal (satisfaction at star_threshold or more): pays a tip and counts
+## for "loved it" quests. Anyone can be converted, loved or not.
 @export var starred: bool = false
 ## What they owe at the register: the meal and the tip (tip 0 if they get angry in line).
 @export var bill: int = 0
@@ -46,10 +46,6 @@ enum Stage {
 func is_seated() -> bool:
 	return stage == Stage.WAITING_FOOD or stage == Stage.EATING
 
-
-## A starred customer on the way out (paying or leaving) can be offered NanoBrew.
-func can_convert() -> bool:
-	return starred and (stage == Stage.PAYING or stage == Stage.STAR)
 
 
 func to_dict() -> Dictionary:
@@ -73,8 +69,8 @@ static func from_dict(values: Dictionary) -> Customer:
 	customer.trait_id = str(values.get("trait_id", ""))
 	customer.seat_uid = str(values.get("seat_uid", ""))
 	customer.battery_max = int(values.get("battery_max", 0))
-	# Older saves: a STAR customer had already paid and was starred.
-	customer.starred = bool(values.get("starred", customer.stage == Stage.STAR))
+	# Older saves: a STAR (now LEAVING) customer had already paid and was starred.
+	customer.starred = bool(values.get("starred", customer.stage == Stage.LEAVING))
 	customer.bill = int(values.get("bill", 0))
 	customer.tip = int(values.get("tip", 0))
 	customer.cashier_id = str(values.get("cashier_id", ""))

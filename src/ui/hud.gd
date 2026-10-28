@@ -46,8 +46,6 @@ var bag_button := UiTheme.button(tr("ui.bag_button"), bag_requested.emit)
 var _tracker := VBoxContainer.new()
 ## What the tracker shows now (rebuilt only when it changes, so a click lands).
 var _tracker_key: String = ""
-## Starred customers who paid and left: pick one to convert (until closing).
-var stars := MenuButton.new()
 
 
 func _ready() -> void:
@@ -58,11 +56,6 @@ func _ready() -> void:
 	_tracker.add_theme_constant_override("separation", 2)
 	_tracker.mouse_filter = Control.MOUSE_FILTER_IGNORE  # only its Claim buttons take clicks
 	add_child(_tracker)
-	stars.flat = false
-	add_child(stars)
-	stars.get_popup().id_pressed.connect(func(index: int) -> void:
-		if index < Session.state.star_list.size():
-			confirm_convert(Session.state.star_list[index].id))
 	_toasts.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	_toasts.position = Vector2(-300, UiTheme.TOP_BAR_HEIGHT + 30)
 	_toasts.custom_minimum_size = Vector2(600, 0)
@@ -225,17 +218,6 @@ func refresh() -> void:
 	quests_button.text = tr("ui.quests_button") + (" (%d)" % ready if ready > 0 else "")
 	_fill_tracker(state, data)
 	_tracker.visible = _tracker.get_child_count() > 0
-	# The starred list, under the tracker.
-	stars.visible = in_shift and not state.star_list.is_empty()
-	stars.text = tr("ui.stars_button") % state.star_list.size()
-	stars.position = Vector2(16, UiTheme.TOP_BAR_HEIGHT + 12 + (_tracker.get_combined_minimum_size().y + 6 if _tracker.visible else 0))
-	var popup := stars.get_popup()
-	popup.clear()
-	for i: int in state.star_list.size():
-		var customer := state.star_list[i]
-		var type := data.customer_types[customer.type_id]
-		popup.add_item(tr("ui.star_line") % [UiText.name(customer.type_id), UiText.name(type.synth_species),
-			UiText.name(customer.trait_id) if customer.trait_id != "" else tr("ui.card_no_trait"), customer.battery_max], i)
 	var unlocked := state.day >= data.balance.auto_unlock_day
 	_auto.disabled = not unlocked
 	_auto.set_pressed_no_signal(state.auto_night)
@@ -330,7 +312,6 @@ func show_customer_card(customer_id: String, at: Vector2) -> void:
 	customer_card.show_for(customer_id, at)
 
 
-## Clicking a starred customer: say why it can't happen, or ask before spending NanoBrew.
 ## Asks before a server throws a counter's food, or a stove's waiting batch, into the bin.
 func confirm_throw(uid: String) -> void:
 	var state := Session.state
@@ -345,6 +326,7 @@ func confirm_throw(uid: String) -> void:
 		tr("ui.confirm_throw_yes"), func() -> void: Session.act(GameLoop.throw_away(Session.state, uid, Session.data)))
 
 
+## Clicking a customer: say why it can't happen, or ask before spending NanoBrew.
 func confirm_convert(customer_id: String) -> void:
 	var state := Session.state
 	var customer := state.convertible_by_id(customer_id)

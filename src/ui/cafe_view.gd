@@ -122,6 +122,9 @@ func _level_up_effects(level_ups: Dictionary[String, int]) -> void:
 
 
 func _on_converted(customer_id: String, synth: Synth) -> void:
+	if _leaving.has(customer_id):
+		_walk[customer_id] = _leaving[customer_id]["at"]  # caught on the way out
+		_leaving.erase(customer_id)
 	if _walk.has(customer_id):
 		# The customer becomes the Synth and walks round the front of the café into a free Pod.
 		_synth_at[synth.id] = _walk[customer_id]
@@ -283,8 +286,9 @@ func _zoom(factor: float) -> void:
 func _click(world: Vector2, screen: Vector2) -> void:
 	var state := Session.state
 	var data := Session.data
-	for customer: Customer in state.customers:
-		if customer.can_convert() and _hit(customer.id, world):
+	# Any customer, in the café or walking out, can be converted.
+	for customer: Customer in state.customers + state.leaving:
+		if _hit(customer.id, world):
 			customer_clicked.emit(customer.id)
 			return
 	# A worker's head first: clicking another worker switches to it.
@@ -635,7 +639,7 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 	# Whoever left the game's list walks out through the door to the street.
 	for customer_id: String in _walk.keys():
 		if not present.has(customer_id):
-			_leaving[customer_id] = {"at": _walk[customer_id], "type_id": _walk_types.get(customer_id, ""),
+			_leaving[customer_id] = {"id": customer_id, "at": _walk[customer_id], "type_id": _walk_types.get(customer_id, ""),
 				"angry": _angry.has(customer_id)}
 			_walk.erase(customer_id)
 			_routes.erase(customer_id)
@@ -806,26 +810,15 @@ func _stove_front(index: int, state: GameState, data: GameData) -> Vector2:
 
 func _draw_customer(customer: Customer, at: Vector2) -> void:
 	var color: Color = UiTheme.CUSTOMER_COLORS.get(customer.type_id, Color.GRAY)
-	if customer.can_convert():
-		_draw_glow_ring(Iso.to_world(at))
 	var head := _draw_body(at, color, Color("ffd9b8"), customer.id)
 	var above := head + Vector2(0, -30)
 	if customer.stage == Customer.Stage.EATING:
 		_draw_bar(above + Vector2(0, 8), 34, 1.0 - float(customer.timer) / Session.data.balance.eat_seconds, UiTheme.GOOD)
 
 
-## A pulsing NanoBrew-cyan ring at a convertible customer's feet (world).
-func _draw_glow_ring(feet: Vector2) -> void:
-	var pulse := 0.5 + 0.5 * sin(_time * 5.0)
-	draw_set_transform(feet, 0, Vector2(1, 0.5))
-	draw_circle(Vector2.ZERO, 26 + 3 * pulse, Color(UiTheme.PANEL_BORDER, 0.18 + 0.12 * pulse))
-	draw_arc(Vector2.ZERO, 26 + 3 * pulse, 0, TAU, 40, Color(UiTheme.PANEL_BORDER, 0.9), 3.0)
-	draw_set_transform(Vector2.ZERO)
-
-
 func _draw_leaver(leaver: Dictionary) -> void:
 	var color: Color = UiTheme.CUSTOMER_COLORS.get(leaver["type_id"], Color.GRAY)
-	var head := _draw_body(leaver["at"], color, Color("ffd9b8"), "")
+	var head := _draw_body(leaver["at"], color, Color("ffd9b8"), leaver.get("id", ""))
 	if leaver["angry"]:
 		_text(head + Vector2(0, -26), "!", 24, UiTheme.BAD)
 

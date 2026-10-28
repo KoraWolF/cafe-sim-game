@@ -70,11 +70,10 @@ func test_customer_is_served_pays_tips_and_stars() -> void:
 	assert_eq(state.counter["tea"], 2, "one serving used")
 	assert_eq(events.starred.size(), 1, "starred")
 	assert_true(state.customers.is_empty(), "everyone leaves after paying")
-	assert_eq(state.star_list.size(), 1, "the starred customer is on the starred list")
-	assert_eq(state.star_list[0].stage, Customer.Stage.STAR, "convertible from the list")
-	events = GameLoop.advance(state, data.balance.shift_seconds, data)
-	assert_true(state.star_list.is_empty(), "the list empties at closing")
-	assert_true(events.star_expired.size() >= 1, "their chance ended")
+	assert_eq(state.leaving.size(), 1, "the customer walks out")
+	assert_eq(state.leaving[0].stage, Customer.Stage.LEAVING, "still convertible on the way")
+	GameLoop.advance(state, 1, data)
+	assert_true(state.leaving.is_empty(), "gone once they reach the street")
 
 
 func test_customer_without_food_loses_satisfaction_and_leaves() -> void:
@@ -179,3 +178,13 @@ func test_a_bigger_cafe_brings_customers_faster() -> void:
 	var events := GameLoop.advance(state, 80, data)
 	# Gap 50 / 2 = 25 s: arrivals at 3, 28, 53, 78.
 	assert_eq(events.arrived.size(), 4, "twice as many arrivals")
+
+
+func test_a_small_cafe_has_patient_customers() -> void:
+	var data := _data({"patience_bonus": 2.0})
+	var state := GameState.new_game(1, data)
+	assert_eq(Shift.patience(state, data), 3.0, "a new café: 3x as patient")
+	state.upgrades["floor"] = 1
+	assert_eq(Shift.patience(state, data), 2.0, "halfway up (fixture floor max 2): 2x")
+	state.upgrades["floor"] = 2
+	assert_eq(Shift.patience(state, data), 1.0, "top level: normal")

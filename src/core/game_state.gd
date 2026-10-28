@@ -62,8 +62,9 @@ var seat_table: Dictionary[String, String] = {}
 @export var daily_date: String = ""
 @export var story_index: int = 0
 @export var achievements: Array[String] = []
-## Starred customers who paid and left this shift: convertible until closing.
-@export var star_list: Array[Customer] = []
+## Customers walking out of the café (paid or angry), convertible until they
+## reach the street (Customer.timer) or the café closes.
+@export var leaving: Array[Customer] = []
 ## Auto on: each night passes by itself with no raid
 ## (see Session.auto_night). Unlocks on auto_unlock_day.
 @export var auto_night: bool = false
@@ -218,12 +219,17 @@ func customer_by_id(customer_id: String) -> Customer:
 	return null
 
 
-## A customer in the café or on the starred list.
+## A customer in the café or walking out of it.
 func convertible_by_id(customer_id: String) -> Customer:
-	for customer: Customer in star_list:
+	for customer: Customer in leaving:
 		if customer.id == customer_id:
 			return customer
 	return customer_by_id(customer_id)
+
+
+## The café's level: how many times the floor upgrade was bought (0 = 6x6).
+func cafe_level() -> int:
+	return upgrades.get(Upgrade.FLOOR, 0)
 
 
 func has_species(species_id: String) -> bool:
