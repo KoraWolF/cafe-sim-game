@@ -1,7 +1,7 @@
 class_name CustomerCard
 extends PanelContainer
 ## Shown while the mouse is over a customer: who they are, what they are doing,
-## the max battery they would have as a Synth, their order, mood and Vibe, and
+## the max battery they would have as a Synth, what they eat, mood and Vibe, and
 ## the species and trait name they would become (details: the Info button).
 
 var customer_id: String = ""
@@ -45,9 +45,8 @@ func refresh() -> void:
 	var lines: Array[String] = [tr("customer.stage_%d" % customer.stage)]
 	if customer.battery_max > 0:
 		lines.append(tr("customer.battery_max") % customer.battery_max)
-	if customer.recipe_id != "":
-		var favourite := tr("customer.favourite") if type.favorites.has(customer.recipe_id) else ""
-		lines.append(tr("customer.order") % [UiText.name(customer.recipe_id), favourite])
+	if customer.stage == Customer.Stage.EATING:
+		lines.append(tr("customer.eating") % UiText.name(customer.recipe_id))
 	lines.append(tr("customer.mood") % roundi(customer.satisfaction))
 	if customer.is_seated():
 		lines.append(tr("customer.seat_vibe") % roundi(session.state.seat_vibe.get(customer.seat_uid, 0.0)))

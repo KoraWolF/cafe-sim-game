@@ -24,13 +24,12 @@ func test_pod_cost_and_cap() -> void:
 func test_each_upgrade_applies() -> void:
 	var data := TestFixtures.data()
 	var state := _night(data)
-	for upgrade_id: String in ["pod", "security", "floor", "menu_slot"]:
+	for upgrade_id: String in ["pod", "security", "floor"]:
 		assert_eq(GameLoop.buy_upgrade(state, upgrade_id, data), GameLoop.OK, upgrade_id)
 	assert_eq(state.pods, 3, "+1 Pod")
 	assert_eq(state.floor_rows, 8, "6 + 2 rows")
 	assert_eq(state.security, 10.0, "+10 security")
-	assert_eq(state.menu_slots, 3, "+1 menu slot")
-	assert_eq(state.upgrades, {"pod": 1, "security": 1, "floor": 1, "menu_slot": 1} as Dictionary[String, int], "levels")
+	assert_eq(state.upgrades, {"pod": 1, "security": 1, "floor": 1} as Dictionary[String, int], "levels")
 	assert_eq(GameLoop.buy_upgrade(state, "stove", data), GameLoop.UNKNOWN_UPGRADE, "furniture is not an upgrade")
 
 

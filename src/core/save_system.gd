@@ -32,7 +32,9 @@ extends RefCounted
 ##     upgrade levels are dropped (the pieces stay).
 ## 15: jobs by place (Chef at a stove, Cashier at a register), no Greeter,
 ##     the starred list. Greeters become Servers; stations are bound on load.
-const VERSION: int = 15
+## 16: no daily menu: nobody orders, a server brings the nearest dish. The
+##     menu and menu slots are dropped; seated customers forget their order.
+const VERSION: int = 16
 const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
 
@@ -79,8 +81,6 @@ static func to_dict(state: GameState) -> Dictionary:
 		"achievements": state.achievements,
 		"counter_dish": state.counter_dish,
 		"counter_count": state.counter_count,
-		"menu": state.menu,
-		"menu_slots": state.menu_slots,
 		"customers": state.customers.map(func(customer: Customer) -> Dictionary: return customer.to_dict()),
 		"synths": state.synths.map(func(synth: Synth) -> Dictionary: return synth.to_dict()),
 		"district_id": state.district_id,
@@ -170,11 +170,6 @@ static func from_dict(raw: Dictionary) -> GameState:
 	if counts is Dictionary:
 		for counter_uid: Variant in counts:
 			state.counter_count[str(counter_uid)] = int(counts[counter_uid])
-	var menu: Variant = raw.get("menu", [])
-	if menu is Array:
-		for recipe_id: Variant in menu:
-			state.menu.append(str(recipe_id))
-	state.menu_slots = int(raw.get("menu_slots", 0))
 	for entry: Dictionary in _objects(raw, "customers"):
 		state.customers.append(Customer.from_dict(entry))
 	for entry: Dictionary in _objects(raw, "synths"):
@@ -310,6 +305,19 @@ static func _migrate_step(version: int, raw: Dictionary) -> Dictionary:
 			return raw
 		14:
 			return raw
+		15:
+			raw.erase("menu")
+			raw.erase("menu_slots")
+			var levels: Variant = raw.get("upgrades", {})
+			if levels is Dictionary:
+				levels.erase("menu_slot")
+			for key: String in ["customers", "star_list"]:
+				var list: Variant = raw.get(key, [])
+				if list is Array:
+					for customer: Variant in list:
+						if customer is Dictionary and int(customer.get("stage", -1)) == Customer.Stage.WAITING_FOOD:
+							customer["recipe_id"] = ""
+			return raw
 		13:
 			var levels: Variant = raw.get("upgrades", {})
 			if levels is Dictionary:
@@ -380,11 +388,6 @@ static func validate(state: GameState, data: GameData) -> PackedStringArray:
 	for recipe_id: String in state.counter:
 		if not data.recipes.has(recipe_id) or state.counter[recipe_id] < 0:
 			errors.append("counter: bad entry '%s'" % recipe_id)
-	if state.menu_slots < 1 or state.menu.size() > state.menu_slots:
-		errors.append("menu of %d dishes for %d slots" % [state.menu.size(), state.menu_slots])
-	for i: int in state.menu.size():
-		if not data.recipes.has(state.menu[i]) or state.menu.find(state.menu[i]) != i:
-			errors.append("bad menu dish '%s'" % state.menu[i])
 	var ids: Dictionary[String, bool] = {}
 	for synth: Synth in state.synths:
 		if ids.has(synth.id) or synth.id == "":
@@ -407,7 +410,8 @@ static func validate(state: GameState, data: GameData) -> PackedStringArray:
 			errors.append("customer '%s': unknown type '%s'" % [customer.id, customer.type_id])
 		if not Customer.Stage.values().has(customer.stage):
 			errors.append("customer '%s': unknown stage %d" % [customer.id, customer.stage])
-		if customer.stage != Customer.Stage.QUEUED and not data.recipes.has(customer.recipe_id):
+		if customer.stage in [Customer.Stage.EATING, Customer.Stage.PAYING, Customer.Stage.STAR] \
+				and not data.recipes.has(customer.recipe_id):
 			errors.append("customer '%s': unknown recipe '%s'" % [customer.id, customer.recipe_id])
 		if customer.trait_id != "" and not data.traits.has(customer.trait_id):
 			errors.append("customer '%s': unknown trait '%s'" % [customer.id, customer.trait_id])

@@ -49,22 +49,36 @@ static func put(state: GameState, counter_uid: String, recipe_id: String, count:
 	state.counter[recipe_id] = state.counter.get(recipe_id, 0) + count
 
 
-## Takes one serving of recipe_id from a counter; returns that counter's uid
-## ("" in a café without counters, or if there is none).
-static func take(state: GameState, recipe_id: String, data: GameData) -> String:
-	if state.counter.get(recipe_id, 0) <= 0:
-		return ""
-	state.counter[recipe_id] -= 1
+## Takes one serving of whatever dish stands on the counter nearest the
+## placed piece at near_uid (a seat); returns [counter uid, recipe id], or []
+## if no food is ready. A café without counters takes the first dish in stock.
+static func take_nearest(state: GameState, near_uid: String, data: GameData) -> Array[String]:
 	if not in_use(state, data):
-		return ""
+		for recipe_id: String in state.counter:
+			if state.counter[recipe_id] > 0:
+				state.counter[recipe_id] -= 1
+				return ["", recipe_id]
+		return []
+	var near := Layout.placed_by_uid(state, near_uid)
+	var best := ""
+	var best_distance := 1 << 30
 	for counter_uid: String in state.counter_count:
-		if state.counter_count[counter_uid] > 0 and state.counter_dish.get(counter_uid, "") == recipe_id:
-			state.counter_count[counter_uid] -= 1
-			if state.counter_count[counter_uid] <= 0:
-				state.counter_count.erase(counter_uid)
-				state.counter_dish.erase(counter_uid)
-			return counter_uid
-	return ""
+		var placed := Layout.placed_by_uid(state, counter_uid)
+		if state.counter_count[counter_uid] <= 0 or placed == null:
+			continue
+		var distance := Layout.distance(near, placed, data) if near != null else 0
+		if distance < best_distance:
+			best = counter_uid
+			best_distance = distance
+	if best == "":
+		return []
+	var dish: String = state.counter_dish[best]
+	state.counter[dish] = maxi(state.counter.get(dish, 0) - 1, 0)
+	state.counter_count[best] -= 1
+	if state.counter_count[best] <= 0:
+		state.counter_count.erase(best)
+		state.counter_dish.erase(best)
+	return [best, dish]
 
 
 ## Puts one serving back (a dish that was not delivered).

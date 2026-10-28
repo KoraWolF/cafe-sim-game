@@ -31,8 +31,7 @@ const EMPTY_SQUAD: String = "empty_squad"
 const SQUAD_TOO_BIG: String = "squad_too_big"
 const NO_BATTERY: String = "no_battery"
 const FLAGSHIP_LOCKED: String = "flagship_locked"
-const EMPTY_MENU: String = "empty_menu"
-const MENU_TOO_LONG: String = "menu_too_long"
+const NOT_COOKING: String = "not_cooking"
 const UNKNOWN_UPGRADE: String = "unknown_upgrade"
 const NO_ROOM: String = "no_room"
 const UNKNOWN_PIECE: String = "unknown_piece"
@@ -88,6 +87,19 @@ static func start_cooking(state: GameState, stove_index: int, recipe_id: String,
 	state.coins -= recipe.cost
 	stove.recipe_id = recipe.id
 	stove.remaining = recipe.cook_seconds
+	return OK
+
+
+## Stops a batch that is still cooking (a wrong pick) and refunds its cost.
+static func cancel_cooking(state: GameState, stove_index: int, data: GameData) -> String:
+	if stove_index < 0 or stove_index >= state.stoves.size():
+		return UNKNOWN_STOVE
+	var stove := state.stoves[stove_index]
+	if stove.is_idle() or stove.has_batch():
+		return NOT_COOKING
+	state.coins += data.recipes[stove.recipe_id].cost
+	stove.recipe_id = ""
+	stove.remaining = 0.0
 	return OK
 
 
@@ -189,29 +201,6 @@ static func buy_power(state: GameState, amount: int, data: GameData) -> String:
 	return OK
 
 
-## Sets the next shift's menu (duplicates dropped). Only at night.
-static func set_menu(state: GameState, recipe_ids: Array[String], data: GameData) -> String:
-	if state.phase != GameState.Phase.NIGHT:
-		return WRONG_PHASE
-	var menu: Array[String] = []
-	for recipe_id: String in recipe_ids:
-		if not menu.has(recipe_id):
-			menu.append(recipe_id)
-	if menu.is_empty():
-		return EMPTY_MENU
-	if menu.size() > state.menu_slots:
-		return MENU_TOO_LONG
-	var unlocked := Shift.unlocked_recipes(state, data)
-	for recipe_id: String in menu:
-		var recipe: Recipe = data.recipes.get(recipe_id)
-		if recipe == null:
-			return UNKNOWN_RECIPE
-		if not unlocked.has(recipe):
-			return RECIPE_LOCKED
-	state.menu = menu
-	return OK
-
-
 ## Coins the next purchase of this upgrade costs, or -1 if it is maxed or unknown.
 static func upgrade_cost(state: GameState, upgrade_id: String, data: GameData) -> int:
 	var upgrade: Upgrade = data.upgrades.get(upgrade_id)
@@ -221,7 +210,7 @@ static func upgrade_cost(state: GameState, upgrade_id: String, data: GameData) -
 	return -1 if level >= upgrade.max_level else upgrade.cost_at(level)
 
 
-## Buys one level of an upgrade (Pods, floor, menu slot, security), at any time.
+## Buys one level of an upgrade (Pods, floor, security), at any time.
 static func buy_upgrade(state: GameState, upgrade_id: String, data: GameData) -> String:
 	var upgrade: Upgrade = data.upgrades.get(upgrade_id)
 	if upgrade == null:
@@ -239,8 +228,6 @@ static func buy_upgrade(state: GameState, upgrade_id: String, data: GameData) ->
 		Upgrade.FLOOR:
 			state.floor_rows += roundi(upgrade.step)
 			Layout.refresh(state, data)
-		Upgrade.MENU_SLOT:
-			state.menu_slots += roundi(upgrade.step)
 		Upgrade.SECURITY:
 			state.security += upgrade.step
 	return OK

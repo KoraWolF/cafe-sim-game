@@ -48,7 +48,7 @@ func test_one_dish_per_counter_and_a_full_kitchen_blocks_the_stove() -> void:
 	assert_eq(state.counter_count[counters[0].uid], 5, "tea stacks on the tea counter")
 	# No free counter for a third dish: an alien unlocks jelly; clear the jelly counter's rival first.
 	state.add_synth("alien", "", data).role = Synth.REST
-	Counters.take(state, "jelly", data)
+	Counters.take_nearest(state, counters[1].uid, data)
 	assert_eq(Counters.dish_on(state, counters[1].uid), "", "the jelly counter is empty again")
 	Counters.put(state, counters[1].uid, "tea", 1)
 	GameLoop.start_cooking(state, 0, "jelly", data)

@@ -48,17 +48,12 @@ ui.card_role,Role
 ui.close,Close
 ui.night_title,Night %d — %s
 ui.tab_summary,Summary
-ui.tab_menu,Menu
 ui.tab_staff,Staff
 ui.tab_ops,Night Ops
 ui.end_night,End Night
-ui.summary_line,"Served %d, stars %d (%d%%), left angry %d, walked away %d"
+ui.summary_line,"Served %d, loved it %d (%d%%), left angry %d, walked away %d"
 ui.summary_money,"Earned %d coins (tips %d). Coins now: %d"
 ui.summary_staff,"Conversions %d, dishes dropped %d, glitches %d"
-ui.menu_slots,Menu slots used: %d / %d
-ui.menu_dish,"%s — price %d, cost %d, %d servings, %ds"
-ui.menu_fans,Favourite of: %s
-ui.menu_no_fans,No customer type's favourite
 ui.upgrade_line,"%s — level %d / %d"
 ui.buy,Buy (%d)
 ui.maxed,Maxed
@@ -143,7 +138,7 @@ error.recipe_locked,You haven't unlocked that dish yet.
 error.not_enough_coins,Not enough coins.
 error.not_enough_cores,Not enough Nano Cores.
 error.unknown_customer,That customer has left.
-error.no_star,Only customers with a star can be converted.
+error.no_star,Only glowing customers (who loved it) can be converted.
 error.no_nanobrew,You need a NanoBrew to convert a customer.
 error.no_free_pod,Every Sync Pod is taken — buy and place another Pod.
 error.unknown_synth,Unknown Synth.
@@ -156,8 +151,6 @@ error.empty_squad,Pick at least one Synth for the squad.
 error.squad_too_big,That squad is too big.
 error.no_battery,A Synth in the squad has no battery.
 error.flagship_locked,Earn more Influence before challenging the flagship.
-error.empty_menu,Put at least one dish on the menu.
-error.menu_too_long,All menu slots are full.
 error.unknown_upgrade,Unknown upgrade.
 error.no_room,No room on the floor — expand the floor first.
 error.unknown_piece,Unknown piece.
@@ -179,23 +172,21 @@ tutorial.title,FIRST DAY
 tutorial.next,Next
 tutorial.skip_step,Skip step
 tutorial.skip_all,Skip tutorial
-tutorial.welcome,"Welcome to NanoBrew Café! Customers come in, sit down and order from your menu. Your job: keep the food coming and turn your happiest customers into Synth staff."
+tutorial.welcome,"Welcome to NanoBrew Café! Customers come in and sit down; your servers bring them whatever is ready on the nearest counter. Your job: keep the food coming and turn your happiest customers into Synth staff."
 tutorial.cook,Click a stove and pick a dish to cook. A server carries the finished batch to a free counter.
 tutorial.deliver,"Your server carries dishes from the counter to the tables. After eating, customers pay your Cashier at the register."
-tutorial.convert,"That customer has a star — they loved it! Click them while they pay or walk out to spend your NanoBrew: they become a Synth."
+tutorial.convert,"That customer is glowing — they loved it! Click them while they pay or walk out to spend your NanoBrew: they become a Synth."
 tutorial.card,"Click one of your Synths to see its card — then click a stove, counter, register or the Pod bay to give it that job."
 tutorial.night,"The café is closed: it's night. Plan for tomorrow here, then press End Night."
-tutorial.menu,Open the Menu tab and choose tomorrow's dishes. Customers love their favourites.
 tutorial.raid,"Open Night Ops, pick a MegaBean café and a squad, then Plan raid. Raids bring Nano Cores (for NanoBrew) and Influence."
 tutorial.end_night,Press End Night to see the night play out.
 tutorial.done,That's the basics! Take over the Alley by beating its flagship. Good luck.
 ui.fx_level_up,LEVEL UP!
 ui.fx_new_synth,NEW SYNTH!
-tip.resources,"Coins pay for dishes, upgrades and décor. NanoBrew converts a starred customer. Nano Cores (from raids) brew NanoBrew. Energy recharges Synths' batteries at night (2 coins each). Suspicion brings MegaBean raids — and at 90, a Corporate Audit. Influence unlocks the district's flagship."
+tip.resources,"Coins pay for dishes, upgrades and décor. NanoBrew converts a glowing customer. Nano Cores (from raids) brew NanoBrew. Energy recharges Synths' batteries at night (2 coins each). Suspicion brings MegaBean raids — and at 90, a Corporate Audit. Influence unlocks the district's flagship."
 tip.upgrade.stove,One more stove to cook on (place it on the floor).
 tip.upgrade.seat,"One more seat. It needs its own table right beside it (not diagonal). More working seats also bring customers in faster."
 tip.upgrade.pod,One more Sync Pod in the Pod bay outside: room for one more Synth.
-tip.upgrade.menu_slot,One more dish on the daily menu.
 tip.upgrade.floor,Two more rows of floor for furniture and décor.
 tip.upgrade.security,Extra HP for every Synth defending the café at night.
 tip.role.server,Carries dishes from the counter to the tables (uses speed).
@@ -209,9 +200,7 @@ ui.ops_security,"Security level %d: every Synth defending the café at night get
 customer.stage_0,Waiting in line for a seat
 customer.stage_1,Seated and waiting for food
 customer.stage_2,Eating
-customer.stage_3,Loved it! Leaving (star)
-customer.order,Order: %s%s
-customer.favourite, (favourite!)
+customer.stage_3,Loved it! Leaving (glowing)
 customer.mood,Mood: %d%%
 customer.converts,"Converts to: %s — %s"
 customer.click_convert,Click to convert with NanoBrew.
@@ -249,8 +238,8 @@ ui.confirm_throw_yes,Throw away
 ui.throw_marked,To the bin
 error.auto_locked,Auto unlocks after your first two days.
 ui.auto,Auto
-ui.auto_on,"Auto on: nights pass by themselves (same menu, no raid)."
-tip.auto,"Auto: each night passes by itself — same menu, no raid, batteries recharged with the Energy you have. It stops for a Corporate Audit, and MegaBean raids on the café still play out."
+ui.auto_on,"Auto on: nights pass by themselves (no raid)."
+tip.auto,"Auto: each night passes by itself — no raid, batteries recharged with the Energy you have. It stops for a Corporate Audit, and MegaBean raids on the café still play out."
 tip.auto_locked,Auto unlocks on day %d.
 ui.auto_stopped_audit,Auto stopped: a Corporate Audit is coming tonight — plan the night yourself.
 ui.auto_low_energy,Low Energy: %d of the %d needed to fully recharge. Buy Energy at night.
@@ -379,7 +368,7 @@ reward.cores,+%d Nano Cores
 reward.nanobrew,+%d NanoBrew
 quest.daily.serve,Serve %d customers
 quest.daily.earn,Earn %d coins
-quest.daily.stars,Get %d stars
+quest.daily.stars,%d customers love it
 quest.daily.convert,Convert %d customer
 quest.daily.raid,Win %d raid
 quest.daily.batches,Cook %d batches
@@ -393,7 +382,7 @@ quest.story.take_alley,Take over the Alley
 quest.story.take_neon_market,Take over Neon Market
 quest.ach.served_100,Serve 100 customers
 quest.ach.served_1000,Serve 1000 customers
-quest.ach.stars_500,Get 500 stars
+quest.ach.stars_500,500 customers love it
 quest.ach.earned_10000,Earn 10000 coins from customers
 quest.ach.synths_5,Have 5 Synths
 quest.ach.synths_10,Have 10 Synths
@@ -445,6 +434,9 @@ error.no_job_there,"No job there — click a stove (Chef), counter or table (Ser
 ui.card_job,Job: %s%s
 ui.card_job_help,"To change the job, click a place in the café: a stove (Chef), a counter, table or bin (Server), a register (Cashier) or the Pod bay (Rest). Click another worker to switch; click empty floor to close."
 ui.job_now,%s is now %s.
-ui.stars_button,★ Starred (%d) ▾
-tip.stars,Starred customers who paid and left. Pick one to convert with NanoBrew — until the café closes.
+ui.stars_button,Ready to convert (%d) ▾
+tip.stars,Glowing customers who paid and left. Pick one to convert with NanoBrew — until the café closes.
 ui.star_line,"%s → %s (%s), max battery %d"
+ui.cook_cancel,"Cancel %s (refund %d coins)"
+customer.eating,Eating: %s
+error.not_cooking,That stove is not cooking.

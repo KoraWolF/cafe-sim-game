@@ -50,9 +50,6 @@ func _ready() -> void:
 	if Session.state.day == 1 and Session.state.shift_time == 0 and not Settings.tutorial_done():
 		tutorial_box.start(Tutorial.new())
 	cafe.synth_clicked.connect(func(_synth_id: String) -> void: _tutorial_saw(Tutorial.OPENED_CARD))
-	night.tab_shown.connect(func(key: String) -> void:
-		if key == "menu":
-			_tutorial_saw(Tutorial.SAW_MENU))
 	battle.finished.connect(_play_next_battle)
 	Session.night_resolved.connect(_on_night_resolved)
 	cafe.stove_clicked.connect(hud.open_recipe_menu)

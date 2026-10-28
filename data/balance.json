@@ -33,7 +33,6 @@
 	"start_registers": 1,
 	"pay_seconds": 1.0,
 	"star_pay_seconds": 2.0,
-	"start_menu_slots": 2,
 	"floor_width": 8,
 	"start_floor_rows": 8,
 	"start_layout": [
@@ -48,8 +47,6 @@
 	"vibe_meal_bonus": 0.05,
 	"vibe_meal_bonus_max": 5.0,
 	"sell_refund": 0.5,
-	"favorite_weight": 3.0,
-	"favorite_satisfaction": 10.0,
 	"start_security": 0,
 	"start_district": "alley",
 	"starter_species": "steady_unit",

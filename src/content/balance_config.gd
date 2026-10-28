@@ -64,8 +64,6 @@ var star_pay_seconds: float = 2.0
 ## The second starting Synth, working the register ("" = none).
 var starter_cashier_species: String = ""
 var starter_cashier_name: String = "Tally"
-## Dishes the player can put on the daily menu.
-var start_menu_slots: int = 2
 ## The café floor: floor_width tiles across, start_floor_rows deep (the floor
 ## upgrade adds rows). Seats, stoves, Pods and décor all stand on it.
 var floor_width: int = 8
@@ -82,10 +80,6 @@ var vibe_meal_bonus: float = 0.1
 var vibe_meal_bonus_max: float = 10.0
 ## Share of a décor piece's price returned when it is sold.
 var sell_refund: float = 0.5
-## A customer orders a favourite dish on the menu this many times as often as
-## another dish, and gains favorite_satisfaction when it is served.
-var favorite_weight: float = 3.0
-var favorite_satisfaction: float = 10.0
 ## Extra HP each home defender gets from security décor.
 var start_security: float = 0.0
 var start_district: String = "alley"

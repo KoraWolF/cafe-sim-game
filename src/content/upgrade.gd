@@ -9,11 +9,9 @@ extends RefCounted
 const POD: String = "pod"
 ## More floor rows.
 const FLOOR: String = "floor"
-## One more dish on the daily menu.
-const MENU_SLOT: String = "menu_slot"
 ## Extra HP for each home defender.
 const SECURITY: String = "security"
-const IDS: Array[String] = [POD, MENU_SLOT, FLOOR, SECURITY]
+const IDS: Array[String] = [POD, FLOOR, SECURITY]
 
 var id: String = ""
 ## How much one purchase adds.
