@@ -206,7 +206,7 @@ func _draw_fighter(fighter: Battle.Fighter, hp: float, feet: Vector2, label: Str
 	draw_rect(bar, Color(0, 0, 0, 0.6))
 	var share := clampf(hp / fighter.max_hp, 0.0, 1.0)
 	draw_rect(Rect2(bar.position, Vector2(bar.size.x * share, bar.size.y)), UiTheme.GOOD if share > 0.5 else (UiTheme.WARN if share > 0.2 else UiTheme.BAD))
-	_centred_text(feet + Vector2(0, -146), "%d / %d" % [ceili(hp), roundi(fighter.max_hp)], 14, Color(UiTheme.TEXT, alpha))
+	_centred_text(feet + Vector2(0, -146), "%d / %d" % [mini(ceili(hp), roundi(fighter.max_hp)), roundi(fighter.max_hp)], 14, Color(UiTheme.TEXT, alpha))
 	_centred_text(feet + Vector2(0, 26), label, 16, Color(UiTheme.TEXT_DIM, alpha))
 
 
