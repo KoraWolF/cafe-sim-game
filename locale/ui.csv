@@ -447,3 +447,11 @@ ui.report_not_in_pod,"%d Synths were not in their Pod at closing: no recharge."
 ui.pod_row,"Sync Pod — room for one more Synth (%d / %d, max = café side)"
 ui.buy_pod,Buy %d
 name.floor,Café level
+name.neon_noodles,Neon Noodles
+name.byte_burger,Byte Burger
+name.glitch_gelato,Glitch Gelato
+name.circuit_cake,Circuit Cake
+name.quantum_croissant,Quantum Croissant
+name.plasma_pho,Plasma Pho
+reward.dish,New dish: %s
+ui.report_dish,New dish unlocked: %s!

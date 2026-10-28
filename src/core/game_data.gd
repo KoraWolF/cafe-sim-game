@@ -129,6 +129,8 @@ func check() -> PackedStringArray:
 		if not Synth.ROLES.has(one.best_role):
 			errors.append("species %s: unknown role '%s'" % [one.id, one.best_role])
 	for recipe: Recipe in recipes.values():
+		if recipe.unlock_species == "" and not ["start", "story", "achievement", "raid", "defense"].has(recipe.source):
+			errors.append("recipe %s: unknown source '%s'" % [recipe.id, recipe.source])
 		if recipe.unlock_species != "" and not species.has(recipe.unlock_species):
 			errors.append("recipe %s: unknown species '%s'" % [recipe.id, recipe.unlock_species])
 		if recipe.cook_seconds <= 0 or recipe.servings <= 0:

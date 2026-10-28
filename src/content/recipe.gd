@@ -10,8 +10,11 @@ var servings: int = 0
 var cost: int = 0
 ## Coins a fully satisfied customer pays for one serving.
 var price: int = 0
-## Customers order it only once the player has a Synth of this species ("" = always).
+## Cookable only while the player has a Synth of this species ("" = see source).
 var unlock_species: String = ""
+## How the player gets it: "start", "story" or "achievement" (a quest reward),
+## "raid" (a won raid may drop it) or "defense" (holding off MegaBean may drop it).
+var source: String = ""
 
 
 static func from_dict(values: Dictionary) -> Recipe:
@@ -22,4 +25,5 @@ static func from_dict(values: Dictionary) -> Recipe:
 	recipe.cost = int(values.get("cost", 0))
 	recipe.price = int(values.get("price", 0))
 	recipe.unlock_species = values.get("unlock_species", "")
+	recipe.source = values.get("source", "")
 	return recipe

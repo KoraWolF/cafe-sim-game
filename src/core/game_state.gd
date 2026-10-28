@@ -62,6 +62,9 @@ var seat_table: Dictionary[String, String] = {}
 @export var daily_date: String = ""
 @export var story_index: int = 0
 @export var achievements: Array[String] = []
+## Dishes the player has unlocked (quests, achievements, raids, defense);
+## species dishes (Star Jelly) come with their Synth instead.
+@export var dishes: Array[String] = []
 ## Customers walking out of the café (paid or angry), convertible until they
 ## reach the street (Customer.timer) or the café closes.
 @export var leaving: Array[Customer] = []
@@ -112,6 +115,7 @@ static func new_game(seed_value: int, data: GameData) -> GameState:
 	state.cores = b.start_cores
 	state.power = b.start_power
 	state.security = b.start_security
+	state.dishes.assign(b.start_dishes)
 	state.floor_width = b.start_floor_width
 	state.floor_rows = b.start_floor_rows
 	state.pods = b.start_pods

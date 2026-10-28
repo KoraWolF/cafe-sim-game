@@ -60,6 +60,10 @@ var start_stoves: int = 2
 var start_pods: int = 2
 ## Coins for one more Sync Pod; a café holds as many Pods as tiles along its side.
 var pod_price: int = 250
+## Dishes a new game can cook; more come from quests, achievements, raids and defense.
+var start_dishes: Array = []
+## Chance a won raid (or a held defense) unlocks one of its dishes.
+var dish_drop_chance: float = 0.0
 ## Counters a new game starts with (0 only in tests that lay out by hand).
 var start_counters: int = 1
 ## Bins a new game starts with.

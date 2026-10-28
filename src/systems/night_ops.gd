@@ -47,6 +47,8 @@ class Report:
 	var loot_chips: int = 0
 	var loot_items: Array[String] = []
 	var loot_bottle: String = ""
+	## A dish unlocked tonight by a won raid or a held defense ("" = none).
+	var new_dish: String = ""
 
 
 ## Cafés in the current district that can be raided tonight: rivals off
@@ -173,6 +175,7 @@ static func _raid(state: GameState, data: GameData, rng: RandomNumberGenerator, 
 	state.influence[district.id] = state.current_influence() + rival.influence
 	state.add_suspicion(b.raid_suspicion)
 	Items.raid_loot(state, district.is_flagship(rival.id), data, rng, report)
+	_drop_dish(state, "raid", data, rng, report)
 	if district.is_flagship(rival.id):
 		_take_over(state, data, report)
 
@@ -208,12 +211,25 @@ static func _megabean_squad(state: GameState, size: int, strength: float, b: Bal
 	return raiders
 
 
+## Maybe unlocks a dish from this source (dish_drop_chance) the player lacks.
+static func _drop_dish(state: GameState, source: String, data: GameData, rng: RandomNumberGenerator, report: Report) -> void:
+	var missing: Array[String] = []
+	for recipe: Recipe in data.recipes.values():
+		if recipe.source == source and not state.dishes.has(recipe.id):
+			missing.append(recipe.id)
+	if missing.is_empty() or rng.randf() >= data.balance.dish_drop_chance:
+		return
+	report.new_dish = missing[rng.randi_range(0, missing.size() - 1)]
+	state.dishes.append(report.new_dish)
+
+
 static func _defend(state: GameState, data: GameData, rng: RandomNumberGenerator, report: Report) -> void:
 	var b := data.balance
 	var size := mini(1 + int(state.current_suspicion() / maxf(b.defense_size_step, 1.0)), b.defense_max_size)
 	report.defense = Battle.run(_megabean_squad(state, size, 1.0, b), _home_defenders(state, data), rng, b)
 	_defender_xp(state, report, b)
 	if not report.defense.attackers_won:
+		_drop_dish(state, "defense", data, rng, report)
 		return
 	report.coins_lost = int(state.coins * b.defense_coin_loss)
 	report.cores_lost = mini(state.cores, b.defense_core_loss)

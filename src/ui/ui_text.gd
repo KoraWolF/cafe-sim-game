@@ -48,6 +48,8 @@ static func reward(values: Dictionary) -> String:
 			parts.append(TranslationServer.translate("reward." + key) % int(values[key]))
 	if values.has("bottle"):
 		parts.append(name(str(values["bottle"])))
+	if values.has("dish"):
+		parts.append(TranslationServer.translate("reward.dish") % name(str(values["dish"])))
 	if values.has("fashion"):
 		var piece := Item.new()
 		piece.kind = Item.FASHION

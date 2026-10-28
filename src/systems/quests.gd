@@ -177,6 +177,8 @@ static func give(state: GameState, reward: Dictionary) -> void:
 		state.bottles[reward["bottle"]] = state.bottles.get(reward["bottle"], 0) + 1
 	if reward.has("fashion"):
 		state.inventory.append(Items.make(state, Item.FASHION, str(reward["fashion"])))
+	if reward.has("dish") and not state.dishes.has(str(reward["dish"])):
+		state.dishes.append(str(reward["dish"]))
 
 
 ## Shift counters: served, stars, coins earned, batches; a day with nobody
