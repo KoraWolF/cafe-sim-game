@@ -30,6 +30,8 @@ var _toasts := VBoxContainer.new()
 var _feed := VBoxContainer.new()
 var _recipe_menu := PopupMenu.new()
 var _save_buttons: Array[Button] = []
+## Size of the round Shop button.
+const SHOP_BUTTON: float = 96.0
 ## The recipe menu's "cancel this batch" item.
 const CANCEL_COOKING: int = 1000
 var _recipe_stove: int = -1
@@ -116,8 +118,8 @@ func _build_top_bar() -> void:
 	row.add_child(info_button)
 	row.add_child(quests_button)
 	row.add_child(bag_button)
-	row.add_child(shop_button)
 	row.add_child(arrange_button)
+	_build_shop_button()
 	_auto.text = tr("ui.auto")
 	_auto.toggle_mode = true
 	_auto.toggled.connect(func(on: bool) -> void:
@@ -126,6 +128,30 @@ func _build_top_bar() -> void:
 			Session.auto_night())
 	row.add_child(_auto)
 	row.add_child(UiTheme.button(tr("ui.menu_button"), toggle_pause))
+
+
+## The Shop: a round button in the bottom-right corner.
+func _build_shop_button() -> void:
+	shop_button.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+	shop_button.custom_minimum_size = Vector2(SHOP_BUTTON, SHOP_BUTTON)
+	shop_button.offset_left = -SHOP_BUTTON - 24
+	shop_button.offset_top = -SHOP_BUTTON - 24
+	shop_button.offset_right = -24
+	shop_button.offset_bottom = -24
+	shop_button.add_theme_font_size_override("font_size", 22)
+	for state_name: String in ["normal", "hover", "pressed", "focus"]:
+		var style := StyleBoxFlat.new()
+		style.bg_color = UiTheme.ACCENT.darkened(0.15 if state_name == "normal" else 0.0)
+		style.border_color = UiTheme.TEXT
+		style.set_border_width_all(3)
+		style.set_corner_radius_all(int(SHOP_BUTTON / 2))
+		shop_button.add_theme_stylebox_override(state_name, style)
+	add_child(shop_button)
+
+
+## Hides the round Shop button (while the shop or Arrange is open).
+func show_shop_button(on: bool) -> void:
+	shop_button.visible = on
 
 
 func _build_pause_menu() -> void:
@@ -346,9 +372,13 @@ func confirm_convert(customer_id: String) -> void:
 
 
 ## Keeps the Synth card clear of a panel this wide on the right (0 = none).
-func set_right_inset(width: float) -> void:
+func set_right_inset(width: float, bottom := 0.0) -> void:
 	_card.offset_right = -20.0 - width
 	_card.offset_left = _card.offset_right
+	# The feed and the card are lifted above a strip at the bottom (the shop).
+	_feed.position.y = get_viewport_rect().size.y - 200.0 - bottom
+	_card.position.y = minf(_card.position.y, get_viewport_rect().size.y - bottom - _card.size.y - 12.0) if bottom > 0.0 \
+		else _card.position.y
 
 
 func close_synth_card() -> void:

@@ -11,6 +11,9 @@ var held_piece: String = ""
 ## The placed piece being moved ("" = a piece from storage).
 var held_uid: String = ""
 var rotated: bool = false
+## Selecting several pieces (to store or sell together) instead of holding one.
+var selecting: bool = false
+var selected: Array[String] = []
 
 
 func is_holding() -> bool:
@@ -36,6 +39,44 @@ func hold_placed(state: GameState, uid: String) -> String:
 	held_uid = uid
 	rotated = placed.rotated
 	return GameLoop.OK
+
+
+## Starts or stops selecting several pieces (drops what is held, clears the selection).
+func set_selecting(on: bool) -> void:
+	cancel()
+	selecting = on
+	selected.clear()
+
+
+## Adds a placed piece to the selection, or takes it out.
+func toggle(uid: String) -> void:
+	if selected.has(uid):
+		selected.erase(uid)
+	else:
+		selected.append(uid)
+
+
+## Coins selling the selected pieces would bring.
+func selected_refund(state: GameState, data: GameData) -> int:
+	var total := 0
+	for uid: String in selected:
+		var placed := Layout.placed_by_uid(state, uid)
+		if placed != null:
+			total += Layout.refund(data.pieces[placed.piece_id], data.balance)
+	return total
+
+
+## Stores (or sells) every selected piece that can go; returns the first error
+## (OK if all went). Pieces in use stay selected.
+func store_selected(state: GameState, data: GameData, sell_them := false) -> String:
+	var first := GameLoop.OK
+	for uid: String in selected.duplicate():
+		var code := GameLoop.sell_piece(state, uid, data) if sell_them else GameLoop.pick_up_piece(state, uid, data)
+		if code == GameLoop.OK:
+			selected.erase(uid)
+		elif first == GameLoop.OK:
+			first = code
+	return first
 
 
 func rotate() -> void:
