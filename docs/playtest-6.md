@@ -90,3 +90,27 @@ The sim bot now does what a player has to:
 Both districts are still taken in all 5 runs.
 
 **The game is now clearly easier and coins pile up.** The main cause is the extra patience: almost every customer loves their meal and tips. Worth tuning next, e.g. a smaller `patience_bonus` (2.0 → 1.0) or lower tips.
+
+### Tuning (branch `tune-patience`)
+Testing one change at a time (40 days × 2 runs each) showed patience was **not** the cause. Halving the bonus barely moved coins (21,100 against 21,800 over 5 runs).
+
+| Variant | Coins at day 40 |
+|---|---|
+| As built | 9,480 |
+| Empty battery stops work again | 3,586 |
+| No dish drops | 1,523 |
+
+The real drivers are workers still working on an empty battery (kept: it was asked for) and the new dishes earning far more per second than Ramen.
+
+**Changes**
+- New dish prices lowered so they sit just above Ramen (2.0 coins per cooking second): Neon Noodles 15, Byte Burger 18, Glitch Gelato 14, Circuit Cake 21, Quantum Croissant 16, Plasma Pho 24.
+- Raid and defense dish drops: 25% chance (was 40%).
+- Patience stays at 3× in a new café.
+
+**Result (40 days × 5 seeds)**
+- About 1,840 seated, 89% loved it, about 130 left angry.
+- 14.4 conversions per run.
+- Alley taken around day 9, Neon Market around day 21, in all 5 runs.
+- About 4,030 coins at day 40.
+- About 4 Corporate Audits per run, 2.4 of them lost.
+

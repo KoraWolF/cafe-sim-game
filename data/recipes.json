@@ -2,11 +2,11 @@
 	{"id": "coffee", "cook_seconds": 20, "servings": 6, "cost": 10, "price": 8, "source": "start"},
 	{"id": "toast", "cook_seconds": 30, "servings": 5, "cost": 15, "price": 12, "source": "story"},
 	{"id": "ramen", "cook_seconds": 60, "servings": 8, "cost": 40, "price": 20, "source": "story"},
-	{"id": "neon_noodles", "cook_seconds": 40, "servings": 7, "cost": 25, "price": 16, "source": "raid"},
-	{"id": "byte_burger", "cook_seconds": 35, "servings": 6, "cost": 30, "price": 20, "source": "raid"},
-	{"id": "glitch_gelato", "cook_seconds": 25, "servings": 5, "cost": 20, "price": 15, "source": "defense"},
-	{"id": "circuit_cake", "cook_seconds": 50, "servings": 8, "cost": 45, "price": 24, "source": "defense"},
-	{"id": "quantum_croissant", "cook_seconds": 30, "servings": 6, "cost": 25, "price": 18, "source": "achievement"},
-	{"id": "plasma_pho", "cook_seconds": 70, "servings": 10, "cost": 60, "price": 28, "source": "achievement"},
+	{"id": "neon_noodles", "cook_seconds": 40, "servings": 7, "cost": 25, "price": 15, "source": "raid"},
+	{"id": "byte_burger", "cook_seconds": 35, "servings": 6, "cost": 30, "price": 18, "source": "raid"},
+	{"id": "glitch_gelato", "cook_seconds": 25, "servings": 5, "cost": 20, "price": 14, "source": "defense"},
+	{"id": "circuit_cake", "cook_seconds": 50, "servings": 8, "cost": 45, "price": 21, "source": "defense"},
+	{"id": "quantum_croissant", "cook_seconds": 30, "servings": 6, "cost": 25, "price": 16, "source": "achievement"},
+	{"id": "plasma_pho", "cook_seconds": 70, "servings": 10, "cost": 60, "price": 24, "source": "achievement"},
 	{"id": "star_jelly", "cook_seconds": 45, "servings": 4, "cost": 30, "price": 45, "unlock_species": "xeno"}
 ]

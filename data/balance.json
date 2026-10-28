@@ -33,7 +33,7 @@
 	"start_pods": 4,
 	"pod_price": 250,
 	"start_dishes": ["coffee"],
-	"dish_drop_chance": 0.4,
+	"dish_drop_chance": 0.25,
 	"start_counters": 3,
 	"start_bins": 1,
 	"start_registers": 1,
