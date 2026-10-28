@@ -39,7 +39,7 @@ func test_one_chef_per_stove() -> void:
 	GameLoop.assign_to(state, a.id, state.stoves[0].piece_uid, data)
 	GameLoop.assign_to(state, b.id, state.stoves[0].piece_uid, data)
 	assert_eq(b.role, Synth.CHEF, "the new Chef takes the stove")
-	assert_eq(a.role, Synth.REST, "the old one goes to Rest")
+	assert_eq(a.role, Synth.SERVER, "the old one becomes a Server")
 
 
 func test_chef_speeds_up_only_its_stove() -> void:
@@ -75,3 +75,23 @@ func test_old_greeter_becomes_server_and_old_chef_gets_a_stove() -> void:
 	Roles.bind_free(loaded, data)
 	assert_eq(loaded.synth_by_id("synth_90").role, Synth.SERVER, "Greeter -> Server")
 	assert_eq(loaded.synth_by_id("synth_91").station_uid, loaded.stoves[0].piece_uid, "Chef took a free stove")
+
+
+func test_bin_is_a_server_job_and_a_starter_is_the_cashier() -> void:
+	var data := TestFixtures.data({"start_bins": 1})
+	var state := GameState.new_game(1, data)
+	var synth := state.synths[0]
+	GameLoop.send_to_rest(state, synth.id)
+	var bin: PlacedPiece = state.placed.filter(func(p: PlacedPiece) -> bool: return p.piece_id == "bin")[0]
+	assert_eq(GameLoop.assign_to(state, synth.id, bin.uid, data), GameLoop.OK, "bin")
+	assert_eq(synth.role, Synth.SERVER, "Server")
+	var real := GameData.load_default()
+	var proto_cashier := 0
+	for seed_value: int in 20:
+		var game := GameState.new_game(seed_value, real)
+		var cashiers := game.synths.filter(func(s: Synth) -> bool: return s.role == Synth.CASHIER)
+		assert_eq(cashiers.size(), 1, "one Cashier")
+		assert_true(cashiers[0].station_uid != "", "at the register")
+		assert_eq(game.synths.filter(func(s: Synth) -> bool: return s.role == Synth.SERVER).size(), 1, "one Server")
+		proto_cashier += 1 if cashiers[0].name == real.balance.starter_name else 0
+	assert_true(proto_cashier > 0 and proto_cashier < 20, "either starter may be the Cashier")

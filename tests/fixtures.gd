@@ -101,13 +101,14 @@ static func content(balance_overrides := {}) -> Dictionary:
 		"pieces": [
 			{"id": "seat", "kind": "seat", "size": [1, 1], "price": 20, "tags": ["seat"]},
 			{"id": "table", "kind": "table", "size": [1, 1], "price": 20, "tags": ["table"]},
-			{"id": "stove", "kind": "stove", "size": [2, 1], "price": 50, "tags": ["kitchen"]},
+			{"id": "stove", "kind": "stove", "size": [1, 1], "price": 50, "tags": ["kitchen"]},
 			{"id": "counter", "kind": "counter", "size": [1, 1], "price": 30, "tags": ["kitchen"]},
 			{"id": "bin", "kind": "bin", "size": [1, 1], "price": 20, "tags": ["kitchen"]},
 			{"id": "register", "kind": "register", "size": [1, 1], "price": 20, "tags": ["tech"]},
 			{"id": "fern", "kind": "decor", "size": [1, 1], "price": 50, "vibe": 10, "tags": ["plant"]},
 			{"id": "lamp", "kind": "decor", "size": [1, 1], "price": 30, "vibe": 5, "tags": ["light"]},
 			{"id": "tank", "kind": "decor", "size": [2, 2], "price": 200, "vibe": 40, "tags": ["plant"]},
+			{"id": "bench", "kind": "decor", "size": [2, 1], "price": 40, "vibe": 2, "tags": ["cozy"]},
 		],
 		"adjacency": [
 			{"tags": ["light", "plant"], "vibe": 3},

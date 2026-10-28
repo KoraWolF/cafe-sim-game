@@ -90,14 +90,31 @@ func _run() -> void:
 	await _frames(2)
 	var canvas_job: Transform2D = game.cafe.get_viewport().get_canvas_transform()
 	var second_stove := Layout.placed_by_uid(state, state.stoves[1].piece_uid)
-	await _click(canvas_job * Iso.centre(second_stove.cell, Vector2i(2, 1)))
-	print("CHECK then a stove -> Chef at that stove: ", picked.role == Synth.CHEF and picked.station_uid == second_stove.uid)
+	state.stoves[1].recipe_id = ""
+	state.stoves[1].ready = 0
+	# Click the stove's top face (pieces are clicked by their drawn shape).
+	await _click(canvas_job * (Iso.centre(second_stove.cell, Vector2i.ONE) - Vector2(0, game.cafe.HEIGHTS["stove"])))
+	print("CHECK then a stove's top -> Chef at that stove: ", picked.role == Synth.CHEF and picked.station_uid == second_stove.uid)
+	print("CHECK an idle stove opens its dish menu: ", game.hud._recipe_menu.visible)
 	_shot("03a_job_chef")
+	game.hud._recipe_menu.hide()
+	await _frames(2)
 	var a_counter: PlacedPiece = state.placed.filter(func(p: PlacedPiece) -> bool: return p.piece_id == "counter")[0]
 	await _click(canvas_job * Iso.centre(a_counter.cell, Vector2i.ONE))
 	print("CHECK then a counter -> Server again: ", picked.role == Synth.SERVER)
-	game.hud._card.visible = false
-	game.hud.card_closed.emit()
+	# Another worker's head switches to them; empty floor closes the card.
+	var other: Synth = state.synths[1]
+	await _frames(2)
+	await _click(canvas_job * game.cafe._heads[other.id])
+	print("CHECK click another worker -> switched: ", game.cafe.selected_synth == other.id and game.hud._card.synth_id == other.id)
+	var empty := Vector2i(-1, -1)
+	for y: int in state.floor_rows:
+		for x: int in data.balance.floor_width:
+			if empty.x < 0 and Layout.piece_at(state, Vector2i(x, y), data) == null and y > 2 and game.cafe.piece_at_point(
+					Iso.centre(Vector2i(x, y), Vector2i.ONE)) == null:
+				empty = Vector2i(x, y)
+	await _click(canvas_job * Iso.centre(empty, Vector2i.ONE))
+	print("CHECK click empty floor -> card closed: ", not game.hud._card.visible and game.cafe.selected_synth == "")
 	await _frames(2)
 	# Bag: click the Neon Cap's card, Wear on the first worker; a Details slot opens its picker;
 	# craft in the Workshop (the new piece is selected) and sell it from its detail box.
@@ -176,7 +193,7 @@ func _run() -> void:
 	var stove: PlacedPiece = Layout.placed_by_uid(state, state.stoves[0].piece_uid)
 	state.stoves[0].recipe_id = ""
 	state.stoves[0].ready = 0
-	await _click(canvas * Iso.centre(stove.cell, Vector2i(2, 1)))
+	await _click(canvas * Iso.centre(stove.cell, Vector2i.ONE))
 	print("CHECK click stove -> recipe menu open: ", game.hud._recipe_menu.visible)
 	_shot("04_recipe_menu")
 	game.hud._recipe_menu.hide()
@@ -297,7 +314,8 @@ func _run() -> void:
 	_shot("09_edit_mode")
 	var fern: PlacedPiece = state.placed[-1]
 	var canvas_edit: Transform2D = game.cafe.get_viewport().get_canvas_transform()
-	await _click(canvas_edit * Iso.centre(fern.cell, Vector2i.ONE))
+	# Its top, as a player sees it (a taller counter beside it hides part of its floor tile).
+	await _click(canvas_edit * (Iso.centre(fern.cell, Vector2i.ONE) - Vector2(0, game.cafe.HEIGHTS["decor"] + 4)))
 	print("CHECK click fern -> holding it: ", game.cafe.editor.held_uid == fern.uid)
 	await _move(canvas_edit * Iso.centre(Vector2i(5, 6), Vector2i.ONE))
 	_shot("10_moving_fern")

@@ -56,12 +56,13 @@ func test_move_rotate_store_and_sell() -> void:
 	var data := TestFixtures.data()
 	var state := _night(data)
 	var editor := FloorEditor.new()
-	var stove := state.placed[1].uid
-	assert_eq(editor.hold_placed(state, stove), GameLoop.OK, "holding a stove")
+	var bench := _place(state, "bench", Vector2i(2, 3), data)
+	assert_eq(editor.hold_placed(state, bench), GameLoop.OK, "holding a bench")
 	assert_eq(editor.preview(state, Vector2i(7, 4), data)["error"], GameLoop.OUT_OF_BOUNDS, "lengthwise: too wide")
 	editor.rotate()
 	assert_eq(editor.drop(state, Vector2i(7, 4), data), GameLoop.OK, "rotated into the last column")
-	assert_eq(Layout.placed_by_uid(state, stove).rotated, true, "rotated")
+	assert_eq(Layout.placed_by_uid(state, bench).rotated, true, "rotated")
+	var stove := state.placed[1].uid
 	GameLoop.start_cooking(state, 1, "tea", data)
 	editor.hold_placed(state, stove)
 	assert_eq(editor.store(state, data), GameLoop.STOVE_BUSY, "a cooking stove stays")

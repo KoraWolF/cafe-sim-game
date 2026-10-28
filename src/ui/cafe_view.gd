@@ -18,7 +18,9 @@ signal stove_clicked(stove_index: int, screen_position: Vector2)
 ## A counter was clicked (to throw its food away).
 signal counter_clicked(counter_uid: String)
 ## With a worker selected: a placed piece (its job) or the Pod bay ("") was clicked.
-signal job_clicked(uid: String)
+signal job_clicked(uid: String, screen_position: Vector2)
+## A click that hit nothing (closes the worker card).
+signal blank_clicked
 signal synth_clicked(synth_id: String)
 signal customer_clicked(customer_id: String)
 ## The mouse moved onto a customer ("" when it left them), with the screen position.
@@ -50,6 +52,8 @@ var selected_synth: String = ""
 ## Set while arranging the floor; null otherwise.
 var editor: FloorEditor = null
 var _hover := Vector2i(-100, -100)
+## The mouse in world space (for picking pieces by their drawn shape).
+var _hover_world := Vector2(-10000, -10000)
 ## Where each customer is drawn (cell units); they walk toward where the game puts them.
 var _walk: Dictionary[String, Vector2] = {}
 ## Customers who left the café, still walking out: id -> {"at", "type_id", "angry"}.
@@ -204,7 +208,8 @@ func _unhandled_input(event: InputEvent) -> void:
 					_dragging = false
 	elif event is InputEventMouseMotion:
 		var motion := event as InputEventMouseMotion
-		_hover = Iso.tile_at(get_canvas_transform().affine_inverse() * motion.position)
+		_hover_world = get_canvas_transform().affine_inverse() * motion.position
+		_hover = Iso.tile_at(_hover_world)
 		_update_customer_hover(get_canvas_transform().affine_inverse() * motion.position, motion.position)
 		if not _pressed:
 			return
@@ -242,7 +247,7 @@ func _edit_click(button: MouseButton, world: Vector2) -> void:
 		if editor.is_holding():
 			Session.act(editor.drop(state, ghost_cell(tile), Session.data))
 		else:
-			var placed := Layout.piece_at(state, tile, Session.data)
+			var placed := piece_at_point(world)
 			if placed != null:
 				editor.hold_placed(state, placed.uid)
 	editor_changed.emit()
@@ -275,32 +280,56 @@ func _zoom(factor: float) -> void:
 
 func _click(world: Vector2, screen: Vector2) -> void:
 	var state := Session.state
+	var data := Session.data
 	for customer: Customer in state.customers:
 		if customer.can_convert() and _hit(customer.id, world):
 			customer_clicked.emit(customer.id)
 			return
-	var tile := Iso.tile_at(world)
-	if selected_synth != "":
-		# Giving the picked worker a job: the place wins over a worker's head in front of it.
-		var target := Layout.piece_at(state, tile, Session.data)
-		if target != null and Session.data.pieces[target.piece_id].kind != Piece.DECOR:
-			job_clicked.emit(target.uid)
-			return
-		if tile.y >= state.floor_rows and tile.x >= 0 and tile.x < Session.data.balance.floor_width:
-			job_clicked.emit("")  # the Pod bay
-			return
+	# A worker's head first: clicking another worker switches to it.
 	for synth: Synth in state.synths:
 		if _hit(synth.id, world):
 			synth_clicked.emit(synth.id)
 			return
-	for i: int in state.stoves.size():
-		var placed := Layout.placed_by_uid(state, state.stoves[i].piece_uid)
-		if placed != null and Layout.cells(placed, Session.data).has(tile):
-			stove_clicked.emit(i, screen)
+	var piece := piece_at_point(world)
+	var kind: String = data.pieces[piece.piece_id].kind if piece != null else ""
+	if selected_synth != "":
+		if [Piece.STOVE, Piece.COUNTER, Piece.TABLE, Piece.BIN, Piece.REGISTER].has(kind):
+			job_clicked.emit(piece.uid, screen)
 			return
-	var piece := Layout.piece_at(state, tile, Session.data)
-	if piece != null and Session.data.pieces[piece.piece_id].kind == Piece.COUNTER:
-		counter_clicked.emit(piece.uid)
+		var tile := Iso.tile_at(world)
+		if piece == null and tile.y >= state.floor_rows and tile.x >= 0 and tile.x < data.balance.floor_width:
+			job_clicked.emit("", screen)  # the Pod bay
+			return
+	match kind:
+		Piece.STOVE:
+			stove_clicked.emit(state.stoves.find(Layout.stove_of(state, piece.uid)), screen)
+		Piece.COUNTER:
+			counter_clicked.emit(piece.uid)
+		"":
+			blank_clicked.emit()
+
+
+## The placed piece drawn under a point (its top and sides count, not just
+## the floor tile), the nearest one first; null if none.
+func piece_at_point(world: Vector2) -> PlacedPiece:
+	var data := Session.data
+	var best: PlacedPiece = null
+	var best_depth := -INF
+	for placed: PlacedPiece in Session.state.placed:
+		var piece := data.pieces[placed.piece_id]
+		var size := Vector2(piece.footprint(placed.rotated))
+		var cell := Vector2(placed.cell)
+		var lift := Vector2(0, -HEIGHTS.get(piece.kind, 20.0))
+		var a := Iso.to_world(cell)
+		var b := Iso.to_world(cell + Vector2(size.x, 0))
+		var c := Iso.to_world(cell + size)
+		var d := Iso.to_world(cell + Vector2(0, size.y))
+		var outline := PackedVector2Array([a + lift, b + lift, b, c, d, d + lift])
+		var depth := Iso.depth(cell + size * 0.5)
+		if depth > best_depth and Geometry2D.is_point_in_polygon(world, outline):
+			best = placed
+			best_depth = depth
+	return best
 
 
 func _hit(person_id: String, world: Vector2) -> bool:
@@ -496,7 +525,7 @@ static func piece_color(piece: Piece) -> Color:
 ## with, or an outline on the piece under the mouse when nothing is held.
 func _draw_editing(state: GameState, data: GameData) -> void:
 	if not editor.is_holding():
-		var under := Layout.piece_at(state, _hover, data)
+		var under := piece_at_point(_hover_world)
 		if under != null:
 			if data.pieces[under.piece_id].kind == Piece.DECOR:
 				_draw_range(under.cell, data.pieces[under.piece_id].footprint(under.rotated), state, data)

@@ -325,6 +325,12 @@ func set_right_inset(width: float) -> void:
 	_card.offset_left = _card.offset_right
 
 
+func close_synth_card() -> void:
+	if _card.visible:
+		_card.visible = false
+		card_closed.emit()
+
+
 func open_synth_card(synth_id: String) -> void:
 	_card.synth_id = synth_id
 	_card.visible = true
