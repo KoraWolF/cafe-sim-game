@@ -47,6 +47,8 @@ var min_pay_share: float = 0.5
 var low_battery_share: float = 0.2
 var low_battery_factor: float = 0.5
 var empty_battery_factor: float = 0.0
+## Battery points a Synth resting in its Pod gets back each second of a shift (no Energy needed).
+var pod_charge_per_second: float = 0.0
 ## Share of the shift after which late_shift_slowdown applies.
 var late_shift_start: float = 0.7
 var start_coins: int = 200

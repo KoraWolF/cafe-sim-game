@@ -203,3 +203,15 @@ func test_a_stove_cooks_only_with_its_chef() -> void:
 	GameLoop.assign_to(state, chef.id, stove.uid, data)
 	GameLoop.advance(state, 1, data)
 	assert_true(state.stoves[index].remaining < 10.0, "its Chef cooks")
+
+
+func test_resting_in_the_pod_charges_the_battery() -> void:
+	var data := _data({"pod_charge_per_second": 2.0})
+	var state := GameState.new_game(1, data)
+	var synth := state.synths[0]
+	synth.role = Synth.REST
+	synth.battery = 10.0
+	GameLoop.advance(state, 5, data)
+	assert_eq(synth.battery, 20.0, "+2 a second in the Pod")
+	GameLoop.advance(state, 60, data)
+	assert_eq(synth.battery, SynthStats.stat(synth, "battery_max", data), "never above max")

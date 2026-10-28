@@ -128,3 +128,8 @@ The real drivers are workers still working on an empty battery (kept: it was ask
 - **Night hub:** narrower (640 px, was 780) with smaller text.
 - **Top-left tracker:** the story step comes first, under "Story", then the dailies under "Daily". Both can be claimed there.
 - The round Menu button stays left of the night hub. The tutorial box stays above an open strip.
+
+## Round 3 (branch `pod-charging`)
+- **Workers resting in their Pod now charge during the shift:** 0.4 battery points a second, free (no Energy). That's about 3× the usual drain, so a 125-point battery fills from empty in about 5 minutes.
+- Night recharge is unchanged: those in their Pod at closing refill fully, using Energy.
+- Sim (40 days × 5 seeds): about 7,300 coins at day 40 (was about 4,000), since less Energy is bought. Alley taken around day 9, Neon Market around day 19, in all 5 runs.

@@ -22,6 +22,7 @@
 	"low_battery_share": 0.2,
 	"low_battery_factor": 0.75,
 	"empty_battery_factor": 0.5,
+	"pod_charge_per_second": 0.4,
 	"late_shift_start": 0.7,
 	"start_coins": 200,
 	"start_nanobrew": 1,

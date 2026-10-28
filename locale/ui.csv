@@ -188,7 +188,7 @@ tip.upgrade.floor,"Café level: 6×6 grows to 8×8, then 9, 10, 12, 14, 15, 16, 
 tip.upgrade.security,Extra HP for every Synth defending the café at night.
 tip.role.server,Carries dishes from the counter to the tables (uses speed).
 tip.role.chef,Works its own stove and makes it cook faster (uses cooking). One Chef per stove.
-tip.role.rest,"Off duty in its Pod: no work and no battery drain. Be in the Pod at closing to recharge tonight."
+tip.role.rest,"Resting in its Pod: no work, and the battery charges (0.4 a second, free). Be in the Pod at closing to recharge fully tonight."
 ui.cancel,Cancel
 ui.confirm_convert,Convert this %s into a %s (trait: %s)?
 ui.confirm_convert_details,"Uses 1 NanoBrew (%d → %d) and a Sync Pod (%d / %d). Suspicion goes up."
@@ -284,7 +284,7 @@ info.stat.cook,"Cooking: as Chef, added to its own stove's cooking speed (+60% m
 info.stat.appeal,"Appeal: as Cashier, customers arrive more often (+50% means 1.5× as many). Several Cashiers add up."
 info.stat.power,"Power: damage per hit in raids and when defending the café. Grows 15% per level; low battery halves it."
 info.stat.hp,"HP: how much damage a Synth takes before it's knocked out of a fight. +15% per level; Security adds HP at home."
-info.stat.battery,"Battery: drains every second on duty. Below 20% a Synth works and fights at 75%; empty, it still works at 50%. Max battery is rolled per unit (70–200). Only Synths resting in their Pod when the café closes recharge at night (with Energy)."
+info.stat.battery,"Battery: drains every second on duty and charges every second resting in the Pod (free). Below 20% a Synth works and fights at 75%; empty, it still works at 50%. Max battery is rolled per unit (70–200). Synths resting in their Pod when the café closes also recharge fully at night (with Energy)."
 info.stat.level,"Level: XP comes from work (deliveries, batches, payments, greeting) and fights. Each level raises the stats that grow."
 error.unknown_item,That item isn't in your inventory.
 error.nothing_worn,Nothing is worn there.
