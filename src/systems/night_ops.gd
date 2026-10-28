@@ -36,6 +36,8 @@ class Report:
 	var power_used: float = 0.0
 	## Synths whose battery is not full after recharging (Power ran out).
 	var undercharged: Array[String] = []
+	## Synths that were not in their Pod at closing: no recharge.
+	var not_in_pod: Array[String] = []
 	## Coins from owned districts.
 	var income: int = 0
 	## Synth id -> level reached (raiders and defenders earn XP).
@@ -255,9 +257,15 @@ static func _steal(state: GameState, data: GameData, rng: RandomNumberGenerator,
 		report.stolen[synth.id] = amount
 
 
-## Fills batteries in Synth order while Power lasts.
+## Fills the batteries of Synths that were resting in their Pod at closing, in
+## Synth order while Power lasts.
 static func _recharge(state: GameState, data: GameData, report: Report) -> void:
 	for synth: Synth in state.synths:
+		if not synth.charging:
+			if _missing_battery(synth, data) > 0.0:
+				report.not_in_pod.append(synth.id)
+			synth.charging = true
+			continue
 		var missing := _missing_battery(synth, data)
 		if missing <= 0.0:
 			continue

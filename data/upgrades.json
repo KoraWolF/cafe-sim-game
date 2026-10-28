@@ -1,5 +1,4 @@
 [
-	{"id": "pod", "step": 1, "base_cost": 200, "cost_growth": 1.6, "max_level": 8},
 	{"id": "floor", "base_cost": 500, "cost_growth": 1.5, "sizes": [8, 9, 10, 12, 14, 15, 16, 18, 20]},
 	{"id": "security", "step": 15, "base_cost": 120, "cost_growth": 1.5, "max_level": 5}
 ]

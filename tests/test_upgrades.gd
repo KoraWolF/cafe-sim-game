@@ -1,5 +1,5 @@
 extends TestCase
-## Café upgrades (Pods, floor, menu slot, security): costs grow, caps hold,
+## Café upgrades (café level, security) and Pods: costs grow, caps hold,
 ## effects apply. Furniture is not an upgrade: it is bought by the piece, as
 ## many as fit on the floor, and sells back for half.
 
@@ -11,25 +11,28 @@ func _night(data: GameData) -> GameState:
 	return state
 
 
-func test_pod_cost_and_cap() -> void:
+func test_pods_are_bought_up_to_the_cafe_side() -> void:
 	var data := TestFixtures.data()
 	var state := _night(data)
-	assert_eq(GameLoop.upgrade_cost(state, "pod", data), 100, "first Pod")
-	assert_eq(GameLoop.buy_upgrade(state, "pod", data), GameLoop.OK, "bought")
-	assert_eq(state.pods, 3, "straight to the Pod bay")
-	assert_eq(GameLoop.upgrade_cost(state, "pod", data), -1, "maxed")
-	assert_eq(GameLoop.buy_upgrade(state, "pod", data), GameLoop.MAXED, "cap holds")
+	assert_eq(GameLoop.pod_cap(state), 8, "8 wide: 8 Pods")
+	assert_eq(GameLoop.buy_pod(state, data), GameLoop.OK, "bought")
+	assert_eq([state.pods, state.coins], [3, 900], "straight to the Pod bay, 100 coins")
+	state.pods = 8
+	assert_eq(GameLoop.buy_pod(state, data), GameLoop.MAXED, "cap holds")
+	GameLoop.buy_upgrade(state, "floor", data)
+	assert_eq(GameLoop.pod_cap(state), 8, "8 x 8: still 8")
+	GameLoop.buy_upgrade(state, "floor", data)
+	assert_eq(GameLoop.buy_pod(state, data), GameLoop.OK, "10 x 10: room for more")
 
 
 func test_each_upgrade_applies() -> void:
 	var data := TestFixtures.data()
 	var state := _night(data)
-	for upgrade_id: String in ["pod", "security", "floor"]:
+	for upgrade_id: String in ["security", "floor"]:
 		assert_eq(GameLoop.buy_upgrade(state, upgrade_id, data), GameLoop.OK, upgrade_id)
-	assert_eq(state.pods, 3, "+1 Pod")
 	assert_eq(Vector2i(state.floor_width, state.floor_rows), Vector2i(8, 8), "8 x 8")
 	assert_eq(state.security, 10.0, "+10 security")
-	assert_eq(state.upgrades, {"pod": 1, "security": 1, "floor": 1} as Dictionary[String, int], "levels")
+	assert_eq(state.upgrades, {"security": 1, "floor": 1} as Dictionary[String, int], "levels")
 	assert_eq(GameLoop.buy_upgrade(state, "stove", data), GameLoop.UNKNOWN_UPGRADE, "furniture is not an upgrade")
 
 
@@ -108,7 +111,7 @@ func test_version_13_drops_furniture_upgrade_levels() -> void:
 	SaveSystem.delete_save(path)
 	assert_true(loaded != null, "loaded: %s" % ", ".join(errors))
 	if loaded != null:
-		assert_eq(loaded.upgrades, {"pod": 1} as Dictionary[String, int], "only real upgrades left")
+		assert_eq(loaded.upgrades, {} as Dictionary[String, int], "no furniture or Pod levels left (Pods are bought by the piece)")
 
 
 func test_missing_upgrade_data_is_rejected() -> void:

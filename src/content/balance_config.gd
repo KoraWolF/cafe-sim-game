@@ -42,9 +42,11 @@ var eat_seconds: int = 15
 var tip_rate: float = 0.25
 ## Pay = price * (min_pay_share + (1 - min_pay_share) * satisfaction / 100).
 var min_pay_share: float = 0.5
-## Below this share of max battery a Synth works at low_battery_factor speed.
+## Below this share of max battery a Synth works at low_battery_factor speed;
+## an empty one still works, at empty_battery_factor.
 var low_battery_share: float = 0.2
 var low_battery_factor: float = 0.5
+var empty_battery_factor: float = 0.0
 ## Share of the shift after which late_shift_slowdown applies.
 var late_shift_start: float = 0.7
 var start_coins: int = 200
@@ -56,6 +58,8 @@ var start_seats: int = 4
 var start_tables: int = 0
 var start_stoves: int = 2
 var start_pods: int = 2
+## Coins for one more Sync Pod; a café holds as many Pods as tiles along its side.
+var pod_price: int = 250
 ## Counters a new game starts with (0 only in tests that lay out by hand).
 var start_counters: int = 1
 ## Bins a new game starts with.
@@ -69,6 +73,9 @@ var star_pay_seconds: float = 2.0
 ## The second starting Synth, working the register ("" = none).
 var starter_cashier_species: String = ""
 var starter_cashier_name: String = "Tally"
+## The third starting Synth, at the stove ("" = none): a stove needs its Chef.
+var starter_chef_species: String = ""
+var starter_chef_name: String = "Byte"
 ## The café floor at the start: start_floor_width tiles across, start_floor_rows
 ## deep (the floor upgrade makes it bigger). Seats, stoves and décor stand on it.
 var start_floor_width: int = 6

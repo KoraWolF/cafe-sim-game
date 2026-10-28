@@ -87,6 +87,8 @@ static func lines(report: NightOps.Report) -> Array[Array]:
 	if report.income > 0:
 		result.append([TranslationServer.translate("ui.report_income") % report.income, UiTheme.GOOD])
 	result.append([TranslationServer.translate("ui.report_power") % roundi(report.power_used), UiTheme.TEXT_DIM])
+	if not report.not_in_pod.is_empty():
+		result.append([TranslationServer.translate("ui.report_not_in_pod") % report.not_in_pod.size(), UiTheme.WARN])
 	if not report.undercharged.is_empty():
 		result.append([TranslationServer.translate("ui.report_undercharged") % report.undercharged.size(), UiTheme.WARN])
 	for synth_id: String in report.level_ups:

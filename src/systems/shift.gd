@@ -124,15 +124,20 @@ static func _cook(state: GameState, data: GameData, rng: RandomNumberGenerator, 
 	for stove: Stove in state.stoves:
 		if stove.is_idle() or stove.has_batch():
 			continue
-		# Base speed 1, plus the cooking of the Chef at this stove (if working and not glitching).
+		# Base speed 1, plus the cooking of the Chef at this stove (if working and not
+		# glitching). A stove with no Chef waits, unless it cooks by itself (auto_cook).
 		var rate := 1.0
 		var cooking: Array[Synth] = []
 		var chef := Roles.at_station(state, stove.piece_uid)
-		if chef != null and chef.role == Synth.CHEF and SynthStats.work_factor(chef, state, data) > 0.0:
+		var working := chef != null and chef.role == Synth.CHEF and SynthStats.work_factor(chef, state, data) > 0.0
+		var placed := Layout.placed_by_uid(state, stove.piece_uid)
+		if not working and (placed == null or not data.pieces[placed.piece_id].auto_cook):
+			continue
+		if working:
 			if rng.randf() < SynthStats.stat(chef, "glitch_chance", data):
 				events.glitches += 1
 			else:
-				rate += maxf(SynthStats.stat(chef, "cook", data), 0.0) * SynthStats.work_factor(chef, state, data)
+				rate = (1.0 + maxf(SynthStats.stat(chef, "cook", data), 0.0)) * SynthStats.work_factor(chef, state, data)
 				cooking.append(chef)
 		stove.remaining -= rate
 		if stove.remaining <= 0.0:
@@ -571,6 +576,9 @@ static func _close(state: GameState, data: GameData, events: Events) -> void:
 			_clear_task(synth)
 	state.customers.clear()
 	state.leaving.clear()
+	# Only those resting in their Pod at closing recharge tonight.
+	for synth: Synth in state.synths:
+		synth.charging = synth.role == Synth.REST
 	state.phase = GameState.Phase.NIGHT
 	events.shift_ended = true
 

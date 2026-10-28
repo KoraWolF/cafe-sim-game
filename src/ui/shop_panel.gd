@@ -69,6 +69,15 @@ func refresh() -> void:
 		var page := _clear(key)
 		page.add_child(_wrap(tr("ui.coins_line") % state.coins, 20, UiTheme.WARN))
 	_pages["furniture"].add_child(_wrap(tr("ui.furniture_note"), 14, UiTheme.TEXT_DIM))
+	var pods := HBoxContainer.new()
+	var pods_about := _wrap(tr("ui.pod_row") % [state.pods, GameLoop.pod_cap(state)], 16)
+	pods_about.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	pods.add_child(pods_about)
+	var buy_pod := UiTheme.button(tr("ui.buy_pod") % data.balance.pod_price, func() -> void:
+		Session.act(GameLoop.buy_pod(Session.state, Session.data)))
+	buy_pod.disabled = state.pods >= GameLoop.pod_cap(state) or state.coins < data.balance.pod_price
+	pods.add_child(buy_pod)
+	_pages["furniture"].add_child(pods)
 	_pages["decor"].add_child(_wrap(tr("ui.floor_line") % [state.floor_width, state.floor_rows, roundi(state.vibe)], 16,
 		UiTheme.TEXT_DIM))
 	for piece: Piece in data.pieces.values():

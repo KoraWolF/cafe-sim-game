@@ -188,3 +188,18 @@ func test_a_small_cafe_has_patient_customers() -> void:
 	assert_eq(Shift.patience(state, data), 2.0, "halfway up (fixture floor max 2): 2x")
 	state.upgrades["floor"] = 2
 	assert_eq(Shift.patience(state, data), 1.0, "top level: normal")
+
+
+func test_a_stove_cooks_only_with_its_chef() -> void:
+	var data := _data()
+	var state := GameState.new_game(1, data)
+	var stove: PlacedPiece = state.placed.filter(func(p: PlacedPiece) -> bool: return p.piece_id == "stove")[0]
+	stove.piece_id = "chef_stove"  # a normal stove (the fixture's cooks by itself)
+	var index := state.stoves.find(Layout.stove_of(state, stove.uid))
+	GameLoop.start_cooking(state, index, "tea", data)
+	GameLoop.advance(state, 5, data)
+	assert_eq(state.stoves[index].remaining, 10.0, "no Chef: it waits")
+	var chef := state.add_synth("chef", "", data)
+	GameLoop.assign_to(state, chef.id, stove.uid, data)
+	GameLoop.advance(state, 1, data)
+	assert_true(state.stoves[index].remaining < 10.0, "its Chef cooks")

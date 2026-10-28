@@ -41,9 +41,10 @@ func test_new_game_has_a_cashier_and_a_register() -> void:
 	assert_eq(Layout.count_placed(state, Piece.REGISTER, data), 1, "one register")
 	var real := GameData.load_default()
 	var game := GameState.new_game(1, real)
-	assert_eq(game.synths.size(), 2, "real start: two staff")
+	assert_eq(game.synths.size(), 3, "real start: three staff")
 	assert_eq(game.synths[1].species_id, "clerkbot", "a Clerkbot Cashier")
-	assert_eq(game.pods, 3, "real start: 3 Pods")
+	assert_eq([game.synths[2].species_id, game.synths[2].role], ["glitchling", Synth.CHEF], "a Glitchling Chef")
+	assert_eq(game.pods, 4, "real start: 4 Pods (one free)")
 	assert_eq(Layout.count_placed(game, Piece.REGISTER, real), 1, "real start: one register")
 
 
@@ -137,7 +138,9 @@ func test_version_10_cafe_gets_a_register_and_cashier() -> void:
 	var state := GameState.new_game(1, data)
 	var register: PlacedPiece = state.placed.filter(func(p: PlacedPiece) -> bool: return p.piece_id == "register")[0]
 	state.placed.erase(register)
-	state.synths.pop_back()
+	state.synths.resize(1)  # a café from before the Cashier (and the Chef)
+	state.synths[0].role = Synth.SERVER
+	state.synths[0].station_uid = ""
 	state.pods = 2
 	var raw := SaveSystem.to_dict(state)
 	raw["version"] = 10

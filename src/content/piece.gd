@@ -26,6 +26,9 @@ var price: int = 0
 var vibe: float = 0.0
 ## Matched by adjacency rules.
 var tags: Array[String] = []
+## A stove that cooks with no Chef (base speed 1). A normal stove only cooks
+## while its Chef works there.
+var auto_cook: bool = false
 
 
 static func from_dict(values: Dictionary) -> Piece:
@@ -38,6 +41,7 @@ static func from_dict(values: Dictionary) -> Piece:
 	piece.price = int(values.get("price", 0))
 	piece.vibe = float(values.get("vibe", 0.0))
 	piece.tags.assign(values.get("tags", []))
+	piece.auto_cook = bool(values.get("auto_cook", false))
 	return piece
 
 
