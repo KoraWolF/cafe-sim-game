@@ -29,6 +29,8 @@ var arrange_button := UiTheme.button(tr("ui.arrange_button"), arrange_requested.
 var _toasts := VBoxContainer.new()
 var _feed := VBoxContainer.new()
 var _recipe_menu := PopupMenu.new()
+## The recipe menu's "cancel this batch" item.
+const CANCEL_COOKING: int = 1000
 var _recipe_stove: int = -1
 var _card := SynthCard.new()
 var _pause := Modal.new()
@@ -257,28 +259,36 @@ func open_recipe_menu(stove_index: int, at: Vector2) -> void:
 	if state.stoves[stove_index].has_batch():
 		confirm_throw(state.stoves[stove_index].piece_uid)
 		return
-	if not state.stoves[stove_index].is_idle():
-		show_toast(UiText.error(GameLoop.STOVE_BUSY))
-		return
 	_recipe_stove = stove_index
 	_recipe_menu.clear()
-	var unlocked := Shift.unlocked_recipes(state, data)
-	# Menu dishes first: those are what customers order today.
-	unlocked.sort_custom(func(a: Recipe, b: Recipe) -> bool: return state.menu.has(a.id) and not state.menu.has(b.id))
+	# A batch still cooking can be cancelled (refunded), or swapped for another dish.
+	var cooking := state.stoves[stove_index].recipe_id
+	var refund: int = data.recipes[cooking].cost if cooking != "" else 0
 	_recipe_menu.add_separator(tr("ui.cook_title") % (stove_index + 1))
+	if cooking != "":
+		_recipe_menu.add_item(tr("ui.cook_cancel") % [UiText.name(cooking), refund], CANCEL_COOKING)
+	var unlocked := Shift.unlocked_recipes(state, data)
 	for i: int in unlocked.size():
 		var recipe := unlocked[i]
 		_recipe_menu.add_item(tr("ui.cook_item") % [UiText.name(recipe.id), recipe.cost, recipe.servings, recipe.cook_seconds], i)
 		_recipe_menu.set_item_metadata(_recipe_menu.get_item_index(i), recipe.id)
-		_recipe_menu.set_item_disabled(_recipe_menu.get_item_index(i), state.coins < recipe.cost)
+		_recipe_menu.set_item_disabled(_recipe_menu.get_item_index(i), recipe.id == cooking or state.coins + refund < recipe.cost)
 	_recipe_menu.position = Vector2i(at)  # popups are embedded: game-window coordinates
 	_recipe_menu.reset_size()
 	_recipe_menu.popup()
 
 
 func _on_recipe_chosen(id: int) -> void:
+	var state := Session.state
+	var cooking := not state.stoves[_recipe_stove].is_idle()
+	if id == CANCEL_COOKING:
+		if Session.act(GameLoop.cancel_cooking(state, _recipe_stove, Session.data)):
+			Sfx.play("ui_click")
+		return
 	var recipe_id: String = _recipe_menu.get_item_metadata(_recipe_menu.get_item_index(id))
-	if Session.act(GameLoop.start_cooking(Session.state, _recipe_stove, recipe_id, Session.data)):
+	if cooking and not Session.act(GameLoop.cancel_cooking(state, _recipe_stove, Session.data)):
+		return
+	if Session.act(GameLoop.start_cooking(state, _recipe_stove, recipe_id, Session.data)):
 		Sfx.play("cook")
 
 

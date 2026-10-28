@@ -40,7 +40,6 @@ func test_tutorial_follows_the_first_day() -> void:
 	GameLoop.advance(state, data.balance.shift_seconds, data)
 	assert_eq(tutorial.text_key(state), "tutorial.night", "night")
 	tutorial.next()
-	tutorial.seen[Tutorial.SAW_MENU] = true
 	tutorial.update(state, log)
 	assert_eq(tutorial.text_key(state), "tutorial.raid", "then plan a raid")
 	tutorial.next()

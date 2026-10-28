@@ -241,7 +241,7 @@ func _run() -> void:
 			full = placed
 	if full == null:
 		full = state.placed.filter(func(p: PlacedPiece) -> bool: return p.piece_id == "counter")[0]
-		Counters.put(state, full.uid, state.menu[0], 2)
+		Counters.put(state, full.uid, "coffee", 2)
 	await _click(game.cafe.get_viewport().get_canvas_transform() * Iso.centre(full.cell, Vector2i.ONE))
 	print("CHECK click counter -> throw-away confirmation shown: ", game.hud.confirm.visible)
 	_shot("04d_confirm_throw")
@@ -290,7 +290,7 @@ func _run() -> void:
 	while state.phase == GameState.Phase.SHIFT:
 		for i: int in state.stoves.size():
 			if state.stoves[i].is_idle():
-				GameLoop.start_cooking(state, i, state.menu[i % state.menu.size()], data)
+				GameLoop.start_cooking(state, i, ["coffee", "toast"][i % 2], data)
 		var events: Shift.Events = _session.advance(1)
 		for customer_id: String in events.starred:
 			_session.convert_customer(customer_id)

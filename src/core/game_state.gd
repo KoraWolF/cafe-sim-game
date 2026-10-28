@@ -63,7 +63,7 @@ var seat_table: Dictionary[String, String] = {}
 @export var achievements: Array[String] = []
 ## Starred customers who paid and left this shift: convertible until closing.
 @export var star_list: Array[Customer] = []
-## Auto on: each night passes by itself with the same menu and no raid
+## Auto on: each night passes by itself with no raid
 ## (see Session.auto_night). Unlocks on auto_unlock_day.
 @export var auto_night: bool = false
 ## Placed counters and stoves whose food the player asked to throw away; an
@@ -72,10 +72,6 @@ var seat_table: Dictionary[String, String] = {}
 ## Counter piece uid -> the dish on it, and how many servings.
 @export var counter_dish: Dictionary[String, String] = {}
 @export var counter_count: Dictionary[String, int] = {}
-## Recipe ids customers can order this shift (set at night, up to menu_slots).
-## Empty = any unlocked recipe (saves from before the menu).
-@export var menu: Array[String] = []
-@export var menu_slots: int = 0
 
 @export var customers: Array[Customer] = []
 @export var synths: Array[Synth] = []
@@ -105,8 +101,7 @@ var seat_table: Dictionary[String, String] = {}
 
 
 ## Day 1, shift just opened: the starting stoves, Pods and seats laid out on
-## the floor, the starter Synth at full battery and the first start_menu_slots
-## unlocked recipes on the menu.
+## the floor, and the two starters (one at the register) at full battery.
 static func new_game(seed_value: int, data: GameData) -> GameState:
 	var b := data.balance
 	var state := GameState.new()
@@ -159,9 +154,6 @@ static func new_game(seed_value: int, data: GameData) -> GameState:
 		state.store_rng(generator)
 	for fashion_id: String in data.items.starter_fashion:
 		state.inventory.append(Items.make(state, Item.FASHION, fashion_id))
-	state.menu_slots = b.start_menu_slots
-	for recipe: Recipe in Shift.unlocked_recipes(state, data).slice(0, b.start_menu_slots):
-		state.menu.append(recipe.id)
 	return state
 
 

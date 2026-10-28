@@ -67,7 +67,6 @@ func _play(seed_value: int, days: int, daily: bool) -> Dictionary:
 					# New Synths start Resting: the bot puts them to work in their best role.
 					GameLoop.assign_role(state, created[0].id, data.species[created[0].species_id].best_role)
 		_keep_a_cashier(state)
-		_choose_menu(state)
 		var raid := _plan_raid(state)
 		stats["upgrade_spend"] += _night_shopping(state)
 		var report := GameLoop.end_night(state, data)
@@ -122,38 +121,27 @@ func _play(seed_value: int, days: int, daily: bool) -> Dictionary:
 
 
 func _cook(state: GameState) -> void:
+	# Keep enough food coming for everyone seated or queued: the best coins per
+	# second of cooking among the dishes it can afford.
+	var hungry := state.customers.filter(func(c: Customer) -> bool:
+		return c.stage == Customer.Stage.WAITING_FOOD or c.stage == Customer.Stage.QUEUED).size()
+	var food := 0
+	for count: int in state.counter.values():
+		food += count
+	for stove: Stove in state.stoves:
+		if not stove.is_idle():
+			food += data.recipes[stove.recipe_id].servings
 	for i: int in state.stoves.size():
-		if not state.stoves[i].is_idle():
+		if not state.stoves[i].is_idle() or food >= hungry:
 			continue
-		var wanted := {}
-		for customer: Customer in state.customers:
-			if customer.stage == Customer.Stage.WAITING_FOOD and state.counter.get(customer.recipe_id, 0) == 0:
-				wanted[customer.recipe_id] = wanted.get(customer.recipe_id, 0) + 1
-		for stove: Stove in state.stoves:
-			wanted.erase(stove.recipe_id)
-		var pick := ""
-		for recipe_id: String in wanted:
-			if pick == "" or wanted[recipe_id] > wanted[pick]:
-				pick = recipe_id
-		if pick != "":
-			GameLoop.start_cooking(state, i, pick, data)
-
-
-## Fills the menu with the dishes most favoured by the customer mix (spawn
-## weight of each type that loves them), ties broken by price.
-func _choose_menu(state: GameState) -> void:
-	var dishes := Shift.unlocked_recipes(state, data)
-	var score := func(recipe: Recipe) -> float:
-		var total := 0.0
-		for type: CustomerType in data.customer_types.values():
-			if type.favorites.has(recipe.id):
-				total += type.weight
-		return total + recipe.price * 0.01
-	dishes.sort_custom(func(a: Recipe, b: Recipe) -> bool: return score.call(a) > score.call(b))
-	var menu: Array[String] = []
-	for recipe: Recipe in dishes.slice(0, state.menu_slots):
-		menu.append(recipe.id)
-	GameLoop.set_menu(state, menu, data)
+		var pick: Recipe = null
+		for recipe: Recipe in Shift.unlocked_recipes(state, data):
+			var rate := float(recipe.price * recipe.servings - recipe.cost) / recipe.cook_seconds
+			if state.coins >= recipe.cost and (pick == null \
+					or rate > float(pick.price * pick.servings - pick.cost) / pick.cook_seconds):
+				pick = recipe
+		if pick != null and GameLoop.start_cooking(state, i, pick.id, data) == GameLoop.OK:
+			food += pick.servings
 
 
 ## Brews, buys Power for a full recharge, then upgrades. Returns coins spent on upgrades.

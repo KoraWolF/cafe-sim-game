@@ -1,7 +1,7 @@
 class_name NightHub
 extends PanelContainer
 
-## A tab was opened: "summary", "menu", "staff" or "ops".
+## A tab was opened: "summary", "staff" or "ops".
 signal tab_shown(key: String)
 ## The night screen, on the right so the café stays visible: Summary, Menu,
 ## Staff and Night Ops tabs, then "End Night". (The Shop and Arrange Floor are
@@ -31,7 +31,7 @@ func _ready() -> void:
 	column.add_child(header)
 	_tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(_tabs)
-	for key: String in ["summary", "menu", "staff", "ops"]:
+	for key: String in ["summary", "staff", "ops"]:
 		var scroll := ScrollContainer.new()
 		scroll.name = tr("ui.tab_" + key)
 		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -66,7 +66,6 @@ func refresh() -> void:
 	var state := Session.state
 	_title.text = tr("ui.night_title") % [state.day, UiText.name(state.district_id)]
 	_fill_summary(_clear("summary"))
-	_fill_menu(_clear("menu"))
 	_fill_staff(_clear("staff"))
 	_fill_ops(_clear("ops"))
 
@@ -103,37 +102,6 @@ func _fill_summary(page: VBoxContainer) -> void:
 		log.angry, log.turned_away]))
 	page.add_child(_wrap(tr("ui.summary_money") % [log.coins, log.tips, Session.state.coins]))
 	page.add_child(_wrap(tr("ui.summary_staff") % [log.conversions, log.broken, log.glitches]))
-
-
-func _fill_menu(page: VBoxContainer) -> void:
-	var state := Session.state
-	var data := Session.data
-	page.add_child(_wrap(tr("ui.menu_slots") % [state.menu.size(), state.menu_slots], 18, UiTheme.TEXT_DIM))
-	for recipe: Recipe in Shift.unlocked_recipes(state, data):
-		var row := VBoxContainer.new()
-		var check := CheckBox.new()
-		check.text = UiText.name(recipe.id)
-		check.button_pressed = state.menu.has(recipe.id)
-		check.toggled.connect(_toggle_dish.bind(recipe.id))
-		row.add_child(check)
-		var fans: Array[String] = []
-		for type: CustomerType in data.customer_types.values():
-			if type.favorites.has(recipe.id):
-				fans.append(UiText.name(type.id))
-		var fans_text := tr("ui.menu_fans") % ", ".join(fans) if not fans.is_empty() else tr("ui.menu_no_fans")
-		var details := tr("ui.menu_dish") % [UiText.name(recipe.id), recipe.price, recipe.cost, recipe.servings, recipe.cook_seconds]
-		row.add_child(_indent(_wrap(details + "\n" + fans_text, 15, UiTheme.TEXT_DIM)))
-		page.add_child(row)
-
-
-func _toggle_dish(on: bool, recipe_id: String) -> void:
-	var menu := Session.state.menu.duplicate()
-	if on:
-		menu.append(recipe_id)
-	else:
-		menu.erase(recipe_id)
-	if not Session.act(GameLoop.set_menu(Session.state, menu, Session.data)):
-		refresh()
 
 
 func _fill_staff(page: VBoxContainer) -> void:

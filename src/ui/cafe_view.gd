@@ -806,23 +806,21 @@ func _stove_front(index: int, state: GameState, data: GameData) -> Vector2:
 
 func _draw_customer(customer: Customer, at: Vector2) -> void:
 	var color: Color = UiTheme.CUSTOMER_COLORS.get(customer.type_id, Color.GRAY)
+	if customer.can_convert():
+		_draw_glow_ring(Iso.to_world(at))
 	var head := _draw_body(at, color, Color("ffd9b8"), customer.id)
 	var above := head + Vector2(0, -30)
-	match customer.stage:
-		Customer.Stage.QUEUED, Customer.Stage.WAITING_FOOD:
-			_draw_bar(above + Vector2(0, 8), 34, customer.satisfaction / 100.0, _mood_color(customer.satisfaction))
-			if customer.stage == Customer.Stage.WAITING_FOOD:
-				draw_circle(above + Vector2(0, -8), 15, Color.WHITE)
-				_text(above + Vector2(0, -2), UiText.name(customer.recipe_id).left(2), 14, Color.BLACK)
-		Customer.Stage.EATING:
-			_draw_bar(above + Vector2(0, 8), 34, 1.0 - float(customer.timer) / Session.data.balance.eat_seconds, UiTheme.GOOD)
-		Customer.Stage.PAYING:
-			_draw_bar(above + Vector2(0, 8), 34, customer.satisfaction / 100.0, _mood_color(customer.satisfaction))
-			if not customer.starred:
-				_text(above + Vector2(0, -4), "$", 18, UiTheme.WARN)
-	if customer.starred and (customer.stage == Customer.Stage.PAYING or customer.stage == Customer.Stage.STAR):
-		var pulse := 1.0 + 0.12 * sin(_time * 6.0)
-		_draw_star(above + Vector2(0, -6), 16.0 * pulse, UiTheme.WARN)
+	if customer.stage == Customer.Stage.EATING:
+		_draw_bar(above + Vector2(0, 8), 34, 1.0 - float(customer.timer) / Session.data.balance.eat_seconds, UiTheme.GOOD)
+
+
+## A pulsing NanoBrew-cyan ring at a convertible customer's feet (world).
+func _draw_glow_ring(feet: Vector2) -> void:
+	var pulse := 0.5 + 0.5 * sin(_time * 5.0)
+	draw_set_transform(feet, 0, Vector2(1, 0.5))
+	draw_circle(Vector2.ZERO, 26 + 3 * pulse, Color(UiTheme.ACCENT, 0.18 + 0.12 * pulse))
+	draw_arc(Vector2.ZERO, 26 + 3 * pulse, 0, TAU, 40, Color(UiTheme.ACCENT, 0.9), 3.0)
+	draw_set_transform(Vector2.ZERO)
 
 
 func _draw_leaver(leaver: Dictionary) -> void:
@@ -900,24 +898,10 @@ func _draw_bar(centre: Vector2, width: float, value: float, color: Color) -> voi
 	draw_rect(Rect2(rect.position, Vector2(width * clampf(value, 0.0, 1.0), 6)), color)
 
 
-func _draw_star(centre: Vector2, radius: float, color: Color) -> void:
-	var points := PackedVector2Array()
-	for i: int in 10:
-		var angle := -PI / 2 + i * PI / 5
-		points.append(centre + Vector2.from_angle(angle) * (radius if i % 2 == 0 else radius * 0.45))
-	draw_colored_polygon(points, color)
-	points.append(points[0])
-	draw_polyline(points, color.darkened(0.5), 2.0)
-
-
 func _text(centre: Vector2, text: String, size: int, color: Color) -> void:
 	var font := ThemeDB.fallback_font
 	var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
 	draw_string(font, centre - Vector2(width * 0.5, 0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, color)
-
-
-func _mood_color(satisfaction: float) -> Color:
-	return UiTheme.GOOD if satisfaction >= Session.data.balance.star_threshold else (UiTheme.WARN if satisfaction >= 40.0 else UiTheme.BAD)
 
 
 func _battery_color(synth: Synth, data: GameData) -> Color:

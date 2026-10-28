@@ -4,8 +4,9 @@ extends RefCounted
 ##
 ## Each second, in order: stoves cook (base speed 1 + chefs' cook; a finished
 ## batch waits on its stove for a server to carry it to a counter), customers
-## arrive (Cashiers' appeal shortens the gap), queued customers take free seats and
-## order from the menu (favourites more often), servers carry ready servings to tables, customers wait / eat / leave,
+## arrive (Cashiers' appeal shortens the gap), queued customers take free seats
+## (nobody orders: a server brings whatever dish stands on the counter nearest
+## the seat, and that is what they pay for), servers carry servings to tables, customers wait / eat / leave,
 ## and on-duty Synths drain battery. Customers who finish eating line up at the
 ## registers; each Cashier takes the next one (pay_seconds, star_pay_seconds
 ## for a starred customer, at the Cashier's speed) and the coins come in then. The Vibe at a customer's seat (décor in
@@ -76,14 +77,6 @@ static func unlocked_recipes(state: GameState, data: GameData) -> Array[Recipe]:
 	return result
 
 
-## What customers can order now: the menu's unlocked recipes, or every unlocked
-## recipe if none of the menu is (an empty menu, or a lost Xeno's recipe).
-static func order_menu(state: GameState, data: GameData) -> Array[Recipe]:
-	var unlocked := unlocked_recipes(state, data)
-	var result := unlocked.filter(func(recipe: Recipe) -> bool: return state.menu.has(recipe.id))
-	return unlocked if result.is_empty() else result
-
-
 ## Total appeal of working Cashiers; the arrival gap is divided by 1 + this.
 static func cashier_appeal(state: GameState, data: GameData) -> float:
 	var total := 0.0
@@ -110,7 +103,7 @@ static func queued_count(state: GameState) -> int:
 static func _tick(state: GameState, data: GameData, rng: RandomNumberGenerator, events: Events) -> void:
 	_cook(state, data, rng, events)
 	_arrive(state, data, rng, events)
-	_seat(state, data, rng)
+	_seat(state, data)
 	_serve(state, data, rng, events)
 	_update_customers(state, data, events)
 	_cashiers(state, data, events)
@@ -199,7 +192,7 @@ static func _free_seat(state: GameState, data: GameData) -> String:
 	return ""
 
 
-static func _seat(state: GameState, data: GameData, rng: RandomNumberGenerator) -> void:
+static func _seat(state: GameState, data: GameData) -> void:
 	# Seated customers from older saves get a seat first.
 	for customer: Customer in state.customers:
 		if customer.is_seated() and Layout.placed_by_uid(state, customer.seat_uid) == null:
@@ -209,7 +202,6 @@ static func _seat(state: GameState, data: GameData, rng: RandomNumberGenerator) 
 		return customer.is_seated() and state.seat_table.has(customer.seat_uid)).size()
 	if free <= 0:
 		return
-	var menu := order_menu(state, data)
 	for customer: Customer in state.customers:
 		if free <= 0:
 			return
@@ -218,24 +210,8 @@ static func _seat(state: GameState, data: GameData, rng: RandomNumberGenerator) 
 		customer.stage = Customer.Stage.WAITING_FOOD
 		customer.seat_uid = _free_seat(state, data)
 		customer.waited = 0
-		customer.recipe_id = _pick_order(data.customer_types[customer.type_id], menu, data.balance, rng)
+		customer.recipe_id = ""
 		free -= 1
-
-
-## A menu dish, favourites weighted by favorite_weight.
-static func _pick_order(type: CustomerType, menu: Array[Recipe], b: BalanceConfig, rng: RandomNumberGenerator) -> String:
-	var weights: Array[float] = []
-	var total := 0.0
-	for recipe: Recipe in menu:
-		var weight := b.favorite_weight if type.favorites.has(recipe.id) else 1.0
-		weights.append(weight)
-		total += weight
-	var roll := rng.randf() * total
-	for i: int in menu.size():
-		roll -= weights[i]
-		if roll < 0.0:
-			return menu[i].id
-	return menu[-1].id
 
 
 static func _serve(state: GameState, data: GameData, rng: RandomNumberGenerator, events: Events) -> void:
@@ -261,17 +237,19 @@ static func _serve(state: GameState, data: GameData, rng: RandomNumberGenerator,
 				_finish_carry(state, synth, data, events)
 
 
-## Picks up a serving for the longest-seated customer whose dish is ready.
+## Picks up a serving for the longest-seated customer: whatever dish stands
+## on the counter nearest their seat.
 static func _take_order(state: GameState, synth: Synth, data: GameData) -> bool:
 	for customer: Customer in state.customers:
 		if customer.stage != Customer.Stage.WAITING_FOOD or customer.served_by != "":
 			continue
-		if state.counter.get(customer.recipe_id, 0) <= 0:
-			continue
-		synth.task_counter_uid = Counters.take(state, customer.recipe_id, data)
+		var taken := Counters.take_nearest(state, customer.seat_uid, data)
+		if taken.is_empty():
+			return false  # nothing ready anywhere
+		synth.task_counter_uid = taken[0]
 		customer.served_by = synth.id
 		synth.task_customer_id = customer.id
-		synth.task_recipe_id = customer.recipe_id
+		synth.task_recipe_id = taken[1]
 		synth.task_remaining = data.balance.delivery_seconds
 		return true
 	return false
@@ -362,6 +340,7 @@ static func _finish_carry(state: GameState, synth: Synth, data: GameData, events
 static func _deliver(state: GameState, synth: Synth, data: GameData, rng: RandomNumberGenerator,
 		events: Events) -> void:
 	var customer := state.customer_by_id(synth.task_customer_id)
+	var recipe_id := synth.task_recipe_id
 	_clear_task(synth)
 	if customer == null:
 		return
@@ -371,11 +350,10 @@ static func _deliver(state: GameState, synth: Synth, data: GameData, rng: Random
 		customer.satisfaction = maxf(customer.satisfaction - data.balance.break_satisfaction_penalty, 0.0)
 		return
 	customer.stage = Customer.Stage.EATING
+	customer.recipe_id = recipe_id
 	customer.timer = data.balance.eat_seconds
 	var bonus := SynthStats.stat(synth, "satisfaction", data) \
 		+ minf(state.seat_vibe.get(customer.seat_uid, 0.0) * data.balance.vibe_meal_bonus, data.balance.vibe_meal_bonus_max)
-	if data.customer_types[customer.type_id].favorites.has(customer.recipe_id):
-		bonus += data.balance.favorite_satisfaction
 	customer.satisfaction = clampf(customer.satisfaction + bonus, 0.0, 100.0)
 	customer.tip_bonus = SynthStats.stat(synth, "tip", data)
 	Leveling.add_xp(synth, data.balance.xp_per_delivery, data.balance, events.level_ups)

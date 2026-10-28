@@ -12,8 +12,6 @@ var patience: float = 1.0
 var tip: float = 1.0
 ## Trait ids a converted Synth of this type can roll.
 var trait_pool: Array[String] = []
-## Recipe ids this type orders more often and enjoys more (see favorite_weight).
-var favorites: Array[String] = []
 
 
 static func from_dict(values: Dictionary) -> CustomerType:
@@ -24,5 +22,4 @@ static func from_dict(values: Dictionary) -> CustomerType:
 	type.patience = float(values.get("patience", 1.0))
 	type.tip = float(values.get("tip", 1.0))
 	type.trait_pool.assign(values.get("trait_pool", []))
-	type.favorites.assign(values.get("favorites", []))
 	return type

@@ -2,18 +2,17 @@ class_name Tutorial
 extends RefCounted
 ## The guided first day: a short list of steps, each with a tip and a goal the
 ## player has to reach (cook a dish, watch a delivery, convert a starred
-## customer, open a Synth card, set the menu, plan a raid, end the night).
+## customer, open a Synth card, plan a raid, end the night).
 ## Steps without a goal wait for "Next"; any step can be skipped. A shift step
 ## still open when the night starts is passed over, so the night steps follow.
 ## No drawing here: the TutorialBox shows the current step.
 
 ## Things the UI reports that the state does not show.
 const OPENED_CARD: String = "opened_card"
-const SAW_MENU: String = "saw_menu"
 
 var step: int = 0
 var finished: bool = false
-## Flags the UI sets (OPENED_CARD, SAW_MENU).
+## Flags the UI sets (OPENED_CARD).
 var seen: Dictionary[String, bool] = {}
 ## Each: {"key": text key, "goal": Callable(state, day_log) -> bool or null (wait
 ## for Next), "when": Callable(state) -> bool or null (show only then), "shift": true
@@ -36,8 +35,6 @@ func _init() -> void:
 		{"key": "tutorial.card", "shift": true,
 			"goal": func(_state: GameState, _log: Variant) -> bool: return seen.get(OPENED_CARD, false)},
 		{"key": "tutorial.night", "when": at_night},
-		{"key": "tutorial.menu", "when": at_night,
-			"goal": func(_state: GameState, _log: Variant) -> bool: return seen.get(SAW_MENU, false)},
 		{"key": "tutorial.raid", "when": at_night,
 			"goal": func(state: GameState, _log: Variant) -> bool: return state.raid_target != ""},
 		{"key": "tutorial.end_night", "goal": func(state: GameState, _log: Variant) -> bool: return state.day >= 2},
