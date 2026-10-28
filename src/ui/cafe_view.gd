@@ -40,6 +40,8 @@ const HEAD_HIT_RADIUS: float = 30.0
 const DRAG_THRESHOLD: float = 8.0
 ## Tiles between Pods in the Pod bay.
 const BAY_SPACING: float = 1.1
+## The walkway (tiles) between the café's front wall and the Pod bay.
+const BAY_GAP: float = 1.0
 ## Customers walk this many tiles per second at 1x.
 const WALK_SPEED: float = 3.0
 ## Screen space taken by the HUD's top bar and the night hub.
@@ -350,6 +352,9 @@ func _draw() -> void:
 	for placed: PlacedPiece in state.placed:
 		var size := data.pieces[placed.piece_id].footprint(placed.rotated)
 		drawables.append([Iso.depth(Vector2(placed.cell) + Vector2(size) * 0.5), _draw_piece.bind(placed)])
+	for i: int in state.pods:
+		var slot := _bay_slot(i, state, data)
+		drawables.append([Iso.depth(slot), _draw_pod.bind(Iso.to_world(slot))])
 	for entry: Array in _people(state, data):
 		drawables.append([Iso.depth(entry[1]) + 0.3, entry[0]])
 	# The door stands on the front-right edge, sorted like everything else.
@@ -403,12 +408,13 @@ func _draw_door(door: Vector2) -> void:
 ## Where Pod i stands in the Pod bay, outside the front-left wall (cell units).
 func _bay_slot(i: int, state: GameState, data: GameData) -> Vector2:
 	var per_row := maxi(int(data.balance.floor_width / BAY_SPACING), 1)
-	return Vector2(0.6 + (i % per_row) * BAY_SPACING, state.floor_rows + 0.9 + (i / per_row) * 1.2)
+	return Vector2(0.6 + (i % per_row) * BAY_SPACING, state.floor_rows + BAY_GAP + 0.9 + (i / per_row) * 1.2)
 
 
-## The Pod bay: a platform outside the front-left wall with one glass Pod per Sync Pod.
+## The Pod bay: a platform outside the front-left wall, a walkway away from it
+## (its glass Pods are drawn with everything else, far to near).
 func _draw_pod_bay(state: GameState, data: GameData) -> void:
-	var rows := float(state.floor_rows)
+	var rows := float(state.floor_rows) + BAY_GAP
 	var deep := 0.3 + ceilf(float(state.pods) / maxi(int(data.balance.floor_width / BAY_SPACING), 1)) * 1.2
 	var corners := PackedVector2Array([Iso.to_world(Vector2(0, rows + 0.25)), Iso.to_world(Vector2(data.balance.floor_width, rows + 0.25)),
 		Iso.to_world(Vector2(data.balance.floor_width, rows + 0.25 + deep)), Iso.to_world(Vector2(0, rows + 0.25 + deep))])
@@ -417,15 +423,17 @@ func _draw_pod_bay(state: GameState, data: GameData) -> void:
 	draw_polyline(corners, Color(UiTheme.PANEL_BORDER, 0.5), 2.0)
 	_text(Iso.to_world(Vector2(0.2, rows + 0.25 + deep)) + Vector2(-30, 26), tr("ui.pod_bay") % [state.synths.size(), state.pods],
 		14, UiTheme.PANEL_BORDER)
-	for i: int in state.pods:
-		var base := Iso.to_world(_bay_slot(i, state, data))
-		draw_set_transform(base, 0, Vector2(1, 0.45))
-		draw_circle(Vector2.ZERO, 22, Color("3a4a7a"))
-		draw_set_transform(Vector2.ZERO)
-		var glass := Rect2(base + Vector2(-17, -70), Vector2(34, 66))
-		draw_rect(glass, Color(UiTheme.PANEL_BORDER, 0.14))
-		draw_rect(glass, Color(UiTheme.PANEL_BORDER, 0.7), false, 2.0)
-		draw_rect(Rect2(base + Vector2(-20, -76), Vector2(40, 8)), Color("5a6a9a"))
+
+
+## One glass Sync Pod standing at base (world).
+func _draw_pod(base: Vector2) -> void:
+	draw_set_transform(base, 0, Vector2(1, 0.45))
+	draw_circle(Vector2.ZERO, 22, Color("3a4a7a"))
+	draw_set_transform(Vector2.ZERO)
+	var glass := Rect2(base + Vector2(-17, -70), Vector2(34, 66))
+	draw_rect(glass, Color(UiTheme.PANEL_BORDER, 0.14))
+	draw_rect(glass, Color(UiTheme.PANEL_BORDER, 0.7), false, 2.0)
+	draw_rect(Rect2(base + Vector2(-20, -76), Vector2(40, 8)), Color("5a6a9a"))
 
 
 ## Street and door, in cell units.
@@ -725,7 +733,12 @@ func _trip(synth: Synth, from: Vector2, to: Vector2) -> PackedVector2Array:
 	var key := "%s>%s|%s" % [from, to, paths.key()]
 	var trip: Dictionary = _trips.get(synth.id, {})
 	if trip.get("key", "") != key:
-		trip = {"key": key, "points": paths.route(from, to)}
+		# Walks from where it stands to the pick-up, then on to the drop-off (never jumps).
+		var points := paths.route(_synth_at.get(synth.id, from), from)
+		var rest := paths.route(from, to)
+		rest.remove_at(0)
+		points.append_array(rest)
+		trip = {"key": key, "points": points}
 		_trips[synth.id] = trip
 	return trip["points"]
 
