@@ -109,6 +109,7 @@ static func queued_count(state: GameState) -> int:
 static func _tick(state: GameState, data: GameData, rng: RandomNumberGenerator, events: Events) -> void:
 	_walk_out(state)  # first, so someone who just left is still there for a second
 	_cook(state, data, rng, events)
+	_chefs(state, data, events)
 	_arrive(state, data, rng, events)
 	_seat(state, data)
 	_serve(state, data, rng, events)
@@ -130,7 +131,9 @@ static func _cook(state: GameState, data: GameData, rng: RandomNumberGenerator, 
 		var rate := 1.0
 		var cooking: Array[Synth] = []
 		var chef := Roles.at_station(state, stove.piece_uid)
-		var working := chef != null and chef.role == Synth.CHEF and SynthStats.work_factor(chef, state, data) > 0.0
+		# Away carrying a batch, the Chef isn't cooking.
+		var working := chef != null and chef.role == Synth.CHEF and not chef.is_busy() \
+			and SynthStats.work_factor(chef, state, data) > 0.0
 		var placed := Layout.placed_by_uid(state, stove.piece_uid)
 		if not working and (placed == null or not data.pieces[placed.piece_id].auto_cook):
 			continue
@@ -152,6 +155,46 @@ static func _cook(state: GameState, data: GameData, rng: RandomNumberGenerator, 
 			else:
 				state.counter[recipe.id] = state.counter.get(recipe.id, 0) + recipe.servings
 				stove.recipe_id = ""
+
+
+## A Chef carries its stove's finished batch to the nearest free counter, then
+## walks back to the stove; the stove cooks again only once the Chef is back.
+## (A stove with no Chef, an auto_cook one, is left to the Servers.)
+static func _chefs(state: GameState, data: GameData, events: Events) -> void:
+	for chef: Synth in state.synths:
+		if chef.role != Synth.CHEF:
+			continue
+		var factor := SynthStats.work_factor(chef, state, data)
+		if chef.is_busy():
+			chef.task_remaining -= SynthStats.speed(chef, data) * factor
+			if chef.task_remaining > 0.0:
+				continue
+			if chef.is_carrying():
+				var counter_uid := chef.task_counter_uid
+				_finish_carry(state, chef, data, events)
+				# Back to the stove (the walk alone).
+				chef.task_home_uid = chef.station_uid
+				chef.task_total = snappedf(_tiles(state, counter_uid, chef.station_uid, data)
+					/ maxf(data.balance.walk_tiles_per_second, 0.1), 0.1)
+				chef.task_remaining = chef.task_total
+				if chef.task_remaining <= 0.0 or chef.station_uid == "":
+					_clear_task(chef)
+			else:
+				_clear_task(chef)
+				chef.spot_uid = chef.station_uid
+			continue
+		var stove := Layout.stove_of(state, chef.station_uid)
+		if stove == null or not stove.has_batch() or stove.carrier != "" or factor <= 0.0 				or state.discard.has(stove.piece_uid):
+			continue  # nothing to carry (or it is marked for the bin: a Server takes it)
+		var counter_uid := Counters.free_counter(state, stove.recipe_id, stove.piece_uid, data)
+		if counter_uid == "":
+			continue  # every counter is full of other dishes: the batch waits
+		stove.carrier = chef.id
+		chef.spot_uid = stove.piece_uid
+		chef.task_stove_uid = stove.piece_uid
+		chef.task_counter_uid = counter_uid
+		chef.task_recipe_id = stove.recipe_id
+		_start_trip(state, chef, stove.piece_uid, counter_uid, data.balance.carry_seconds, data)
 
 
 static func _arrive(state: GameState, data: GameData, rng: RandomNumberGenerator, events: Events) -> void:
@@ -336,6 +379,9 @@ static func _take_batch(state: GameState, synth: Synth, data: GameData) -> bool:
 	for stove: Stove in state.stoves:
 		if not stove.has_batch() or stove.carrier != "":
 			continue
+		var chef := Roles.at_station(state, stove.piece_uid)
+		if chef != null and chef.role == Synth.CHEF:
+			continue  # its Chef carries it
 		var counter_uid := Counters.free_counter(state, stove.recipe_id, stove.piece_uid, data)
 		if counter_uid == "":
 			continue
@@ -572,8 +618,8 @@ static func _close(state: GameState, data: GameData, events: Events) -> void:
 	for synth: Synth in state.synths:
 		if synth.is_delivering():
 			return_dish(state, synth, data)
-		elif synth.is_discarding():
-			# The food is already out of the counter: it is thrown away.
+		elif synth.is_discarding() or synth.is_returning():
+			# Food on its way to a bin is gone; a Chef walking back is back.
 			_clear_task(synth)
 		elif synth.is_carrying():
 			# The batch stays on its stove for tomorrow.
@@ -604,3 +650,4 @@ static func _clear_task(synth: Synth) -> void:
 	synth.task_stove_uid = ""
 	synth.task_counter_uid = ""
 	synth.task_bin_uid = ""
+	synth.task_home_uid = ""

@@ -136,3 +136,36 @@ func test_a_counter_holds_at_most_999() -> void:
 	assert_eq(Counters.free_counter(state, "tea", "", data), counters[1].uid, "a batch of 3 won't fit: the next counter")
 	Counters.put(state, counters[1].uid, "tea", 997)
 	assert_eq(Counters.free_counter(state, "tea", "", data), "", "both full")
+
+
+func test_a_chef_carries_its_batch_and_walks_back() -> void:
+	# A normal stove (it cooks only with its Chef); walking 1 tile a second.
+	var data := _data({"walk_tiles_per_second": 1.0, "arrival_min_seconds": 1000, "arrival_max_seconds": 1000,
+		"first_arrival_seconds": 1000})
+	var state := GameState.new_game(1, data)
+	var stove_piece: PlacedPiece = state.placed.filter(func(p: PlacedPiece) -> bool: return p.piece_id == "stove")[0]
+	stove_piece.piece_id = "chef_stove"
+	state.synths[0].role = Synth.REST  # the Server stays out of it
+	var chef := state.add_synth("chef", "", data)
+	chef.battery = 100.0
+	GameLoop.assign_to(state, chef.id, stove_piece.uid, data)
+	var index := state.stoves.find(Layout.stove_of(state, stove_piece.uid))
+	GameLoop.start_cooking(state, index, "tea", data)
+	for second: int in 30:
+		GameLoop.advance(state, 1, data)
+		if chef.is_carrying():
+			break
+	assert_true(chef.is_carrying(), "the Chef picked up its batch")
+	var counter := chef.task_counter_uid
+	while chef.is_carrying():
+		GameLoop.advance(state, 1, data)
+	assert_eq(state.counter_count.get(counter, 0), 3, "put on the counter")
+	assert_true(chef.is_returning(), "then walks back")
+	GameLoop.start_cooking(state, index, "tea", data)
+	var left := state.stoves[index].remaining
+	GameLoop.advance(state, 1, data)
+	assert_eq(state.stoves[index].remaining, left, "the stove waits while the Chef is away")
+	while chef.is_returning():
+		GameLoop.advance(state, 1, data)
+	GameLoop.advance(state, 1, data)
+	assert_true(state.stoves[index].remaining < left, "back at the stove: cooking again")
