@@ -1,8 +1,9 @@
 class_name ShopPanel
 extends PanelContainer
-## The shop (buying only), opened from the round Shop button at the bottom right:
+## The Menu (the shop), opened from the round Menu button at the bottom right:
 ## a strip along the bottom of the screen with category tabs (Furniture, Décor,
-## Upgrades, Energy, Workshop) over a sideways-scrolling row of cards. Furniture
+## Upgrades, Energy, Workshop with crafting and NanoBrew) over a row of cards
+## that scrolls sideways (arrows or the mouse wheel). Furniture
 ## and décor cards have Buy (puts it in your hand in Arrange) and Store (keeps it
 ## for later); Sync Pods are bought up to the café's side. The café keeps
 ## running. Items you own live in the Bag. Rebuilds after every action.
@@ -57,6 +58,7 @@ func _ready() -> void:
 	_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_row.add_theme_constant_override("separation", 12)
 	_scroll.add_child(_row)
+	UiTheme.wheel_scrolls_sideways(_scroll)
 	carousel.add_child(_scroll)
 	carousel.add_child(_arrow("▶", 1))
 	column.add_child(carousel)
@@ -115,6 +117,12 @@ func refresh() -> void:
 				_row.add_child(_card(tr("ui.energy_card") % amount, "", UiTheme.WARN, [buy]))
 		"workshop":
 			_note.text = tr("ui.materials") % [state.scrap, state.chips] + "   " + tr("ui.workshop_note")
+			var b := data.balance
+			var brew := UiTheme.button(tr("ui.brew_short") % [b.brew_core_cost, b.brew_coin_cost], func() -> void:
+				Session.act(GameLoop.brew_nanobrew(Session.state, Session.data)))
+			brew.disabled = state.cores < b.brew_core_cost or state.coins < b.brew_coin_cost
+			_row.add_child(_card(tr("ui.brew_title"), tr("ui.nanobrew_count") % [state.nanobrew, state.cores] + "\n"
+				+ tr("ui.brew_note"), UiTheme.PANEL_BORDER, [brew]))
 			for craft_id: String in data.items.crafts:
 				var recipe: Dictionary = data.items.crafts[craft_id]
 				var costs: Array = [recipe["scrap"], recipe["chips"]] if recipe["chips"] > 0 else [recipe["scrap"]]

@@ -45,7 +45,7 @@ const BAY_GAP: float = 1.0
 ## Everyone walks at the game's walk_tiles_per_second, so timed trips and free walking match.
 ## Screen space taken by the HUD's top bar and the night hub.
 const TOP_BAR: float = UiTheme.TOP_BAR_HEIGHT
-const NIGHT_PANEL: float = 790.0
+const NIGHT_PANEL: float = 650.0
 
 ## The worker picked to get a job: the next click on a stove, counter, table,
 ## register or the Pod bay gives it that job ("" = none).

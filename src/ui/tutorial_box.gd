@@ -5,6 +5,8 @@ extends PanelContainer
 ## goals every frame; finishing or skipping marks the tutorial done.
 
 var tutorial: Tutorial = null
+## Height of a strip open at the bottom (the Menu, Bag or Arrange): the box sits above it.
+var bottom_inset: float = 0.0
 var _text := UiTheme.label("", 20)
 var _counter := UiTheme.label("", 14, UiTheme.TEXT_DIM)
 var _next := UiTheme.button(tr("tutorial.next"), _on_next)
@@ -59,10 +61,10 @@ func _process(_delta: float) -> void:
 	_next.visible = tutorial.waits_for_next()
 	_skip_step.visible = not tutorial.waits_for_next()
 	reset_size()
-	# At night, centre in the space left of the night hub so it never covers it.
+	# Centred in the space left free: left of the night hub, above a strip at the bottom.
 	var area := get_parent_area_size()
 	var width := area.x - (CafeView.NIGHT_PANEL if session.state.phase == GameState.Phase.NIGHT else 0.0)
-	position = Vector2((width - size.x) * 0.5, area.y - size.y - 24)
+	position = Vector2((width - size.x) * 0.5, area.y - size.y - 24 - bottom_inset)
 
 
 func _on_next() -> void:

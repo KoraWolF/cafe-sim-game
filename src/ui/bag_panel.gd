@@ -1,14 +1,16 @@
 class_name BagPanel
 extends PanelContainer
-## The Bag, open at any time from the top bar: everything you own, in one
-## place. Equipment and Fashion show a grid of cards (border colour = tier, a
+## The Bag, open at any time from the top bar: everything you own, in a strip
+## along the bottom of the screen (like the Menu). Equipment and Fashion show a
+## row of cards (scroll it sideways with the mouse wheel) (border colour = tier, a
 ## badge for who wears it); click one for its detail box with every action
 ## (Wear on a worker, Take off, Sell). Bottles: Use on a worker. Crafting is in
 ## the Shop's Workshop.
 
 signal closed
 
-const WIDTH: float = 760.0
+## Height of the strip at the bottom (the camera keeps the café above it).
+const HEIGHT: float = 330.0
 const TABS: Array[String] = ["equipment", "fashion", "bottles"]
 ## Card border by tier.
 const TIER_COLORS: Dictionary[String, Color] = {"common": Color("9aa3b8"), "magic": Color("4fb3ff"),
@@ -23,10 +25,10 @@ var _details: Dictionary[String, VBoxContainer] = {}
 
 func _ready() -> void:
 	visible = false
-	set_anchors_and_offsets_preset(Control.PRESET_RIGHT_WIDE)
-	offset_left = -WIDTH - 12
-	offset_top = UiTheme.TOP_BAR_HEIGHT + 12
+	set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	offset_left = 12
 	offset_right = -12
+	offset_top = -HEIGHT - 12
 	offset_bottom = -12
 	var column := VBoxContainer.new()
 	add_child(column)
@@ -43,16 +45,17 @@ func _ready() -> void:
 		split.name = tr("ui.bag_tab_" + key)
 		var scroll := ScrollContainer.new()
 		scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		UiTheme.wheel_scrolls_sideways(scroll)
 		var grid := GridContainer.new()
-		grid.columns = 3
+		grid.columns = 999  # one row, scrolling sideways
 		grid.add_theme_constant_override("h_separation", 8)
 		grid.add_theme_constant_override("v_separation", 8)
 		scroll.add_child(grid)
 		split.add_child(scroll)
 		var detail := VBoxContainer.new()
-		detail.custom_minimum_size = Vector2(250, 0)
-		detail.add_theme_constant_override("separation", 10)
+		detail.custom_minimum_size = Vector2(320, 0)
+		detail.add_theme_constant_override("separation", 4)
 		split.add_child(detail)
 		tabs.add_child(split)
 		_grids[key] = grid

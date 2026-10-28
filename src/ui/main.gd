@@ -5,6 +5,12 @@ var _current: Node = null
 
 
 func _ready() -> void:
+	# A window as big as the screen would sit under the taskbar: maximize it instead
+	# (a maximized window fills the screen's usable area).
+	var usable := DisplayServer.screen_get_usable_rect()
+	var size := DisplayServer.window_get_size()
+	if usable.size.x > 0 and (size.x > usable.size.x or size.y > usable.size.y):
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MAXIMIZED)
 	show_menu()
 
 

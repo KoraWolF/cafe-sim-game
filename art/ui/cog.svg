@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Settings cog: eight teeth round a ring, light on the dark top bar. -->
+  <g fill="#f2efff">
+    <rect x="13" y="1" width="6" height="7" rx="1.5"/>
+    <rect x="13" y="24" width="6" height="7" rx="1.5"/>
+    <rect x="1" y="13" width="7" height="6" ry="1.5"/>
+    <rect x="24" y="13" width="7" height="6" ry="1.5"/>
+    <rect x="13" y="1" width="6" height="7" rx="1.5" transform="rotate(45 16 16)"/>
+    <rect x="13" y="24" width="6" height="7" rx="1.5" transform="rotate(45 16 16)"/>
+    <rect x="1" y="13" width="7" height="6" ry="1.5" transform="rotate(45 16 16)"/>
+    <rect x="24" y="13" width="7" height="6" ry="1.5" transform="rotate(45 16 16)"/>
+    <path fill-rule="evenodd" d="M16 5.5a10.5 10.5 0 1 1 0 21a10.5 10.5 0 1 1 0-21zm0 6a4.5 4.5 0 1 0 0 9a4.5 4.5 0 1 0 0-9z"/>
+  </g>
+</svg>

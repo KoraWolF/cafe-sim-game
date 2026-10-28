@@ -253,15 +253,16 @@ func _layout() -> void:
 	var panel := 0.0
 	var bottom := 0.0
 	if cafe.editor != null:
-		panel = EditPanel.WIDTH + 30.0
+		bottom = EditPanel.HEIGHT + 24.0
 	elif shop.visible:
 		bottom = ShopPanel.HEIGHT + 24.0
 	elif quests.visible:
 		panel = QuestPanel.WIDTH + 30.0
 	elif bag.visible:
-		panel = BagPanel.WIDTH + 30.0
+		bottom = BagPanel.HEIGHT + 24.0
 	elif night.visible:
 		panel = CafeView.NIGHT_PANEL
 	cafe.fit_camera(panel, bottom)
 	hud.set_right_inset(panel, bottom)
-	hud.show_shop_button(not shop.visible and cafe.editor == null)
+	hud.show_shop_button(bottom == 0.0, panel)
+	tutorial_box.bottom_inset = bottom

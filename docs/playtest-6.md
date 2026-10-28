@@ -114,3 +114,17 @@ The real drivers are workers still working on an empty battery (kept: it was ask
 - About 4,030 coins at day 40.
 - About 4 Corporate Audits per run, 2.4 of them lost.
 
+
+## Round 2 (branch `ui-strips`)
+- The window is maximized when it would be bigger than the screen, so it stays above the Windows taskbar.
+- **Menu (was Shop):**
+  - The round button at the bottom right is now called Menu.
+  - Its card row scrolls with the mouse wheel.
+  - NanoBrew is brewed in its Workshop tab. The night hub only shows the count.
+- **Bag and Arrange** open as strips along the bottom, like the Menu.
+  - Bag: a row of cards, with the detail box at the right.
+  - Arrange: what you hold, Select several, and storage as a sideways row.
+- **Top bar:** the pause menu button is a cog icon.
+- **Night hub:** narrower (640 px, was 780) with smaller text.
+- **Top-left tracker:** the story step comes first, under "Story", then the dailies under "Daily". Both can be claimed there.
+- The round Menu button stays left of the night hub. The tutorial box stays above an open strip.
