@@ -202,7 +202,7 @@ func _give_job(uid: String) -> void:
 	if Session.act(code):
 		var synth := state.synth_by_id(cafe.selected_synth)
 		Session.toast.emit(tr("ui.job_now") % [Session.synth_name(synth), UiText.role(synth.role)])
-		Sfx.play("click")
+		Sfx.play("ui_click")
 
 
 ## The shop, at any time; toggles from the top bar.
