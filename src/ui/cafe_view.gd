@@ -42,8 +42,7 @@ const DRAG_THRESHOLD: float = 8.0
 const BAY_SPACING: float = 1.1
 ## The walkway (tiles) between the café's front wall and the Pod bay.
 const BAY_GAP: float = 1.0
-## Customers walk this many tiles per second at 1x.
-const WALK_SPEED: float = 3.0
+## Everyone walks at the game's walk_tiles_per_second, so timed trips and free walking match.
 ## Screen space taken by the HUD's top bar and the night hub.
 const TOP_BAR: float = UiTheme.TOP_BAR_HEIGHT
 const NIGHT_PANEL: float = 790.0
@@ -663,20 +662,20 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 		var progress := 0.0
 		match synth.role:
 			Synth.SERVER:
-				target = pass_point + Vector2(0.7 * index, 0.4)
+				# Idle: by the kitchen at first, then where its last trip ended.
+				target = pass_point + Vector2(0.7 * index, 0.4) if synth.spot_uid == "" or not _synth_at.has(synth.id) \
+					else _synth_at[synth.id]
+				progress = 1.0 - synth.task_remaining / maxf(synth.task_total, 0.01)
 				if synth.is_delivering():
 					# From the counter the dish came from to the customer's seat.
-					progress = 1.0 - synth.task_remaining / data.balance.delivery_seconds
 					trip = _trip(synth, _piece_front(synth.task_counter_uid, state, data, target),
 						_seat_position(synth.task_customer_id, state, data) + Vector2(0.3, 0.3))
 				elif synth.is_discarding():
 					# From the counter or stove to the bin, with the food to throw away.
-					progress = 1.0 - synth.task_remaining / data.balance.carry_seconds
 					trip = _trip(synth, _piece_front(synth.task_counter_uid, state, data, target),
 						_piece_front(synth.task_bin_uid, state, data, target))
 				elif synth.is_carrying():
 					# From the stove to the counter, carrying the batch.
-					progress = 1.0 - synth.task_remaining / data.balance.carry_seconds
 					trip = _trip(synth, _piece_front(synth.task_stove_uid, state, data, target),
 						_piece_front(synth.task_counter_uid, state, data, target))
 			Synth.CHEF:
@@ -713,7 +712,7 @@ func _walk_on(id: String, at: Vector2, target: Vector2) -> Vector2:
 	if route.is_empty() or (route["to"] as Vector2).distance_to(target) > 0.01 or route["key"] != paths.key():
 		route = {"to": target, "key": paths.key(), "points": paths.route(at, target), "next": 1}
 		_routes[id] = route
-	var left := (0.0 if Session.paused else WALK_SPEED * maxf(Session.state.speed, 1.0)) * _walk_delta
+	var left := (0.0 if Session.paused else Session.data.balance.walk_tiles_per_second * maxf(Session.state.speed, 1.0)) * _walk_delta
 	var points: PackedVector2Array = route["points"]
 	while left > 0.0 and route["next"] < points.size():
 		var next: Vector2 = points[route["next"]]

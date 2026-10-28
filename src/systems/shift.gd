@@ -234,6 +234,7 @@ static func _serve(state: GameState, data: GameData, rng: RandomNumberGenerator,
 			if synth.is_delivering():
 				_deliver(state, synth, data, rng, events)
 			elif synth.is_discarding():
+				synth.spot_uid = synth.task_bin_uid
 				_clear_task(synth)
 			else:
 				_finish_carry(state, synth, data, events)
@@ -252,7 +253,7 @@ static func _take_order(state: GameState, synth: Synth, data: GameData) -> bool:
 		customer.served_by = synth.id
 		synth.task_customer_id = customer.id
 		synth.task_recipe_id = taken[1]
-		synth.task_remaining = data.balance.delivery_seconds
+		_start_trip(state, synth, taken[0], customer.seat_uid, data.balance.delivery_seconds, data)
 		return true
 	return false
 
@@ -284,10 +285,27 @@ static func _take_discard(state: GameState, synth: Synth, data: GameData, events
 		state.discard.erase(uid)
 		synth.task_counter_uid = uid
 		synth.task_bin_uid = bin
-		synth.task_remaining = data.balance.carry_seconds
+		_start_trip(state, synth, uid, bin, data.balance.carry_seconds, data)
 		events.thrown_away += count
 		return true
 	return false
+
+
+## A trip's length: walking from where the Server stands to the pick-up and
+## on to the drop-off (walk_tiles_per_second), plus handling seconds. It ends
+## standing at the drop-off.
+static func _start_trip(state: GameState, synth: Synth, from_uid: String, to_uid: String, handling: float,
+		data: GameData) -> void:
+	var tiles := _tiles(state, synth.spot_uid, from_uid, data) + _tiles(state, from_uid, to_uid, data)
+	synth.task_total = snappedf(handling + tiles / maxf(data.balance.walk_tiles_per_second, 0.1), 0.1)
+	synth.task_remaining = synth.task_total
+
+
+## Tiles walked between two placed pieces (2 if either is unknown).
+static func _tiles(state: GameState, from_uid: String, to_uid: String, data: GameData) -> float:
+	var a := Layout.placed_by_uid(state, from_uid)
+	var b := Layout.placed_by_uid(state, to_uid)
+	return 2.0 if a == null or b == null else Layout.distance(a, b, data) + 1.0
 
 
 ## The uid of the placed piece of a kind closest to from ("" if none).
@@ -313,7 +331,7 @@ static func _take_batch(state: GameState, synth: Synth, data: GameData) -> bool:
 		synth.task_stove_uid = stove.piece_uid
 		synth.task_counter_uid = counter_uid
 		synth.task_recipe_id = stove.recipe_id
-		synth.task_remaining = data.balance.carry_seconds
+		_start_trip(state, synth, stove.piece_uid, counter_uid, data.balance.carry_seconds, data)
 		return true
 	return false
 
@@ -324,6 +342,7 @@ static func _finish_carry(state: GameState, synth: Synth, data: GameData, events
 	var stove := Layout.stove_of(state, synth.task_stove_uid)
 	var counter_uid := synth.task_counter_uid
 	var recipe_id := synth.task_recipe_id
+	synth.spot_uid = counter_uid
 	_clear_task(synth)
 	if stove == null or not stove.has_batch():
 		return
@@ -343,6 +362,8 @@ static func _deliver(state: GameState, synth: Synth, data: GameData, rng: Random
 		events: Events) -> void:
 	var customer := state.customer_by_id(synth.task_customer_id)
 	var recipe_id := synth.task_recipe_id
+	if customer != null:
+		synth.spot_uid = customer.seat_uid
 	_clear_task(synth)
 	if customer == null:
 		return
@@ -379,7 +400,9 @@ static func _update_customers(state: GameState, data: GameData, events: Events) 
 				if customer.timer <= 0:
 					_finish_meal(state, customer, data, events)
 			Customer.Stage.PAYING:
-				if customer.cashier_id == "":
+				if customer.timer > 0:
+					customer.timer -= 1  # still walking to the register
+				elif customer.cashier_id == "":
 					# Waiting in line: an angry customer still pays, but no tip.
 					_wait(customer, type, b, 0.0)
 					if customer.satisfaction <= 0.0 and customer.tip > 0:
@@ -415,6 +438,10 @@ static func _finish_meal(state: GameState, customer: Customer, data: GameData, e
 		customer.stage = Customer.Stage.PAYING
 		customer.cashier_id = ""
 		customer.waited = 0
+		# Walking from the seat to the registers first (timer: seconds left to get there).
+		var register := _nearest(state, Piece.REGISTER, Layout.placed_by_uid(state, customer.seat_uid), data) \
+			if Layout.placed_by_uid(state, customer.seat_uid) != null else ""
+		customer.timer = roundi(_tiles(state, customer.seat_uid, register, data) / maxf(b.walk_tiles_per_second, 0.1))
 		return
 	_pay(state, customer, data, events)
 
@@ -452,7 +479,7 @@ static func _cashiers(state: GameState, data: GameData, events: Events) -> void:
 				break
 		if current == null:
 			for customer: Customer in state.customers:
-				if customer.stage == Customer.Stage.PAYING and customer.cashier_id == "":
+				if customer.stage == Customer.Stage.PAYING and customer.cashier_id == "" and customer.timer <= 0:
 					current = customer
 					current.cashier_id = synth.id
 					current.pay_left = data.balance.star_pay_seconds if current.starred else data.balance.pay_seconds
@@ -531,6 +558,7 @@ static func _clear_task(synth: Synth) -> void:
 	synth.task_customer_id = ""
 	synth.task_recipe_id = ""
 	synth.task_remaining = 0.0
+	synth.task_total = 0.0
 	synth.task_stove_uid = ""
 	synth.task_counter_uid = ""
 	synth.task_bin_uid = ""

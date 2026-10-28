@@ -106,3 +106,23 @@ func test_version_7_pool_is_spread_onto_counters() -> void:
 	if loaded != null:
 		assert_eq(loaded.counter, {"tea": 4, "jelly": 2} as Dictionary[String, int], "both dishes kept")
 		assert_eq(loaded.counter_dish.values().size(), 2, "one counter each")
+
+
+func test_a_trip_takes_as_long_as_the_walk() -> void:
+	# Walking 1 tile a second: from the kitchen (2 tiles) to the stove, then on
+	# to the counter (the gap between them + 1 tile), plus 3 s handling.
+	var data := _data({"walk_tiles_per_second": 1.0, "arrival_min_seconds": 1000, "arrival_max_seconds": 1000,
+		"first_arrival_seconds": 1000})
+	var state := GameState.new_game(1, data)
+	state.synths[0].battery = 100.0
+	GameLoop.start_cooking(state, 0, "tea", data)
+	GameLoop.advance(state, 10, data)
+	var server := state.synths[0]
+	assert_true(server.is_carrying(), "setup: carrying")
+	var stove := Layout.placed_by_uid(state, server.task_stove_uid)
+	var counter := Layout.placed_by_uid(state, server.task_counter_uid)
+	var walked := 2.0 + Layout.distance(stove, counter, data) + 1.0
+	assert_true(walked >= 4.0, "setup: a real walk (%d tiles)" % walked)
+	assert_eq(server.task_total, walked + 3.0, "tiles walked + 3 s")
+	GameLoop.advance(state, roundi(server.task_total), data)
+	assert_eq(server.spot_uid, _counters(state)[0].uid, "stands at the counter after")

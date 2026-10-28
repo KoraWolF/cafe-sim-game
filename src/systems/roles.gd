@@ -23,6 +23,8 @@ static func assign_to(state: GameState, synth_id: String, uid: String, data: Gam
 		Piece.REGISTER:
 			_take_station(state, synth, Synth.CASHIER, uid)
 		Piece.COUNTER, Piece.TABLE, Piece.BIN:
+			if synth.role != Synth.SERVER:
+				synth.spot_uid = synth.station_uid
 			synth.role = Synth.SERVER
 			synth.station_uid = ""
 		_:
@@ -45,6 +47,7 @@ static func rest(state: GameState, synth_id: String) -> String:
 static func _take_station(state: GameState, synth: Synth, role: String, uid: String) -> void:
 	for other: Synth in state.synths:
 		if other != synth and other.station_uid == uid:
+			other.spot_uid = uid
 			other.role = Synth.SERVER
 			other.station_uid = ""
 	synth.role = role
