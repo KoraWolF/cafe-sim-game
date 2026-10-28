@@ -4,7 +4,7 @@ extends Modal
 ## role and trait means.
 
 ## The Help tab, in order.
-const HELP: Array[String] = ["cooking", "jobs", "converting", "quests", "shop", "arrange", "bag", "resources", "auto",
+const HELP: Array[String] = ["cooking", "jobs", "converting", "combat", "quests", "shop", "arrange", "bag", "resources", "auto",
 	"windows"]
 
 var _tabs := TabContainer.new()

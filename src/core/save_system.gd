@@ -101,11 +101,19 @@ static func to_dict(state: GameState) -> Dictionary:
 		"raid_cooldowns": state.raid_cooldowns,
 		"raid_target": state.raid_target,
 		"raid_squad": state.raid_squad,
+		"formation": _formation_out(state.formation),
 		"next_id": state.next_id,
 		# Stored as strings: JSON numbers lose precision above 2^53.
 		"rng_seed": str(state.rng_seed),
 		"rng_state": str(state.rng_state),
 	}
+
+
+static func _formation_out(formation: Dictionary[String, Vector2i]) -> Dictionary:
+	var out := {}
+	for synth_id: String in formation:
+		out[synth_id] = [formation[synth_id].x, formation[synth_id].y]
+	return out
 
 
 static func from_dict(raw: Dictionary) -> GameState:
@@ -209,6 +217,12 @@ static func from_dict(raw: Dictionary) -> GameState:
 		for rival_id: Variant in cooldowns:
 			state.raid_cooldowns[str(rival_id)] = int(cooldowns[rival_id])
 	state.raid_target = str(raw.get("raid_target", ""))
+	var spots: Variant = raw.get("formation", {})
+	if spots is Dictionary:
+		for synth_id: Variant in spots:
+			var spot: Variant = spots[synth_id]
+			if spot is Array and spot.size() == 2:
+				state.formation[str(synth_id)] = Vector2i(int(spot[0]), int(spot[1]))
 	var squad: Variant = raw.get("raid_squad", [])
 	if squad is Array:
 		for synth_id: Variant in squad:
@@ -494,6 +508,9 @@ static func validate(state: GameState, data: GameData) -> PackedStringArray:
 		if state.phase != GameState.Phase.NIGHT or not data.districts.has(state.district_id) \
 				or data.districts[state.district_id].rival_by_id(state.raid_target) == null:
 			errors.append("bad raid plan '%s'" % state.raid_target)
+		for synth_id: String in state.formation:
+			if state.synth_by_id(synth_id) == null:
+				errors.append("formation spot for unknown Synth '%s'" % synth_id)
 		for synth_id: String in state.raid_squad:
 			if state.synth_by_id(synth_id) == null:
 				errors.append("raid squad: unknown Synth '%s'" % synth_id)

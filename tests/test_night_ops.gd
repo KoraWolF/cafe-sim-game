@@ -15,21 +15,9 @@ func test_battle_strong_beats_weak() -> void:
 	var rng := RandomNumberGenerator.new()
 	var strong: Array[Battle.Fighter] = [Battle.Fighter.make("a", 10.0, 30.0)]
 	var weak: Array[Battle.Fighter] = [Battle.Fighter.make("", 1.0, 5.0)]
-	var report := Battle.run(strong, weak, rng, data.balance)
+	var report := Battle.run(strong, weak, rng, data)
 	assert_true(report.attackers_won, "strong wins")
-	assert_eq(report.rounds, 1, "one hit is enough")
-	assert_eq(report.hits.size(), 1, "the knocked-out defender does not hit back")
-	assert_true(report.hits[0].knocked_out, "knock-out recorded")
-
-
-func test_battle_timeout_goes_to_defenders() -> void:
-	var data := TestFixtures.data()
-	var rng := RandomNumberGenerator.new()
-	var a: Array[Battle.Fighter] = [Battle.Fighter.make("a", 1.0, 1000.0)]
-	var d: Array[Battle.Fighter] = [Battle.Fighter.make("", 1.0, 1000.0)]
-	var report := Battle.run(a, d, rng, data.balance)
-	assert_eq(report.rounds, 10, "max rounds")
-	assert_true(not report.attackers_won, "defenders hold")
+	assert_eq(report.events.filter(func(e: Battle.Event) -> bool: return e.kind == Battle.Event.DOWN).size(), 1, "one knock-out")
 
 
 func test_night_recharges_with_power_and_opens_next_day() -> void:

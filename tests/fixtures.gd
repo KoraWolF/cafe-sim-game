@@ -47,7 +47,7 @@ static func content(balance_overrides := {}) -> Dictionary:
 		"starter_species": "steady", "starter_name": "Proto", "brew_coin_cost": 30, "brew_core_cost": 1,
 		"power_price": 2, "power_per_battery": 0.1, "conversion_suspicion": 10.0, "raid_suspicion": 20.0,
 		"suspicion_decay": 5.0, "raid_squad_max": 2, "raid_battery_cost": 25.0, "raid_cooldown_days": 2,
-		"battle_max_rounds": 10, "battle_damage_variance": 0.0, "defense_base_chance": 0.0,
+		"battle_damage_variance": 0.0, "defense_base_chance": 0.0,
 		"defense_chance_per_suspicion": 0.0, "defense_max_chance": 1.0, "defense_size_step": 50.0,
 		"defense_max_size": 2, "defense_power_base": 5.0, "defense_power_per_day": 0.0, "defense_hp_base": 20.0,
 		"defense_hp_per_day": 0.0, "defense_coin_loss": 0.5, "defense_core_loss": 1, "steal_coins": 10,

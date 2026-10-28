@@ -133,3 +133,34 @@ The real drivers are workers still working on an empty battery (kept: it was ask
 - **Workers resting in their Pod now charge during the shift:** 0.4 battery points a second, free (no Energy). That's about 3× the usual drain, so a 125-point battery fills from empty in about 5 minutes.
 - Night recharge is unchanged: those in their Pod at closing refill fully, using Energy.
 - Sim (40 days × 5 seeds): about 7,300 coins at day 40 (was about 4,000), since less Energy is bought. Alley taken around day 9, Neon Market around day 19, in all 5 runs.
+
+## Round 4: auto-chess combat (branch `grid-battles`)
+Raids, MegaBean raids on the café and Corporate Audits are now fought on a grid, auto-chess style, instead of in turns. References: the genre basics (placement before the fight, nearest-target AI, attack speed, range in tiles, mana from attacking and being hit, a skill on full mana) as described for [TFT](https://metabot.gg/en/TFT/guides/tft-combat-mechanics-mana-damage-armor-explained), [Dota Underlords](https://dotaunderlords.fandom.com/wiki/Attacks) and a [game-design module on auto battlers](https://seanking11.github.io/gamebootcamp/modules/24-auto-battler).
+
+- **Board:** 8 × 6 isometric squares. Each side owns 3 rows; the player's half is always nearest the camera.
+- **Formation:** set in Night Ops → Battle formation. Click a Synth, then a tile (front row faces the enemy); someone already there swaps. Synths without a spot are placed by class: tanks and fighters in front, fragile behind them, ranged at the back. Saved with the game.
+- **Classes** (`data/combat.json`):
+
+| Class | Species | Range | Attacks every | Moves (tiles/s) | Armor |
+|---|---|---|---|---|---|
+| Tank | Bulkform | 1 | 1.3 s | 1.6 | 30% |
+| Fighter | Steady-unit | 1 | 1.0 s | 2.0 | 15% |
+| Ranged | Clerkbot, Hypeform, Xeno | 3 | 1.1 s | 1.8 | 0% |
+| Fragile | Glitchling | 1 | 0.7 s | 2.8 | 0%, goes for the weakest enemy |
+
+  MegaBean guards have classes too, set per café in `data/districts.json`.
+- **Fighting:** each unit keeps its target until it falls, walks round others toward it, and attacks when in range. Damage is power × 0.8–1.2, less armor; a shield takes damage first.
+- **Mana:** +10 per attack, +5 per hit taken. Full mana casts the species skill:
+
+| Skill | Species | Mana | Effect |
+|---|---|---|---|
+| Slam | Bulkform | 80 | 1.2× damage to all enemies next to it, stun 1 s |
+| Fortify | Steady-unit | 70 | Shield of 30% max HP |
+| Overtime | Clerkbot | 60 | Attacks 1.6× faster for 4 s |
+| Chain spark | Glitchling | 50 | Hits the target and the 2 enemies nearest it |
+| Cheer | Hypeform | 60 | Heals the most-hurt ally for 30% of their max HP |
+| Beam | Xeno | 70 | 2.5× damage to the target |
+
+- **Time limit:** a fight still going after 45 s is won by the defenders.
+- **Ready for models and animations:** a battle is recorded as a timeline of events (move, attack, hit, cast, heal, shield, stun, down). `BattlePlayback.unit_state()` gives any unit at any moment: position, HP, shield, mana, animation (`idle`, `move`, `attack`, `cast`, `hurt`, `down`) with the time into it, and facing. `BattleView._draw_unit` is the one place to swap the placeholder shapes for sprites or models.
+- **Sim (40 days × 5 seeds):** raids won 37.4 of 38.2, MegaBean raids on the café lost 2.4 of 15.2, Audits lost 1.0 of 4.8. Both districts taken (day 9 and 19). About 6,000 coins at day 40.

@@ -21,12 +21,17 @@ var best_role: String = Synth.SERVER
 ## Each new unit of this species rolls its max battery in [x, y].
 var battery_range: Vector2i = Vector2i(70, 200)
 var stats: Dictionary[String, float] = {}
+## How it fights (CombatConfig: tank, fighter, ranged, fragile) and its skill ("" = none).
+var combat_class: String = CombatConfig.FIGHTER
+var skill: String = ""
 
 
 static func from_dict(values: Dictionary) -> Species:
 	var species := Species.new()
 	species.id = values.get("id", "")
 	species.best_role = values.get("best_role", Synth.SERVER)
+	species.combat_class = values.get("class", CombatConfig.FIGHTER)
+	species.skill = values.get("skill", "")
 	var range_values: Variant = values.get("battery_range", [])
 	if range_values is Array and range_values.size() == 2:
 		species.battery_range = Vector2i(int(range_values[0]), int(range_values[1]))

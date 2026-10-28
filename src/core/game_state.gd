@@ -62,6 +62,9 @@ var seat_table: Dictionary[String, String] = {}
 @export var daily_date: String = ""
 @export var story_index: int = 0
 @export var achievements: Array[String] = []
+## Each Synth's spot on its half of the battle board (column, row from the
+## front); one without a spot is placed by its class (see Battle).
+@export var formation: Dictionary[String, Vector2i] = {}
 ## Dishes the player has unlocked (quests, achievements, raids, defense);
 ## species dishes (Star Jelly) come with their Synth instead.
 @export var dishes: Array[String] = []

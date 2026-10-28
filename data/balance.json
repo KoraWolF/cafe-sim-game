@@ -75,7 +75,6 @@
 	"raid_battery_cost": 25.0,
 	"rival_growth_per_day": 0.03,
 	"raid_cooldown_days": 2,
-	"battle_max_rounds": 30,
 	"battle_damage_variance": 0.2,
 	"defense_base_chance": 0.1,
 	"defense_chance_per_suspicion": 0.006,

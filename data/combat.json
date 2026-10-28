@@ -1,0 +1,22 @@
+{
+	"board": [8, 6],
+	"tick_seconds": 0.1,
+	"max_seconds": 45.0,
+	"mana_per_attack": 10.0,
+	"mana_per_hit": 5.0,
+	"classes": {
+		"tank": {"range": 1, "attack_interval": 1.3, "move_speed": 1.6, "armor": 0.3},
+		"fighter": {"range": 1, "attack_interval": 1.0, "move_speed": 2.0, "armor": 0.15},
+		"ranged": {"range": 3, "attack_interval": 1.1, "move_speed": 1.8, "armor": 0.0},
+		"fragile": {"range": 1, "attack_interval": 0.7, "move_speed": 2.8, "armor": 0.0}
+	},
+	"skills": {
+		"slam": {"mana": 80, "power": 1.2, "stun": 1.0},
+		"fortify": {"mana": 70, "shield": 0.3},
+		"overtime": {"mana": 60, "haste": 1.6, "seconds": 4.0},
+		"chain": {"mana": 50, "power": 1.0, "jumps": 2},
+		"cheer": {"mana": 60, "heal": 0.3},
+		"beam": {"mana": 70, "power": 2.5}
+	},
+	"megabean_classes": ["fighter", "ranged", "tank", "fragile"]
+}
