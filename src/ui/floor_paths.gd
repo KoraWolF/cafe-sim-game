@@ -22,7 +22,7 @@ func update(state: GameState, data: GameData) -> void:
 	if key == _key:
 		return
 	_key = key
-	_width = data.balance.floor_width
+	_width = state.floor_width
 	_rows = state.floor_rows
 	_grid.region = Rect2i(0, 0, _width, _rows)
 	_grid.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_ONLY_IF_NO_OBSTACLES

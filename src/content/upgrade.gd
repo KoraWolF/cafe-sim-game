@@ -7,7 +7,7 @@ extends RefCounted
 ## piece (Piece.price), as many as fit.
 ## Pod upgrades add a Sync Pod to the Pod bay outside the café.
 const POD: String = "pod"
-## More floor rows.
+## A bigger floor: level n makes it sizes[n - 1] tiles square.
 const FLOOR: String = "floor"
 ## Extra HP for each home defender.
 const SECURITY: String = "security"
@@ -20,6 +20,8 @@ var step: float = 1.0
 var base_cost: int = 0
 var cost_growth: float = 1.0
 var max_level: int = 0
+## The floor's side after each level (the floor upgrade; max_level follows it).
+var sizes: Array[int] = []
 
 
 static func from_dict(values: Dictionary) -> Upgrade:
@@ -29,6 +31,10 @@ static func from_dict(values: Dictionary) -> Upgrade:
 	upgrade.base_cost = int(values.get("base_cost", 0))
 	upgrade.cost_growth = float(values.get("cost_growth", 1.0))
 	upgrade.max_level = int(values.get("max_level", 0))
+	for size: Variant in values.get("sizes", []):
+		upgrade.sizes.append(int(size))
+	if not upgrade.sizes.is_empty():
+		upgrade.max_level = upgrade.sizes.size()
 	return upgrade
 
 

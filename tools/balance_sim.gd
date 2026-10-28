@@ -242,7 +242,7 @@ func _place_stored_furniture(state: GameState) -> void:
 func _buy_decor(state: GameState) -> int:
 	var spent := 0
 	while true:
-		var free_tiles := data.balance.floor_width * state.floor_rows
+		var free_tiles := state.floor_width * state.floor_rows
 		for placed: PlacedPiece in state.placed:
 			free_tiles -= Layout.cells(placed, data).size()
 		var best_value := 0.0
@@ -250,7 +250,7 @@ func _buy_decor(state: GameState) -> int:
 		for piece: Piece in data.pieces.values():
 			if piece.kind != Piece.DECOR or state.coins - piece.price < RESERVE:
 				continue
-			if free_tiles - piece.size.x * piece.size.y < 2 * data.balance.floor_width:
+			if free_tiles - piece.size.x * piece.size.y < 2 * state.floor_width:
 				continue
 			var spot := _best_spot(state, piece)
 			if not spot.is_empty() and spot["gain"] / piece.price > best_value:
@@ -273,7 +273,7 @@ func _best_spot(state: GameState, piece: Piece) -> Dictionary:
 	trial.piece_id = piece.id
 	trial.uid = "trial"
 	for y: int in state.floor_rows:
-		for x: int in data.balance.floor_width:
+		for x: int in state.floor_width:
 			for rotated: bool in [false, true]:
 				if Layout.check_spot(state, piece.id, Vector2i(x, y), rotated, data) != GameLoop.OK:
 					continue

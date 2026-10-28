@@ -44,7 +44,6 @@ func _run() -> void:
 	await _frames(2)
 	print("CHECK Next -> cook step: ", game.tutorial_box._text.text == tr("tutorial.cook"))
 	GameLoop.start_cooking(state, 0, "coffee", data)
-	GameLoop.start_cooking(state, 1, "toast", data)
 	await _frames(2)
 	print("CHECK cooking -> tutorial moves to the delivery step: ", game.tutorial_box._text.text == tr("tutorial.deliver"))
 	_session.advance(70)
@@ -89,12 +88,12 @@ func _run() -> void:
 		_session.advance(1)  # a worker mid-trip finishes it before changing jobs
 	await _frames(2)
 	var canvas_job: Transform2D = game.cafe.get_viewport().get_canvas_transform()
-	var second_stove := Layout.placed_by_uid(state, state.stoves[1].piece_uid)
-	state.stoves[1].recipe_id = ""
-	state.stoves[1].ready = 0
+	var the_stove := Layout.placed_by_uid(state, state.stoves[0].piece_uid)
+	state.stoves[0].recipe_id = ""
+	state.stoves[0].ready = 0
 	# Click the stove's top face (pieces are clicked by their drawn shape).
-	await _click(canvas_job * (Iso.centre(second_stove.cell, Vector2i.ONE) - Vector2(0, game.cafe.HEIGHTS["stove"])))
-	print("CHECK then a stove's top -> Chef at that stove: ", picked.role == Synth.CHEF and picked.station_uid == second_stove.uid)
+	await _click(canvas_job * (Iso.centre(the_stove.cell, Vector2i.ONE) - Vector2(0, game.cafe.HEIGHTS["stove"])))
+	print("CHECK then a stove's top -> Chef at that stove: ", picked.role == Synth.CHEF and picked.station_uid == the_stove.uid)
 	print("CHECK an idle stove opens its dish menu: ", game.hud._recipe_menu.visible)
 	_shot("03a_job_chef")
 	game.hud._recipe_menu.hide()
@@ -109,7 +108,7 @@ func _run() -> void:
 	print("CHECK click another worker -> switched: ", game.cafe.selected_synth == other.id and game.hud._card.synth_id == other.id)
 	var empty := Vector2i(-1, -1)
 	for y: int in state.floor_rows:
-		for x: int in data.balance.floor_width:
+		for x: int in state.floor_width:
 			if empty.x < 0 and Layout.piece_at(state, Vector2i(x, y), data) == null and y > 2 and game.cafe.piece_at_point(
 					Iso.centre(Vector2i(x, y), Vector2i.ONE)) == null:
 				empty = Vector2i(x, y)
@@ -193,7 +192,7 @@ func _run() -> void:
 	var stove: PlacedPiece = Layout.placed_by_uid(state, state.stoves[0].piece_uid)
 	state.stoves[0].recipe_id = ""
 	state.stoves[0].ready = 0
-	await _click(canvas * Iso.centre(stove.cell, Vector2i.ONE))
+	await _click(game.cafe.get_viewport().get_canvas_transform() * (Iso.centre(stove.cell, Vector2i.ONE) - Vector2(0, game.cafe.HEIGHTS["stove"])))
 	print("CHECK click stove -> recipe menu open: ", game.hud._recipe_menu.visible)
 	_shot("04_recipe_menu")
 	game.hud._recipe_menu.hide()
@@ -242,7 +241,7 @@ func _run() -> void:
 	if full == null:
 		full = state.placed.filter(func(p: PlacedPiece) -> bool: return p.piece_id == "counter")[0]
 		Counters.put(state, full.uid, "coffee", 2)
-	await _click(game.cafe.get_viewport().get_canvas_transform() * Iso.centre(full.cell, Vector2i.ONE))
+	await _click(game.cafe.get_viewport().get_canvas_transform() * (Iso.centre(full.cell, Vector2i.ONE) - Vector2(0, game.cafe.HEIGHTS["counter"])))
 	print("CHECK click counter -> throw-away confirmation shown: ", game.hud.confirm.visible)
 	_shot("04d_confirm_throw")
 	await _click(_centre_of(game.hud.confirm._yes))
@@ -298,7 +297,7 @@ func _run() -> void:
 			await _frames(3)
 			_shot("05_busy_shift")
 	await _frames(5)
-	for tab: int in 4:
+	for tab: int in game.night._tabs.get_tab_count():
 		game.night._tabs.current_tab = tab
 		await _frames(3)
 		_shot("06_night_tab_%d" % tab)
@@ -317,16 +316,16 @@ func _run() -> void:
 	# Its top, as a player sees it (a taller counter beside it hides part of its floor tile).
 	await _click(canvas_edit * (Iso.centre(fern.cell, Vector2i.ONE) - Vector2(0, game.cafe.HEIGHTS["decor"] + 4)))
 	print("CHECK click fern -> holding it: ", game.cafe.editor.held_uid == fern.uid)
-	await _move(canvas_edit * Iso.centre(Vector2i(5, 6), Vector2i.ONE))
+	await _move(canvas_edit * Iso.centre(Vector2i(4, 5), Vector2i.ONE))
 	_shot("10_moving_fern")
-	await _click(canvas_edit * Iso.centre(Vector2i(5, 6), Vector2i.ONE))
-	print("CHECK drop fern -> moved to (5, 6): ", fern.cell == Vector2i(5, 6))
+	await _click(canvas_edit * Iso.centre(Vector2i(4, 5), Vector2i.ONE))
+	print("CHECK drop fern -> moved to (4, 5): ", fern.cell == Vector2i(4, 5))
 	game.edit_panel._take("bubble_lamp")
-	await _move(canvas_edit * Iso.centre(Vector2i(4, 6), Vector2i.ONE))
+	await _move(canvas_edit * Iso.centre(Vector2i(3, 5), Vector2i.ONE))
 	_shot("11_lamp_next_to_fern")
 	var vibe_before := state.vibe
-	var promised: float = game.cafe.editor.preview(state, Vector2i(4, 6), data)["delta"]
-	await _click(canvas_edit * Iso.centre(Vector2i(4, 6), Vector2i.ONE))
+	var promised: float = game.cafe.editor.preview(state, Vector2i(3, 5), data)["delta"]
+	await _click(canvas_edit * Iso.centre(Vector2i(3, 5), Vector2i.ONE))
 	print("CHECK drop lamp beside fern -> Vibe change %+d, as the ghost showed (%+d): %s" % [
 		roundi(state.vibe - vibe_before), roundi(promised), state.vibe - vibe_before == promised])
 	await _move(canvas_edit * Iso.centre(Vector2i(0, 0), Vector2i.ONE))
@@ -337,7 +336,7 @@ func _run() -> void:
 	var raider := state.synths[-1]
 	GameLoop.plan_raid(state, "megabean_kiosk", [raider.id] as Array[String], data)
 	_session.state_changed.emit()
-	game.night._tabs.current_tab = 3
+	game.night._tabs.current_tab = 2
 	await _frames(3)
 	_shot("07_night_ops_planned")
 	# Settings: a real click on the Music slider's left end turns music down, and it is saved.

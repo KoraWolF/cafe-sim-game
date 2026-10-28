@@ -67,7 +67,7 @@ func refresh() -> void:
 		return
 	var state := Session.state
 	var data := Session.data
-	_summary.text = tr("ui.floor_line") % [data.balance.floor_width, state.floor_rows, roundi(state.vibe)]
+	_summary.text = tr("ui.floor_line") % [state.floor_width, state.floor_rows, roundi(state.vibe)]
 	var holding := editor.is_holding()
 	if holding:
 		var key := "ui.edit_holding_rotated" if editor.rotated else "ui.edit_holding"

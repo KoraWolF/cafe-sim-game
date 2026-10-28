@@ -27,7 +27,7 @@ func test_each_upgrade_applies() -> void:
 	for upgrade_id: String in ["pod", "security", "floor"]:
 		assert_eq(GameLoop.buy_upgrade(state, upgrade_id, data), GameLoop.OK, upgrade_id)
 	assert_eq(state.pods, 3, "+1 Pod")
-	assert_eq(state.floor_rows, 8, "6 + 2 rows")
+	assert_eq(Vector2i(state.floor_width, state.floor_rows), Vector2i(8, 8), "8 x 8")
 	assert_eq(state.security, 10.0, "+10 security")
 	assert_eq(state.upgrades, {"pod": 1, "security": 1, "floor": 1} as Dictionary[String, int], "levels")
 	assert_eq(GameLoop.buy_upgrade(state, "stove", data), GameLoop.UNKNOWN_UPGRADE, "furniture is not an upgrade")

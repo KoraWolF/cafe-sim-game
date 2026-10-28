@@ -1,6 +1,6 @@
 class_name Layout
 extends RefCounted
-## The café floor: a grid floor_width tiles across and state.floor_rows deep.
+## The café floor: a grid state.floor_width tiles across and state.floor_rows deep.
 ## Seats, tables, stoves, counters, bins and décor stand on it without
 ## overlapping; only placed pieces count (stoves cook). A seat works only beside
 ## a table (up, down, left or right): each table serves one seat, which faces it. Sync Pods are not on
@@ -19,7 +19,7 @@ const NEIGHBOURS: Array[Vector2i] = [Vector2i.RIGHT, Vector2i.LEFT, Vector2i.DOW
 
 
 static func floor_size(state: GameState, b: BalanceConfig) -> Vector2i:
-	return Vector2i(b.floor_width, state.floor_rows)
+	return Vector2i(state.floor_width, state.floor_rows)
 
 
 static func cells(placed: PlacedPiece, data: GameData) -> Array[Vector2i]:

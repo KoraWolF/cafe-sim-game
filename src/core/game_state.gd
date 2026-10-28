@@ -30,7 +30,8 @@ const SPEEDS: Array[int] = [0, 1, 2, 4]
 ## in the Pod bay outside (one per Synth: the staff cap).
 @export var seats: int = 0
 @export var pods: int = 0
-## Floor depth in tiles (width is floor_width).
+## Floor size in tiles: across and deep.
+@export var floor_width: int = 0
 @export var floor_rows: int = 0
 @export var placed: Array[PlacedPiece] = []
 ## Pieces owned but not on the floor: piece id -> count.
@@ -110,6 +111,7 @@ static func new_game(seed_value: int, data: GameData) -> GameState:
 	state.cores = b.start_cores
 	state.power = b.start_power
 	state.security = b.start_security
+	state.floor_width = b.start_floor_width
 	state.floor_rows = b.start_floor_rows
 	state.pods = b.start_pods
 	# Kind by kind (stoves, counters, tables, seats, bins): the start layout's spots first,

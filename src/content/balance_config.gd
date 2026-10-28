@@ -7,11 +7,11 @@ extends RefCounted
 var shift_seconds: int = 480
 ## The first customer arrives this long after the shift opens.
 var first_arrival_seconds: int = 3
-## Gap between arrivals, before greeters and extra seats shorten it:
-## gap / (1 + total appeal + arrival_per_extra_seat * seats beyond start_seats).
+## Gap between arrivals in a café arrival_reference_size tiles square; a
+## bigger café and the Cashiers' appeal shorten it (see Shift.arrival_rate).
 var arrival_min_seconds: int = 10
 var arrival_max_seconds: int = 18
-var arrival_per_extra_seat: float = 0.0
+var arrival_reference_size: float = 8.0
 ## No new customers in the last part of the shift.
 var spawn_stop_before_end: int = 45
 ## Customers waiting for a seat; more are turned away.
@@ -64,9 +64,9 @@ var star_pay_seconds: float = 2.0
 ## The second starting Synth, working the register ("" = none).
 var starter_cashier_species: String = ""
 var starter_cashier_name: String = "Tally"
-## The café floor: floor_width tiles across, start_floor_rows deep (the floor
-## upgrade adds rows). Seats, stoves, Pods and décor all stand on it.
-var floor_width: int = 8
+## The café floor at the start: start_floor_width tiles across, start_floor_rows
+## deep (the floor upgrade makes it bigger). Seats, stoves and décor stand on it.
+var start_floor_width: int = 6
 var start_floor_rows: int = 6
 ## Where a new game's furniture stands: [{"piece": id, "cell": [x, y], "rotated": bool}].
 ## Empty, or a piece that does not fit there: the first free spot instead.
