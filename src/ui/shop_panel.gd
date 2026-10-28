@@ -113,7 +113,8 @@ func _piece_row(piece: Piece, about: String, help: String) -> Control:
 	row.add_child(_wrap(about + "   " + tr("ui.piece_owned") % [placed, stored], 16))
 	var buy := UiTheme.button(tr("ui.buy_place") % piece.price, func() -> void:
 		if Session.act(GameLoop.buy_piece(Session.state, piece.id, Session.data)):
-			place_requested.emit(piece.id))
+			# After this click is done, so its mouse release can't land on the floor in Arrange.
+			place_requested.emit.call_deferred(piece.id))
 	var store := UiTheme.button(tr("ui.buy_store"), func() -> void:
 		if Session.act(GameLoop.buy_piece(Session.state, piece.id, Session.data)):
 			Session.toast.emit(tr("ui.stored") % [UiText.name(piece.id), Session.state.storage.get(piece.id, 0)]))

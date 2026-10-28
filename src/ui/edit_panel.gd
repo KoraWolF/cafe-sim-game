@@ -4,6 +4,8 @@ extends PanelContainer
 ## hand with Rotate / Store / Sell / Put back, the storage list, and Done.
 
 signal done
+## A button changed what is held (rotate, put back, store, sell).
+signal changed
 
 const WIDTH: float = 380.0
 
@@ -105,3 +107,4 @@ func _do(action: String) -> void:
 		"sell":
 			Session.act(editor.sell(Session.state, Session.data))
 	refresh()
+	changed.emit()

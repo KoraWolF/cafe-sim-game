@@ -21,6 +21,10 @@ var settings := SettingsPanel.new()
 ## Battles still to play tonight, then the report.
 var _battles: Array[Dictionary] = []
 var _night_report: NightOps.Report = null
+## Arrange was opened by "Buy": go back to the Shop when the piece is placed.
+var _back_to_shop := false
+## [piece id, how many were placed] when it was bought.
+var _bought: Array = []
 
 
 func _ready() -> void:
@@ -60,7 +64,8 @@ func _ready() -> void:
 	hud.card_closed.connect(func() -> void: cafe.selected_synth = "")
 	cafe.customer_clicked.connect(hud.confirm_convert)
 	cafe.customer_hovered.connect(hud.show_customer_card)
-	cafe.editor_changed.connect(edit_panel.refresh)
+	cafe.editor_changed.connect(_on_editor_changed)
+	edit_panel.changed.connect(_on_editor_changed)
 	cafe.edit_exit_requested.connect(exit_edit)
 	hud.shop_requested.connect(open_shop)
 	hud.quests_requested.connect(open_quests)
@@ -164,13 +169,29 @@ func exit_edit() -> void:
 	edit_panel.visible = false
 	night.refresh()
 	_layout()
+	if _back_to_shop:
+		_back_to_shop = false
+		shop.open()
+		_layout()
 
 
-## A piece just bought with "Buy": straight into Arrange, held to place (Esc
-## or Put back leaves it in storage).
+## A piece just bought with "Buy": straight into Arrange, held to place. Once
+## it is placed (or put back into storage), the Shop comes back.
 func place_bought(piece_id: String) -> void:
 	enter_edit()
 	edit_panel._take(piece_id)
+	_back_to_shop = true
+	_bought = [piece_id, Layout.count_placed_id(Session.state, piece_id)]
+
+
+## Back to the Shop once the bought piece is on the floor (or put back).
+func _on_editor_changed() -> void:
+	edit_panel.refresh()
+	if not _back_to_shop or cafe.editor == null:
+		return
+	if not cafe.editor.is_holding() or Layout.count_placed_id(Session.state, _bought[0]) > _bought[1]:
+		cafe.editor.cancel()
+		exit_edit()
 
 
 ## The selected worker takes the job of what was clicked ("" = the Pod bay: Rest).
