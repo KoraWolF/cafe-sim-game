@@ -6,7 +6,7 @@ extends RefCounted
 
 ## Stat names and their value when a species leaves them out.
 ## speed: server delivery speed; cook: added to kitchen speed as chef; appeal:
-## greeter arrival bonus; power/hp: combat; drain: battery per second on duty;
+## Cashier arrival bonus; power/hp: combat; drain: battery per second on duty;
 ## break_chance: per delivery; glitch_chance: per second as chef;
 ## late_shift_slowdown: speed lost late in the shift (negative = faster);
 ## recharge_multiplier: Energy cost of recharging; battery_max: only for Synths

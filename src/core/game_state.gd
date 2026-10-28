@@ -61,6 +61,8 @@ var seat_table: Dictionary[String, String] = {}
 @export var daily_date: String = ""
 @export var story_index: int = 0
 @export var achievements: Array[String] = []
+## Starred customers who paid and left this shift: convertible until closing.
+@export var star_list: Array[Customer] = []
 ## Auto on: each night passes by itself with the same menu and no raid
 ## (see Session.auto_night). Unlocks on auto_unlock_day.
 @export var auto_night: bool = false
@@ -164,6 +166,7 @@ func add_starter_cashier(data: GameData) -> Synth:
 	cashier.battery = SynthStats.stat(cashier, "battery_max", data)
 	cashier.name = b.starter_cashier_name
 	cashier.role = Synth.CASHIER
+	Roles.bind_free(self, data)
 	return cashier
 
 
@@ -211,6 +214,14 @@ func customer_by_id(customer_id: String) -> Customer:
 		if customer.id == customer_id:
 			return customer
 	return null
+
+
+## A customer in the café or on the starred list.
+func convertible_by_id(customer_id: String) -> Customer:
+	for customer: Customer in star_list:
+		if customer.id == customer_id:
+			return customer
+	return customer_by_id(customer_id)
 
 
 func has_species(species_id: String) -> bool:

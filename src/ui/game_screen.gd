@@ -53,7 +53,11 @@ func _ready() -> void:
 	Session.night_resolved.connect(_on_night_resolved)
 	cafe.stove_clicked.connect(hud.open_recipe_menu)
 	cafe.counter_clicked.connect(hud.confirm_throw)
-	cafe.synth_clicked.connect(hud.open_synth_card)
+	cafe.synth_clicked.connect(func(synth_id: String) -> void:
+		cafe.selected_synth = synth_id
+		hud.open_synth_card(synth_id))
+	cafe.job_clicked.connect(_give_job)
+	hud.card_closed.connect(func() -> void: cafe.selected_synth = "")
 	cafe.customer_clicked.connect(hud.confirm_convert)
 	cafe.customer_hovered.connect(hud.show_customer_card)
 	cafe.editor_changed.connect(edit_panel.refresh)
@@ -167,6 +171,17 @@ func exit_edit() -> void:
 func place_bought(piece_id: String) -> void:
 	enter_edit()
 	edit_panel._take(piece_id)
+
+
+## The selected worker takes the job of what was clicked ("" = the Pod bay: Rest).
+func _give_job(uid: String) -> void:
+	var state := Session.state
+	var code := GameLoop.send_to_rest(state, cafe.selected_synth) if uid == "" \
+		else GameLoop.assign_to(state, cafe.selected_synth, uid, Session.data)
+	if Session.act(code):
+		var synth := state.synth_by_id(cafe.selected_synth)
+		Session.toast.emit(tr("ui.job_now") % [Session.synth_name(synth), UiText.role(synth.role)])
+		Sfx.play("click")
 
 
 ## The shop, at any time; toggles from the top bar.

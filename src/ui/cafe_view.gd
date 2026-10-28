@@ -17,6 +17,8 @@ extends Node2D
 signal stove_clicked(stove_index: int, screen_position: Vector2)
 ## A counter was clicked (to throw its food away).
 signal counter_clicked(counter_uid: String)
+## With a worker selected: a placed piece (its job) or the Pod bay ("") was clicked.
+signal job_clicked(uid: String)
 signal synth_clicked(synth_id: String)
 signal customer_clicked(customer_id: String)
 ## The mouse moved onto a customer ("" when it left them), with the screen position.
@@ -42,6 +44,9 @@ const WALK_SPEED: float = 3.0
 const TOP_BAR: float = UiTheme.TOP_BAR_HEIGHT
 const NIGHT_PANEL: float = 790.0
 
+## The worker picked to get a job: the next click on a stove, counter, table,
+## register or the Pod bay gives it that job ("" = none).
+var selected_synth: String = ""
 ## Set while arranging the floor; null otherwise.
 var editor: FloorEditor = null
 var _hover := Vector2i(-100, -100)
@@ -268,11 +273,20 @@ func _click(world: Vector2, screen: Vector2) -> void:
 		if customer.can_convert() and _hit(customer.id, world):
 			customer_clicked.emit(customer.id)
 			return
+	var tile := Iso.tile_at(world)
+	if selected_synth != "":
+		# Giving the picked worker a job: the place wins over a worker's head in front of it.
+		var target := Layout.piece_at(state, tile, Session.data)
+		if target != null and Session.data.pieces[target.piece_id].kind != Piece.DECOR:
+			job_clicked.emit(target.uid)
+			return
+		if tile.y >= state.floor_rows and tile.x >= 0 and tile.x < Session.data.balance.floor_width:
+			job_clicked.emit("")  # the Pod bay
+			return
 	for synth: Synth in state.synths:
 		if _hit(synth.id, world):
 			synth_clicked.emit(synth.id)
 			return
-	var tile := Iso.tile_at(world)
 	for i: int in state.stoves.size():
 		var placed := Layout.placed_by_uid(state, state.stoves[i].piece_uid)
 		if placed != null and Layout.cells(placed, Session.data).has(tile):
@@ -629,15 +643,13 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 					at = _piece_front(synth.task_stove_uid, state, data, at).lerp(
 						_piece_front(synth.task_counter_uid, state, data, at), progress)
 			Synth.CHEF:
-				at = _stove_front(index, state, data)
+				# At the front of its own stove (a Chef without a stove waits by the kitchen).
+				at = _piece_front(synth.station_uid, state, data, pass_point + Vector2(-0.8, 0))
 			Synth.CASHIER:
-				var register: String = cashier_at.get(synth.id, "")
-				var spot := Layout.placed_by_uid(state, register)
-				# Behind their register; a Cashier with no free register waits beside the first.
+				# Behind its register; a Cashier without a register waits beside the first.
+				var spot := Layout.placed_by_uid(state, synth.station_uid)
 				at = Vector2(spot.cell) + Vector2(0.5, -0.2) if spot != null \
 					else _piece_front(registers[0] if not registers.is_empty() else "", state, data, pass_point) + Vector2(0.8, 0)
-			Synth.GREETER:
-				at = Vector2(width - 0.5, rows - 1.6 - index * 0.7)
 			_:
 				# Resting in a Sync Pod in the Pod bay (every Synth has one).
 				at = _bay_slot(rest_index, state, data) + Vector2(0, 0.05)
@@ -661,12 +673,11 @@ func _registers(state: GameState, data: GameData) -> Array[String]:
 	return result
 
 
-## Working Cashier id -> the register uid they stand at (one each, in order).
-func _cashier_registers(state: GameState, data: GameData, registers: Array[String]) -> Dictionary[String, String]:
+## Working Cashier id -> the register uid they stand at.
+func _cashier_registers(state: GameState, data: GameData, _registers: Array[String]) -> Dictionary[String, String]:
 	var result: Dictionary[String, String] = {}
-	var cashiers := Shift.active_cashiers(state, data)
-	for i: int in cashiers.size():
-		result[cashiers[i].id] = registers[i]
+	for cashier: Synth in Shift.active_cashiers(state, data):
+		result[cashier.id] = cashier.station_uid
 	return result
 
 
@@ -760,6 +771,11 @@ func _draw_leaver(leaver: Dictionary) -> void:
 func _draw_synth(synth: Synth, at: Vector2) -> void:
 	var glow: Color = UiTheme.SPECIES_GLOW.get(synth.species_id, Color.CYAN)
 	draw_circle(Iso.to_world(at), 22, Color(glow, 0.18))
+	if synth.id == selected_synth:
+		# Picked to get a job: a pulsing ring at its feet.
+		draw_set_transform(Iso.to_world(at), 0, Vector2(1, 0.5))
+		draw_arc(Vector2.ZERO, 30 + 4 * sin(_time * 6.0), 0, TAU, 32, UiTheme.WARN, 4.0)
+		draw_set_transform(Vector2.ZERO)
 	var data := Session.data
 	var outfit := Items.worn(synth, "outfit", data)
 	var body := Color(data.items.fashion[outfit.type_id]["color"]) if outfit != null else Color("9aa3b8")

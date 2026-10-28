@@ -82,6 +82,23 @@ func _run() -> void:
 	print("CHECK Info button -> info open: ", game.hud.info.visible)
 	_shot("03d_info")
 	game.hud.info.hide_modal()
+	# Jobs by place: with the worker picked (its card open), click a stove, then a counter.
+	var picked: Synth = state.synths[0]
+	print("CHECK clicking a worker picks it for a job: ", game.cafe.selected_synth == picked.id)
+	while picked.is_busy():
+		_session.advance(1)  # a worker mid-trip finishes it before changing jobs
+	await _frames(2)
+	var canvas_job: Transform2D = game.cafe.get_viewport().get_canvas_transform()
+	var second_stove := Layout.placed_by_uid(state, state.stoves[1].piece_uid)
+	await _click(canvas_job * Iso.centre(second_stove.cell, Vector2i(2, 1)))
+	print("CHECK then a stove -> Chef at that stove: ", picked.role == Synth.CHEF and picked.station_uid == second_stove.uid)
+	_shot("03a_job_chef")
+	var a_counter: PlacedPiece = state.placed.filter(func(p: PlacedPiece) -> bool: return p.piece_id == "counter")[0]
+	await _click(canvas_job * Iso.centre(a_counter.cell, Vector2i.ONE))
+	print("CHECK then a counter -> Server again: ", picked.role == Synth.SERVER)
+	game.hud._card.visible = false
+	game.hud.card_closed.emit()
+	await _frames(2)
 	# Bag: click the Neon Cap's card, Wear on the first worker; a Details slot opens its picker;
 	# craft in the Workshop (the new piece is selected) and sell it from its detail box.
 	var worker: Synth = state.synths[0]
@@ -174,6 +191,17 @@ func _run() -> void:
 	print("CHECK ...and reaches it: ", not game.cafe._to_pod.has(newcomer.id))
 	_shot("04c_new_synth_in_pod")
 	print("CHECK Auto locked on day 1: ", game.hud._auto.disabled)
+	# Starred customers who paid go to the ★ list under the quests; its dropdown opens on a real click.
+	while state.star_list.is_empty() and state.phase == GameState.Phase.SHIFT:
+		_session.advance(1)
+	await _frames(3)
+	print("CHECK a paid starred customer is in the star list, dropdown shown: ", not state.star_list.is_empty()
+		and game.hud.stars.visible)
+	await _click(_centre_of(game.hud.stars))
+	print("CHECK star dropdown opens: ", game.hud.stars.get_popup().visible)
+	_shot("04c2_star_list")
+	game.hud.stars.get_popup().hide()
+	await _frames(2)
 
 	# Throwing food away: click a counter with food, confirm, a server takes it to the bin.
 	var full: PlacedPiece = null

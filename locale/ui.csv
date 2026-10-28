@@ -134,7 +134,6 @@ ui.battle_auditor,Auditor %d
 ui.battle_gone,Lost Synth
 role.server,Server
 role.chef,Chef
-role.greeter,Greeter
 role.rest,Rest
 error.wrong_phase,You can't do that right now.
 error.unknown_stove,That stove doesn't exist.
@@ -184,7 +183,7 @@ tutorial.welcome,"Welcome to NanoBrew Café! Customers come in, sit down and ord
 tutorial.cook,Click a stove and pick a dish to cook. A server carries the finished batch to a free counter.
 tutorial.deliver,"Your server carries dishes from the counter to the tables. After eating, customers pay your Cashier at the register."
 tutorial.convert,"That customer has a star — they loved it! Click them while they pay or walk out to spend your NanoBrew: they become a Synth."
-tutorial.card,Click one of your Synths to see its level and battery and to change its role.
+tutorial.card,"Click one of your Synths to see its card — then click a stove, counter, register or the Pod bay to give it that job."
 tutorial.night,"The café is closed: it's night. Plan for tomorrow here, then press End Night."
 tutorial.menu,Open the Menu tab and choose tomorrow's dishes. Customers love their favourites.
 tutorial.raid,"Open Night Ops, pick a MegaBean café and a squad, then Plan raid. Raids bring Nano Cores (for NanoBrew) and Influence."
@@ -200,8 +199,7 @@ tip.upgrade.menu_slot,One more dish on the daily menu.
 tip.upgrade.floor,Two more rows of floor for furniture and décor.
 tip.upgrade.security,Extra HP for every Synth defending the café at night.
 tip.role.server,Carries dishes from the counter to the tables (uses speed).
-tip.role.chef,Makes every stove cook faster (uses cooking).
-tip.role.greeter,Brings customers in more often (uses appeal).
+tip.role.chef,Works its own stove and makes it cook faster (uses cooking). One Chef per stove.
 tip.role.rest,Off duty: no work and no battery drain.
 ui.cancel,Cancel
 ui.confirm_convert,Convert this %s into a %s (trait: %s)?
@@ -220,7 +218,7 @@ customer.click_convert,Click to convert with NanoBrew.
 species.clerkbot.desc,"Clerkbot: a fast, steady server, but slows down late in the shift."
 species.bulkform.desc,"Bulkform: strong with a big battery — great raider, but clumsy: sometimes drops dishes."
 species.glitchling.desc,"Glitchling: cooks very fast as a chef, but glitches now and then."
-species.hypeform.desc,"Hypeform: a greeter that brings more customers, but works slowly."
+species.hypeform.desc,"Hypeform: a Cashier whose appeal brings more customers, but works slowly."
 species.steady_unit.desc,"Steady-unit: good at anything and barely uses battery, but slow."
 species.xeno.desc,"Xeno: a strong chef that unlocks Star Jelly, but needs special fuel (recharging costs 3× Power)."
 trait.night_owl.desc,"Night Owl: works faster late in the shift instead of slower, +3 power in fights."
@@ -270,7 +268,7 @@ tip.arrange,"Move, rotate, place and sell furniture and décor — any time. Pie
 tip.upgrade.table,"One more table (1x1). A seat works only right beside a table — one seat per table, and the seat turns to face it."
 ui.seat_no_table,No table
 role.cashier,Cashier
-tip.role.cashier,"Works a register: customers pay there on the way out (uses speed). No Cashier, no payments — one per register."
+tip.role.cashier,"Works its register: customers pay there on the way out (speed), and its appeal brings customers in faster. No Cashier, no payments."
 tip.upgrade.register,"One more register (1x1). Each needs its own Cashier; customers pay at the first free one."
 error.register_needed,The café needs at least one register.
 customer.stage_4,Paying at the register
@@ -302,8 +300,8 @@ info.tab_stats,Stats
 info.tab_roles,Roles
 info.tab_traits,Traits
 info.stat.speed,"Speed: how fast a Server carries dishes and batches, and how fast a Cashier takes payments. 1.0 is normal; +8% per level."
-info.stat.cook,"Cooking: as Chef, added to every stove's cooking speed (+60% makes stoves 1.6× faster). Several Chefs add up; +8% per level."
-info.stat.appeal,"Appeal: as Greeter, customers arrive more often (+50% means 1.5× as many)."
+info.stat.cook,"Cooking: as Chef, added to its own stove's cooking speed (+60% makes it 1.6× faster); +8% per level."
+info.stat.appeal,"Appeal: as Cashier, customers arrive more often (+50% means 1.5× as many). Several Cashiers add up."
 info.stat.power,"Power: damage per hit in raids and when defending the café. Grows 8% per level; low battery halves it."
 info.stat.hp,"HP: how much damage a Synth takes before it's knocked out of a fight. +8% per level; Security adds HP at home."
 info.stat.battery,"Battery: drains every second on duty. Below 20% a Synth works and fights at half strength; at 0 it stops. Max battery is rolled per unit (70–200). Recharged at night with Energy."
@@ -443,3 +441,10 @@ ui.bottle_xp,+%d XP
 ui.workshop_note,Scrap and Chips come from won raids (Chips from a district's flagship). A new piece appears selected in Equipment.
 ui.slots_note,"Click a slot to wear a spare piece or take one off. Everything you own is in the Bag."
 ui.slot_nothing_spare,No spare pieces for this slot
+error.no_job_there,"No job there — click a stove (Chef), counter or table (Server), register (Cashier) or the Pod bay (Rest)."
+ui.card_job,Job: %s%s
+ui.card_job_help,"To change the job, click a place in the café: a stove (Chef), a counter or table (Server), a register (Cashier) or the Pod bay (Rest)."
+ui.job_now,%s is now %s.
+ui.stars_button,★ Starred (%d) ▾
+tip.stars,Starred customers who paid and left. Pick one to convert with NanoBrew — until the café closes.
+ui.star_line,"%s → %s (%s), max battery %d"

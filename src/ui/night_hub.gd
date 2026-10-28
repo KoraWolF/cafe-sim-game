@@ -147,13 +147,7 @@ func _fill_staff(page: VBoxContainer) -> void:
 			synth.level, SynthStats.battery_percent(synth, data), roundi(SynthStats.stat(synth, "battery_max", data))], 16)
 		name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(name)
-		var roles := OptionButton.new()
-		for i: int in Synth.ROLES.size():
-			roles.add_item(UiText.role(Synth.ROLES[i]), i)
-		roles.selected = Synth.ROLES.find(synth.role)
-		roles.item_selected.connect(func(index: int) -> void:
-			Session.act(GameLoop.assign_role(state, synth.id, Synth.ROLES[index])))
-		row.add_child(roles)
+		row.add_child(_wrap(UiText.role(synth.role), 16, UiTheme.PANEL_BORDER))
 		page.add_child(row)
 	page.add_child(HSeparator.new())
 	page.add_child(_wrap(tr("ui.nanobrew_count") % [state.nanobrew, state.cores]))

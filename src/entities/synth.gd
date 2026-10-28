@@ -4,12 +4,11 @@ extends Resource
 
 const SERVER: String = "server"
 const CHEF: String = "chef"
-const GREETER: String = "greeter"
 ## Works a register: customers pay there on the way out.
 const CASHIER: String = "cashier"
 ## Off duty: does no work and does not drain.
 const REST: String = "rest"
-const ROLES: Array[String] = [SERVER, CHEF, CASHIER, GREETER, REST]
+const ROLES: Array[String] = [SERVER, CHEF, CASHIER, REST]
 
 @export var id: String = ""
 @export var name: String = ""
@@ -17,6 +16,8 @@ const ROLES: Array[String] = [SERVER, CHEF, CASHIER, GREETER, REST]
 ## "" = no trait.
 @export var trait_id: String = ""
 @export var role: String = SERVER
+## Chef: the stove piece it works; Cashier: its register ("" = none; see Roles).
+@export var station_uid: String = ""
 @export var battery: float = 0.0
 ## This unit's max battery (0 = the species' battery_max: saves from before units rolled their own).
 @export var battery_max: int = 0
@@ -56,7 +57,7 @@ func is_busy() -> bool:
 
 
 func to_dict() -> Dictionary:
-	return {"id": id, "name": name, "species_id": species_id, "trait_id": trait_id, "role": role,
+	return {"id": id, "name": name, "species_id": species_id, "trait_id": trait_id, "role": role, "station_uid": station_uid,
 		"battery": battery, "battery_max": battery_max, "level": level, "xp": xp, "task_customer_id": task_customer_id, "task_recipe_id": task_recipe_id,
 		"task_remaining": task_remaining, "task_stove_uid": task_stove_uid, "task_counter_uid": task_counter_uid, "task_bin_uid": task_bin_uid,
 		"items": items.map(func(item: Item) -> Dictionary: return item.to_dict())}
@@ -69,6 +70,9 @@ static func from_dict(values: Dictionary) -> Synth:
 	synth.species_id = str(values.get("species_id", ""))
 	synth.trait_id = str(values.get("trait_id", ""))
 	synth.role = str(values.get("role", ""))
+	if synth.role == "greeter":
+		synth.role = SERVER  # the Greeter role is gone
+	synth.station_uid = str(values.get("station_uid", ""))
 	synth.battery = float(values.get("battery", 0.0))
 	synth.battery_max = int(values.get("battery_max", 0))
 	synth.level = int(values.get("level", 0))
