@@ -550,6 +550,21 @@ static func has_save(path: String) -> bool:
 	return FileAccess.file_exists(path) or FileAccess.file_exists(path + ".bak")
 
 
+## A quick look at a save (or its backup) without loading it: day, district,
+## coins, staff and when it was written (unix time). {} if neither can be read.
+static func summary(path: String) -> Dictionary:
+	for file: String in [path, path + ".bak"]:
+		if not FileAccess.file_exists(file):
+			continue
+		var raw: Variant = JSON.parse_string(FileAccess.get_file_as_string(file))
+		if raw is Dictionary:
+			var synths: Variant = raw.get("synths", [])
+			return {"day": int(raw.get("day", 0)), "district_id": str(raw.get("district_id", "")),
+				"coins": int(raw.get("coins", 0)), "staff": synths.size() if synths is Array else 0,
+				"saved_at": FileAccess.get_modified_time(file)}
+	return {}
+
+
 static func delete_save(path: String) -> void:
 	for file: String in [path, path + ".bak", path + ".tmp"]:
 		if FileAccess.file_exists(file):
