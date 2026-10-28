@@ -27,8 +27,12 @@ const ROLES: Array[String] = [SERVER, CHEF, CASHIER, REST]
 ## The customer whose dish this server is carrying ("" = idle).
 @export var task_customer_id: String = ""
 @export var task_recipe_id: String = ""
-## Work left on the current trip (delivery_seconds or carry_seconds at speed 1.0).
+## Work left on the current trip, and the whole trip, in seconds at speed 1.0
+## (walking from where it stands to the pick-up and on to the drop-off; see Shift).
 @export var task_remaining: float = 0.0
+@export var task_total: float = 0.0
+## The placed piece a Server last stopped at ("" = by the kitchen): trips start from here.
+@export var spot_uid: String = ""
 ## Carrying a finished batch: from this stove piece ("" = not carrying)...
 @export var task_stove_uid: String = ""
 ## ...to this counter. While delivering: the counter the dish came from.
@@ -59,7 +63,7 @@ func is_busy() -> bool:
 func to_dict() -> Dictionary:
 	return {"id": id, "name": name, "species_id": species_id, "trait_id": trait_id, "role": role, "station_uid": station_uid,
 		"battery": battery, "battery_max": battery_max, "level": level, "xp": xp, "task_customer_id": task_customer_id, "task_recipe_id": task_recipe_id,
-		"task_remaining": task_remaining, "task_stove_uid": task_stove_uid, "task_counter_uid": task_counter_uid, "task_bin_uid": task_bin_uid,
+		"task_remaining": task_remaining, "task_total": task_total, "spot_uid": spot_uid, "task_stove_uid": task_stove_uid, "task_counter_uid": task_counter_uid, "task_bin_uid": task_bin_uid,
 		"items": items.map(func(item: Item) -> Dictionary: return item.to_dict())}
 
 
@@ -80,6 +84,8 @@ static func from_dict(values: Dictionary) -> Synth:
 	synth.task_customer_id = str(values.get("task_customer_id", ""))
 	synth.task_recipe_id = str(values.get("task_recipe_id", ""))
 	synth.task_remaining = float(values.get("task_remaining", 0.0))
+	synth.task_total = maxf(float(values.get("task_total", 0.0)), synth.task_remaining)
+	synth.spot_uid = str(values.get("spot_uid", ""))
 	synth.task_stove_uid = str(values.get("task_stove_uid", ""))
 	synth.task_counter_uid = str(values.get("task_counter_uid", ""))
 	synth.task_bin_uid = str(values.get("task_bin_uid", ""))

@@ -35,7 +35,7 @@ static func content(balance_overrides := {}) -> Dictionary:
 		"shift_seconds": 100, "first_arrival_seconds": 3, "arrival_min_seconds": 50, "arrival_max_seconds": 50,
 		"spawn_stop_before_end": 10, "max_queue": 2, "queue_patience_seconds": 20, "wait_grace_seconds": 5,
 		"satisfaction_decay_per_second": 2.0, "break_satisfaction_penalty": 15.0, "star_threshold": 80.0,
-		"star_window_seconds": 10, "delivery_seconds": 4, "eat_seconds": 5, "tip_rate": 0.5, "min_pay_share": 0.5,
+		"star_window_seconds": 10, "delivery_seconds": 4, "walk_tiles_per_second": 100000.0, "eat_seconds": 5, "tip_rate": 0.5, "min_pay_share": 0.5,
 		"low_battery_share": 0.2, "low_battery_factor": 0.5, "late_shift_start": 0.7,
 		"start_coins": 100, "start_nanobrew": 1, "start_cores": 0, "start_power": 10.0, "start_seats": 2,
 		"start_stoves": 2, "start_pods": 2, "start_counters": 0, "start_tables": 2,

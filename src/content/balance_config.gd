@@ -28,9 +28,11 @@ var break_satisfaction_penalty: float = 15.0
 ## they tip, and can be converted while they pay and for star_window_seconds after.
 var star_threshold: float = 80.0
 var star_window_seconds: int = 20
-## Seconds a speed 1.0 server needs to carry a dish to a table.
+## Seconds a speed 1.0 server spends handing a dish over (plus the walk).
 var delivery_seconds: int = 6
-## Seconds a speed 1.0 server needs to carry a finished batch from a stove to a counter.
+## How fast everyone walks: trips take as long as the walk (see Shift._start_trip).
+var walk_tiles_per_second: float = 1.8
+## Seconds a speed 1.0 server spends picking up or putting down food (plus the walk).
 var carry_seconds: int = 3
 var eat_seconds: int = 15
 ## Tip = price * tip_rate * type tip * (1 + server tip bonus), only for starred customers.
