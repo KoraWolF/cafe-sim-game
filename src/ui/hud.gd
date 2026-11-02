@@ -7,6 +7,8 @@ extends Control
 signal quit_to_menu
 signal settings_requested
 signal shop_requested
+## The round Night button: open or close the night window.
+signal night_requested
 signal quests_requested
 signal bag_requested
 ## The worker card was closed (the café drops its job selection).
@@ -25,6 +27,7 @@ var _speed_box := HBoxContainer.new()
 var _speed_buttons: Dictionary[int, Button] = {}
 var _auto := Button.new()
 var shop_button := UiTheme.button(tr("ui.shop_button"), shop_requested.emit)
+var night_button := UiTheme.button(tr("ui.night_button"), night_requested.emit)
 var arrange_button := UiTheme.button(tr("ui.arrange_button"), arrange_requested.emit)
 var _toasts := VBoxContainer.new()
 var _feed := VBoxContainer.new()
@@ -36,8 +39,11 @@ var workers := WorkersPanel.new()
 var _resume_speed: int = 1
 ## Size of the round Shop button.
 const SHOP_BUTTON: float = 96.0
-## The recipe menu's "cancel this batch" item.
+## The recipe menu's own items: cancel the batch, take the last queued dish off,
+## throw away a finished batch.
 const CANCEL_COOKING: int = 1000
+const CANCEL_QUEUED: int = 1001
+const THROW_BATCH: int = 1002
 var _recipe_stove: int = -1
 var _card := SynthCard.new()
 var _pause := Modal.new()
@@ -141,8 +147,24 @@ func _build_top_bar() -> void:
 	row.add_child(cog)
 
 
-## The Shop: a round button in the bottom-right corner.
+## The Menu: a round button in the bottom-right corner; Night: one at the top right.
 func _build_shop_button() -> void:
+	night_button.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	night_button.custom_minimum_size = Vector2(SHOP_BUTTON, SHOP_BUTTON)
+	night_button.offset_left = -SHOP_BUTTON - 24
+	night_button.offset_right = -24
+	night_button.offset_top = UiTheme.TOP_BAR_HEIGHT + 16
+	night_button.offset_bottom = night_button.offset_top + SHOP_BUTTON
+	night_button.add_theme_font_size_override("font_size", 20)
+	for state_name: String in ["normal", "hover", "pressed", "focus"]:
+		var style := StyleBoxFlat.new()
+		style.bg_color = Color("3a2f8f").lightened(0.0 if state_name == "normal" else 0.15)
+		style.border_color = UiTheme.PANEL_BORDER
+		style.set_border_width_all(3)
+		style.set_corner_radius_all(int(SHOP_BUTTON / 2))
+		night_button.add_theme_stylebox_override(state_name, style)
+	night_button.visible = false
+	add_child(night_button)
 	shop_button.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
 	shop_button.custom_minimum_size = Vector2(SHOP_BUTTON, SHOP_BUTTON)
 	shop_button.offset_left = -SHOP_BUTTON - 24
@@ -158,6 +180,10 @@ func _build_shop_button() -> void:
 		style.set_corner_radius_all(int(SHOP_BUTTON / 2))
 		shop_button.add_theme_stylebox_override(state_name, style)
 	add_child(shop_button)
+
+
+func show_night_button(on: bool) -> void:
+	night_button.visible = on
 
 
 ## Hides the round Menu button (while a strip is open at the bottom) and keeps
@@ -330,23 +356,32 @@ func _feed_line(text: String, color: Color) -> void:
 func open_recipe_menu(stove_index: int, at: Vector2) -> void:
 	var state := Session.state
 	var data := Session.data
-	if state.stoves[stove_index].has_batch():
-		confirm_throw(state.stoves[stove_index].piece_uid)
-		return
+	var stove := state.stoves[stove_index]
+	var placed := Layout.placed_by_uid(state, stove.piece_uid)
+	var stack := data.pieces[placed.piece_id].stack if placed != null else 1
 	_recipe_stove = stove_index
 	_recipe_menu.clear()
-	# A batch still cooking can be cancelled (refunded), or swapped for another dish.
-	var cooking := state.stoves[stove_index].recipe_id
-	var refund: int = data.recipes[cooking].cost if cooking != "" else 0
 	_recipe_menu.add_separator(tr("ui.cook_title") % (stove_index + 1))
-	if cooking != "":
-		_recipe_menu.add_item(tr("ui.cook_cancel") % [UiText.name(cooking), refund], CANCEL_COOKING)
+	# What is on it now: a finished batch to throw away, the dish cooking, the queue.
+	if stove.has_batch():
+		_recipe_menu.add_item(tr("ui.cook_throw") % [stove.ready, UiText.name(stove.recipe_id)], THROW_BATCH)
+	elif stove.recipe_id != "":
+		_recipe_menu.add_item(tr("ui.cook_cancel") % [UiText.name(stove.recipe_id), data.recipes[stove.recipe_id].cost],
+			CANCEL_COOKING)
+	if not stove.queue.is_empty():
+		_recipe_menu.add_item(tr("ui.cook_unqueue") % [UiText.name(stove.queue[-1]), data.recipes[stove.queue[-1]].cost],
+			CANCEL_QUEUED)
+	var busy := not stove.is_idle() or stove.has_batch()
+	var room := not busy or 1 + stove.queue.size() < stack
+	if busy:
+		_recipe_menu.add_separator(tr("ui.cook_queue_title") % [stove.queue.size(), stack - 1])
 	var unlocked := Shift.unlocked_recipes(state, data)
 	for i: int in unlocked.size():
 		var recipe := unlocked[i]
-		_recipe_menu.add_item(tr("ui.cook_item") % [UiText.name(recipe.id), recipe.cost, recipe.servings, recipe.cook_seconds], i)
+		_recipe_menu.add_item(tr("ui.cook_item" if not busy else "ui.cook_queue") % [UiText.name(recipe.id), recipe.cost,
+			recipe.servings, recipe.cook_seconds], i)
 		_recipe_menu.set_item_metadata(_recipe_menu.get_item_index(i), recipe.id)
-		_recipe_menu.set_item_disabled(_recipe_menu.get_item_index(i), recipe.id == cooking or state.coins + refund < recipe.cost)
+		_recipe_menu.set_item_disabled(_recipe_menu.get_item_index(i), not room or state.coins < recipe.cost)
 	_recipe_menu.position = Vector2i(at)  # popups are embedded: game-window coordinates
 	_recipe_menu.reset_size()
 	_recipe_menu.popup()
@@ -354,16 +389,19 @@ func open_recipe_menu(stove_index: int, at: Vector2) -> void:
 
 func _on_recipe_chosen(id: int) -> void:
 	var state := Session.state
-	var cooking := not state.stoves[_recipe_stove].is_idle()
-	if id == CANCEL_COOKING:
-		if Session.act(GameLoop.cancel_cooking(state, _recipe_stove, Session.data)):
-			Sfx.play("ui_click")
-		return
-	var recipe_id: String = _recipe_menu.get_item_metadata(_recipe_menu.get_item_index(id))
-	if cooking and not Session.act(GameLoop.cancel_cooking(state, _recipe_stove, Session.data)):
-		return
-	if Session.act(GameLoop.start_cooking(state, _recipe_stove, recipe_id, Session.data)):
-		Sfx.play("cook")
+	match id:
+		CANCEL_COOKING:
+			if Session.act(GameLoop.cancel_cooking(state, _recipe_stove, Session.data)):
+				Sfx.play("ui_click")
+		CANCEL_QUEUED:
+			if Session.act(GameLoop.cancel_queued(state, _recipe_stove, Session.data)):
+				Sfx.play("ui_click")
+		THROW_BATCH:
+			confirm_throw(state.stoves[_recipe_stove].piece_uid)
+		_:
+			var recipe_id: String = _recipe_menu.get_item_metadata(_recipe_menu.get_item_index(id))
+			if Session.act(GameLoop.start_cooking(state, _recipe_stove, recipe_id, Session.data)):
+				Sfx.play("cook")
 
 
 func show_customer_card(customer_id: String, at: Vector2) -> void:

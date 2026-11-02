@@ -464,7 +464,7 @@ ui.brew_short,Brew (%d core + %d)
 ui.brew_note,Turns any customer into a Synth. Nano Cores come from won raids.
 ui.brew_in_menu,Brew NanoBrew in the Menu → Workshop.
 ui.battle_clock,%.1f s
-ui.ops_formation_help,"Where your Synths stand when MegaBean raids the café: front row at the top. Click a Synth, then a tile. T tank, F fighter, R ranged, X fragile. (Raid squads are placed on the raid screen.)"
+ui.battle_entering,Walking in through the door...
 help.combat,"Combat (raids and defending) is auto-chess style on a grid. Set where each Synth stands in Night Ops → Battle formation (front row faces the enemy). In the fight everyone walks to the nearest enemy and attacks when in range; fragile units go for the weakest. Classes: Tank (Bulkform: tough, armoured), Fighter (Steady-unit), Ranged (Clerkbot, Hypeform, Xeno: hit from 3 tiles), Fragile (Glitchling: fast, hard-hitting, frail). Mana fills from attacking and being hit; full mana casts the species skill: Slam (stun nearby), Fortify (shield), Overtime (attack faster), Chain spark (hits 3), Cheer (heal), Beam (big hit)."
 error.blocks_door,Keep the door clear: nothing can stand on the tile just inside it.
 error.chef_cooking,"This Chef is still cooking at its stove — wait until the dish is done, or give it another job first."
@@ -479,7 +479,6 @@ error.raided_tonight,"You have raided tonight already: one raid a night."
 ui.ops_open_map,Open map
 ui.ops_map_hint,"Pick a MegaBean café on the district map, set your squad in front of it, and raid. One raid a night."
 ui.ops_raided,You have raided tonight. End the night when you're ready.
-ui.ops_home_formation,Home defence formation
 ui.map_title,"%s — Influence %d / %d"
 ui.map_owned,Taken: %s
 ui.map_hint,Pick a café to raid tonight.
@@ -502,3 +501,12 @@ class.tank,Tank
 class.fighter,Fighter
 class.ranged,Ranged
 class.fragile,Fragile
+ui.cook_throw,"Throw away the finished %d × %s"
+ui.cook_unqueue,"Take %s off the queue (refund %d coins)"
+ui.cook_queue_title,Queue next (%d / %d waiting)
+ui.cook_queue,"Queue %s — %d coins (%d servings, %ds)"
+ui.stove_has_chef,This stove already has its Chef (%s).
+ui.night_button,Night
+ui.ops_defenders,Defenders tonight
+ui.ops_defenders_help,"If MegaBean raids the café, these fight it (tanks stand nearest the door). Those who fight don't recharge tonight. The ones with the most battery are ticked at closing."
+ui.ops_defender,"%s · %s · Lv %d · %d%%"

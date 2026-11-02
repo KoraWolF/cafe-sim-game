@@ -29,6 +29,8 @@ var _night_report: NightOps.Report = null
 var _current_battle: Dictionary = {}
 ## The battles playing are a raid from the map (then back to the night, not the report).
 var _raid_from_map: bool = false
+## The night window is open (it opens at nightfall; the round Night button toggles it).
+var _night_open: bool = true
 var _after_notice: Callable
 ## Arrange was opened by "Buy": go back to the Shop when the piece is placed.
 var _back_to_shop := false
@@ -64,6 +66,13 @@ func _ready() -> void:
 	cafe.synth_clicked.connect(func(_synth_id: String) -> void: _tutorial_saw(Tutorial.OPENED_CARD))
 	battle.finished.connect(_show_result)
 	night.map_requested.connect(raid_map.open)
+	night.closed.connect(func() -> void:
+		_night_open = false
+		_layout())
+	hud.night_requested.connect(func() -> void:
+		_night_open = not _night_open
+		_layout())
+	Session.phase_changed.connect(func() -> void: _night_open = true)
 	raid_map.target_picked.connect(raid_setup.open)
 	raid_setup.back.connect(raid_map.open)
 	raid_setup.raided.connect(_on_raided)
@@ -112,6 +121,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	tutorial_box.suspended = battle.visible or notice.visible or raid_map.visible or raid_setup.visible
 	Session.tick(delta)
 
 
@@ -167,14 +177,19 @@ func _raid_entry(night_report: NightOps.Report) -> Dictionary:
 
 ## The next battle tonight (a raid on the café is announced first), else the report.
 func _play_next_battle() -> void:
+	# The night window steps aside while battles and their screens play.
+	night.visible = false
 	if _battles.is_empty():
 		Sfx.music_for_phase()
 		if _raid_from_map:
-			# Back to the night (End Night still to come).
+			# A raid ends the night: MegaBean may still come, then the next day.
 			_raid_from_map = false
-			night.refresh()
+			Session.end_night()
 		else:
+			# Tonight's results as notes at the top right; the new day starts at once.
 			report.show_report(_night_report)
+			Session.paused = false
+			_layout()
 		return
 	_current_battle = _battles.pop_front()
 	if _current_battle["kind"] == "raid":
@@ -286,6 +301,13 @@ func _on_editor_changed() -> void:
 ## Rest). A Chef put at an idle stove gets its dish menu straight away.
 func _give_job(uid: String, at: Vector2) -> void:
 	var state := Session.state
+	# A stove that already has its Chef: just its dish menu, nobody moves.
+	var there := Roles.at_station(state, uid)
+	var picked_stove := Layout.stove_of(state, uid)
+	if picked_stove != null and there != null and there.role == Synth.CHEF and there.id != cafe.selected_synth:
+		Session.toast.emit(tr("ui.stove_has_chef") % Session.synth_name(there))
+		hud.open_recipe_menu(state.stoves.find(picked_stove), at)
+		return
 	var code := GameLoop.send_to_rest(state, cafe.selected_synth) if uid == "" \
 		else GameLoop.assign_to(state, cafe.selected_synth, uid, Session.data)
 	if Session.act(code):
@@ -293,7 +315,7 @@ func _give_job(uid: String, at: Vector2) -> void:
 		Session.toast.emit(tr("ui.job_now") % [Session.synth_name(synth), UiText.role(synth.role)])
 		Sfx.play("ui_click")
 		var stove := Layout.stove_of(state, uid)
-		if stove != null and stove.is_idle():
+		if stove != null:
 			hud.open_recipe_menu(state.stoves.find(stove), at)
 
 
@@ -348,7 +370,7 @@ func open_quests() -> void:
 ## One panel on the right at a time: the edit panel, else the shop or quests,
 ## else the night hub at night. The camera fits the café beside it.
 func _layout() -> void:
-	night.visible = Session.state.phase == GameState.Phase.NIGHT and cafe.editor == null and not shop.visible \
+	night.visible = Session.state.phase == GameState.Phase.NIGHT and _night_open and cafe.editor == null and not shop.visible 		and not battle.visible and not notice.visible \
 		and not quests.visible and not bag.visible
 	if night.visible:
 		night.refresh()
@@ -363,8 +385,9 @@ func _layout() -> void:
 	elif bag.visible:
 		bottom = BagPanel.HEIGHT + 24.0
 	elif night.visible:
-		panel = CafeView.NIGHT_PANEL
+		panel = 0.0  # a window in the middle: the café stays where it is
 	cafe.fit_camera(panel, bottom)
 	hud.set_right_inset(panel, bottom)
 	hud.show_shop_button(bottom == 0.0, panel)
+	hud.show_night_button(Session.state.phase == GameState.Phase.NIGHT and cafe.editor == null)
 	tutorial_box.bottom_inset = bottom

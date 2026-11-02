@@ -3,7 +3,7 @@ extends RefCounted
 ## Resolves a night, in order: the planned raid (if any: a win earns loot and
 ## Influence, a won flagship raid takes the district over and opens the next),
 ## then either a Corporate Audit (Suspicion at audit_suspicion or more) or a
-## possible MegaBean raid on the café (defended by Synths who stayed home),
+## possible MegaBean raid on the café (fought inside it by tonight's defenders),
 ## Kleptomaniacs pocketing coins, every Synth recharging in its Pod for Power,
 ## owned districts paying income, Suspicion falling, and the next shift opening
 ## (shut if the Audit was lost).
@@ -156,8 +156,10 @@ static func _back_to_work(state: GameState, data: GameData) -> void:
 	for synth: Synth in state.synths:
 		if synth.day_role == "":
 			continue
-		synth.role = synth.day_role
 		synth.station_uid = synth.day_station if Layout.placed_by_uid(state, synth.day_station) != null else ""
+		if synth.station_uid != "":
+			Roles.walk_to_station(state, synth, synth.station_uid, data)  # from the Pod
+		synth.role = synth.day_role
 		synth.day_role = ""
 		synth.day_station = ""
 	Roles.bind_free(state, data)
@@ -244,12 +246,12 @@ static func _take_over(state: GameState, data: GameData, report: Report) -> void
 	state.suspicion[report.next_district] = 0.0
 
 
-## Synths who stayed home (and have battery) as defenders, with security HP.
+## Tonight's defenders (those with battery), with security HP.
 static func _home_defenders(state: GameState, data: GameData) -> Array[Battle.Fighter]:
 	var home: Array[Battle.Fighter] = []
 	for synth: Synth in state.synths:
-		if not state.raid_squad.has(synth.id) and synth.battery > 0.0:
-			home.append(synth_fighter(synth, state.security, data, state))
+		if state.defenders.has(synth.id) and not state.raid_squad.has(synth.id) and synth.battery > 0.0:
+			home.append(synth_fighter(synth, state.security, data))
 	return home
 
 
@@ -279,7 +281,8 @@ static func _drop_dish(state: GameState, source: String, data: GameData, rng: Ra
 static func _defend(state: GameState, data: GameData, rng: RandomNumberGenerator, report: Report) -> void:
 	var b := data.balance
 	var size := mini(1 + int(state.current_suspicion() / maxf(b.defense_size_step, 1.0)), b.defense_max_size)
-	report.defense = Battle.run(_megabean_squad(state, size, 1.0, data), _home_defenders(state, data), rng, data)
+	report.defense = Battle.run(_megabean_squad(state, size, 1.0, data), _home_defenders(state, data), rng, data,
+		RaidField.for_home(state, data))
 	_defender_xp(state, report, b)
 	if not report.defense.attackers_won:
 		_drop_dish(state, "defense", data, rng, report)
@@ -294,7 +297,7 @@ static func _audit(state: GameState, data: GameData, rng: RandomNumberGenerator,
 	var b := data.balance
 	report.audit = true
 	report.defense = Battle.run(_megabean_squad(state, b.audit_size, b.audit_strength, data), _home_defenders(state, data),
-		rng, data)
+		rng, data, RaidField.for_home(state, data))
 	_defender_xp(state, report, b)
 	if not report.defense.attackers_won:
 		return
@@ -326,10 +329,16 @@ static func _steal(state: GameState, data: GameData, rng: RandomNumberGenerator,
 		report.stolen[synth.id] = amount
 
 
-## Fills every Synth's battery (all are in their Pods at night), in Synth order
-## while Power lasts.
+## Fills the batteries of the Synths in their Pods, in Synth order while Power
+## lasts. Those who fought MegaBean tonight were not in their Pods: no recharge.
 static func _recharge(state: GameState, data: GameData, report: Report) -> void:
+	var fought: Dictionary[String, bool] = {}
+	if report.defense != null:
+		for fighter: Battle.Fighter in report.defense.defenders:
+			fought[fighter.synth_id] = true
 	for synth: Synth in state.synths:
+		if fought.has(synth.id):
+			continue
 		var missing := _missing_battery(synth, data)
 		if missing <= 0.0:
 			continue

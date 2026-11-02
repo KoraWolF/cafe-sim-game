@@ -13,6 +13,9 @@ extends Resource
 @export var ready: int = 0
 ## The server on the way with this batch ("" = nobody yet).
 @export var carrier: String = ""
+## Dishes waiting their turn (already paid for); the next starts when the
+## stove is free. How many fit: the piece's stack, less the one cooking.
+@export var queue: Array[String] = []
 
 
 func is_idle() -> bool:
@@ -24,7 +27,7 @@ func has_batch() -> bool:
 
 
 func to_dict() -> Dictionary:
-	return {"piece_uid": piece_uid, "recipe_id": recipe_id, "remaining": remaining, "ready": ready, "carrier": carrier}
+	return {"piece_uid": piece_uid, "recipe_id": recipe_id, "remaining": remaining, "ready": ready, "carrier": carrier, "queue": queue}
 
 
 static func from_dict(values: Dictionary) -> Stove:
@@ -34,4 +37,6 @@ static func from_dict(values: Dictionary) -> Stove:
 	stove.remaining = float(values.get("remaining", 0.0))
 	stove.ready = int(values.get("ready", 0))
 	stove.carrier = str(values.get("carrier", ""))
+	for recipe_id: Variant in values.get("queue", []):
+		stove.queue.append(str(recipe_id))
 	return stove

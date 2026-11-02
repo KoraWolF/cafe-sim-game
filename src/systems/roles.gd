@@ -24,9 +24,9 @@ static func assign_to(state: GameState, synth_id: String, uid: String, data: Gam
 			var own := Layout.stove_of(state, synth.station_uid) if synth.role == Synth.CHEF else null
 			if own != null and synth.station_uid != uid and not own.is_idle():
 				return GameLoop.CHEF_COOKING
-			_take_station(state, synth, Synth.CHEF, uid)
+			_take_station(state, synth, Synth.CHEF, uid, data)
 		Piece.REGISTER:
-			_take_station(state, synth, Synth.CASHIER, uid)
+			_take_station(state, synth, Synth.CASHIER, uid, data)
 		Piece.COUNTER, Piece.TABLE, Piece.BIN:
 			if synth.role != Synth.SERVER:
 				synth.spot_uid = synth.station_uid
@@ -50,14 +50,24 @@ static func rest(state: GameState, synth_id: String) -> String:
 	return GameLoop.OK
 
 
-static func _take_station(state: GameState, synth: Synth, role: String, uid: String) -> void:
+static func _take_station(state: GameState, synth: Synth, role: String, uid: String, data: GameData) -> void:
 	for other: Synth in state.synths:
 		if other != synth and other.station_uid == uid:
 			other.spot_uid = uid
 			other.role = Synth.SERVER
 			other.station_uid = ""
+	if synth.station_uid != uid:
+		walk_to_station(state, synth, uid, data)
 	synth.role = role
 	synth.station_uid = uid
+
+
+## Starts a walk to a station: from where the Synth last stood (from its Pod,
+## a little further).
+static func walk_to_station(state: GameState, synth: Synth, uid: String, data: GameData) -> void:
+	var tiles := Shift.tiles_between(state, synth.spot_uid, uid, data) if synth.role != Synth.REST else POD_TILES
+	synth.arrive_left = roundf(tiles / maxf(data.balance.walk_tiles_per_second, 0.1))  # whole seconds
+	synth.spot_uid = uid
 
 
 ## A worker in the café and one resting in the Pod bay trade places: the
@@ -79,6 +89,10 @@ static func swap(state: GameState, first_id: String, second_id: String) -> Strin
 	working.role = Synth.REST
 	working.station_uid = ""
 	return GameLoop.OK
+
+
+## Tiles from the Pod bay to a station inside the café.
+const POD_TILES: float = 4.0
 
 
 ## The Synth stationed at a placed piece, or null.
@@ -103,5 +117,6 @@ static func bind_free(state: GameState, data: GameData) -> void:
 		synth.station_uid = ""
 		for piece: PlacedPiece in state.placed:
 			if data.pieces[piece.piece_id].kind == kind and at_station(state, piece.uid) == null:
+				walk_to_station(state, synth, piece.uid, data)
 				synth.station_uid = piece.uid
 				break

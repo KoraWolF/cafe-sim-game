@@ -101,6 +101,9 @@ var seat_table: Dictionary[String, String] = {}
 ## Tonight's raid: "" = none.
 @export var raid_target: String = ""
 @export var raid_squad: Array[String] = []
+## Synths who defend the café if MegaBean comes tonight (picked in Night Ops;
+## at closing the defender_count with the most battery).
+@export var defenders: Array[String] = []
 ## The day of the last raid (one raid a night).
 @export var last_raid_day: int = 0
 

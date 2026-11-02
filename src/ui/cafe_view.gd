@@ -45,9 +45,8 @@ const BAY_SPACING: float = 1.1
 ## The walkway (tiles) between the café's front wall and the Pod bay.
 const BAY_GAP: float = 1.0
 ## Everyone walks at the game's walk_tiles_per_second, so timed trips and free walking match.
-## Screen space taken by the HUD's top bar and the night hub.
+## Screen space taken by the HUD's top bar.
 const TOP_BAR: float = UiTheme.TOP_BAR_HEIGHT
-const NIGHT_PANEL: float = 650.0
 
 ## The worker picked to get a job: the next click on a stove, counter, table,
 ## register or the Pod bay gives it that job ("" = none).
@@ -172,7 +171,7 @@ func fit_camera(right_panel := -1.0, bottom_panel := 0.0) -> void:
 	var rect := floor_rect()
 	var view := get_viewport_rect().size
 	if right_panel < 0.0:
-		right_panel = NIGHT_PANEL if Session.state.phase == GameState.Phase.NIGHT else 0.0
+		right_panel = 0.0
 	var free := Rect2(0, TOP_BAR, view.x - right_panel, view.y - TOP_BAR - bottom_panel)
 	var scale := minf(free.size.x * 0.92 / rect.size.x, free.size.y * 0.92 / rect.size.y)
 	camera.zoom = Vector2.ONE * clampf(scale, 0.3, 2.5)
