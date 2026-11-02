@@ -30,6 +30,8 @@ var _toasts := VBoxContainer.new()
 var _feed := VBoxContainer.new()
 var _recipe_menu := PopupMenu.new()
 var _save_buttons: Array[Button] = []
+## The speed Space resumes at.
+var _resume_speed: int = 1
 ## Size of the round Shop button.
 const SHOP_BUTTON: float = 96.0
 ## The recipe menu's "cancel this batch" item.
@@ -417,6 +419,23 @@ func open_synth_card(synth_id: String) -> void:
 	_card.refresh()
 
 
+## Space pauses and resumes (at the speed it had), whatever button has focus:
+## handled here before the buttons, which would take Space as a click.
+func _input(event: InputEvent) -> void:
+	var key := event as InputEventKey
+	if key == null or not key.pressed or key.echo or key.keycode != KEY_SPACE:
+		return
+	if not Session.has_game() or Session.editing or Session.state.phase != GameState.Phase.SHIFT \
+			or get_viewport().gui_get_focus_owner() is LineEdit:
+		return
+	if Session.state.speed != 0:
+		_resume_speed = Session.state.speed
+		Session.set_speed(0)
+	else:
+		Session.set_speed(_resume_speed)
+	get_viewport().set_input_as_handled()
+
+
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not event.is_pressed() or event.is_echo() or not Session.has_game() or Session.editing:
 		return
@@ -424,10 +443,8 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	match key:
 		KEY_ESCAPE:
 			toggle_pause()
-		KEY_SPACE:
-			Session.set_speed(0 if Session.state.speed != 0 else 1)
 		KEY_1, KEY_2, KEY_3:
-			Session.set_speed([1, 2, 4][key - KEY_1])
+			Session.set_speed(GameState.SPEEDS[key - KEY_1 + 1])
 		_:
 			return
 	get_viewport().set_input_as_handled()

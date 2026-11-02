@@ -21,6 +21,8 @@ signal counter_clicked(counter_uid: String)
 signal job_clicked(uid: String, screen_position: Vector2)
 ## A click that hit nothing (closes the worker card).
 signal blank_clicked
+## With a worker picked, another one clicked: one in the café, one in the Pod bay.
+signal swap_clicked(first_id: String, second_id: String)
 signal synth_clicked(synth_id: String)
 signal customer_clicked(customer_id: String)
 ## The mouse moved onto a customer ("" when it left them), with the screen position.
@@ -300,10 +302,15 @@ func _click(world: Vector2, screen: Vector2) -> void:
 		if _hit(customer.id, world):
 			customer_clicked.emit(customer.id)
 			return
-	# A worker's head first: clicking another worker switches to it.
+	# A worker's head first. With a worker picked: one in the café and one in the
+	# Pod bay trade places; otherwise clicking another worker switches to it.
 	for synth: Synth in state.synths:
 		if _hit(synth.id, world):
-			synth_clicked.emit(synth.id)
+			var picked := state.synth_by_id(selected_synth)
+			if picked != null and picked != synth and (picked.role == Synth.REST) != (synth.role == Synth.REST):
+				swap_clicked.emit(selected_synth, synth.id)
+			else:
+				synth_clicked.emit(synth.id)
 			return
 	var piece := piece_at_point(world)
 	var kind: String = data.pieces[piece.piece_id].kind if piece != null else ""

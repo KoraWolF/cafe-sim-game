@@ -188,7 +188,7 @@ func _run() -> void:
 	game.quests.close()
 	await _frames(2)
 	# Nobody walks through furniture: watch a few seconds of walking at 4x.
-	_session.set_speed(4)
+	_session.set_speed(3)
 	var through := 0
 	for frame: int in 180:
 		await _frames(1)

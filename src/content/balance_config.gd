@@ -12,6 +12,8 @@ var first_arrival_seconds: int = 3
 var arrival_min_seconds: int = 10
 var arrival_max_seconds: int = 18
 var arrival_reference_size: float = 8.0
+## With more customers inside than tables, the gap between arrivals is this many times longer.
+var crowded_arrival_slowdown: float = 1.0
 ## No new customers in the last part of the shift.
 var spawn_stop_before_end: int = 45
 ## Customers in a new café wait 1 + patience_bonus times as long (in line and at

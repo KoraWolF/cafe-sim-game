@@ -122,7 +122,7 @@ static func from_dict(raw: Dictionary) -> GameState:
 	state.phase = int(raw.get("phase", -1)) as GameState.Phase
 	state.shift_time = int(raw.get("shift_time", 0))
 	state.next_arrival = int(raw.get("next_arrival", 0))
-	state.speed = int(raw.get("speed", 1))
+	state.speed = mini(int(raw.get("speed", 1)), GameState.SPEEDS[-1])  # 4x is now 3x
 	state.coins = int(raw.get("coins", 0))
 	state.nanobrew = int(raw.get("nanobrew", 0))
 	state.cores = int(raw.get("cores", 0))

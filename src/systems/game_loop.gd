@@ -38,6 +38,8 @@ const NOT_FOR_SALE: String = "not_for_sale"
 const NONE_STORED: String = "none_stored"
 const OUT_OF_BOUNDS: String = "out_of_bounds"
 const OVERLAP: String = "overlap"
+const BLOCKS_DOOR: String = "blocks_door"
+const CHEF_COOKING: String = "chef_cooking"
 const UNKNOWN_PLACED: String = "unknown_placed"
 const COUNTER_NEEDED: String = "counter_needed"
 const COUNTER_BUSY: String = "counter_busy"
@@ -356,6 +358,11 @@ static func assign_to(state: GameState, synth_id: String, uid: String, data: Gam
 ## Clicking the Pod bay: the worker rests.
 static func send_to_rest(state: GameState, synth_id: String) -> String:
 	return Roles.rest(state, synth_id)
+
+
+## A worker in the café and one resting in the Pod bay trade places (see Roles.swap).
+static func swap_jobs(state: GameState, first_id: String, second_id: String) -> String:
+	return Roles.swap(state, first_id, second_id)
 
 
 ## Sets a role directly (Chefs and Cashiers then take a free station). A

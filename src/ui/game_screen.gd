@@ -58,6 +58,7 @@ func _ready() -> void:
 		cafe.selected_synth = synth_id
 		hud.open_synth_card(synth_id))
 	cafe.job_clicked.connect(_give_job)
+	cafe.swap_clicked.connect(_swap_jobs)
 	cafe.blank_clicked.connect(hud.close_synth_card)
 	hud.card_closed.connect(func() -> void: cafe.selected_synth = "")
 	cafe.customer_clicked.connect(hud.confirm_convert)
@@ -205,6 +206,18 @@ func _give_job(uid: String, at: Vector2) -> void:
 		var stove := Layout.stove_of(state, uid)
 		if stove != null and stove.is_idle():
 			hud.open_recipe_menu(state.stoves.find(stove), at)
+
+
+## A worker in the café and one in the Pod bay trade places.
+func _swap_jobs(first_id: String, second_id: String) -> void:
+	var state := Session.state
+	if Session.act(GameLoop.swap_jobs(state, first_id, second_id)):
+		var first := state.synth_by_id(first_id)
+		var second := state.synth_by_id(second_id)
+		Session.toast.emit(tr("ui.swapped") % [Session.synth_name(first), UiText.role(first.role),
+			Session.synth_name(second), UiText.role(second.role)])
+		Sfx.play("ui_click")
+		hud.close_synth_card()
 
 
 ## The shop, at any time; toggles from the top bar.

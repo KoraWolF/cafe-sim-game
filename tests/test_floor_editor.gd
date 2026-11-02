@@ -60,7 +60,7 @@ func test_move_rotate_store_and_sell() -> void:
 	assert_eq(editor.hold_placed(state, bench), GameLoop.OK, "holding a bench")
 	assert_eq(editor.preview(state, Vector2i(7, 4), data)["error"], GameLoop.OUT_OF_BOUNDS, "lengthwise: too wide")
 	editor.rotate()
-	assert_eq(editor.drop(state, Vector2i(7, 4), data), GameLoop.OK, "rotated into the last column")
+	assert_eq(editor.drop(state, Vector2i(7, 3), data), GameLoop.OK, "rotated into the last column")
 	assert_eq(Layout.placed_by_uid(state, bench).rotated, true, "rotated")
 	var stove := state.placed[1].uid
 	GameLoop.start_cooking(state, 1, "tea", data)
