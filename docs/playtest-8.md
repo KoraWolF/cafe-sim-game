@@ -35,6 +35,20 @@
 
 **The default is now 6** (`defender_count`). MegaBean raids lost fell back to about the old level (3.2 of 13).
 
-Still worth watching:
-- **Audits:** every Audit is lost in the sim. They come at high Suspicion, and with the full Audit squad.
-- **Raids:** raids are won less often (about 75%). Walking in through one door makes the doorway a choke point.
+## Tuning after the door fights (branch `tune-doors`)
+Three tries, each 40 days × 5 seeds:
+
+| | 6 defenders | A | B | C (kept) |
+|---|---|---|---|---|
+| Change | | Audit strength 1.5 → 1.2, guard growth 3% → 2% a day | + Audit strength 1.0 | Audit squad 4 → 3 at strength 1.2, guard growth 2% |
+| Raids won | 29.8 / 39.6 | 31.6 / 39.6 | 32.4 / 39.6 | 32.0 / 39.6 |
+| MegaBean raids lost | 3.2 / 13 | 3.8 / 13.2 | 4.2 / 14 | 4.6 / 13 |
+| Audits lost | 3.2 / 3.2 | 2.8 / 3.2 | 2.0 / 3.4 | 1.8 / 3.2 |
+| Alley / Neon Market taken | day 17 / 20 | day 14 / 20 | day 14 / 27 | day 14 / 20 |
+| Coins at day 40 | ~7,360 | ~3,990 | ~3,240 | ~4,940 |
+
+Kept C: `audit_size` 3, `audit_strength` 1.2, `rival_growth_per_day` 0.02.
+
+- **Raids:** won about 80% (the sim bot picks targets with a rough power/HP guess, so it takes fights the door makes harder). The Alley falls 3 days sooner.
+- **Audits:** still lost a bit over half the time, and weaker Audits barely change that. They come at high Suspicion, on nights the bot raids with its 4 strongest, so only the weaker Synths are home to defend. Only about 16 Audits happen across all runs, so this number is noisy.
+- If that feels wrong in play, the fix is in who defends, not the numbers: a Synth who goes on the raid could hand its defender tick to the next most-charged one.
