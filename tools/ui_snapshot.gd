@@ -268,13 +268,16 @@ func _run() -> void:
 	await _frames(2)
 
 	# Throwing food away: click a counter with food, confirm, a server takes it to the bin.
+	# A counter whose top no worker's head covers (a head would be clicked first, picking the worker).
+	game.hud.close_synth_card()
 	var full: PlacedPiece = null
 	for placed: PlacedPiece in state.placed:
-		if state.counter_count.get(placed.uid, 0) > 0:
+		var top: Vector2 = Iso.centre(placed.cell, Vector2i.ONE) - Vector2(0, game.cafe.HEIGHTS["counter"])
+		var covered: bool = game.cafe._heads.values().any(func(head: Vector2) -> bool: return head.distance_to(top) < game.cafe.HEAD_HIT_RADIUS + 4)
+		if placed.piece_id == "counter" and not covered and (full == null or state.counter_count.get(placed.uid, 0) > 0):
 			full = placed
-	if full == null:
-		full = state.placed.filter(func(p: PlacedPiece) -> bool: return p.piece_id == "counter")[0]
-		Counters.put(state, full.uid, "coffee", 2)
+	if state.counter_count.get(full.uid, 0) == 0:
+		Counters.put(state, full.uid, Counters.dish_on(state, full.uid) if Counters.dish_on(state, full.uid) != "" else "coffee", 2)
 	await _click(game.cafe.get_viewport().get_canvas_transform() * (Iso.centre(full.cell, Vector2i.ONE) - Vector2(0, game.cafe.HEIGHTS["counter"])))
 	print("CHECK click counter -> throw-away confirmation shown: ", game.hud.confirm.visible)
 	_shot("04d_confirm_throw")
@@ -394,10 +397,13 @@ func _run() -> void:
 	await _frames(3)
 	print("CHECK Done -> back to the night hub: ", game.night.visible and not game.edit_panel.visible)
 
+	# Pick a target and a squad in Night Ops (no Plan button: End Night asks).
 	var raider := state.synths[-1]
-	GameLoop.plan_raid(state, "megabean_kiosk", [raider.id] as Array[String], data)
-	_session.state_changed.emit()
+	raider.battery = 100.0
+	game.night._target = "megabean_kiosk"
+	game.night._squad.assign([raider.id])
 	game.night._tabs.current_tab = 2
+	game.night.refresh()
 	await _frames(3)
 	_shot("07_night_ops_planned")
 	# Settings: a real click on the Music slider's left end turns music down, and it is saved.
@@ -414,7 +420,11 @@ func _run() -> void:
 
 	# Suspicion past the Audit line: tonight has a raid and an Audit to watch.
 	state.add_suspicion(95.0)
-	_session.end_night()
+	await _click(_centre_of(_button_with(game.night, tr("ui.end_night"))))
+	await _frames(3)
+	print("CHECK End Night with a target and squad -> asks to raid: ", game.night._confirm.visible)
+	_shot("11c_confirm_raid")
+	await _click(_centre_of(game.night._confirm._yes))
 	await _frames(45)
 	print("CHECK End Night -> raid battle playing: ", game.battle.visible and not game.report.visible)
 	_shot("12_battle_raid")
@@ -423,12 +433,23 @@ func _run() -> void:
 	print("CHECK Skip -> raid finished, Continue shown: ", game.battle.playback.is_finished(game.battle._time) and game.battle._continue.visible)
 	_shot("13_battle_raid_end")
 	await _click(_centre_of(game.battle._continue))
+	await _frames(3)
+	print("CHECK after the raid -> results screen: ", game.notice.visible)
+	_shot("13b_raid_results")
+	await _click(_centre_of(game.notice._continue))
+	await _frames(3)
+	print("CHECK before the Audit -> warning screen: ", game.notice.visible and game.notice._title.text == tr("ui.battle_audit"))
+	_shot("13c_audit_warning")
+	await _click(_centre_of(game.notice._continue))
 	await _frames(45)
 	print("CHECK Continue -> Audit battle playing: ", game.battle.visible and game.battle._title.text == tr("ui.battle_audit"))
 	_shot("14_battle_audit")
 	await _click(_centre_of(game.battle._skip))
 	await _frames(3)
 	await _click(_centre_of(game.battle._continue))
+	await _frames(3)
+	_shot("14b_audit_results")
+	await _click(_centre_of(game.notice._continue))
 	await _frames(5)
 	print("CHECK last Continue -> night report shown: ", game.report.visible and not game.battle.visible)
 	_shot("15_report")

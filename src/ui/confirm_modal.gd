@@ -7,6 +7,7 @@ var _details := UiTheme.label("", 16, UiTheme.TEXT_DIM)
 var _yes := UiTheme.button("", _answer.bind(true))
 var _no := UiTheme.button(tr("ui.cancel"), _answer.bind(false))
 var _on_yes: Callable
+var _on_no: Callable
 var _was_paused := false
 
 
@@ -26,7 +27,10 @@ func _ready() -> void:
 
 
 ## Shows the question; on_yes runs only if the player confirms. Time stops meanwhile.
-func ask(question: String, details: String, yes_text: String, on_yes: Callable) -> void:
+## no_text / on_no: the other button's words and action (default: Cancel, nothing).
+func ask(question: String, details: String, yes_text: String, on_yes: Callable, no_text := "", on_no := Callable()) -> void:
+	_no.text = no_text if no_text != "" else tr("ui.cancel")
+	_on_no = on_no
 	_question.text = question
 	_details.text = details
 	_yes.text = yes_text
@@ -46,6 +50,8 @@ func _answer(yes: bool) -> void:
 		session.paused = _was_paused
 	if yes and _on_yes.is_valid():
 		_on_yes.call()
+	elif not yes and _on_no.is_valid():
+		_on_no.call()
 
 
 func _unhandled_key_input(event: InputEvent) -> void:

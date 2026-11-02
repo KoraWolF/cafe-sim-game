@@ -41,45 +41,7 @@ func show_report(report: NightOps.Report) -> void:
 ## [text, colour] for each line of the report.
 static func lines(report: NightOps.Report) -> Array[Array]:
 	var state := Session.state
-	var data := Session.data
-	var result: Array[Array] = []
-	if report.raid != null:
-		if report.raid.attackers_won:
-			result.append([TranslationServer.translate("ui.report_raid_won") % [UiText.name(report.raid_target),
-				report.loot_coins, report.loot_cores, report.influence_gained], UiTheme.GOOD])
-			if report.loot_scrap > 0 or report.loot_chips > 0:
-				result.append([TranslationServer.translate("ui.report_materials") % [report.loot_scrap, report.loot_chips], UiTheme.GOOD])
-			for uid: String in report.loot_items:
-				var item := Items.in_inventory(state, uid)
-				if item != null:
-					result.append([TranslationServer.translate("ui.report_item") % [UiText.item_name(item),
-						UiText.item_effect(item, data.items)], UiTheme.ACCENT])
-			if report.loot_bottle != "":
-				result.append([TranslationServer.translate("ui.report_bottle") % UiText.name(report.loot_bottle), UiTheme.ACCENT])
-		else:
-			result.append([TranslationServer.translate("ui.report_raid_lost") % UiText.name(report.raid_target), UiTheme.BAD])
-	if report.new_dish != "":
-		result.append([TranslationServer.translate("ui.report_dish") % UiText.name(report.new_dish), UiTheme.ACCENT])
-	if report.district_taken != "":
-		result.append([TranslationServer.translate("ui.report_takeover") % [UiText.name(report.district_taken),
-			data.districts[report.district_taken].income], UiTheme.ACCENT])
-		if report.next_district != "":
-			result.append([TranslationServer.translate("ui.report_next") % UiText.name(report.next_district), UiTheme.TEXT])
-		else:
-			result.append([TranslationServer.translate("ui.report_city"), UiTheme.ACCENT])
-	if report.defense != null:
-		var lost := report.defense.attackers_won
-		if report.audit:
-			if not lost:
-				result.append([TranslationServer.translate("ui.report_audit_held"), UiTheme.GOOD])
-			elif report.synth_lost != "":
-				result.append([TranslationServer.translate("ui.report_audit_lost") % report.coins_lost, UiTheme.BAD])
-			else:
-				result.append([TranslationServer.translate("ui.report_audit_lost_none") % report.coins_lost, UiTheme.BAD])
-		elif lost:
-			result.append([TranslationServer.translate("ui.report_defense_lost") % [report.coins_lost, report.cores_lost], UiTheme.BAD])
-		else:
-			result.append([TranslationServer.translate("ui.report_defense_held"), UiTheme.GOOD])
+	var result: Array[Array] = raid_lines(report) + defense_lines(report)
 	if result.is_empty():
 		result.append([TranslationServer.translate("ui.report_quiet"), UiTheme.TEXT_DIM])
 	for synth_id: String in report.stolen:
@@ -96,6 +58,61 @@ static func lines(report: NightOps.Report) -> Array[Array]:
 		if synth != null:
 			result.append([TranslationServer.translate("ui.report_level") % [Session.synth_name(synth), report.level_ups[synth_id]],
 				UiTheme.PANEL_BORDER])
+	return result
+
+
+## The raid's result: won (loot, materials, items, a new dish, a district taken) or lost.
+static func raid_lines(report: NightOps.Report) -> Array[Array]:
+	var state := Session.state
+	var data := Session.data
+	var result: Array[Array] = []
+	if report.raid == null:
+		return result
+	if report.raid.attackers_won:
+		result.append([TranslationServer.translate("ui.report_raid_won") % [UiText.name(report.raid_target),
+			report.loot_coins, report.loot_cores, report.influence_gained], UiTheme.GOOD])
+		if report.loot_scrap > 0 or report.loot_chips > 0:
+			result.append([TranslationServer.translate("ui.report_materials") % [report.loot_scrap, report.loot_chips], UiTheme.GOOD])
+		for uid: String in report.loot_items:
+			var item := Items.in_inventory(state, uid)
+			if item != null:
+				result.append([TranslationServer.translate("ui.report_item") % [UiText.item_name(item),
+					UiText.item_effect(item, data.items)], UiTheme.ACCENT])
+		if report.loot_bottle != "":
+			result.append([TranslationServer.translate("ui.report_bottle") % UiText.name(report.loot_bottle), UiTheme.ACCENT])
+		if report.new_dish != "" and report.defense == null:
+			result.append([TranslationServer.translate("ui.report_dish") % UiText.name(report.new_dish), UiTheme.ACCENT])
+		if report.district_taken != "":
+			result.append([TranslationServer.translate("ui.report_takeover") % [UiText.name(report.district_taken),
+				data.districts[report.district_taken].income], UiTheme.ACCENT])
+			if report.next_district != "":
+				result.append([TranslationServer.translate("ui.report_next") % UiText.name(report.next_district), UiTheme.TEXT])
+			else:
+				result.append([TranslationServer.translate("ui.report_city"), UiTheme.ACCENT])
+	else:
+		result.append([TranslationServer.translate("ui.report_raid_lost") % UiText.name(report.raid_target), UiTheme.BAD])
+	return result
+
+
+## A MegaBean raid on the café, or the Audit: held, or what it took.
+static func defense_lines(report: NightOps.Report) -> Array[Array]:
+	var result: Array[Array] = []
+	if report.defense == null:
+		return result
+	var lost := report.defense.attackers_won
+	if report.audit:
+		if not lost:
+			result.append([TranslationServer.translate("ui.report_audit_held"), UiTheme.GOOD])
+		elif report.synth_lost != "":
+			result.append([TranslationServer.translate("ui.report_audit_lost") % report.coins_lost, UiTheme.BAD])
+		else:
+			result.append([TranslationServer.translate("ui.report_audit_lost_none") % report.coins_lost, UiTheme.BAD])
+	elif lost:
+		result.append([TranslationServer.translate("ui.report_defense_lost") % [report.coins_lost, report.cores_lost], UiTheme.BAD])
+	else:
+		result.append([TranslationServer.translate("ui.report_defense_held"), UiTheme.GOOD])
+		if report.new_dish != "":
+			result.append([TranslationServer.translate("ui.report_dish") % UiText.name(report.new_dish), UiTheme.ACCENT])
 	return result
 
 

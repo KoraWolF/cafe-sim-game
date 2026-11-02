@@ -15,12 +15,17 @@ var shop := ShopPanel.new()
 var quests := QuestPanel.new()
 var bag := BagPanel.new()
 var report := ReportPanel.new()
+## The warning before a MegaBean raid on the café, and each battle's results.
+var notice := NoticePanel.new()
 var battle := BattleView.new()
 var tutorial_box := TutorialBox.new()
 var settings := SettingsPanel.new()
 ## Battles still to play tonight, then the report.
 var _battles: Array[Dictionary] = []
 var _night_report: NightOps.Report = null
+## The battle playing now (an entry of _battles), and what Continue on the notice does next.
+var _current_battle: Dictionary = {}
+var _after_notice: Callable
 ## Arrange was opened by "Buy": go back to the Shop when the piece is placed.
 var _back_to_shop := false
 ## [piece id, how many were placed] when it was bought.
@@ -45,12 +50,16 @@ func _ready() -> void:
 	root.add_child(report)
 	root.add_child(battle)
 	root.add_child(tutorial_box)
+	root.add_child(notice)
 	root.add_child(settings)
 	hud.settings_requested.connect(settings.open)
 	if Session.state.day == 1 and Session.state.shift_time == 0 and not Settings.tutorial_done():
 		tutorial_box.start(Tutorial.new())
 	cafe.synth_clicked.connect(func(_synth_id: String) -> void: _tutorial_saw(Tutorial.OPENED_CARD))
-	battle.finished.connect(_play_next_battle)
+	battle.finished.connect(_show_result)
+	notice.continued.connect(func() -> void:
+		if _after_notice.is_valid():
+			_after_notice.call())
 	Session.night_resolved.connect(_on_night_resolved)
 	cafe.stove_clicked.connect(hud.open_recipe_menu)
 	cafe.counter_clicked.connect(hud.confirm_throw)
@@ -104,14 +113,16 @@ func _on_night_resolved(night_report: NightOps.Report) -> void:
 		for fighter: Battle.Fighter in night_report.raid.attackers:
 			squad.append(_synth_label(fighter.synth_id))
 		_battles.append({"battle": night_report.raid, "attacks": true, "mine": squad, "theirs": _numbered("ui.battle_guard",
-			night_report.raid.defenders.size()), "title": tr("ui.battle_raid") % UiText.name(night_report.raid_target)})
+			night_report.raid.defenders.size()), "title": tr("ui.battle_raid") % UiText.name(night_report.raid_target),
+			"kind": "raid"})
 	if night_report.defense != null:
 		var home: Array[String] = []
 		for fighter: Battle.Fighter in night_report.defense.defenders:
 			home.append(_synth_label(fighter.synth_id))
 		_battles.append({"battle": night_report.defense, "attacks": false, "mine": home,
 			"theirs": _numbered("ui.battle_auditor" if night_report.audit else "ui.battle_raider", night_report.defense.attackers.size()),
-			"title": tr("ui.battle_audit") if night_report.audit else tr("ui.battle_defense")})
+			"title": tr("ui.battle_audit") if night_report.audit else tr("ui.battle_defense"),
+			"kind": "audit" if night_report.audit else "defense"})
 	if Session.auto_running and _battles.is_empty():
 		# A quiet night on Auto: no report, the next shift just carries on.
 		Session.toast.emit(tr("ui.auto_night_done") % night_report.income if night_report.income > 0 else tr("ui.auto_night_done_plain"))
@@ -121,18 +132,55 @@ func _on_night_resolved(night_report: NightOps.Report) -> void:
 	_play_next_battle()
 
 
+## The next battle tonight (a raid on the café is announced first), else the report.
 func _play_next_battle() -> void:
 	if _battles.is_empty():
 		Sfx.music_for_phase()
 		report.show_report(_night_report)
 		return
-	var next: Dictionary = _battles.pop_front()
-	var mine: Array[String] = next["mine"]
-	var theirs: Array[String] = next["theirs"]
-	if next["attacks"]:
-		battle.play(next["battle"], next["title"], true, mine, theirs)
+	_current_battle = _battles.pop_front()
+	if _current_battle["kind"] == "raid":
+		_start_battle()
+		return
+	# MegaBean is coming: say who defends before the fight.
+	var lines: Array[Array] = [[tr("ui.warn_attackers") % (_current_battle["theirs"] as Array).size(), UiTheme.BAD]]
+	var home: Array[String] = _current_battle["mine"]
+	lines.append([tr("ui.warn_defenders") % ", ".join(home) if not home.is_empty() else tr("ui.warn_nobody"),
+		UiTheme.TEXT if not home.is_empty() else UiTheme.WARN])
+	_after_notice = _start_battle
+	notice.show_notice(_current_battle["title"], UiTheme.BAD, lines)
+	Sfx.play("alarm")
+
+
+func _start_battle() -> void:
+	var mine: Array[String] = _current_battle["mine"]
+	var theirs: Array[String] = _current_battle["theirs"]
+	if _current_battle["kind"] == "raid":
+		battle.play(_current_battle["battle"], _current_battle["title"], true, mine, theirs)
 	else:
-		battle.play(next["battle"], next["title"], false, theirs, mine)
+		battle.play(_current_battle["battle"], _current_battle["title"], false, theirs, mine)
+
+
+## After a battle: won or lost, loot or losses, and the XP each fighter earned.
+func _show_result() -> void:
+	var fight: Battle.Report = _current_battle["battle"]
+	var raid: bool = _current_battle["kind"] == "raid"
+	var won := fight.attackers_won == raid
+	var lines: Array[Array] = ReportPanel.raid_lines(_night_report) if raid else ReportPanel.defense_lines(_night_report)
+	var data := Session.data
+	var xp := (data.balance.xp_raid_win if won else data.balance.xp_raid_loss) if raid else data.balance.xp_defense
+	var fighters := fight.attackers if raid else fight.defenders
+	var names: Array[String] = []
+	for fighter: Battle.Fighter in fighters:
+		var synth := Session.state.synth_by_id(fighter.synth_id)
+		if synth == null:
+			continue
+		var level: int = _night_report.level_ups.get(synth.id, 0)
+		names.append(Session.synth_name(synth) + (tr("ui.result_level") % level if level > 0 else ""))
+	if not names.is_empty():
+		lines.append([tr("ui.result_xp") % [xp, ", ".join(names)], UiTheme.PANEL_BORDER])
+	_after_notice = _play_next_battle
+	notice.show_notice(tr("ui.battle_victory") if won else tr("ui.battle_defeat"), UiTheme.GOOD if won else UiTheme.BAD, lines)
 
 
 func _synth_label(synth_id: String) -> String:

@@ -35,8 +35,7 @@ func _init() -> void:
 		{"key": "tutorial.card", "shift": true,
 			"goal": func(_state: GameState, _log: Variant) -> bool: return seen.get(OPENED_CARD, false)},
 		{"key": "tutorial.night", "when": at_night},
-		{"key": "tutorial.raid", "when": at_night,
-			"goal": func(state: GameState, _log: Variant) -> bool: return state.raid_target != ""},
+		{"key": "tutorial.raid", "when": at_night},
 		{"key": "tutorial.end_night", "goal": func(state: GameState, _log: Variant) -> bool: return state.day >= 2},
 		{"key": "tutorial.done"},
 	]

@@ -90,10 +90,6 @@ ui.ops_target,"%s — %d guards (power %d, HP %d), loot %d coins + %d cores, +%d
 ui.ops_flagship,FLAGSHIP — beat it to take the district
 ui.ops_squad,Squad (up to %d):
 ui.ops_member,"%s — power %d, HP %d, battery %d%%"
-ui.ops_plan,Plan raid
-ui.ops_cancel,Cancel raid
-ui.ops_planned,Tonight: raid %s with %d Synths
-ui.ops_no_plan,No raid planned.
 ui.ops_no_targets,No café can be raided tonight.
 ui.report_title,Night %d results
 ui.report_raid_won,Raid on %s: WON. Loot %d coins + %d cores. +%d Influence.
@@ -175,7 +171,7 @@ tutorial.deliver,"Your server carries dishes from the counter to the tables. Aft
 tutorial.convert,"Click any customer — waiting, eating, paying or walking out — to spend your NanoBrew: they become a Synth."
 tutorial.card,"Click one of your Synths to see its card — then click a stove, counter, register or the Pod bay to give it that job."
 tutorial.night,"The café is closed: it's night. Plan for tomorrow here, then press End Night."
-tutorial.raid,"Open Night Ops, pick a MegaBean café and a squad, then Plan raid. Raids bring Nano Cores (for NanoBrew) and Influence."
+tutorial.raid,"Open Night Ops, pick a MegaBean café and a squad: End Night asks if you want to raid. Raids bring Nano Cores (for NanoBrew) and Influence."
 tutorial.end_night,Press End Night to see the night play out.
 tutorial.done,That's the basics! Take over the Alley by beating its flagship. Good luck.
 ui.fx_level_up,LEVEL UP!
@@ -479,3 +475,12 @@ help.combat,"Combat (raids and defending) is auto-chess style on a grid. Set whe
 error.blocks_door,Keep the door clear: nothing can stand on the tile just inside it.
 error.chef_cooking,"This Chef is still cooking at its stove — wait until the dish is done, or give it another job first."
 ui.swapped,"%s is now %s, %s is now %s."
+ui.ops_confirm_hint,"Pick a target and a squad: End Night asks whether to raid tonight."
+ui.confirm_raid,Raid %s tonight?
+ui.confirm_raid_yes,Raid and end night
+ui.confirm_raid_no,End night without raid
+ui.warn_attackers,%d MegaBean fighters are coming.
+ui.warn_defenders,Defending: %s
+ui.warn_nobody,Nobody can defend (no battery): the café is defenceless!
+ui.result_xp,+%d XP: %s
+ui.result_level, (level %d!)
