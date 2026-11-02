@@ -62,3 +62,28 @@ func test_ranged_defenders_walk_out_before_shooting() -> void:
 			cells[event.index] = event.to
 		if not event.side and event.kind == Battle.Event.ATTACK:
 			assert_true(field.outside(cells[event.index]), "a shooter fires only once it is outside")
+
+
+func test_all_guards_come_out_before_the_fight() -> void:
+	var data := TestFixtures.data({"battle_damage_variance": 0.0})
+	var raiders: Array[Battle.Fighter] = [Battle.Fighter.make("a", 5.0, 200.0, CombatConfig.FIGHTER)]
+	var guards: Array[Battle.Fighter] = []
+	for class_id: String in [CombatConfig.RANGED, CombatConfig.TANK, CombatConfig.FIGHTER]:
+		guards.append(Battle.Fighter.make("", 5.0, 200.0, class_id))
+	var inside := Battle.Field.bare(data.combat)
+	inside.board = Vector2i(8, 7)
+	inside.split = 4
+	inside.wall_off(4, 2)  # the café is rows 0-1, the street row 3
+	var report := Battle.run(raiders, guards, RandomNumberGenerator.new(), data, inside)
+	var cells: Dictionary[int, Vector2i] = {}
+	for i: int in guards.size():
+		cells[i] = report.defenders[i].cell
+	for event: Battle.Event in report.events:
+		if event.time >= report.engaged_at:
+			break
+		if not event.side and event.kind == Battle.Event.MOVE:
+			cells[event.index] = event.to
+	for i: int in guards.size():
+		assert_true(inside.outside(cells[i]), "guard %d is out before the fight starts" % i)
+	assert_true(report.events.all(func(e: Battle.Event) -> bool: return e.kind != Battle.Event.ATTACK or e.time >= report.engaged_at),
+		"nobody attacks before that")
