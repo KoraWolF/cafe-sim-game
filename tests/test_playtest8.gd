@@ -1,7 +1,7 @@
 extends TestCase
 ## Playtest 8: a stove stacks dishes (one cooking, the rest waiting), staff
-## work only once they have walked to their station, and battles are fought in
-## cafés with one door (attackers walk in; the fight starts at the door).
+## work only once they have walked to their station, and battles are fought at
+## cafés with one door (the defenders walk out; the fight is on the street).
 
 
 func test_a_stove_queues_the_next_dish() -> void:
@@ -59,7 +59,7 @@ func test_defenders_are_the_most_charged_and_recharge_half() -> void:
 func test_defenders_wait_inside_tanks_nearest_the_door() -> void:
 	var data := TestFixtures.data()
 	var field := Battle.Field.bare(data.combat)
-	field.wall_off(4)
+	field.wall_off(4, 1)
 	var shooter := Battle.Fighter.make("", 1.0, 10.0, CombatConfig.RANGED)
 	var tank := Battle.Fighter.make("", 1.0, 10.0, CombatConfig.TANK)
 	Battle.setup([] as Array[Battle.Fighter], [shooter, tank] as Array[Battle.Fighter], data, field)
@@ -68,21 +68,23 @@ func test_defenders_wait_inside_tanks_nearest_the_door() -> void:
 	assert_true(shooter.cell.y < field.door.y and shooter.cell != tank.cell, "the shooter inside too")
 
 
-func test_attackers_walk_in_and_the_fight_starts_at_the_door() -> void:
+func test_defenders_walk_out_and_the_fight_is_on_the_street() -> void:
 	var data := TestFixtures.data({"battle_damage_variance": 0.0})
 	var field := Battle.Field.bare(data.combat)
-	field.wall_off(0)
-	var raider := Battle.Fighter.make("a", 5.0, 100.0, CombatConfig.RANGED)
-	raider.cell = Vector2i(7, 2)  # the far corner of the street
-	var guard := Battle.Fighter.make("", 5.0, 100.0, CombatConfig.RANGED)
+	field.wall_off(0, 1)  # the café is row 0, the street rows 2 on
+	var raider := Battle.Fighter.make("a", 5.0, 100.0, CombatConfig.FIGHTER)
+	raider.cell = Vector2i(7, 2)  # the far corner of the attackers' rows
+	var guard := Battle.Fighter.make("", 5.0, 100.0, CombatConfig.FIGHTER)
 	var report := Battle.run([raider] as Array[Battle.Fighter], [guard] as Array[Battle.Fighter], RandomNumberGenerator.new(),
 		data, field)
-	assert_true(report.engaged_at > 0.0, "the fight waited for the raider to reach the door")
+	assert_true(report.engaged_at > 0.0, "the fight waited for the guard to come out")
 	var first_attack: Battle.Event = report.events.filter(func(e: Battle.Event) -> bool: return e.kind == Battle.Event.ATTACK)[0]
-	assert_true(first_attack.time >= report.engaged_at, "nobody shot before that")
+	assert_true(first_attack.time >= report.engaged_at, "nobody struck before that")
 	for event: Battle.Event in report.events:
 		if event.kind == Battle.Event.MOVE:
 			assert_true(not field.walls.has(event.to), "nobody walks through the wall")
+			if event.side:
+				assert_true(field.outside(event.to), "the raider never goes in")
 
 
 func test_a_megabean_raid_is_fought_in_the_players_cafe() -> void:
@@ -94,7 +96,8 @@ func test_a_megabean_raid_is_fought_in_the_players_cafe() -> void:
 	var report := GameLoop.end_night(state, data)
 	var field := report.defense.field
 	assert_eq(field.board.x, state.floor_width, "as wide as the café")
-	assert_eq(field.split, state.floor_rows + 1, "its floor, then the front wall")
+	assert_eq(field.door.y, state.floor_rows, "its floor, then the front wall")
+	assert_eq(field.split, state.floor_rows + 1 + RaidField.STREET_ROWS, "then the street")
 	assert_eq(field.door.x, Layout.door_cell(state).x, "the café's own door")
 	assert_eq(field.pieces.size(), state.placed.size(), "its own furniture")
 

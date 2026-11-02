@@ -466,7 +466,7 @@ ui.brew_short,Brew (%d core + %d)
 ui.brew_note,Turns any customer into a Synth. Nano Cores come from won raids.
 ui.brew_in_menu,Brew NanoBrew in the Menu → Workshop.
 ui.battle_clock,%.1f s
-ui.battle_entering,Walking in through the door...
+ui.battle_entering,The defenders are coming out of the door...
 help.combat,"Combat (raids and defending) is auto-chess style on a grid. Set where each Synth stands in Night Ops → Battle formation (front row faces the enemy). In the fight everyone walks to the nearest enemy and attacks when in range; fragile units go for the weakest. Classes: Tank (Bulkform: tough, armoured), Fighter (Steady-unit), Ranged (Clerkbot, Hypeform, Xeno: hit from 3 tiles), Fragile (Glitchling: fast, hard-hitting, frail). Mana fills from attacking and being hit; full mana casts the species skill: Slam (stun nearby), Fortify (shield), Overtime (attack faster), Chain spark (hits 3), Cheer (heal), Beam (big hit)."
 error.blocks_door,Keep the door clear: nothing can stand on the tile just inside it.
 error.blocks_way,That would block the way: everything people walk up to must be reachable from the door.

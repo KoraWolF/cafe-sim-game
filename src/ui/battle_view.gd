@@ -2,8 +2,8 @@ class_name BattleView
 extends Control
 ## Plays one recorded grid battle: the board in the café's 3/4 view, the
 ## player's half nearest the camera (a big café is drawn smaller to fit). A
-## café's front wall stands across the board with its door lit; until the first
-## attacker steps in, the clock says the attackers are walking in. Units walk, attack (melee lunge, ranged
+## café's front wall stands across the board with its door lit, the street in
+## front of it; until the first defender steps out, the clock says they are coming out. Units walk, attack (melee lunge, ranged
 ## shot), cast their skill, flash when hit and fall when down; HP, shield and
 ## mana bars ride above them and damage numbers float up. A Victory/Defeat
 ## banner ends it. Skip jumps to the end, 2x doubles the speed.
@@ -240,6 +240,8 @@ func _draw_board(report: Battle.Report) -> void:
 			if report.field != null and Vector2i(x, y) == report.field.door:
 				tint = UiTheme.GOOD
 				fill = 0.35
+			elif report.field != null and report.field.outside(Vector2i(x, y)) and y < split:
+				tint = UiTheme.TEXT_DIM  # the open street
 			if preview_mode and players and Vector2i(x, y) == hover_cell:
 				fill = 0.4
 			draw_colored_polygon(corners, Color(tint, fill))

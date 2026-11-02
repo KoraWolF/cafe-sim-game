@@ -13,13 +13,14 @@ extends RefCounted
 ## Damage is power x a random factor, less the target's armor; a shield takes it
 ## first. The fight ends when a side is down, or after max_seconds (defenders win).
 ##
-## A raid is fought inside the rival café, a MegaBean raid inside the player's
-## (see Field and RaidField): its furniture blocks walking and gives cover from
-## ranged attacks. Such a café has a front wall with one door: the defenders
-## wait inside (tanks nearest the door, then fighters, fragile, ranged), the
-## attackers start on the street and walk in through the door, and nobody
-## fights until the first attacker is in the doorway. An attacker still outside
-## keeps walking in (it fights back only at a defender who came out to it).
+## A raid is fought in front of the rival café, a MegaBean raid in front of the
+## player's (see Field and RaidField). The café has a front wall with one door:
+## the defenders wait inside (tanks nearest the door, then fighters, fragile,
+## ranged), the attackers wait on the street in their formation, and nobody
+## fights until the first defender steps out of the door. Then the defenders
+## still inside keep walking out (fighting only what is in reach on the way),
+## and the attackers never go in: the fight is on the street. Furniture blocks
+## walking and gives cover from ranged attacks.
 ## The report keeps every event with its time, so the view can play the fight
 ## back (and, later, drive models and animations: see BattlePlayback).
 
@@ -103,12 +104,12 @@ class Field:
 	var walls: Dictionary[Vector2i, bool] = {}
 	var door: Vector2i = Vector2i(-1, -1)
 
-	## A front wall across the row just before the attackers', with the door in door_column.
-	func wall_off(door_column: int) -> void:
-		door = Vector2i(door_column, split - 1)
+	## A front wall across row, with the door in door_column (the street beyond it).
+	func wall_off(door_column: int, row: int) -> void:
+		door = Vector2i(door_column, row)
 		for x: int in board.x:
 			if x != door_column:
-				walls[Vector2i(x, split - 1)] = true
+				walls[Vector2i(x, row)] = true
 
 	## Whether a cell is out on the street, beyond the door.
 	func outside(cell: Vector2i) -> bool:
@@ -139,7 +140,7 @@ class Report:
 	var board: Vector2i = Vector2i(8, 6)
 	var field: Field = null
 	var attackers_won: bool = false
-	## When the fight began: 0, or when the first attacker reached the door.
+	## When the fight began: 0, or when the first defender stepped out of the door.
 	var engaged_at: float = 0.0
 
 	## The fighter on a side at an index.
@@ -188,13 +189,13 @@ static func run(attackers: Array[Fighter], defenders: Array[Fighter], rng: Rando
 			units.append(unit)
 	var time := 0.0
 	var engaged := report.field.door.x < 0
-	# The clock runs from the first step through the door (from the start if nobody gets in).
+	# The clock runs from the first step out of the door (from the start if nobody gets out).
 	while time - report.engaged_at < combat.max_seconds and _standing(units, true) and _standing(units, false):
-		if not engaged and units.any(func(unit: Unit) -> bool: return unit.side and not report.field.outside(unit.cell)):
+		if not engaged and units.any(func(unit: Unit) -> bool: return not unit.side and report.field.outside(unit.cell)):
 			engaged = true
 			report.engaged_at = time
 		for unit: Unit in units:
-			if unit.alive() and (engaged or unit.side):
+			if unit.alive() and (engaged or not unit.side):
 				_act(unit, units, time, report, rng, data)
 		time += combat.tick_seconds
 	report.duration = minf(time, report.engaged_at + combat.max_seconds)
@@ -305,13 +306,12 @@ static func _act(unit: Unit, units: Array[Unit], time: float, report: Report, rn
 	var combat := data.combat
 	if time < unit.busy_until or time < unit.stunned_until:
 		return
-	if unit.side and report.field.outside(unit.cell):
-		# On the street: walk in, unless a defender came out to the door or beyond and is in reach.
+	if not unit.side and report.field.door.x >= 0 and not report.field.outside(unit.cell):
+		# Still inside: walk out, fighting only an attacker already in reach.
 		var near := _pick_target(unit, units)
-		var reach := int(combat.value(unit.fighter.class_id, "range"))
-		if near == null or near.cell.y < report.field.door.y or _distance(unit.cell, near.cell) > reach:
+		if near == null or _distance(unit.cell, near.cell) > int(combat.value(unit.fighter.class_id, "range")):
 			unit.target = null
-			_move(unit, _step_in(unit, units, report.field), time, report, combat)
+			_move(unit, _step_out(unit, units, report.field), time, report, combat)
 			return
 		unit.target = near
 	if unit.target == null or not unit.target.alive():
@@ -463,13 +463,14 @@ static func _step_toward(unit: Unit, units: Array[Unit], combat: CombatConfig, f
 	return _first_step(unit, units, field, func(at: Vector2i) -> bool: return _distance(at, unit.target.cell) <= reach)
 
 
-## The next tile toward the door and through it; the unit's own cell if the way is blocked.
-static func _step_in(unit: Unit, units: Array[Unit], field: Field) -> Vector2i:
-	return _first_step(unit, units, field, func(at: Vector2i) -> bool: return not field.outside(at))
+## The next tile toward the door and out of it; the unit's own cell if the way is blocked.
+static func _step_out(unit: Unit, units: Array[Unit], field: Field) -> Vector2i:
+	return _first_step(unit, units, field, func(at: Vector2i) -> bool: return field.outside(at))
 
 
 ## The first step of the shortest walk (8 directions, round furniture, walls and
-## other units) to a tile where arrived is true; the unit's own cell if there is none.
+## other units; attackers never go into a café) to a tile where arrived is true;
+## the unit's own cell if there is none.
 static func _first_step(unit: Unit, units: Array[Unit], field: Field, arrived: Callable) -> Vector2i:
 	var blocked: Dictionary[Vector2i, bool] = field.obstacles.duplicate()
 	blocked.merge(field.walls)
@@ -487,7 +488,7 @@ static func _first_step(unit: Unit, units: Array[Unit], field: Field, arrived: C
 			var next := at + direction
 			if next.x < 0 or next.y < 0 or next.x >= field.board.x or next.y >= field.board.y:
 				continue
-			if first.has(next) or blocked.has(next):
+			if first.has(next) or blocked.has(next) or (unit.side and field.door.x >= 0 and not field.outside(next)):
 				continue
 			first[next] = next if at == unit.cell else first[at]
 			queue.append(next)
