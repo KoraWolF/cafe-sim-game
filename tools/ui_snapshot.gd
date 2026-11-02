@@ -258,6 +258,27 @@ func _run() -> void:
 	GameLoop.assign_role(state, sleeper.id, Synth.SERVER)
 	_session.state_changed.emit()
 	await _frames(2)
+	# Resting by clicking a Pod: blank bay space does nothing, a free Pod is the one it rests in.
+	state.pods = state.synths.size() + 2
+	_session.state_changed.emit()
+	await _frames(2)
+	var bay_view: Transform2D = game.cafe.get_viewport().get_canvas_transform()
+	await _click(bay_view * game.cafe._heads[sleeper.id])
+	var bay_gap: Vector2 = (Iso.to_world(game.cafe._bay_slot(0, state, data)) + Iso.to_world(game.cafe._bay_slot(1, state, data))) * 0.5
+	await _click(bay_view * (bay_gap + Vector2(0, 12)))
+	print("CHECK blank space between Pods -> nobody sent to rest: ", game.cafe.pod_at(bay_gap + Vector2(0, 12)) == -1
+		and sleeper.role != Synth.REST)
+	var free_pod := state.pods - 1
+	if game.cafe.selected_synth != sleeper.id:
+		await _click(bay_view * game.cafe._heads[sleeper.id])
+	await _click(bay_view * (Iso.to_world(game.cafe._bay_slot(free_pod, state, data)) + Vector2(0, -40)))
+	await _frames(2)
+	print("CHECK click a free Pod -> rests in that very Pod: ", sleeper.role == Synth.REST
+		and game.cafe._pod_of.get(sleeper.id, -1) == free_pod)
+	GameLoop.assign_role(state, sleeper.id, Synth.SERVER)
+	game.hud.close_synth_card()
+	_session.state_changed.emit()
+	await _frames(2)
 	# The Workers list on the left: one row per worker; a name picks the worker; a job menu sets the job.
 	print("CHECK Workers list shows every worker: ", game.hud.workers.visible and game.hud.workers._battery.size() == state.synths.size())
 	_shot("04c3_workers_list")

@@ -16,7 +16,7 @@
 ## The fight on the street
 The board is the café floor (8 wide; 4 rows deep, 5 for a flagship), its front wall (one row, the door in the middle), 2 rows of open street (`STREET_ROWS` in `raid_field.gd`) and the attackers' 3 rows.
 - **The door:** the defenders wait inside and the attackers wait in formation. Nobody moves on the attackers' side until the first defender steps out of the door; the 45-second limit counts from then.
-- **Coming out:** a defender still inside keeps walking out, and only fights an attacker already in its reach.
+- **Coming out:** a defender still inside keeps walking out and fights only once it is outside, ranged ones too.
 - **On the street:** attackers never go into the café, so the fight happens outside.
 - **Obstacles:** furniture and the wall block walking, so units path round them.
 - **Cover:** a unit standing next to furniture takes 25% less from attacks made from more than one tile away (`cover` in `data/combat.json`). The wall gives no cover.

@@ -38,3 +38,20 @@
 Worth tuning if it feels the same in play:
 - stronger MegaBean raids (`defense_power_per_day`, `defense_hp_per_day`);
 - or a stronger Audit (`audit_strength` 1.2 → 1.5).
+
+## After playtest 9 (branch `tune-street`)
+- **Ranged defenders walk out first:** nobody fights from inside the café any more. Ranged defenders used to stop at the door and shoot once attackers came within 3 tiles.
+- **Resting by Pod:** each Pod has its own hitbox. Click a free Pod to rest the picked worker in exactly that Pod; a resting worker clicked onto another free Pod moves there. Clicking a Pod in use is like clicking its worker (a café worker picked swaps with it). Blank space in the bay does nothing.
+- **Tuning:** MegaBean raiders grow faster (`defense_power_per_day` 0.5 → 0.8, `defense_hp_per_day` 2 → 3), and Audits are stronger (`audit_strength` 1.2 → 1.3; 1.5 lost 81% of Audits).
+
+| | Playtest 9 | Tuned + walk-out rule |
+|---|---|---|
+| Customers seated | ~1,930 | ~2,200 |
+| Left angry | 1.8 | 16.4 |
+| Raids won | 32.2 / 40 | 40 / 40 |
+| MegaBean raids lost | 0.8 / 15.6 | 3.4 / 14.8 |
+| Audits lost | 0 / 3.6 | 1.6 / 5.4 |
+| Alley / Neon Market taken | day 6.4 / 14.4 | day 8 / 16 |
+| Coins at day 40 | ~6,490 | ~25,900 |
+
+**Raids are now always won,** and coins pile up from the loot. Rival guards come out of their door one at a time into a squad that is already waiting, and their ranged guards can no longer shoot from inside. Worth tuning next: stronger guards (`rival_growth_per_day`, or guard power and HP in `districts.json`), or the guards could all come out before the fight starts.

@@ -17,7 +17,7 @@ extends Node2D
 signal stove_clicked(stove_index: int, screen_position: Vector2)
 ## A counter was clicked (to throw its food away).
 signal counter_clicked(counter_uid: String)
-## With a worker selected: a placed piece (its job) or the Pod bay ("") was clicked.
+## With a worker selected: a placed piece (its job) or a free Pod ("", the Pod in clicked_pod) was clicked.
 signal job_clicked(uid: String, screen_position: Vector2)
 ## A click that hit nothing (closes the worker card).
 signal blank_clicked
@@ -73,6 +73,8 @@ var _to_pod: Dictionary[String, bool] = {}
 var _pod_of: Dictionary[String, int] = {}
 ## Walking routes round the furniture (see FloorPaths).
 var paths := FloorPaths.new()
+## The free Pod last clicked to rest the picked worker in.
+var clicked_pod: int = -1
 ## Where each Synth is drawn (cell units); they walk to where their job puts them.
 var _synth_at: Dictionary[String, Vector2] = {}
 ## Walker id -> {"to": target, "key": floor version, "points": route, "next": index}.
@@ -319,9 +321,19 @@ func _click(world: Vector2, screen: Vector2) -> void:
 		if [Piece.STOVE, Piece.COUNTER, Piece.TABLE, Piece.BIN, Piece.REGISTER].has(kind):
 			job_clicked.emit(piece.uid, screen)
 			return
-		var tile := Iso.tile_at(world)
-		if piece == null and tile.y >= state.floor_rows and tile.x >= 0 and tile.x < state.floor_width:
-			job_clicked.emit("", screen)  # the Pod bay
+		# A Pod: a free one is where the worker rests; one in use counts as its worker.
+		var pod := pod_at(world)
+		if pod >= 0:
+			var occupant := state.synth_by_id(str(_pod_of.find_key(pod))) if _pod_of.values().has(pod) else null
+			if occupant != null and occupant.role == Synth.REST:
+				var picked := state.synth_by_id(selected_synth)
+				if picked != null and picked != occupant and picked.role != Synth.REST:
+					swap_clicked.emit(selected_synth, occupant.id)
+				else:
+					synth_clicked.emit(occupant.id)
+				return
+			clicked_pod = pod
+			job_clicked.emit("", screen)
 			return
 	match kind:
 		Piece.STOVE:
@@ -744,6 +756,21 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 			_to_pod.erase(synth.id)
 		result.append([_draw_synth.bind(synth, at), at])
 	return result
+
+
+## The Pod under a world point (its glass and base), or -1.
+func pod_at(world: Vector2) -> int:
+	for i: int in Session.state.pods:
+		var base := Iso.to_world(_bay_slot(i, Session.state, Session.data))
+		if Rect2(base + Vector2(-22, -78), Vector2(44, 90)).has_point(world):
+			return i
+	return -1
+
+
+## A resting Synth takes Pod i (if nobody else has it).
+func rest_in_pod(synth_id: String, pod: int) -> void:
+	if pod >= 0 and (not _pod_of.values().has(pod) or _pod_of.get(synth_id, -1) == pod):
+		_pod_of[synth_id] = pod
 
 
 ## The Pod a resting Synth uses: the one it has, or the lowest free one.

@@ -297,8 +297,8 @@ func _on_editor_changed() -> void:
 		exit_edit()
 
 
-## The selected worker takes the job of what was clicked ("" = the Pod bay:
-## Rest). A Chef put at an idle stove gets its dish menu straight away.
+## The selected worker takes the job of what was clicked ("" = a free Pod:
+## Rest in it). A Chef put at an idle stove gets its dish menu straight away.
 func _give_job(uid: String, at: Vector2) -> void:
 	var state := Session.state
 	# A stove that already has its Chef: just its dish menu, nobody moves.
@@ -308,10 +308,16 @@ func _give_job(uid: String, at: Vector2) -> void:
 		Session.toast.emit(tr("ui.stove_has_chef") % Session.synth_name(there))
 		hud.open_recipe_menu(state.stoves.find(picked_stove), at)
 		return
+	var resting := state.synth_by_id(cafe.selected_synth)
+	if uid == "" and resting != null and resting.role == Synth.REST:
+		cafe.rest_in_pod(resting.id, cafe.clicked_pod)  # already resting: just moves to that Pod
+		return
 	var code := GameLoop.send_to_rest(state, cafe.selected_synth) if uid == "" \
 		else GameLoop.assign_to(state, cafe.selected_synth, uid, Session.data)
 	if Session.act(code):
 		var synth := state.synth_by_id(cafe.selected_synth)
+		if uid == "":
+			cafe.rest_in_pod(synth.id, cafe.clicked_pod)
 		Session.toast.emit(tr("ui.job_now") % [Session.synth_name(synth), UiText.role(synth.role)])
 		Sfx.play("ui_click")
 		var stove := Layout.stove_of(state, uid)

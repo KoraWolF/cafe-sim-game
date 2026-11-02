@@ -18,8 +18,8 @@ extends RefCounted
 ## the defenders wait inside (tanks nearest the door, then fighters, fragile,
 ## ranged), the attackers wait on the street in their formation, and nobody
 ## fights until the first defender steps out of the door. Then the defenders
-## still inside keep walking out (fighting only what is in reach on the way),
-## and the attackers never go in: the fight is on the street. Furniture blocks
+## still inside keep walking out (nobody fights from inside, not even ranged
+## units), and the attackers never go in: the fight is on the street. Furniture blocks
 ## walking and gives cover from ranged attacks.
 ## The report keeps every event with its time, so the view can play the fight
 ## back (and, later, drive models and animations: see BattlePlayback).
@@ -307,13 +307,10 @@ static func _act(unit: Unit, units: Array[Unit], time: float, report: Report, rn
 	if time < unit.busy_until or time < unit.stunned_until:
 		return
 	if not unit.side and report.field.door.x >= 0 and not report.field.outside(unit.cell):
-		# Still inside: walk out, fighting only an attacker already in reach.
-		var near := _pick_target(unit, units)
-		if near == null or _distance(unit.cell, near.cell) > int(combat.value(unit.fighter.class_id, "range")):
-			unit.target = null
-			_move(unit, _step_out(unit, units, report.field), time, report, combat)
-			return
-		unit.target = near
+		# Still inside: walk out first (nobody fights from inside, ranged or not).
+		unit.target = null
+		_move(unit, _step_out(unit, units, report.field), time, report, combat)
+		return
 	if unit.target == null or not unit.target.alive():
 		unit.target = _pick_target(unit, units)
 		if unit.target == null:
