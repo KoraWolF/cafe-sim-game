@@ -212,6 +212,7 @@ static func _raid(state: GameState, data: GameData, rng: RandomNumberGenerator, 
 		squad.append(synth_fighter(synth, 0.0, data, state))
 		loot_bonus += SynthStats.stat(synth, "raid_loot", data)
 		synth.battery = maxf(synth.battery - b.raid_battery_cost, 0.0)
+	_hand_on_ticks(state, raiders)
 	# Fought inside the rival café, among its tables and counters.
 	report.raid = Battle.run(squad, guards_for(state, rival, data), rng, data,
 		RaidField.for_rival(rival, district.is_flagship(rival.id), data))
@@ -244,6 +245,19 @@ static func _take_over(state: GameState, data: GameData, report: Report) -> void
 	state.district_id = report.next_district
 	state.district_started_day = state.day + 1
 	state.suspicion[report.next_district] = 0.0
+
+
+## Raiders don't defend tonight: each ticked one hands its tick to the most
+## charged Synth staying home that isn't ticked yet (if any has battery).
+static func _hand_on_ticks(state: GameState, raiders: Array[Synth]) -> void:
+	var home := state.synths.filter(func(synth: Synth) -> bool:
+		return not raiders.has(synth) and not state.defenders.has(synth.id) and synth.battery > 0.0)
+	home.sort_custom(func(a: Synth, b: Synth) -> bool: return a.battery > b.battery)
+	for synth: Synth in raiders:
+		if state.defenders.has(synth.id):
+			state.defenders.erase(synth.id)
+			if not home.is_empty():
+				state.defenders.append(home.pop_front().id)
 
 
 ## Tonight's defenders (those with battery), with security HP.
