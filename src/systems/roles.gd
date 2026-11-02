@@ -19,6 +19,10 @@ static func assign_to(state: GameState, synth_id: String, uid: String, data: Gam
 		return GameLoop.SYNTH_BUSY
 	match data.pieces[placed.piece_id].kind:
 		Piece.STOVE:
+			# A Chef stays with the dish it is cooking (other jobs are fine).
+			var own := Layout.stove_of(state, synth.station_uid) if synth.role == Synth.CHEF else null
+			if own != null and synth.station_uid != uid and not own.is_idle():
+				return GameLoop.CHEF_COOKING
 			_take_station(state, synth, Synth.CHEF, uid)
 		Piece.REGISTER:
 			_take_station(state, synth, Synth.CASHIER, uid)
@@ -52,6 +56,27 @@ static func _take_station(state: GameState, synth: Synth, role: String, uid: Str
 			other.station_uid = ""
 	synth.role = role
 	synth.station_uid = uid
+
+
+## A worker in the café and one resting in the Pod bay trade places: the
+## resting one takes the other's job and station, the other goes to rest.
+static func swap(state: GameState, first_id: String, second_id: String) -> String:
+	var first := state.synth_by_id(first_id)
+	var second := state.synth_by_id(second_id)
+	if first == null or second == null:
+		return GameLoop.UNKNOWN_SYNTH
+	if (first.role == Synth.REST) == (second.role == Synth.REST):
+		return GameLoop.NO_JOB_THERE  # both working or both resting
+	if first.is_busy() or second.is_busy():
+		return GameLoop.SYNTH_BUSY
+	var working := first if second.role == Synth.REST else second
+	var resting := second if working == first else first
+	resting.role = working.role
+	resting.station_uid = working.station_uid
+	resting.spot_uid = working.spot_uid
+	working.role = Synth.REST
+	working.station_uid = ""
+	return GameLoop.OK
 
 
 ## The Synth stationed at a placed piece, or null.

@@ -49,11 +49,19 @@ static func check_spot(state: GameState, piece_id: String, cell: Vector2i, rotat
 	if cell.x < 0 or cell.y < 0 or cell.x + size.x > bounds.x or cell.y + size.y > bounds.y:
 		return GameLoop.OUT_OF_BOUNDS
 	var taken := _occupied(state, data, ignore_uid)
+	var door := door_cell(state)
 	for y: int in size.y:
 		for x: int in size.x:
 			if taken.has(cell + Vector2i(x, y)):
 				return GameLoop.OVERLAP
+			if cell + Vector2i(x, y) == door:
+				return GameLoop.BLOCKS_DOOR
 	return GameLoop.OK
+
+
+## The tile just inside the door (front-right corner): always kept clear.
+static func door_cell(state: GameState) -> Vector2i:
+	return Vector2i(state.floor_width - 1, state.floor_rows - 1)
 
 
 ## The first free spot (row by row, unrotated first): {"cell", "rotated"}, or {} if full.

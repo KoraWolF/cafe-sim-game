@@ -42,7 +42,7 @@ func test_buying_and_placing_rules() -> void:
 	assert_eq(GameLoop.place_piece(state, "fern", Vector2i(7, 5), false, data), GameLoop.NONE_STORED, "no fern owned")
 	assert_eq(GameLoop.place_piece(state, "tank", Vector2i(7, 5), false, data), GameLoop.OUT_OF_BOUNDS, "2x2 off the edge")
 	assert_eq(GameLoop.place_piece(state, "tank", Vector2i(0, 0), false, data), GameLoop.OVERLAP, "on the stoves")
-	assert_eq(GameLoop.place_piece(state, "tank", Vector2i(6, 4), false, data), GameLoop.OK, "fits the corner")
+	assert_eq(GameLoop.place_piece(state, "tank", Vector2i(6, 3), false, data), GameLoop.OK, "fits by the corner")
 	assert_true(state.storage.is_empty(), "storage used")
 	state.coins = 10
 	assert_eq(GameLoop.buy_piece(state, "fern", data), GameLoop.NOT_ENOUGH_COINS, "too poor")
@@ -54,8 +54,8 @@ func test_rotation_swaps_the_footprint() -> void:
 	# A 2x1 bench rotated is 1x2: fits the last column only when rotated.
 	state.storage["bench"] = 1
 	assert_eq(GameLoop.place_piece(state, "bench", Vector2i(7, 4), false, data), GameLoop.OUT_OF_BOUNDS, "lengthwise: too wide")
-	assert_eq(GameLoop.place_piece(state, "bench", Vector2i(7, 4), true, data), GameLoop.OK, "rotated")
-	assert_eq(Layout.piece_at(state, Vector2i(7, 5), data).piece_id, "bench", "covers two rows")
+	assert_eq(GameLoop.place_piece(state, "bench", Vector2i(7, 3), true, data), GameLoop.OK, "rotated")
+	assert_eq(Layout.piece_at(state, Vector2i(7, 4), data).piece_id, "bench", "covers two rows")
 
 
 ## The fixture's two seats stand at (6, 0) and (7, 0); décor reaches 2 tiles.
@@ -134,7 +134,7 @@ func test_pick_up_rules() -> void:
 func test_selling_decor_refunds_half() -> void:
 	var data := TestFixtures.data()
 	var state := _night(data)
-	var fern := _put(state, "fern", Vector2i(7, 5), data)
+	var fern := _put(state, "fern", Vector2i(6, 5), data)
 	assert_eq(GameLoop.sell_piece(state, fern, data), GameLoop.OK, "sold")
 	assert_eq(state.coins, 1000 - 50 + 25, "half back")
 	assert_eq(state.vibe, 0.0, "gone")

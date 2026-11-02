@@ -202,6 +202,10 @@ static func _arrive(state: GameState, data: GameData, rng: RandomNumberGenerator
 	if state.shift_time < state.next_arrival or state.shift_time >= b.shift_seconds - b.spawn_stop_before_end:
 		return
 	var gap := rng.randi_range(b.arrival_min_seconds, b.arrival_max_seconds) / arrival_rate(state, data)
+	# More customers inside (seated or paying) than tables: they come more slowly.
+	var inside := state.customers.filter(func(c: Customer) -> bool: return c.stage != Customer.Stage.QUEUED).size()
+	if inside > Layout.count_placed(state, Piece.TABLE, data):
+		gap *= maxf(b.crowded_arrival_slowdown, 1.0)
 	state.next_arrival = state.shift_time + maxi(roundi(gap), 1)
 	var type_id := _pick_type(data, rng)
 	if queued_count(state) >= b.max_queue:

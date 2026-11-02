@@ -432,7 +432,7 @@ ui.confirm_delete_save_details,The save and its backup are removed for good.
 ui.save_over,"Save to Slot %d (now: Day %d, %s)"
 info.tab_help,Help
 help.cooking,"Cooking: click a stove and pick a dish. A stove only cooks while its Chef works there. Click a cooking stove to cancel its batch (full refund) or swap it for another dish. Servers carry finished batches to a free counter (up to 999 servings each), then bring each seated customer the dish on the counter nearest them — that is what they pay for. New dishes come from the story, achievements, won raids and holding off MegaBean."
-help.jobs,"Jobs: click a worker, then a place — a stove (Chef), a counter, table or bin (Server), a register (Cashier) or the Pod bay (Rest). Click another worker to switch; click empty floor to close the card."
+help.jobs,"Jobs: click a worker, then a place — a stove (Chef), a counter, table or bin (Server), a register (Cashier) or the Pod bay (Rest). Click a worker in the café and then one resting in the Pod bay (or the other way round) to swap their places. A Chef stays at its stove until its dish is done. Click empty floor to close the card. Space pauses."
 help.converting,"Converting: click any customer — in line, seated, eating, paying or walking out — to spend NanoBrew: they become a Synth. You can catch them until they walk out of sight."
 help.quests,"Quests: daily quests, the story and achievements. Today's dailies are listed at the top left — claim a finished one right there, or anything from the Quests button."
 help.shop,"Menu: the round button at the bottom right. Furniture (with Sync Pods: one per tile along the café's side), décor, café upgrades, Energy and the Workshop — any time, the café keeps running. Buy puts the piece in your hand; Store keeps it for later (place it from Arrange)."
@@ -477,3 +477,6 @@ ui.battle_clock,%.1f s
 ui.ops_formation,Battle formation
 ui.ops_formation_help,"Where your Synths stand in fights (raids and defending): front row at the top, facing the enemy. Click a Synth, then a tile. T tank, F fighter, R ranged, X fragile. Gold ring = tonight's raid squad."
 help.combat,"Combat (raids and defending) is auto-chess style on a grid. Set where each Synth stands in Night Ops → Battle formation (front row faces the enemy). In the fight everyone walks to the nearest enemy and attacks when in range; fragile units go for the weakest. Classes: Tank (Bulkform: tough, armoured), Fighter (Steady-unit), Ranged (Clerkbot, Hypeform, Xeno: hit from 3 tiles), Fragile (Glitchling: fast, hard-hitting, frail). Mana fills from attacking and being hit; full mana casts the species skill: Slam (stun nearby), Fortify (shield), Overtime (attack faster), Chain spark (hits 3), Cheer (heal), Beam (big hit)."
+error.blocks_door,Keep the door clear: nothing can stand on the tile just inside it.
+error.chef_cooking,"This Chef is still cooking at its stove — wait until the dish is done, or give it another job first."
+ui.swapped,"%s is now %s, %s is now %s."

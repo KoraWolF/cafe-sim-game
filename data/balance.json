@@ -4,6 +4,7 @@
 	"arrival_min_seconds": 10,
 	"arrival_max_seconds": 18,
 	"arrival_reference_size": 8,
+	"crowded_arrival_slowdown": 2.0,
 	"spawn_stop_before_end": 45,
 	"patience_bonus": 2.0,
 	"max_queue": 6,

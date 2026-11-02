@@ -9,7 +9,7 @@ enum Phase {
 }
 
 ## Speeds the player can pick (0 = paused).
-const SPEEDS: Array[int] = [0, 1, 2, 4]
+const SPEEDS: Array[int] = [0, 1, 2, 3]
 
 @export var day: int = 1
 @export var phase: Phase = Phase.SHIFT
