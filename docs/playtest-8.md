@@ -10,7 +10,7 @@
 - **Night window:** a centred window, opened and closed at any time with the round **Night** button at the top right.
 - **No Start Day dialog:** the night results appear as notes at the top right, and the day starts at once.
 - **A raid ends the night:** after the raid, a MegaBean raid on the café (if one comes) is fought, then the day starts.
-- **Defenders tonight:** tick who defends in Night Ops. At closing, the 4 with the most battery are ticked (`defender_count`). Defenders who fight don't recharge that night.
+- **Defenders tonight:** tick who defends in Night Ops. At closing, the 6 with the most battery are ticked (`defender_count`). Defenders who fight don't recharge that night.
 - **The defence grid is gone.**
 
 ## Fights inside cafés with one door
@@ -20,19 +20,21 @@
 - More in `docs/raids.md`.
 
 ## Balance (40 days × 5 seeds)
-| | Playtest 7 | Raid map | Playtest 8 |
-|---|---|---|---|
-| Customers seated | ~2,240 | ~1,780 | ~1,660 |
-| Left angry | 10 | 123 | 0 |
-| Raids won | 39 / 39.2 | 36.6 / 38.6 | 32.2 / 39.6 |
-| MegaBean raids lost | 3 / 16.6 | | 11.4 / 15.2 |
-| Audits lost | 1.2 / 5 | | 3.4 / 3.4 |
-| Alley taken | day 8 | day 8 | day 16.8 |
-| Neon Market taken | day 18 | day 21 | day 25.2 |
-| Coins at day 40 | ~4,840 | ~7,780 | ~3,400 |
+| | Playtest 7 | Raid map | Playtest 8, 4 defenders | Playtest 8, 6 defenders |
+|---|---|---|---|---|
+| Customers seated | ~2,240 | ~1,780 | ~1,660 | ~1,580 |
+| Left angry | 10 | 123 | 0 | 0.2 |
+| Raids won | 39 / 39.2 | 36.6 / 38.6 | 32.2 / 39.6 | 29.8 / 39.6 |
+| MegaBean raids lost | 3 / 16.6 | | 11.4 / 15.2 | 3.2 / 13 |
+| Audits lost | 1.2 / 5 | | 3.4 / 3.4 | 3.2 / 3.2 |
+| Alley taken | day 8 | day 8 | day 16.8 | day 17 |
+| Neon Market taken | day 18 | day 21 | day 25.2 | day 20 |
+| Coins at day 40 | ~4,840 | ~7,780 | ~3,400 | ~7,360 |
 
-**Home defence got much weaker.** The likely cause: the sim bot raids with everyone but one Synth. The 4 most-charged Synths ticked to defend at closing are mostly the same ones who went on the raid, so very few are left at home. The walk-in fight may also play a part.
+**Home defence with 4 defenders was much weaker.** The sim bot raids with everyone but one Synth, and the 4 most-charged Synths ticked at closing were mostly the ones who went on the raid, so few stayed home.
 
-Worth deciding:
-- whether a Synth who goes on the raid should hand its defender tick to the next most-charged one;
-- or whether the default should be more than 4.
+**The default is now 6** (`defender_count`). MegaBean raids lost fell back to about the old level (3.2 of 13).
+
+Still worth watching:
+- **Audits:** every Audit is lost in the sim. They come at high Suspicion, and with the full Audit squad.
+- **Raids:** raids are won less often (about 75%). Walking in through one door makes the doorway a choke point.
