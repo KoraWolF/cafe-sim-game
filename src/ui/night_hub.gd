@@ -2,6 +2,8 @@ class_name NightHub
 extends PanelContainer
 
 ## A tab was opened: "summary", "staff" or "ops".
+## Night Ops' Open map was pressed.
+signal map_requested
 signal tab_shown(key: String)
 ## The night screen, on the right so the café stays visible: Summary, Menu,
 ## Staff and Night Ops tabs, then "End Night". (The Shop and Arrange Floor are
@@ -12,9 +14,6 @@ var _title := UiTheme.label("", 26, UiTheme.PANEL_BORDER)
 var _tabs := TabContainer.new()
 var _pages: Dictionary[String, VBoxContainer] = {}
 ## Night Ops picks, kept while the player edits them.
-var _target: String = ""
-var _squad: Array[String] = []
-var _confirm := ConfirmModal.new()
 
 
 func _ready() -> void:
@@ -47,8 +46,6 @@ func _ready() -> void:
 	end.custom_minimum_size = Vector2(0, 54)
 	end.add_theme_font_size_override("font_size", 20)
 	column.add_child(end)
-	# Beside the hub, not inside it: a container would squeeze the full-screen modal.
-	get_parent().add_child.call_deferred(_confirm)
 	Session.state_changed.connect(refresh)
 	Session.phase_changed.connect(_on_phase_changed)
 	_on_phase_changed()
@@ -57,8 +54,6 @@ func _ready() -> void:
 func _on_phase_changed() -> void:
 	visible = Session.has_game() and Session.state.phase == GameState.Phase.NIGHT
 	if visible:
-		_target = Session.state.raid_target
-		_squad = Session.state.raid_squad.duplicate()
 		_tabs.current_tab = 0
 		refresh()
 
@@ -147,70 +142,18 @@ func _fill_ops(page: VBoxContainer) -> void:
 		page.add_child(_wrap(tr("ui.ops_defense") % roundi(100.0 * NightOps.defense_chance(state, b)), 16, UiTheme.WARN))
 	page.add_child(_wrap(tr("ui.ops_security") % [state.upgrades.get(Upgrade.SECURITY, 0), roundi(state.security)], 15, UiTheme.TEXT_DIM))
 	page.add_child(HSeparator.new())
-	var targets := NightOps.raid_targets(state, data)
-	if targets.is_empty():
-		page.add_child(_wrap(tr("ui.ops_no_targets"), 16, UiTheme.TEXT_DIM))
-	var group := ButtonGroup.new()
-	for rival: RivalCafe in targets:
-		var guards := NightOps.guards_for(state, rival, data)
-		var power := 0.0
-		var hp := 0.0
-		for guard: Battle.Fighter in guards:
-			power += guard.power
-			hp += guard.hp
-		var pick := CheckBox.new()
-		pick.button_group = group
-		pick.text = UiText.name(rival.id)
-		pick.button_pressed = rival.id == _target
-		pick.toggled.connect(func(on: bool) -> void:
-			if on:
-				_target = rival.id)
-		page.add_child(pick)
-		page.add_child(_indent(_wrap(tr("ui.ops_target") % [UiText.name(rival.id), guards.size(), roundi(power), roundi(hp),
-			rival.loot_coins, rival.loot_cores, rival.influence], 15, UiTheme.TEXT_DIM)))
-		if district.is_flagship(rival.id):
-			page.add_child(_indent(_wrap(tr("ui.ops_flagship"), 15, UiTheme.ACCENT)))
+	var open_map := UiTheme.button(tr("ui.ops_open_map"), map_requested.emit)
+	open_map.custom_minimum_size = Vector2(0, 60)
+	open_map.add_theme_font_size_override("font_size", 22)
+	page.add_child(open_map)
+	page.add_child(_wrap(tr("ui.ops_raided") if state.last_raid_day == state.day else tr("ui.ops_map_hint"), 15,
+		UiTheme.TEXT_DIM))
 	page.add_child(HSeparator.new())
-	page.add_child(_wrap(tr("ui.ops_squad") % b.raid_squad_max, 18))
-	for synth: Synth in state.synths:
-		var pick := CheckBox.new()
-		pick.text = tr("ui.ops_member") % [Session.synth_name(synth), roundi(SynthStats.stat(synth, "power", data)),
-			roundi(SynthStats.stat(synth, "hp", data)), SynthStats.battery_percent(synth, data)]
-		pick.button_pressed = _squad.has(synth.id)
-		pick.disabled = synth.battery <= 0.0
-		pick.toggled.connect(func(on: bool) -> void:
-			if on and not _squad.has(synth.id):
-				_squad.append(synth.id)
-			elif not on:
-				_squad.erase(synth.id))
-		page.add_child(pick)
-	page.add_child(HSeparator.new())
-	page.add_child(_wrap(tr("ui.ops_formation"), 18))
+	# Who stands where when MegaBean comes to the café.
+	page.add_child(_wrap(tr("ui.ops_home_formation"), 18))
 	page.add_child(_wrap(tr("ui.ops_formation_help"), 14, UiTheme.TEXT_DIM))
-	var board := FormationBoard.new()
-	board.squad = _squad
-	page.add_child(board)
-	page.add_child(_wrap(tr("ui.ops_confirm_hint"), 16, UiTheme.PANEL_BORDER))
+	page.add_child(FormationBoard.new())
 
 
-## With a target and a squad picked, End Night asks first: raid tonight, or end
-## the night without one.
 func _end_night() -> void:
-	var state := Session.state
-	if _target == "" or _squad.is_empty():
-		GameLoop.cancel_raid(state)
-		Session.end_night()
-		return
-	var squad_names: Array[String] = []
-	for synth_id: String in _squad:
-		squad_names.append(Session.synth_name(state.synth_by_id(synth_id)))
-	_confirm.ask(tr("ui.confirm_raid") % UiText.name(_target), ", ".join(squad_names), tr("ui.confirm_raid_yes"),
-		func() -> void:
-			if Session.act(GameLoop.plan_raid(Session.state, _target, _squad, Session.data)):
-				Session.end_night(),
-		tr("ui.confirm_raid_no"),
-		func() -> void:
-			GameLoop.cancel_raid(Session.state)
-			_target = ""
-			_squad.clear()
-			Session.end_night())
+	Session.end_night()

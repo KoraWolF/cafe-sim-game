@@ -10,6 +10,8 @@ signal quit_to_menu
 var cafe := CafeView.new()
 var hud := Hud.new()
 var night := NightHub.new()
+var raid_map := RaidMap.new()
+var raid_setup := RaidSetup.new()
 var edit_panel := EditPanel.new()
 var shop := ShopPanel.new()
 var quests := QuestPanel.new()
@@ -25,6 +27,8 @@ var _battles: Array[Dictionary] = []
 var _night_report: NightOps.Report = null
 ## The battle playing now (an entry of _battles), and what Continue on the notice does next.
 var _current_battle: Dictionary = {}
+## The battles playing are a raid from the map (then back to the night, not the report).
+var _raid_from_map: bool = false
 var _after_notice: Callable
 ## Arrange was opened by "Buy": go back to the Shop when the piece is placed.
 var _back_to_shop := false
@@ -50,6 +54,8 @@ func _ready() -> void:
 	root.add_child(report)
 	root.add_child(battle)
 	root.add_child(tutorial_box)
+	root.add_child(raid_map)
+	root.add_child(raid_setup)
 	root.add_child(notice)
 	root.add_child(settings)
 	hud.settings_requested.connect(settings.open)
@@ -57,6 +63,10 @@ func _ready() -> void:
 		tutorial_box.start(Tutorial.new())
 	cafe.synth_clicked.connect(func(_synth_id: String) -> void: _tutorial_saw(Tutorial.OPENED_CARD))
 	battle.finished.connect(_show_result)
+	night.map_requested.connect(raid_map.open)
+	raid_map.target_picked.connect(raid_setup.open)
+	raid_setup.back.connect(raid_map.open)
+	raid_setup.raided.connect(_on_raided)
 	notice.continued.connect(func() -> void:
 		if _after_notice.is_valid():
 			_after_notice.call())
@@ -118,12 +128,7 @@ func _on_night_resolved(night_report: NightOps.Report) -> void:
 	_night_report = night_report
 	_battles.clear()
 	if night_report.raid != null:
-		var squad: Array[String] = []
-		for fighter: Battle.Fighter in night_report.raid.attackers:
-			squad.append(_synth_label(fighter.synth_id))
-		_battles.append({"battle": night_report.raid, "attacks": true, "mine": squad, "theirs": _numbered("ui.battle_guard",
-			night_report.raid.defenders.size()), "title": tr("ui.battle_raid") % UiText.name(night_report.raid_target),
-			"kind": "raid"})
+		_battles.append(_raid_entry(night_report))
 	if night_report.defense != null:
 		var home: Array[String] = []
 		for fighter: Battle.Fighter in night_report.defense.defenders:
@@ -141,11 +146,35 @@ func _on_night_resolved(night_report: NightOps.Report) -> void:
 	_play_next_battle()
 
 
+## A raid fought from the map: play it, its results, then back to the night hub.
+func _on_raided(raid_report: NightOps.Report) -> void:
+	raid_map.visible = false
+	_night_report = raid_report
+	_raid_from_map = true
+	_battles = [_raid_entry(raid_report)]
+	_play_next_battle()
+	Session.state_changed.emit()
+
+
+func _raid_entry(night_report: NightOps.Report) -> Dictionary:
+	var squad: Array[String] = []
+	for fighter: Battle.Fighter in night_report.raid.attackers:
+		squad.append(_synth_label(fighter.synth_id))
+	return {"battle": night_report.raid, "attacks": true, "mine": squad, "theirs": _numbered("ui.battle_guard",
+		night_report.raid.defenders.size()), "title": tr("ui.battle_raid") % UiText.name(night_report.raid_target),
+		"kind": "raid"}
+
+
 ## The next battle tonight (a raid on the café is announced first), else the report.
 func _play_next_battle() -> void:
 	if _battles.is_empty():
 		Sfx.music_for_phase()
-		report.show_report(_night_report)
+		if _raid_from_map:
+			# Back to the night (End Night still to come).
+			_raid_from_map = false
+			night.refresh()
+		else:
+			report.show_report(_night_report)
 		return
 	_current_battle = _battles.pop_front()
 	if _current_battle["kind"] == "raid":
@@ -192,8 +221,11 @@ func _show_result() -> void:
 	notice.show_notice(tr("ui.battle_victory") if won else tr("ui.battle_defeat"), UiTheme.GOOD if won else UiTheme.BAD, lines)
 
 
+## A fighter's name: from the staff, or from the names kept at End Night (a
+## Synth lost to an Audit is no longer on the staff).
 func _synth_label(synth_id: String) -> String:
-	return Session.synth_names.get(synth_id, tr("ui.battle_gone"))
+	var synth := Session.state.synth_by_id(synth_id)
+	return Session.synth_name(synth) if synth != null else Session.synth_names.get(synth_id, tr("ui.battle_gone"))
 
 
 func _numbered(key: String, count: int) -> Array[String]:

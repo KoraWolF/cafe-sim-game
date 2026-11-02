@@ -86,11 +86,6 @@ ui.ops_owned,Owned districts: %s (income %d per night)
 ui.ops_none_owned,No districts owned yet.
 ui.ops_defense,MegaBean raid chance tonight: %d%%
 ui.ops_audit,"Suspicion is %d or more: a Corporate Audit WILL come tonight. Keep strong Synths home!"
-ui.ops_target,"%s — %d guards (power %d, HP %d), loot %d coins + %d cores, +%d Influence"
-ui.ops_flagship,FLAGSHIP — beat it to take the district
-ui.ops_squad,Squad (up to %d):
-ui.ops_member,"%s — power %d, HP %d, battery %d%%"
-ui.ops_no_targets,No café can be raided tonight.
 ui.report_title,Night %d results
 ui.report_raid_won,Raid on %s: WON. Loot %d coins + %d cores. +%d Influence.
 ui.report_raid_lost,Raid on %s: lost.
@@ -171,7 +166,7 @@ tutorial.deliver,"Your server carries dishes from the counter to the tables. Aft
 tutorial.convert,"Click any customer — waiting, eating, paying or walking out — to spend your NanoBrew: they become a Synth."
 tutorial.card,"Click one of your Synths to see its card — then click a stove, counter, register or the Pod bay to give it that job."
 tutorial.night,"The café is closed: it's night. Plan for tomorrow here, then press End Night."
-tutorial.raid,"Open Night Ops, pick a MegaBean café and a squad: End Night asks if you want to raid. Raids bring Nano Cores (for NanoBrew) and Influence."
+tutorial.raid,"Open Night Ops → Open map, pick a MegaBean café, place your squad in front of it and Start raid. Raids bring Nano Cores (for NanoBrew) and Influence."
 tutorial.end_night,Press End Night to see the night play out.
 tutorial.done,That's the basics! Take over the Alley by beating its flagship. Good luck.
 ui.fx_level_up,LEVEL UP!
@@ -469,16 +464,11 @@ ui.brew_short,Brew (%d core + %d)
 ui.brew_note,Turns any customer into a Synth. Nano Cores come from won raids.
 ui.brew_in_menu,Brew NanoBrew in the Menu → Workshop.
 ui.battle_clock,%.1f s
-ui.ops_formation,Battle formation
-ui.ops_formation_help,"Where your Synths stand in fights (raids and defending): front row at the top, facing the enemy. Click a Synth, then a tile. T tank, F fighter, R ranged, X fragile. Gold ring = tonight's raid squad."
+ui.ops_formation_help,"Where your Synths stand when MegaBean raids the café: front row at the top. Click a Synth, then a tile. T tank, F fighter, R ranged, X fragile. (Raid squads are placed on the raid screen.)"
 help.combat,"Combat (raids and defending) is auto-chess style on a grid. Set where each Synth stands in Night Ops → Battle formation (front row faces the enemy). In the fight everyone walks to the nearest enemy and attacks when in range; fragile units go for the weakest. Classes: Tank (Bulkform: tough, armoured), Fighter (Steady-unit), Ranged (Clerkbot, Hypeform, Xeno: hit from 3 tiles), Fragile (Glitchling: fast, hard-hitting, frail). Mana fills from attacking and being hit; full mana casts the species skill: Slam (stun nearby), Fortify (shield), Overtime (attack faster), Chain spark (hits 3), Cheer (heal), Beam (big hit)."
 error.blocks_door,Keep the door clear: nothing can stand on the tile just inside it.
 error.chef_cooking,"This Chef is still cooking at its stove — wait until the dish is done, or give it another job first."
 ui.swapped,"%s is now %s, %s is now %s."
-ui.ops_confirm_hint,"Pick a target and a squad: End Night asks whether to raid tonight."
-ui.confirm_raid,Raid %s tonight?
-ui.confirm_raid_yes,Raid and end night
-ui.confirm_raid_no,End night without raid
 ui.warn_attackers,%d MegaBean fighters are coming.
 ui.warn_defenders,Defending: %s
 ui.warn_nobody,Nobody can defend (no battery): the café is defenceless!
@@ -486,3 +476,29 @@ ui.result_xp,+%d XP: %s
 ui.result_level, (level %d!)
 ui.workers_title,Workers (%d)
 error.raided_tonight,"You have raided tonight already: one raid a night."
+ui.ops_open_map,Open map
+ui.ops_map_hint,"Pick a MegaBean café on the district map, set your squad in front of it, and raid. One raid a night."
+ui.ops_raided,You have raided tonight. End the night when you're ready.
+ui.ops_home_formation,Home defence formation
+ui.map_title,"%s — Influence %d / %d"
+ui.map_owned,Taken: %s
+ui.map_hint,Pick a café to raid tonight.
+ui.map_home,Your café
+ui.map_flagship," ★ flagship"
+ui.map_guards,"%d guards · avg Lv %.1f"
+ui.map_loot,"Loot %d coins + %d cores"
+ui.map_influence," · +%d Influence"
+ui.map_raided,Already raided tonight
+ui.map_locked,Locked: needs %d Influence
+ui.map_cooldown,Cooling down: %d more night(s)
+ui.raid_title,Raid on %s
+ui.raid_info,"%d guards · avg Lv %.1f · loot %d coins + %d cores · squad %d / %d"
+ui.raid_roster,"Your workers: pick one, then a tile in your rows"
+ui.raid_member,"%s · %s · Lv %d · %d%%"
+ui.raid_guard,Guard Lv %d
+ui.raid_start,Start raid
+ui.raid_back,Back to map
+class.tank,Tank
+class.fighter,Fighter
+class.ranged,Ranged
+class.fragile,Fragile
