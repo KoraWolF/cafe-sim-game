@@ -38,6 +38,7 @@ const NOT_FOR_SALE: String = "not_for_sale"
 const NONE_STORED: String = "none_stored"
 const OUT_OF_BOUNDS: String = "out_of_bounds"
 const OVERLAP: String = "overlap"
+const RAIDED_TONIGHT: String = "raided_tonight"
 const BLOCKS_DOOR: String = "blocks_door"
 const CHEF_COOKING: String = "chef_cooking"
 const UNKNOWN_PLACED: String = "unknown_placed"
@@ -432,6 +433,20 @@ static func plan_raid(state: GameState, rival_id: String, synth_ids: Array[Strin
 			return NO_BATTERY
 	state.raid_target = rival_id
 	state.raid_squad = squad
+	return OK
+
+
+## Raids a rival café right now (at night, from the map): the squad fights in
+## the rival café from its formation spots. One raid a night. The night's
+## report of the raid comes back through out_report.
+static func raid_now(state: GameState, rival_id: String, synth_ids: Array[String], data: GameData,
+		out_report: Array[NightOps.Report] = []) -> String:
+	if state.phase == GameState.Phase.NIGHT and state.last_raid_day == state.day:
+		return RAIDED_TONIGHT
+	var code := plan_raid(state, rival_id, synth_ids, data)
+	if code != OK:
+		return code
+	out_report.append(NightOps.raid_now(state, data))
 	return OK
 
 

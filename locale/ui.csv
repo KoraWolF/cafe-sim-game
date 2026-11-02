@@ -485,3 +485,4 @@ ui.warn_nobody,Nobody can defend (no battery): the café is defenceless!
 ui.result_xp,+%d XP: %s
 ui.result_level, (level %d!)
 ui.workers_title,Workers (%d)
+error.raided_tonight,"You have raided tonight already: one raid a night."

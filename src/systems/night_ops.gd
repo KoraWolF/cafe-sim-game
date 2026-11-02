@@ -62,6 +62,37 @@ static func raid_targets(state: GameState, data: GameData) -> Array[RivalCafe]:
 	return result
 
 
+## A raid fought right away (from the map, at night): the planned target and
+## squad, then the plan is cleared. One raid a night.
+static func raid_now(state: GameState, data: GameData) -> Report:
+	var report := Report.new()
+	var rng := state.rng()
+	_raid(state, data, rng, report)
+	state.store_rng(rng)
+	state.raid_target = ""
+	state.raid_squad.clear()
+	state.last_raid_day = state.day
+	return report
+
+
+## A guard's level tonight: its level at the district's start, +1 for every
+## 15% it has grown since (the flagship does not grow).
+static func guard_level(state: GameState, rival: RivalCafe, defender: Dictionary, data: GameData) -> int:
+	var days := 0 if data.districts[state.district_id].is_flagship(rival.id) else days_open(state)
+	var growth := data.balance.rival_growth_per_day * maxi(days, 0)
+	return int(defender.get("level", 1)) + floori(growth / 0.15)
+
+
+## The average level of a café's guards tonight.
+static func average_level(state: GameState, rival: RivalCafe, data: GameData) -> float:
+	if rival.defenders.is_empty():
+		return 0.0
+	var total := 0
+	for defender: Dictionary in rival.defenders:
+		total += guard_level(state, rival, defender, data)
+	return float(total) / rival.defenders.size()
+
+
 ## True when the current district's flagship can be challenged.
 static func flagship_unlocked(state: GameState, data: GameData) -> bool:
 	var district := data.districts[state.district_id]
@@ -179,7 +210,9 @@ static func _raid(state: GameState, data: GameData, rng: RandomNumberGenerator, 
 		squad.append(synth_fighter(synth, 0.0, data, state))
 		loot_bonus += SynthStats.stat(synth, "raid_loot", data)
 		synth.battery = maxf(synth.battery - b.raid_battery_cost, 0.0)
-	report.raid = Battle.run(squad, guards_for(state, rival, data), rng, data)
+	# Fought inside the rival café, among its tables and counters.
+	report.raid = Battle.run(squad, guards_for(state, rival, data), rng, data,
+		RaidField.for_rival(rival, district.is_flagship(rival.id), data))
 	state.raid_cooldowns[rival.id] = state.day + b.raid_cooldown_days
 	for synth: Synth in raiders:
 		Leveling.add_xp(synth, b.xp_raid_win if report.raid.attackers_won else b.xp_raid_loss, b, report.level_ups)

@@ -101,6 +101,7 @@ static func to_dict(state: GameState) -> Dictionary:
 		"raid_cooldowns": state.raid_cooldowns,
 		"raid_target": state.raid_target,
 		"raid_squad": state.raid_squad,
+		"last_raid_day": state.last_raid_day,
 		"formation": _formation_out(state.formation),
 		"next_id": state.next_id,
 		# Stored as strings: JSON numbers lose precision above 2^53.
@@ -223,6 +224,7 @@ static func from_dict(raw: Dictionary) -> GameState:
 			var spot: Variant = spots[synth_id]
 			if spot is Array and spot.size() == 2:
 				state.formation[str(synth_id)] = Vector2i(int(spot[0]), int(spot[1]))
+	state.last_raid_day = int(raw.get("last_raid_day", 0))
 	var squad: Variant = raw.get("raid_squad", [])
 	if squad is Array:
 		for synth_id: Variant in squad:
