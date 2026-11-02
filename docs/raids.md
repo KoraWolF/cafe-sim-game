@@ -6,20 +6,25 @@
    - how many guards and their **average level**;
    - the loot, plus Influence for rivals;
    - why it can't be raided, if so: already raided tonight, cooling down for *n* nights, or the flagship locked until you have enough Influence.
-3. Click a café to open the **raid screen**. The enemy café is drawn as it is: its counters, stove, tables, seats and décor, and its guards where they'll stand. In front of it are your **3 rows** on the street.
-   - Pick a worker from the list on the left, then click a tile in your rows. One already there swaps places.
-   - With nobody picked, click a squad member's tile to take them out.
+3. Click a café to open the **raid screen**. The enemy café is drawn as it is: its counters, stove, tables, seats and décor, its front wall with one **door** (the green tile), and its guards waiting inside. In front of it are your **3 rows** on the street.
+   - Drag a worker from the list on the left onto a tile in your rows (or pick it, then click the tile). One already there swaps places.
+   - Drag a squad member to another tile, or back onto the list to take it out.
    - Up to 4 in the squad (`raid_squad_max`).
-4. **Start raid** fights at once. Then a results screen (loot, XP), and you're back at the night hub.
-5. **One raid a night.** End Night then handles the rest: MegaBean raids on your café, Audits, recharge, income.
-
-Your squad's spots are kept as their formation spots, so they also count when defending your café. The **Home defence formation** board in Night Ops sets those spots directly.
+4. **Start raid:** your squad walks in through the door. The fight starts when the first of them is in the doorway. Then a results screen (loot, XP).
+5. **One raid a night, and it ends the night:** a MegaBean raid on your café (if one comes) is fought next, then the day starts.
 
 ## The fight inside the café
-The board is the café floor (8 wide; 4 rows deep, 5 for a flagship) plus your 3 rows outside.
-- **Obstacles:** furniture blocks walking, so units path round it.
-- **Cover:** a unit standing next to furniture takes 25% less from attacks made from more than one tile away (`cover` in `data/combat.json`).
-- **Guards:** placed inside by class. Tanks and fighters stand near the door, ranged at the back.
+The board is the café floor (8 wide; 4 rows deep, 5 for a flagship), its front wall (one row, the door in the middle) and your 3 rows outside.
+- **The door:** the attackers start on the street and walk in through it. Nobody fights until the first attacker reaches the doorway; the 45-second limit counts from then. An attacker still outside keeps walking in, and only fights a defender who has come out to the door or beyond.
+- **Obstacles:** furniture and the wall block walking, so units path round them.
+- **Cover:** a unit standing next to furniture takes 25% less from attacks made from more than one tile away (`cover` in `data/combat.json`). The wall gives no cover.
+- **Guards:** placed inside by class, each on the free tile nearest the door: tanks first, then fighters, fragile, ranged.
+
+## MegaBean raids on your café
+Fought the same way, inside **your own café** as you've laid it out, with its door (the front-right corner). MegaBean comes from the street.
+- **Who defends:** tick them under **Night Ops → Defenders tonight**. At closing the 4 with the most battery are ticked (`defender_count`).
+- They wait inside, tanks nearest the door.
+- Defenders who fought don't recharge that night.
 
 ## Guard levels
 Each guard has a `level` in `data/districts.json`. It counts as one level higher for every 15% the café has grown since the district opened (`rival_growth_per_day`). Flagships don't grow. The map shows the average.
@@ -45,10 +50,11 @@ To design one yourself, add a `layout` to that café in `data/districts.json`:
 	]}}
 ```
 
-- `rows`: how deep the café is. Row 0 is the back wall; the last row is the door side.
+- `rows`: how deep the café is. Row 0 is the back wall; the last row is just inside the front wall.
+- `door`: the door's column (optional; the middle by default).
 - `pieces`: any piece id from `data/pieces.json` (`cell` is column, row; `rotated` turns 2×1 pieces).
 - The café is 8 columns wide (0–7).
-- Keep the door row clear and leave a path to every free tile, so the guards and your squad can reach each other.
+- Keep the tile inside the door clear and leave a path to every free tile, so the guards and your squad can reach each other.
 - Remove the `layout` to go back to the generated one.
 
 The code is in `src/systems/raid_field.gd`.

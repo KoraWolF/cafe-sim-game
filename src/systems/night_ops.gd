@@ -3,7 +3,7 @@ extends RefCounted
 ## Resolves a night, in order: the planned raid (if any: a win earns loot and
 ## Influence, a won flagship raid takes the district over and opens the next),
 ## then either a Corporate Audit (Suspicion at audit_suspicion or more) or a
-## possible MegaBean raid on the café (defended by Synths who stayed home),
+## possible MegaBean raid on the café (fought inside it by tonight's defenders),
 ## Kleptomaniacs pocketing coins, every Synth recharging in its Pod for Power,
 ## owned districts paying income, Suspicion falling, and the next shift opening
 ## (shut if the Audit was lost).
@@ -281,7 +281,8 @@ static func _drop_dish(state: GameState, source: String, data: GameData, rng: Ra
 static func _defend(state: GameState, data: GameData, rng: RandomNumberGenerator, report: Report) -> void:
 	var b := data.balance
 	var size := mini(1 + int(state.current_suspicion() / maxf(b.defense_size_step, 1.0)), b.defense_max_size)
-	report.defense = Battle.run(_megabean_squad(state, size, 1.0, data), _home_defenders(state, data), rng, data)
+	report.defense = Battle.run(_megabean_squad(state, size, 1.0, data), _home_defenders(state, data), rng, data,
+		RaidField.for_home(state, data))
 	_defender_xp(state, report, b)
 	if not report.defense.attackers_won:
 		_drop_dish(state, "defense", data, rng, report)
@@ -296,7 +297,7 @@ static func _audit(state: GameState, data: GameData, rng: RandomNumberGenerator,
 	var b := data.balance
 	report.audit = true
 	report.defense = Battle.run(_megabean_squad(state, b.audit_size, b.audit_strength, data), _home_defenders(state, data),
-		rng, data)
+		rng, data, RaidField.for_home(state, data))
 	_defender_xp(state, report, b)
 	if not report.defense.attackers_won:
 		return

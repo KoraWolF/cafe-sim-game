@@ -1,11 +1,14 @@
 class_name RaidField
 extends RefCounted
-## The rival café a raid is fought in: its floor (as wide as the battle board,
-## `rows` deep) with its furniture, and in front of it the player's 3 rows on
-## the street. Hand-made when the café has a "layout" in districts.json:
-##   "layout": {"rows": 4, "pieces": [{"piece": "counter", "cell": [2, 0]},
+## The café a battle is fought in: its floor with its furniture, then its front
+## wall (one row, with one door), then 3 rows of street where the attackers start.
+##
+## A raid: the rival café, as wide as the battle board and `rows` deep, door in
+## the middle column. Hand-made when the café has a "layout" in districts.json:
+##   "layout": {"rows": 4, "door": 3, "pieces": [{"piece": "counter", "cell": [2, 0]},
 ##     {"piece": "table", "cell": [3, 2], "rotated": false}, ...]}
-## (piece ids from pieces.json; row 0 is the back wall, the last row the door).
+## (piece ids from pieces.json; row 0 is the back wall, the last row is inside
+## the front wall; "door" is its column, optional).
 ## Otherwise generated from the café's id, so it is the same on every visit:
 ## counters and a stove along the back, tables with their seats, a little décor,
 ## the front row kept clear, every free tile reachable from the door.
@@ -21,19 +24,36 @@ static func for_rival(rival: RivalCafe, flagship: bool, data: GameData) -> Battl
 	var rows := rival.layout_rows if rival.layout_rows > 0 else (FLAGSHIP_ROWS if flagship else ROWS)
 	var pieces: Array[Dictionary] = rival.layout_pieces if rival.layout_rows > 0 \
 		else generate(rival.id, width, rows, flagship, data)
+	var door := rival.layout_door if rival.layout_door >= 0 else width / 2
+	return _cafe(Vector2i(width, rows), clampi(door, 0, width - 1), pieces, data)
+
+
+## The battle field for a MegaBean raid on the player's café: its floor as it
+## is, the door where the café's is (the front-right corner).
+static func for_home(state: GameState, data: GameData) -> Battle.Field:
+	var pieces: Array[Dictionary] = []
+	for placed: PlacedPiece in state.placed:
+		pieces.append({"piece_id": placed.piece_id, "cell": placed.cell, "rotated": placed.rotated})
+	return _cafe(Vector2i(state.floor_width, state.floor_rows), Layout.door_cell(state).x, pieces, data)
+
+
+## A café floor size.x across and size.y deep with these pieces, its front wall
+## with the door in column door, and the street in front.
+static func _cafe(size: Vector2i, door: int, pieces: Array[Dictionary], data: GameData) -> Battle.Field:
 	var field := Battle.Field.new()
-	field.board = Vector2i(width, rows + data.combat.half())
-	field.split = rows
+	field.board = Vector2i(size.x, size.y + 1 + data.combat.half())
+	field.split = size.y + 1
 	for entry: Dictionary in pieces:
 		if not data.pieces.has(entry["piece_id"]):
 			continue
-		var size := data.pieces[entry["piece_id"]].footprint(entry.get("rotated", false))
-		for y: int in size.y:
-			for x: int in size.x:
+		var footprint := data.pieces[entry["piece_id"]].footprint(entry.get("rotated", false))
+		for y: int in footprint.y:
+			for x: int in footprint.x:
 				var cell: Vector2i = entry["cell"] + Vector2i(x, y)
-				if cell.x < width and cell.y < rows:
+				if cell.x < size.x and cell.y < size.y:
 					field.obstacles[cell] = true
 		field.pieces.append(entry)
+	field.wall_off(door)
 	return field
 
 

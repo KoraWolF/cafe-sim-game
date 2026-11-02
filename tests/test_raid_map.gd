@@ -18,21 +18,24 @@ func test_a_generated_cafe_is_the_same_every_time_and_open_to_walk() -> void:
 	var two := RaidField.for_rival(rival, false, data)
 	assert_eq(one.obstacles, two.obstacles, "same layout on every visit")
 	assert_true(not one.obstacles.is_empty(), "has furniture")
-	assert_eq(one.split, RaidField.ROWS, "the café is 4 rows deep")
-	assert_eq(one.board.y, RaidField.ROWS + data.combat.half(), "with the player's 3 rows in front")
+	assert_eq(one.split, RaidField.ROWS + 1, "the café is 4 rows deep, then its front wall")
+	assert_eq(one.board.y, RaidField.ROWS + 1 + data.combat.half(), "with the player's 3 rows in front")
+	assert_eq(one.door, Vector2i(one.board.x / 2, RaidField.ROWS), "one door, in the middle of the wall")
+	assert_eq(one.walls.size(), one.board.x - 1, "the rest is wall")
 	for x: int in one.board.x:
-		assert_true(not one.obstacles.has(Vector2i(x, one.split - 1)), "the door row is clear")
-	assert_true(RaidField.for_rival(data.districts["town"].flagship, true, data).split == RaidField.FLAGSHIP_ROWS,
+		assert_true(not one.obstacles.has(Vector2i(x, RaidField.ROWS - 1)), "the row inside the wall is clear")
+	assert_true(RaidField.for_rival(data.districts["town"].flagship, true, data).split == RaidField.FLAGSHIP_ROWS + 1,
 		"a flagship is deeper")
 
 
 func test_a_hand_made_layout_wins() -> void:
 	var content := TestFixtures.content()
-	content["districts"][0]["rivals"][0]["layout"] = {"rows": 3, "pieces": [{"piece": "seat", "cell": [2, 0]},
+	content["districts"][0]["rivals"][0]["layout"] = {"rows": 3, "door": 1, "pieces": [{"piece": "seat", "cell": [2, 0]},
 		{"piece": "fern", "cell": [5, 1]}]}
 	var data := GameData.from_content(content)
 	var field := RaidField.for_rival(data.districts["town"].rivals[0], false, data)
-	assert_eq(field.split, 3, "its own depth")
+	assert_eq(field.split, 4, "its own depth (and the wall)")
+	assert_eq(field.door, Vector2i(1, 3), "its own door")
 	assert_eq(field.obstacles.keys().size(), 2, "only its own pieces")
 	assert_true(field.obstacles.has(Vector2i(5, 1)), "where it says")
 
@@ -45,7 +48,7 @@ func test_a_raid_is_fought_right_away_once_a_night() -> void:
 	var out: Array[NightOps.Report] = []
 	assert_eq(GameLoop.raid_now(state, "weak", [raider.id] as Array[String], data, out), GameLoop.OK, "raided")
 	assert_eq(out.size(), 1, "the report comes back at once")
-	assert_true(out[0].raid.field.split == RaidField.ROWS, "fought inside the rival café")
+	assert_true(out[0].raid.field.split == RaidField.ROWS + 1, "fought inside the rival café")
 	assert_eq(state.phase, GameState.Phase.NIGHT, "still night")
 	assert_eq(state.raid_target, "", "nothing left planned for End Night")
 	assert_eq(GameLoop.raid_now(state, "fort", [raider.id] as Array[String], data), GameLoop.RAIDED_TONIGHT, "one a night")

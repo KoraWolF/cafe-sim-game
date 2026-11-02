@@ -1,7 +1,9 @@
 class_name BattleView
 extends Control
 ## Plays one recorded grid battle: the board in the café's 3/4 view, the
-## player's half nearest the camera. Units walk, attack (melee lunge, ranged
+## player's half nearest the camera (a big café is drawn smaller to fit). A
+## café's front wall stands across the board with its door lit; until the first
+## attacker steps in, the clock says the attackers are walking in. Units walk, attack (melee lunge, ranged
 ## shot), cast their skill, flash when hit and fall when down; HP, shield and
 ## mana bars ride above them and damage numbers float up. A Victory/Defeat
 ## banner ends it. Skip jumps to the end, 2x doubles the speed.
@@ -19,6 +21,8 @@ const TILE: Vector2 = Vector2(136, 68)
 const END_PAUSE: float = 0.8
 ## Seconds a ranged shot flies.
 const SHOT_SECONDS: float = 0.25
+## A café wall's height on screen.
+const WALL_HEIGHT: float = 30.0
 const CLASS_WIDTH: Dictionary[String, float] = {"tank": 50.0, "fighter": 40.0, "ranged": 34.0, "fragile": 30.0}
 
 var playback: BattlePlayback = null
@@ -111,7 +115,7 @@ func preview(battle: Battle.Report, attacker_names: Array[String], defender_name
 func cell_at(point: Vector2) -> Vector2i:
 	var board := Vector2(playback.report.board)
 	var centre := board * 0.5
-	var flat := (point - size * 0.5 - Vector2(0, 50)) / (TILE * 0.5)
+	var flat := (point - size * 0.5 - Vector2(0, 50)) / (TILE * 0.5 * _zoom())
 	var a := flat.x + (centre.x - centre.y)  # p.x - p.y
 	var b := flat.y + (centre.x + centre.y)  # p.x + p.y
 	return Vector2i(floori((a + b) * 0.5), floori((b - a) * 0.5))
@@ -156,7 +160,9 @@ func _process(delta: float) -> void:
 	if _time >= playback.duration() and not _banner_heard:
 		_banner_heard = true
 		Sfx.play("victory" if player_won() else "defeat")
-	_clock.text = tr("ui.battle_clock") % minf(_time, playback.duration())
+	var engaged := playback.report.engaged_at
+	_clock.text = tr("ui.battle_entering") if _time < engaged \
+		else tr("ui.battle_clock") % (minf(_time, playback.duration()) - engaged)
 	if _time >= playback.duration() + END_PAUSE and not _continue.visible:
 		_continue.visible = true
 		_skip.visible = false
@@ -179,7 +185,14 @@ func _screen(cell_pos: Vector2) -> Vector2:
 		p = board - p  # turn the board round: the player defends from the near side
 	var centre := board * 0.5
 	var flat := Vector2((p.x - p.y) - (centre.x - centre.y), (p.x + p.y) - (centre.x + centre.y))
-	return size * 0.5 + Vector2(0, 50) + Vector2(flat.x * TILE.x * 0.5, flat.y * TILE.y * 0.5)
+	return size * 0.5 + Vector2(0, 50) + Vector2(flat.x * TILE.x * 0.5, flat.y * TILE.y * 0.5) * _zoom()
+
+
+## How much smaller than TILE the board is drawn, so a big café fits the screen.
+func _zoom() -> float:
+	var board := playback.report.board
+	var across := float(board.x + board.y) * 0.5
+	return minf(1.0, minf((size.x - 120.0) / (across * TILE.x), (size.y - 280.0) / (across * TILE.y)))
 
 
 func _draw() -> void:
@@ -194,6 +207,8 @@ func _draw() -> void:
 		for piece: Dictionary in report.field.pieces:
 			var size := Vector2(Session.data.pieces[piece["piece_id"]].footprint(piece.get("rotated", false)))
 			things.append([_screen(Vector2(piece["cell"]) + size * 0.5 - Vector2(0.5, 0.5)).y, _draw_furniture.bind(piece)])
+		for cell: Vector2i in report.field.walls:
+			things.append([_screen(Vector2(cell)).y, _draw_wall.bind(cell)])
 	for side: bool in [true, false]:
 		var count := report.attackers.size() if side else report.defenders.size()
 		for i: int in count:
@@ -222,6 +237,9 @@ func _draw_board(report: Battle.Report) -> void:
 			var players := (y >= split) == player_attacks
 			var tint := UiTheme.PANEL_BORDER if players else UiTheme.BAD
 			var fill := 0.10 if (x + y) % 2 == 0 else 0.16
+			if report.field != null and Vector2i(x, y) == report.field.door:
+				tint = UiTheme.GOOD
+				fill = 0.35
 			if preview_mode and players and Vector2i(x, y) == hover_cell:
 				fill = 0.4
 			draw_colored_polygon(corners, Color(tint, fill))
@@ -238,7 +256,7 @@ func _draw_furniture(piece: Dictionary) -> void:
 	var right := _screen(cell + Vector2(size.x, 0))
 	var bottom := _screen(cell + size)
 	var left := _screen(cell + Vector2(0, size.y))
-	var lift := Vector2(0, -CafeView.HEIGHTS.get(data_piece.kind, 20.0) * TILE.y / 64.0)
+	var lift := Vector2(0, -CafeView.HEIGHTS.get(data_piece.kind, 20.0) * TILE.y / 64.0 * _zoom())
 	var color := CafeView.piece_color(data_piece)
 	draw_colored_polygon(PackedVector2Array([left, bottom, bottom + lift, left + lift]), color.darkened(0.35))
 	draw_colored_polygon(PackedVector2Array([bottom, right, right + lift, bottom + lift]), color.darkened(0.2))
@@ -246,6 +264,23 @@ func _draw_furniture(piece: Dictionary) -> void:
 	draw_colored_polygon(face, color)
 	face.append(face[0])
 	draw_polyline(face, color.darkened(0.5), 1.5)
+
+
+## A tile of the café's front wall: a low block.
+func _draw_wall(cell: Vector2i) -> void:
+	var at := Vector2(cell) - Vector2(0.5, 0.5)
+	var top := _screen(at)
+	var right := _screen(at + Vector2(1, 0))
+	var bottom := _screen(at + Vector2(1, 1))
+	var left := _screen(at + Vector2(0, 1))
+	var lift := Vector2(0, -WALL_HEIGHT * _zoom())
+	var color := UiTheme.PANEL_BORDER.darkened(0.55)
+	draw_colored_polygon(PackedVector2Array([left, bottom, bottom + lift, left + lift]), color.darkened(0.3))
+	draw_colored_polygon(PackedVector2Array([bottom, right, right + lift, bottom + lift]), color.darkened(0.15))
+	var face := PackedVector2Array([top + lift, right + lift, bottom + lift, left + lift])
+	draw_colored_polygon(face, color)
+	face.append(face[0])
+	draw_polyline(face, UiTheme.PANEL_BORDER.darkened(0.2), 1.5)
 
 
 ## One unit, from its state. Swap this for a sprite or model later: the state

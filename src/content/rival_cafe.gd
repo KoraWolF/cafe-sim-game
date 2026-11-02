@@ -14,6 +14,8 @@ var influence: int = 0
 ## [{"piece_id", "cell": Vector2i, "rotated"}].
 var layout_rows: int = 0
 var layout_pieces: Array[Dictionary] = []
+## Its door's column (-1 = the middle).
+var layout_door: int = -1
 
 
 static func from_dict(values: Dictionary) -> RivalCafe:
@@ -29,6 +31,7 @@ static func from_dict(values: Dictionary) -> RivalCafe:
 	var layout: Variant = values.get("layout", {})
 	if layout is Dictionary and int(layout.get("rows", 0)) > 0:
 		rival.layout_rows = int(layout["rows"])
+		rival.layout_door = int(layout.get("door", -1))
 		for entry: Variant in layout.get("pieces", []):
 			if entry is Dictionary and entry.get("cell", []) is Array and (entry["cell"] as Array).size() == 2:
 				rival.layout_pieces.append({"piece_id": str(entry.get("piece", "")),
