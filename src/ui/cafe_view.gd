@@ -32,6 +32,8 @@ signal editor_changed
 ## Esc pressed while editing with nothing in hand.
 signal edit_exit_requested
 
+## Room between customers waiting in the pay line (tiles).
+const LINE_GAP: float = 0.8
 const HEIGHTS: Dictionary[String, float] = {"seat": 14.0, "table": 24.0, "stove": 30.0, "pod": 56.0, "counter": 26.0,
 	"bin": 24.0, "register": 28.0, "decor": 22.0}
 const KIND_COLORS: Dictionary[String, Color] = {
@@ -644,8 +646,8 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 				if customer.cashier_id != "" and cashier_at.has(customer.cashier_id):
 					target = _piece_front(cashier_at[customer.cashier_id], state, data, Vector2.ZERO)
 				elif not registers.is_empty():
-					# In line in front of the first register.
-					target = _piece_front(registers[0], state, data, Vector2.ZERO) + Vector2(0.15, 0.7 * (line_index + 1))
+					# In line in front of the first register, back along the way to the door.
+					target = _line_spot(registers[0], line_index, state, data)
 					line_index += 1
 				else:
 					target = _street(width, rows)
@@ -762,7 +764,9 @@ func _walk_on(id: String, at: Vector2, target: Vector2) -> Vector2:
 	if route.is_empty() or (route["to"] as Vector2).distance_to(target) > 0.01 or route["key"] != paths.key():
 		route = {"to": target, "key": paths.key(), "points": paths.route(at, target), "next": 1}
 		_routes[id] = route
-	var left := (0.0 if Session.paused else Session.data.balance.walk_tiles_per_second * maxf(Session.state.speed, 1.0)) * _walk_delta
+	var state := Session.state
+	var frozen := Session.paused or (state.speed == 0 and state.phase == GameState.Phase.SHIFT)
+	var left := (0.0 if frozen else Session.data.balance.walk_tiles_per_second * maxf(state.speed, 1.0)) * _walk_delta
 	var points: PackedVector2Array = route["points"]
 	while left > 0.0 and route["next"] < points.size():
 		var next: Vector2 = points[route["next"]]
@@ -791,6 +795,17 @@ func _trip(synth: Synth, from: Vector2, to: Vector2) -> PackedVector2Array:
 		trip = {"key": key, "points": points}
 		_trips[synth.id] = trip
 	return trip["points"]
+
+
+## Where the index-th customer waiting to pay stands: on the walk from the
+## register's front to the door, a little apart (closer together on a short walk).
+func _line_spot(register_uid: String, index: int, state: GameState, data: GameData) -> Vector2:
+	var front := _piece_front(register_uid, state, data, Vector2.ZERO)
+	var route := paths.route(front, paths.door_in())
+	var length := FloorPaths.length(route)
+	var line := maxi(data.balance.pay_line_max, 1)
+	var gap := minf(LINE_GAP, length / line) if length > 0.0 else 0.0
+	return FloorPaths.point_at(route, gap * (index + 1) / length) if length > 0.0 else front
 
 
 ## Placed register uids in floor order.

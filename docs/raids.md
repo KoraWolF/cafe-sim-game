@@ -6,25 +6,27 @@
    - how many guards and their **average level**;
    - the loot, plus Influence for rivals;
    - why it can't be raided, if so: already raided tonight, cooling down for *n* nights, or the flagship locked until you have enough Influence.
-3. Click a café to open the **raid screen**. The enemy café is drawn as it is: its counters, stove, tables, seats and décor, its front wall with one **door** (the green tile), and its guards waiting inside. In front of it are your **3 rows** on the street.
+3. Click a café to open the **raid screen**. The enemy café is drawn as it is: its counters, stove, tables, seats and décor, its front wall with one **door** (the green tile), and its guards waiting inside. In front of it is the street: 2 open rows, then your **3 rows**.
    - Drag a worker from the list on the left onto a tile in your rows (or pick it, then click the tile). One already there swaps places.
    - Drag a squad member to another tile, or back onto the list to take it out.
    - Up to 4 in the squad (`raid_squad_max`).
-4. **Start raid:** your squad walks in through the door. The fight starts when the first of them is in the doorway. Then a results screen (loot, XP).
+4. **Start raid:** the guards come out of the door to meet your squad. The fight starts when the first guard steps outside, and it's fought on the street. Then a results screen (loot, XP).
 5. **One raid a night, and it ends the night:** a MegaBean raid on your café (if one comes) is fought next, then the day starts.
 
-## The fight inside the café
-The board is the café floor (8 wide; 4 rows deep, 5 for a flagship), its front wall (one row, the door in the middle) and your 3 rows outside.
-- **The door:** the attackers start on the street and walk in through it. Nobody fights until the first attacker reaches the doorway; the 45-second limit counts from then. An attacker still outside keeps walking in, and only fights a defender who has come out to the door or beyond.
+## The fight on the street
+The board is the café floor (8 wide; 4 rows deep, 5 for a flagship), its front wall (one row, the door in the middle), 2 rows of open street (`STREET_ROWS` in `raid_field.gd`) and the attackers' 3 rows.
+- **The door:** the defenders wait inside and the attackers wait in formation. Nobody moves on the attackers' side until the first defender steps out of the door; the 45-second limit counts from then.
+- **Coming out:** a defender still inside keeps walking out, and only fights an attacker already in its reach.
+- **On the street:** attackers never go into the café, so the fight happens outside.
 - **Obstacles:** furniture and the wall block walking, so units path round them.
 - **Cover:** a unit standing next to furniture takes 25% less from attacks made from more than one tile away (`cover` in `data/combat.json`). The wall gives no cover.
 - **Guards:** placed inside by class, each on the free tile nearest the door: tanks first, then fighters, fragile, ranged.
 
 ## MegaBean raids on your café
-Fought the same way, inside **your own café** as you've laid it out, with its door (the front-right corner). MegaBean comes from the street.
+Fought the same way, in front of **your own café** as you've laid it out, with its door (the front-right corner). MegaBean waits on the street and your defenders walk out to meet it.
 - **Who defends:** tick them under **Night Ops → Defenders tonight**. At closing the 6 with the most battery are ticked (`defender_count`). A worker who goes on a raid hands its tick to the most-charged one staying home.
 - They wait inside, tanks nearest the door.
-- Defenders who fought don't recharge that night.
+- Defenders who fought get back only half their missing battery that night (`defender_recharge`).
 
 ## Guard levels
 Each guard has a `level` in `data/districts.json`. It counts as one level higher for every 15% the café has grown since the district opened (`rival_growth_per_day`). Flagships don't grow. The map shows the average.

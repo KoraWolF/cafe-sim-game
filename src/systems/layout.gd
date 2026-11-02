@@ -56,7 +56,80 @@ static func check_spot(state: GameState, piece_id: String, cell: Vector2i, rotat
 				return GameLoop.OVERLAP
 			if cell + Vector2i(x, y) == door:
 				return GameLoop.BLOCKS_DOOR
+	if not _leaves_way_in(state, piece_id, cell, rotated, data, ignore_uid):
+		return GameLoop.BLOCKS_WAY
 	return GameLoop.OK
+
+
+## With this piece here, nothing people walk up to (all but tables and décor)
+## that could be reached from the door before is cut off from it. A seat is
+## reached across its table too (customers sit down from the table side).
+static func _leaves_way_in(state: GameState, piece_id: String, cell: Vector2i, rotated: bool, data: GameData,
+		ignore_uid: String) -> bool:
+	var taken_before := _occupied(state, data, "")
+	var taken := _occupied(state, data, ignore_uid)
+	var size := data.pieces[piece_id].footprint(rotated)
+	for y: int in size.y:
+		for x: int in size.x:
+			taken[cell + Vector2i(x, y)] = true
+	var tables_before := _without_tables(state, taken_before, data, "", "")
+	var tables_after := _without_tables(state, taken, data, ignore_uid, piece_id)
+	var before := [_reached(state, taken_before, data), _reached(state, tables_before, data)]
+	var after := [_reached(state, taken, data), _reached(state, tables_after, data)]
+	for placed: PlacedPiece in state.placed:
+		if placed.uid == ignore_uid or not _walked_up_to(placed.piece_id, data):
+			continue
+		var way := 1 if data.pieces[placed.piece_id].kind == Piece.SEAT else 0
+		var footprint := data.pieces[placed.piece_id].footprint(placed.rotated)
+		if _beside(placed.cell, footprint, before[way]) and not _beside(placed.cell, footprint, after[way]):
+			return false
+	return true
+
+
+## The taken tiles with every table's tiles free again (the new piece's too if it is a table).
+static func _without_tables(state: GameState, taken: Dictionary[Vector2i, bool], data: GameData, ignore_uid: String,
+		new_piece := "") -> Dictionary[Vector2i, bool]:
+	var result := taken.duplicate()
+	for placed: PlacedPiece in state.placed:
+		if placed.uid != ignore_uid and data.pieces[placed.piece_id].kind == Piece.TABLE:
+			for tile: Vector2i in cells(placed, data):
+				result.erase(tile)
+	if new_piece != "" and data.pieces[new_piece].kind == Piece.TABLE:
+		for tile: Vector2i in taken:
+			if not _occupied(state, data, ignore_uid).has(tile):
+				result.erase(tile)
+	return result
+
+
+static func _walked_up_to(piece_id: String, data: GameData) -> bool:
+	var kind := data.pieces[piece_id].kind
+	return kind != Piece.TABLE and kind != Piece.DECOR
+
+
+## Free tiles that can be walked to from the door (up, down, left, right).
+static func _reached(state: GameState, taken: Dictionary[Vector2i, bool], data: GameData) -> Dictionary[Vector2i, bool]:
+	var bounds := floor_size(state, data.balance)
+	var reached: Dictionary[Vector2i, bool] = {door_cell(state): true}
+	var queue: Array[Vector2i] = [door_cell(state)]
+	while not queue.is_empty():
+		var at: Vector2i = queue.pop_front()
+		for step: Vector2i in NEIGHBOURS:
+			var next := at + step
+			if next.x >= 0 and next.y >= 0 and next.x < bounds.x and next.y < bounds.y and not taken.has(next) \
+					and not reached.has(next):
+				reached[next] = true
+				queue.append(next)
+	return reached
+
+
+## Whether a piece at cell (size tiles) has one of these tiles beside it.
+static func _beside(cell: Vector2i, size: Vector2i, tiles: Dictionary[Vector2i, bool]) -> bool:
+	for y: int in size.y:
+		for x: int in size.x:
+			for step: Vector2i in NEIGHBOURS:
+				if tiles.has(cell + Vector2i(x, y) + step):
+					return true
+	return false
 
 
 ## The tile just inside the door (front-right corner): always kept clear.

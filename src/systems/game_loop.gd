@@ -40,6 +40,7 @@ const OUT_OF_BOUNDS: String = "out_of_bounds"
 const OVERLAP: String = "overlap"
 const RAIDED_TONIGHT: String = "raided_tonight"
 const BLOCKS_DOOR: String = "blocks_door"
+const BLOCKS_WAY: String = "blocks_way"
 const CHEF_COOKING: String = "chef_cooking"
 const UNKNOWN_PLACED: String = "unknown_placed"
 const COUNTER_NEEDED: String = "counter_needed"
@@ -153,7 +154,7 @@ static func convert_customer(state: GameState, customer_id: String, data: GameDa
 			battery_max = data.species[type.synth_species].roll_battery_max(rng)
 		state.store_rng(rng)
 	state.nanobrew -= 1
-	if customer.stage == Customer.Stage.PAYING:
+	if customer.stage == Customer.Stage.PAYING or customer.stage == Customer.Stage.WAITING_PAY:
 		state.coins += customer.bill + customer.tip
 	if customer.served_by != "":
 		var server := state.synth_by_id(customer.served_by)

@@ -1,7 +1,9 @@
 class_name RaidField
 extends RefCounted
-## The café a battle is fought in: its floor with its furniture, then its front
-## wall (one row, with one door), then 3 rows of street where the attackers start.
+## The café a battle is fought in front of: its floor with its furniture, then
+## its front wall (one row, with one door), then the street: STREET_ROWS of open
+## street, then 3 rows where the attackers start. The defenders walk out of the
+## door and the fight is on the street (see Battle).
 ##
 ## A raid: the rival café, as wide as the battle board and `rows` deep, door in
 ## the middle column. Hand-made when the café has a "layout" in districts.json:
@@ -16,6 +18,8 @@ extends RefCounted
 ## Rows of a generated café (a flagship is deeper and busier).
 const ROWS: int = 4
 const FLAGSHIP_ROWS: int = 5
+## Open street between the café's wall and the attackers' rows.
+const STREET_ROWS: int = 2
 
 
 ## The battle field for a raid on rival.
@@ -41,8 +45,8 @@ static func for_home(state: GameState, data: GameData) -> Battle.Field:
 ## with the door in column door, and the street in front.
 static func _cafe(size: Vector2i, door: int, pieces: Array[Dictionary], data: GameData) -> Battle.Field:
 	var field := Battle.Field.new()
-	field.board = Vector2i(size.x, size.y + 1 + data.combat.half())
-	field.split = size.y + 1
+	field.board = Vector2i(size.x, size.y + 1 + STREET_ROWS + data.combat.half())
+	field.split = size.y + 1 + STREET_ROWS
 	for entry: Dictionary in pieces:
 		if not data.pieces.has(entry["piece_id"]):
 			continue
@@ -53,7 +57,7 @@ static func _cafe(size: Vector2i, door: int, pieces: Array[Dictionary], data: Ga
 				if cell.x < size.x and cell.y < size.y:
 					field.obstacles[cell] = true
 		field.pieces.append(entry)
-	field.wall_off(door)
+	field.wall_off(door, size.y)
 	return field
 
 

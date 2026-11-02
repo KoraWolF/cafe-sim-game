@@ -157,7 +157,7 @@ func _fill_ops(page: VBoxContainer) -> void:
 	page.add_child(_wrap(tr("ui.ops_raided") if state.last_raid_day == state.day else tr("ui.ops_map_hint"), 15,
 		UiTheme.TEXT_DIM))
 	page.add_child(HSeparator.new())
-	# Who defends the café if MegaBean comes (they don't recharge if they fight).
+	# Who defends the café if MegaBean comes (those who fight recharge only half).
 	page.add_child(_wrap(tr("ui.ops_defenders"), 18))
 	page.add_child(_wrap(tr("ui.ops_defenders_help"), 14, UiTheme.TEXT_DIM))
 	for synth: Synth in state.synths:

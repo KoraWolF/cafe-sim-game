@@ -3,7 +3,7 @@ extends PanelContainer
 ## What happened tonight, shown after the night's battles (GameScreen calls
 ## show_report) as notes at the top right that fade after a while: the raid,
 ## takeovers, the MegaBean raid or Audit, theft, income, recharging and
-## level-ups. The next day starts at once.
+## level-ups. The next day starts at once. The × closes them early.
 
 const WIDTH: float = 460.0
 ## Seconds the notes stay up.
@@ -24,7 +24,15 @@ func _ready() -> void:
 	var column := VBoxContainer.new()
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(column)
-	column.add_child(_title)
+	var top := HBoxContainer.new()
+	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top.add_child(_title)
+	var close := UiTheme.button("×", func() -> void: visible = false)
+	close.tooltip_text = tr("ui.report_close")
+	close.custom_minimum_size = Vector2(36, 32)
+	top.add_child(close)
+	column.add_child(top)
 	column.add_child(_lines)
 
 

@@ -1,6 +1,6 @@
 extends TestCase
 ## Playtest 7: the door stays clear, a Chef stays with its cooking dish, café
-## and Pod workers swap places, a crowded café slows arrivals, 3x top speed.
+## and Pod workers swap places, 3x top speed.
 ## Data from TestFixtures: floor 8 x 6 (door tile (7, 5)), 2 seats with tables.
 
 
@@ -38,22 +38,6 @@ func test_a_cafe_worker_and_a_pod_worker_swap() -> void:
 	assert_eq(chef.role, Synth.REST, "the Chef goes to rest")
 	var server := state.synths[0]
 	assert_eq(GameLoop.swap_jobs(state, server.id, resting.id), GameLoop.NO_JOB_THERE, "two in the café don't swap")
-
-
-func test_a_crowded_cafe_slows_arrivals() -> void:
-	var data := TestFixtures.data({"crowded_arrival_slowdown": 2.0, "arrival_min_seconds": 10, "arrival_max_seconds": 10})
-	var state := GameState.new_game(1, data)
-	state.synths[0].role = Synth.REST  # nobody serves: customers stay
-	for i: int in 3:
-		var customer := Customer.new()
-		customer.id = "c%d" % i
-		customer.type_id = "regular"
-		customer.stage = Customer.Stage.WAITING_FOOD
-		customer.satisfaction = 100.0
-		state.customers.append(customer)
-	state.next_arrival = 0
-	GameLoop.advance(state, 1, data)
-	assert_eq(state.next_arrival, 20, "3 inside, 2 tables: the 10 s gap doubles")
 
 
 func test_top_speed_is_3x() -> void:

@@ -207,10 +207,6 @@ static func _arrive(state: GameState, data: GameData, rng: RandomNumberGenerator
 	if state.shift_time < state.next_arrival or state.shift_time >= b.shift_seconds - b.spawn_stop_before_end:
 		return
 	var gap := rng.randi_range(b.arrival_min_seconds, b.arrival_max_seconds) / arrival_rate(state, data)
-	# More customers inside (seated or paying) than tables: they come more slowly.
-	var inside := state.customers.filter(func(c: Customer) -> bool: return c.stage != Customer.Stage.QUEUED).size()
-	if inside > Layout.count_placed(state, Piece.TABLE, data):
-		gap *= maxf(b.crowded_arrival_slowdown, 1.0)
 	state.next_arrival = state.shift_time + maxi(roundi(gap), 1)
 	var type_id := _pick_type(data, rng)
 	if queued_count(state) >= b.max_queue:
@@ -471,6 +467,14 @@ static func _update_customers(state: GameState, data: GameData, events: Events) 
 				customer.timer -= 1
 				if customer.timer <= 0:
 					_finish_meal(state, customer, data, events)
+			Customer.Stage.WAITING_PAY:
+				# At the table until the pay line has room; too long and they leave without paying.
+				_wait(customer, type, b, state.seat_vibe.get(customer.seat_uid, 0.0), calm)
+				if _line_has_room(state, data):
+					_join_line(state, customer, data)
+				elif customer.waited >= roundi(b.pay_wait_seconds * type.patience * calm):
+					customer.starred = false
+					_leave_angry(state, customer, data, events)
 			Customer.Stage.PAYING:
 				if customer.timer > 0:
 					customer.timer -= 1  # still walking to the register
@@ -514,15 +518,29 @@ static func _finish_meal(state: GameState, customer: Customer, data: GameData, e
 		else:
 			customer.starred = false
 	if Layout.count_placed(state, Piece.REGISTER, data) > 0:
-		customer.stage = Customer.Stage.PAYING
-		customer.cashier_id = ""
 		customer.waited = 0
-		# Walking from the seat to the registers first (timer: seconds left to get there).
-		var register := _nearest(state, Piece.REGISTER, Layout.placed_by_uid(state, customer.seat_uid), data) \
-			if Layout.placed_by_uid(state, customer.seat_uid) != null else ""
-		customer.timer = roundi(_tiles(state, customer.seat_uid, register, data) / maxf(b.walk_tiles_per_second, 0.1))
+		if not can_star or _line_has_room(state, data):
+			_join_line(state, customer, data)
+		else:
+			customer.stage = Customer.Stage.WAITING_PAY
 		return
 	_pay(state, customer, data, events)
+
+
+## Room in the pay line: pay_line_max for each register.
+static func _line_has_room(state: GameState, data: GameData) -> bool:
+	var line := state.customers.filter(func(c: Customer) -> bool: return c.stage == Customer.Stage.PAYING).size()
+	return line < data.balance.pay_line_max * Layout.count_placed(state, Piece.REGISTER, data)
+
+
+## Off to the register to pay (timer: seconds of walking from the seat).
+static func _join_line(state: GameState, customer: Customer, data: GameData) -> void:
+	customer.stage = Customer.Stage.PAYING
+	customer.cashier_id = ""
+	customer.waited = 0
+	var seat := Layout.placed_by_uid(state, customer.seat_uid)
+	var register := _nearest(state, Piece.REGISTER, seat, data) if seat != null else ""
+	customer.timer = roundi(_tiles(state, customer.seat_uid, register, data) / maxf(data.balance.walk_tiles_per_second, 0.1))
 
 
 ## Takes the bill and tip; the customer walks out (still convertible on the way).
@@ -627,6 +645,8 @@ static func _close(state: GameState, data: GameData, events: Events) -> void:
 	for customer: Customer in state.customers.duplicate():
 		if customer.stage == Customer.Stage.EATING:
 			_finish_meal(state, customer, data, events, false)
+		if customer.stage == Customer.Stage.WAITING_PAY:
+			_join_line(state, customer, data)
 		if customer.stage == Customer.Stage.PAYING and can_pay:
 			customer.starred = false
 			_pay(state, customer, data, events)

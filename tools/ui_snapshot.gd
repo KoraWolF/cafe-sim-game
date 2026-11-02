@@ -236,11 +236,16 @@ func _run() -> void:
 	var newcomer: Synth = state.synths[-1]
 	print("CHECK new Synth rests at 70%% battery and walks to its Pod: ", newcomer.role == Synth.REST
 		and SynthStats.battery_percent(newcomer, data) == 70 and game.cafe._to_pod.has(newcomer.id))
-	# Walking from the pay line or the street round the front takes a few seconds.
+	# Paused, nobody walks; running, it walks round the front in a few seconds.
+	var stood: Vector2 = game.cafe._synth_at[newcomer.id]
+	await _frames(30)
+	print("CHECK paused -> the new Synth stands still: ", game.cafe._synth_at[newcomer.id] == stood)
+	_session.set_speed(1)
 	for wait: int in 60:
 		if not game.cafe._to_pod.has(newcomer.id):
 			break
 		await _frames(20)
+	_session.set_speed(0)
 	print("CHECK ...and reaches it: ", not game.cafe._to_pod.has(newcomer.id))
 	# Another worker going to rest takes a free Pod; the resting one stays in its own.
 	var pod_before: int = game.cafe._pod_of.get(newcomer.id, -1)
@@ -497,6 +502,9 @@ func _run() -> void:
 	print("CHECK last Continue -> results as notes, the day already running: ", game.report.visible and not game.battle.visible
 		and state.phase == GameState.Phase.SHIFT and not _session.paused)
 	_shot("15_report")
+	await _click(_centre_of(_button_with(game.report, "×")))
+	await _frames(3)
+	print("CHECK × -> night results closed: ", not game.report.visible)
 	Settings.set_tutorial_done(tutorial_was_done)
 	quit()
 
