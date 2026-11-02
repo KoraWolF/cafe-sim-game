@@ -101,6 +101,8 @@ var seat_table: Dictionary[String, String] = {}
 ## Tonight's raid: "" = none.
 @export var raid_target: String = ""
 @export var raid_squad: Array[String] = []
+## The day of the last raid (one raid a night).
+@export var last_raid_day: int = 0
 
 @export var next_id: int = 1
 ## Random number generator state, so a loaded game continues the same way.

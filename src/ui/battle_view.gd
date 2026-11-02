@@ -11,6 +11,8 @@ extends Control
 ## placeholder shapes for sprites or models.
 
 signal finished
+## Preview mode (the raid's formation screen): a board tile was clicked.
+signal cell_clicked(cell: Vector2i)
 
 ## Battle board tile size on screen (a 2:1 diamond, like the café floor).
 const TILE: Vector2 = Vector2(136, 68)
@@ -20,6 +22,10 @@ const SHOT_SECONDS: float = 0.25
 const CLASS_WIDTH: Dictionary[String, float] = {"tank": 50.0, "fighter": 40.0, "ranged": 34.0, "fragile": 30.0}
 
 var playback: BattlePlayback = null
+## Still, no timeline or buttons: the formation screen's board.
+var preview_mode: bool = false
+## Preview: the tile under the mouse (highlighted), and tiles to mark (placed units' spots).
+var hover_cell: Vector2i = Vector2i(-1, -1)
 ## True when the player's fighters are the battle's attackers (a raid).
 var player_attacks: bool = true
 var _title := UiTheme.label("", 34, UiTheme.PANEL_BORDER)
@@ -41,6 +47,7 @@ func _ready() -> void:
 	shade.color = Color(UiTheme.BACKGROUND, 0.985)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	shade.show_behind_parent = true
+	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE  # the board itself takes the clicks
 	add_child(shade)
 	var top := VBoxContainer.new()
 	top.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
@@ -66,6 +73,9 @@ func _ready() -> void:
 func play(battle: Battle.Report, title: String, attacks: bool, attacker_names: Array[String],
 		defender_names: Array[String]) -> void:
 	playback = BattlePlayback.new(battle)
+	preview_mode = false
+	for control: Control in [_title, _clock]:
+		control.visible = true
 	player_attacks = attacks
 	_names_attackers = attacker_names
 	_names_defenders = defender_names
@@ -83,6 +93,43 @@ func play(battle: Battle.Report, title: String, attacks: bool, attacker_names: A
 		Sfx.play("alarm")
 
 
+## Shows a battle's starting positions, still (the raid's formation screen).
+func preview(battle: Battle.Report, attacker_names: Array[String], defender_names: Array[String]) -> void:
+	playback = BattlePlayback.new(battle)
+	preview_mode = true
+	player_attacks = true
+	_names_attackers = attacker_names
+	_names_defenders = defender_names
+	_time = 0.0
+	for control: Control in [_title, _clock, _fast, _skip, _continue]:
+		control.visible = false
+	visible = true
+	queue_redraw()
+
+
+## The board tile under a point of this control (preview: the player attacks).
+func cell_at(point: Vector2) -> Vector2i:
+	var board := Vector2(playback.report.board)
+	var centre := board * 0.5
+	var flat := (point - size * 0.5 - Vector2(0, 50)) / (TILE * 0.5)
+	var a := flat.x + (centre.x - centre.y)  # p.x - p.y
+	var b := flat.y + (centre.x + centre.y)  # p.x + p.y
+	return Vector2i(floori((a + b) * 0.5), floori((b - a) * 0.5))
+
+
+func _gui_input(event: InputEvent) -> void:
+	if not preview_mode or playback == null:
+		return
+	var motion := event as InputEventMouseMotion
+	if motion != null:
+		hover_cell = cell_at(motion.position)
+		queue_redraw()
+	var click := event as InputEventMouseButton
+	if click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT:
+		cell_clicked.emit(cell_at(click.position))
+		accept_event()
+
+
 func skip() -> void:
 	_time = playback.duration() + END_PAUSE
 
@@ -93,7 +140,7 @@ func player_won() -> bool:
 
 
 func _process(delta: float) -> void:
-	if not visible or playback == null:
+	if not visible or playback == null or preview_mode:
 		return
 	var before := _time
 	_time += delta * _speed
@@ -141,16 +188,22 @@ func _draw() -> void:
 	var report := playback.report
 	var time := minf(_time, report.duration)
 	_draw_board(report)
-	# Units, far to near.
-	var units: Array[Array] = []
+	# Furniture and units, far to near.
+	var things: Array[Array] = []
+	if report.field != null:
+		for piece: Dictionary in report.field.pieces:
+			var size := Vector2(Session.data.pieces[piece["piece_id"]].footprint(piece.get("rotated", false)))
+			things.append([_screen(Vector2(piece["cell"]) + size * 0.5 - Vector2(0.5, 0.5)).y, _draw_furniture.bind(piece)])
 	for side: bool in [true, false]:
 		var count := report.attackers.size() if side else report.defenders.size()
 		for i: int in count:
 			var state := playback.unit_state(side, i, time)
-			units.append([side, i, state, _screen(state["pos"]).y])
-	units.sort_custom(func(a: Array, b: Array) -> bool: return a[3] < b[3])
-	for entry: Array in units:
-		_draw_unit(entry[0], entry[1], entry[2])
+			things.append([_screen(state["pos"]).y + 1.0, _draw_unit.bind(side, i, state)])
+	things.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
+	for entry: Array in things:
+		entry[1].call()
+	if preview_mode:
+		return
 	_draw_shots(time)
 	_draw_numbers(time)
 	if _time >= report.duration:
@@ -160,17 +213,39 @@ func _draw() -> void:
 
 
 func _draw_board(report: Battle.Report) -> void:
-	var half := report.board.y / 2
+	var split := report.field.split if report.field != null else report.board.y / 2
 	for y: int in report.board.y:
 		for x: int in report.board.x:
 			var corners := PackedVector2Array()
 			for corner: Vector2 in [Vector2(-0.5, -0.5), Vector2(0.5, -0.5), Vector2(0.5, 0.5), Vector2(-0.5, 0.5)]:
 				corners.append(_screen(Vector2(x, y) + corner))
-			var players := (y >= half) == player_attacks
+			var players := (y >= split) == player_attacks
 			var tint := UiTheme.PANEL_BORDER if players else UiTheme.BAD
-			draw_colored_polygon(corners, Color(tint, 0.10 if (x + y) % 2 == 0 else 0.16))
+			var fill := 0.10 if (x + y) % 2 == 0 else 0.16
+			if preview_mode and players and Vector2i(x, y) == hover_cell:
+				fill = 0.4
+			draw_colored_polygon(corners, Color(tint, fill))
 			corners.append(corners[0])
 			draw_polyline(corners, Color(tint, 0.35), 1.5)
+
+
+## A piece of the rival café's furniture as a block, coloured like the café's own.
+func _draw_furniture(piece: Dictionary) -> void:
+	var data_piece: Piece = Session.data.pieces[piece["piece_id"]]
+	var size := Vector2(data_piece.footprint(piece.get("rotated", false)))
+	var cell := Vector2(piece["cell"]) - Vector2(0.5, 0.5)
+	var top := _screen(cell)
+	var right := _screen(cell + Vector2(size.x, 0))
+	var bottom := _screen(cell + size)
+	var left := _screen(cell + Vector2(0, size.y))
+	var lift := Vector2(0, -CafeView.HEIGHTS.get(data_piece.kind, 20.0) * TILE.y / 64.0)
+	var color := CafeView.piece_color(data_piece)
+	draw_colored_polygon(PackedVector2Array([left, bottom, bottom + lift, left + lift]), color.darkened(0.35))
+	draw_colored_polygon(PackedVector2Array([bottom, right, right + lift, bottom + lift]), color.darkened(0.2))
+	var face := PackedVector2Array([top + lift, right + lift, bottom + lift, left + lift])
+	draw_colored_polygon(face, color)
+	face.append(face[0])
+	draw_polyline(face, color.darkened(0.5), 1.5)
 
 
 ## One unit, from its state. Swap this for a sprite or model later: the state

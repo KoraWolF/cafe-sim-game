@@ -13,6 +13,8 @@ extends RefCounted
 ## Damage is power x a random factor, less the target's armor; a shield takes it
 ## first. The fight ends when a side is down, or after max_seconds (defenders win).
 ##
+## A raid is fought inside the rival café (see Field and RaidField): its
+## furniture blocks walking and gives cover from ranged attacks.
 ## The report keeps every event with its time, so the view can play the fight
 ## back (and, later, drive models and animations: see BattlePlayback).
 
@@ -79,6 +81,32 @@ class Event:
 	var skill: String = ""
 
 
+## Where a battle is fought: the board, the first attackers' row (defenders
+## hold the rows above it) and the furniture standing on it (it blocks walking;
+## a unit next to it takes less from ranged attacks). A raid is fought in the
+## rival café itself (see RaidField); other battles on a bare board.
+class Field:
+	extends RefCounted
+	var board: Vector2i = Vector2i(8, 6)
+	var split: int = 3
+	var obstacles: Dictionary[Vector2i, bool] = {}
+	## For drawing: {"piece_id", "cell": Vector2i, "rotated": bool}.
+	var pieces: Array[Dictionary] = []
+
+	static func bare(combat: CombatConfig) -> Field:
+		var field := Field.new()
+		field.board = combat.board
+		field.split = combat.half()
+		return field
+
+	## Rows a side holds.
+	func rows(attackers: bool) -> int:
+		return board.y - split if attackers else split
+
+	func open(cell: Vector2i) -> bool:
+		return cell.x >= 0 and cell.y >= 0 and cell.x < board.x and cell.y < board.y and not obstacles.has(cell)
+
+
 class Report:
 	extends RefCounted
 	var attackers: Array[Fighter] = []
@@ -87,6 +115,7 @@ class Report:
 	## Seconds the battle lasted.
 	var duration: float = 0.0
 	var board: Vector2i = Vector2i(8, 6)
+	var field: Field = null
 	var attackers_won: bool = false
 
 	## The fighter on a side at an index.
@@ -116,21 +145,15 @@ class Unit:
 
 const NEIGHBOURS: Array[Vector2i] = [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1),
 	Vector2i(1, 1), Vector2i(1, -1), Vector2i(-1, 1), Vector2i(-1, -1)]
-## Columns filled first when placing by class: from the middle out.
-const COLUMN_ORDER: Array[int] = [3, 4, 2, 5, 1, 6, 0, 7]
 
 
 static func run(attackers: Array[Fighter], defenders: Array[Fighter], rng: RandomNumberGenerator,
-		data: GameData) -> Report:
+		data: GameData, field: Field = null) -> Report:
 	var combat := data.combat
-	var report := Report.new()
-	report.attackers = attackers
-	report.defenders = defenders
-	report.board = combat.board
+	var report := setup(attackers, defenders, data, field)
 	var units: Array[Unit] = []
 	for side: bool in [true, false]:
 		var fighters := attackers if side else defenders
-		_place(fighters, side, combat)
 		for i: int in fighters.size():
 			var unit := Unit.new()
 			unit.fighter = fighters[i]
@@ -150,51 +173,70 @@ static func run(attackers: Array[Fighter], defenders: Array[Fighter], rng: Rando
 	return report
 
 
+## Everyone on their starting cell, no fight yet (for the formation screen).
+static func setup(attackers: Array[Fighter], defenders: Array[Fighter], data: GameData, field: Field = null) -> Report:
+	var report := Report.new()
+	report.attackers = attackers
+	report.defenders = defenders
+	report.field = field if field != null else Field.bare(data.combat)
+	report.board = report.field.board
+	_place(attackers, true, report.field)
+	_place(defenders, false, report.field)
+	return report
+
+
 ## Board cells for one side: each fighter's formation spot (column, row from
-## the front), or by class where it has none or the spot is taken.
-static func _place(fighters: Array[Fighter], attackers: bool, combat: CombatConfig) -> void:
+## the front), or by class where it has none or the spot is taken: tanks and
+## fighters in front, fragile behind them, ranged at the back; never on furniture.
+static func _place(fighters: Array[Fighter], attackers: bool, field: Field) -> void:
 	var taken: Dictionary[Vector2i, bool] = {}
 	var waiting: Array[Fighter] = []
+	var rows := field.rows(attackers)
 	for fighter: Fighter in fighters:
 		var spot := fighter.cell
-		if spot.x >= 0 and spot.y >= 0 and spot.x < combat.board.x and spot.y < combat.half() \
-				and not taken.has(spot):
-			taken[spot] = true
-			fighter.cell = _board_cell(spot, attackers, combat)
+		var cell := _board_cell(spot, attackers, field)
+		if spot.x >= 0 and spot.y >= 0 and spot.y < rows and field.open(cell) and not taken.has(cell):
+			taken[cell] = true
+			fighter.cell = cell
 		else:
 			waiting.append(fighter)
+	var columns: Array[int] = []
+	for offset: int in field.board.x:
+		var column := (field.board.x - 1) / 2 + (offset + 1) / 2 * (1 if offset % 2 == 1 else -1)
+		if column >= 0 and column < field.board.x:
+			columns.append(column)
 	for fighter: Fighter in waiting:
-		var row := {CombatConfig.TANK: 0, CombatConfig.FIGHTER: 0, CombatConfig.FRAGILE: 1, CombatConfig.RANGED: 2} \
-			.get(fighter.class_id, 0) as int
-		var spot := Vector2i(-1, -1)
-		for offset: int in combat.half():
-			var try_row := clampi(row + offset if row + offset < combat.half() else row - offset, 0, combat.half() - 1)
-			for column: int in COLUMN_ORDER:
-				if column < combat.board.x and not taken.has(Vector2i(column, try_row)):
-					spot = Vector2i(column, try_row)
+		var row := mini({CombatConfig.TANK: 0, CombatConfig.FIGHTER: 0, CombatConfig.FRAGILE: 1, CombatConfig.RANGED: 2} \
+			.get(fighter.class_id, 0) as int, rows - 1)
+		fighter.cell = Vector2i(-1, -1)
+		for offset: int in rows:
+			var try_row := clampi(row + offset if row + offset < rows else row - offset, 0, rows - 1)
+			for column: int in columns:
+				var cell := _board_cell(Vector2i(column, try_row), attackers, field)
+				if field.open(cell) and not taken.has(cell):
+					fighter.cell = cell
 					break
-			if spot.x >= 0:
+			if fighter.cell.x >= 0:
 				break
-		if spot.x < 0:
-			continue  # no room (more fighters than half a board)
-		taken[spot] = true
-		fighter.cell = _board_cell(spot, attackers, combat)
+		if fighter.cell.x >= 0:
+			taken[fighter.cell] = true
 
 
 ## Where each fighter would stand on its side (column, row from the front):
 ## its own spot, or one by its class. For showing the formation.
 static func formation_spots(fighters: Array[Fighter], combat: CombatConfig) -> Array[Vector2i]:
-	_place(fighters, true, combat)
+	var field := Field.bare(combat)
+	_place(fighters, true, field)
 	var spots: Array[Vector2i] = []
 	for fighter: Fighter in fighters:
-		spots.append(Vector2i(fighter.cell.x, fighter.cell.y - combat.half()) if fighter.cell.x >= 0 else Vector2i(-1, -1))
+		spots.append(Vector2i(fighter.cell.x, fighter.cell.y - field.split) if fighter.cell.x >= 0 else Vector2i(-1, -1))
 	return spots
 
 
-## A formation spot (row 0 = front) as a board cell: attackers on the bottom
-## half, defenders on the top half, both facing the middle.
-static func _board_cell(spot: Vector2i, attackers: bool, combat: CombatConfig) -> Vector2i:
-	return Vector2i(spot.x, combat.half() + spot.y) if attackers else Vector2i(spot.x, combat.half() - 1 - spot.y)
+## A formation spot (row 0 = front) as a board cell: attackers below the
+## split, defenders above it, both facing it.
+static func _board_cell(spot: Vector2i, attackers: bool, field: Field) -> Vector2i:
+	return Vector2i(spot.x, field.split + spot.y) if attackers else Vector2i(spot.x, field.split - 1 - spot.y)
 
 
 static func _act(unit: Unit, units: Array[Unit], time: float, report: Report, rng: RandomNumberGenerator,
@@ -216,7 +258,7 @@ static func _act(unit: Unit, units: Array[Unit], time: float, report: Report, rn
 			_attack(unit, time, report, rng, data)
 			unit.ready_at = time + _interval(unit, time, combat)
 		return
-	var step := _step_toward(unit, units, combat)
+	var step := _step_toward(unit, units, combat, report.field)
 	if step == unit.cell:
 		return  # boxed in: wait
 	var event := _event(Event.MOVE, unit, time)
@@ -266,6 +308,9 @@ static func _damage(from: Unit, target: Unit, power: float, time: float, report:
 	var variance := data.balance.battle_damage_variance
 	var amount := power * rng.randf_range(1.0 - variance, 1.0 + variance) \
 		* (1.0 - clampf(data.combat.value(target.fighter.class_id, "armor"), 0.0, 0.9))
+	# Cover: furniture next to the target takes some of a shot from afar.
+	if _distance(from.cell, target.cell) > 1 and _beside_furniture(target.cell, report.field):
+		amount *= 1.0 - clampf(data.combat.cover, 0.0, 0.9)
 	var absorbed := minf(target.shield, amount)
 	target.shield -= absorbed
 	amount -= absorbed
@@ -339,8 +384,8 @@ static func _cast(unit: Unit, skill: Dictionary, units: Array[Unit], time: float
 
 ## The next tile toward a spot in range of the target (8 directions, round
 ## other units); the unit's own cell if there is no way.
-static func _step_toward(unit: Unit, units: Array[Unit], combat: CombatConfig) -> Vector2i:
-	var blocked: Dictionary[Vector2i, bool] = {}
+static func _step_toward(unit: Unit, units: Array[Unit], combat: CombatConfig, field: Field) -> Vector2i:
+	var blocked: Dictionary[Vector2i, bool] = field.obstacles.duplicate()
 	for other: Unit in units:
 		if other != unit and other.alive():
 			blocked[other.cell] = true
@@ -354,7 +399,7 @@ static func _step_toward(unit: Unit, units: Array[Unit], combat: CombatConfig) -
 			return first[at]
 		for direction: Vector2i in NEIGHBOURS:
 			var next := at + direction
-			if next.x < 0 or next.y < 0 or next.x >= combat.board.x or next.y >= combat.board.y:
+			if next.x < 0 or next.y < 0 or next.x >= field.board.x or next.y >= field.board.y:
 				continue
 			if first.has(next) or blocked.has(next):
 				continue
@@ -371,6 +416,13 @@ static func _event(kind: String, unit: Unit, time: float) -> Event:
 	event.index = unit.index
 	event.mana = unit.mana
 	return event
+
+
+static func _beside_furniture(cell: Vector2i, field: Field) -> bool:
+	for direction: Vector2i in NEIGHBOURS:
+		if field.obstacles.has(cell + direction):
+			return true
+	return false
 
 
 ## Tiles between two cells, diagonals counting as one.

@@ -26,6 +26,8 @@ var tick_seconds: float = 0.1
 var max_seconds: float = 45.0
 var mana_per_attack: float = 10.0
 var mana_per_hit: float = 5.0
+## Share of a ranged attack's damage furniture next to the target takes away.
+var cover: float = 0.25
 var classes: Dictionary[String, Dictionary] = {
 	TANK: {"range": 1, "attack_interval": 1.3, "move_speed": 1.6, "armor": 0.3},
 	FIGHTER: {"range": 1, "attack_interval": 1.0, "move_speed": 2.0, "armor": 0.15},
@@ -53,6 +55,7 @@ static func from_dict(values: Dictionary) -> CombatConfig:
 	config.max_seconds = float(values.get("max_seconds", config.max_seconds))
 	config.mana_per_attack = float(values.get("mana_per_attack", config.mana_per_attack))
 	config.mana_per_hit = float(values.get("mana_per_hit", config.mana_per_hit))
+	config.cover = float(values.get("cover", config.cover))
 	for key: String in ["classes", "skills"]:
 		var given: Variant = values.get(key, {})
 		if given is Dictionary:

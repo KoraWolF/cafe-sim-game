@@ -408,15 +408,43 @@ func _run() -> void:
 	await _frames(3)
 	print("CHECK Done -> back to the night hub: ", game.night.visible and not game.edit_panel.visible)
 
-	# Pick a target and a squad in Night Ops (no Plan button: End Night asks).
+	# Raid from the map: Night Ops -> Open map -> the kiosk -> place a worker -> Start raid.
 	var raider := state.synths[-1]
 	raider.battery = 100.0
-	game.night._target = "megabean_kiosk"
-	game.night._squad.assign([raider.id])
 	game.night._tabs.current_tab = 2
-	game.night.refresh()
 	await _frames(3)
-	_shot("07_night_ops_planned")
+	_shot("07_night_ops_map_button")
+	await _click(_centre_of(_button_with(game.night, tr("ui.ops_open_map"))))
+	await _frames(3)
+	print("CHECK Open map -> the district map: ", game.raid_map.visible)
+	_shot("07b_raid_map")
+	await _click(_centre_of(_button_with(game.raid_map, UiText.name("megabean_kiosk"))))
+	await _frames(3)
+	print("CHECK click a café -> the raid setup in front of it: ", game.raid_setup.visible and game.raid_setup.rival_id == "megabean_kiosk")
+	await _click(_centre_of(_button_with(game.raid_setup._roster, _session.synth_name(raider))))
+	var setup_field: Battle.Field = game.raid_setup._board.playback.report.field
+	var front := Vector2i(3, setup_field.split)  # your front row, column 3
+	var board_view = game.raid_setup._board  # untyped: BattleView needs the Session autoload
+	await _click(board_view.get_global_transform() * board_view._screen(Vector2(front)))
+	await _frames(3)
+	print("CHECK pick a worker, click a tile -> in the squad there: ", game.raid_setup.squad.get(raider.id, Vector2i(-1, -1)) == Vector2i(3, 0))
+	print("CHECK the enemy café has its furniture: ", not setup_field.pieces.is_empty())
+	_shot("07c_raid_setup")
+	await _click(_centre_of(game.raid_setup._start))
+	await _frames(45)
+	print("CHECK Start raid -> the raid battle plays at once: ", game.battle.visible and state.last_raid_day == state.day)
+	_shot("12_battle_raid")
+	await _click(_centre_of(game.battle._skip))
+	await _frames(3)
+	print("CHECK Skip -> raid finished, Continue shown: ", game.battle.playback.is_finished(game.battle._time) and game.battle._continue.visible)
+	_shot("13_battle_raid_end")
+	await _click(_centre_of(game.battle._continue))
+	await _frames(3)
+	print("CHECK after the raid -> results screen: ", game.notice.visible)
+	_shot("13b_raid_results")
+	await _click(_centre_of(game.notice._continue))
+	await _frames(3)
+	print("CHECK results Continue -> back to the night hub: ", game.night.visible and not game.battle.visible)
 	# Settings: a real click on the Music slider's left end turns music down, and it is saved.
 	game.hud.settings_requested.emit()
 	await _frames(2)
@@ -429,25 +457,9 @@ func _run() -> void:
 	Settings.set_volume("Music", music_volume)
 	game.settings.close()
 
-	# Suspicion past the Audit line: tonight has a raid and an Audit to watch.
+	# Suspicion past the Audit line: End Night brings an Audit to watch.
 	state.add_suspicion(95.0)
 	await _click(_centre_of(_button_with(game.night, tr("ui.end_night"))))
-	await _frames(3)
-	print("CHECK End Night with a target and squad -> asks to raid: ", game.night._confirm.visible)
-	_shot("11c_confirm_raid")
-	await _click(_centre_of(game.night._confirm._yes))
-	await _frames(45)
-	print("CHECK End Night -> raid battle playing: ", game.battle.visible and not game.report.visible)
-	_shot("12_battle_raid")
-	await _click(_centre_of(game.battle._skip))
-	await _frames(3)
-	print("CHECK Skip -> raid finished, Continue shown: ", game.battle.playback.is_finished(game.battle._time) and game.battle._continue.visible)
-	_shot("13_battle_raid_end")
-	await _click(_centre_of(game.battle._continue))
-	await _frames(3)
-	print("CHECK after the raid -> results screen: ", game.notice.visible)
-	_shot("13b_raid_results")
-	await _click(_centre_of(game.notice._continue))
 	await _frames(3)
 	print("CHECK before the Audit -> warning screen: ", game.notice.visible and game.notice._title.text == tr("ui.battle_audit"))
 	_shot("13c_audit_warning")
