@@ -8,6 +8,7 @@ enum Stage {
 	EATING,
 	LEAVING, ## Gone from the café, walking out to the street (timer: seconds left): still convertible.
 	PAYING, ## Finished eating: in line at the register, or paying.
+	WAITING_PAY, ## Finished eating, the pay line full: waits at the table (its seat still taken).
 }
 
 @export var id: String = ""
@@ -44,7 +45,7 @@ enum Stage {
 
 
 func is_seated() -> bool:
-	return stage == Stage.WAITING_FOOD or stage == Stage.EATING
+	return stage == Stage.WAITING_FOOD or stage == Stage.EATING or stage == Stage.WAITING_PAY
 
 
 

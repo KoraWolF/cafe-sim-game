@@ -12,8 +12,6 @@ var first_arrival_seconds: int = 3
 var arrival_min_seconds: int = 10
 var arrival_max_seconds: int = 18
 var arrival_reference_size: float = 8.0
-## With more customers inside than tables, the gap between arrivals is this many times longer.
-var crowded_arrival_slowdown: float = 1.0
 ## No new customers in the last part of the shift.
 var spawn_stop_before_end: int = 45
 ## Customers in a new café wait 1 + patience_bonus times as long (in line and at
@@ -21,6 +19,10 @@ var spawn_stop_before_end: int = 45
 var patience_bonus: float = 0.0
 ## Customers waiting for a seat; more are turned away.
 var max_queue: int = 6
+## Customers each register's pay line holds; when it's full, finished customers
+## wait at their table, and leave without paying after pay_wait_seconds (x patience).
+var pay_line_max: int = 4
+var pay_wait_seconds: int = 30
 ## A queued customer leaves after this many seconds times their type's patience.
 var queue_patience_seconds: int = 40
 ## Waiting this long costs nothing; after it, satisfaction drops each second
@@ -122,6 +124,8 @@ var suspicion_decay: float = 5.0
 var raid_squad_max: int = 4
 ## Defenders ticked at closing: this many with the most battery.
 var defender_count: int = 6
+## Share of their missing battery that defenders who fought get back that night.
+var defender_recharge: float = 0.5
 ## Rival guards (not flagships) grow stronger every day the district has been open:
 ## power/hp * (1 + rival_growth_per_day * days since the district opened).
 var rival_growth_per_day: float = 0.0

@@ -87,6 +87,7 @@ ui.ops_none_owned,No districts owned yet.
 ui.ops_defense,MegaBean raid chance tonight: %d%%
 ui.ops_audit,"Suspicion is %d or more: a Corporate Audit WILL come tonight. Keep strong Synths home!"
 ui.report_title,Night %d results
+ui.report_close,Close the night results
 ui.report_raid_won,Raid on %s: WON. Loot %d coins + %d cores. +%d Influence.
 ui.report_raid_lost,Raid on %s: lost.
 ui.report_takeover,%s is yours! It pays %d coins every night.
@@ -243,6 +244,7 @@ tip.role.cashier,"Works its register: customers pay there on the way out (speed)
 tip.upgrade.register,"One more register (1x1). Each needs its own Cashier; customers pay at the first free one."
 error.register_needed,The café needs at least one register.
 customer.stage_4,Paying at the register
+customer.stage_5,Finished: waiting at the table for room in the pay line
 ui.register_label,Register
 ui.card_core,"%s · best: %s · trait: %s"
 ui.card_hp,HP %d
@@ -467,6 +469,7 @@ ui.battle_clock,%.1f s
 ui.battle_entering,Walking in through the door...
 help.combat,"Combat (raids and defending) is auto-chess style on a grid. Set where each Synth stands in Night Ops → Battle formation (front row faces the enemy). In the fight everyone walks to the nearest enemy and attacks when in range; fragile units go for the weakest. Classes: Tank (Bulkform: tough, armoured), Fighter (Steady-unit), Ranged (Clerkbot, Hypeform, Xeno: hit from 3 tiles), Fragile (Glitchling: fast, hard-hitting, frail). Mana fills from attacking and being hit; full mana casts the species skill: Slam (stun nearby), Fortify (shield), Overtime (attack faster), Chain spark (hits 3), Cheer (heal), Beam (big hit)."
 error.blocks_door,Keep the door clear: nothing can stand on the tile just inside it.
+error.blocks_way,That would block the way: everything people walk up to must be reachable from the door.
 error.chef_cooking,"This Chef is still cooking at its stove — wait until the dish is done, or give it another job first."
 ui.swapped,"%s is now %s, %s is now %s."
 ui.warn_attackers,%d MegaBean fighters are coming.
@@ -508,5 +511,5 @@ ui.cook_queue,"Queue %s — %d coins (%d servings, %ds)"
 ui.stove_has_chef,This stove already has its Chef (%s).
 ui.night_button,Night
 ui.ops_defenders,Defenders tonight
-ui.ops_defenders_help,"If MegaBean raids the café, these fight it (tanks stand nearest the door). Those who fight don't recharge tonight. The ones with the most battery are ticked at closing; a raider hands its tick to the next one."
+ui.ops_defenders_help,"If MegaBean raids the café, these fight it (tanks stand nearest the door). Those who fight only get back half their missing battery tonight. The ones with the most battery are ticked at closing; a raider hands its tick to the next one."
 ui.ops_defender,"%s · %s · Lv %d · %d%%"

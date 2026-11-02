@@ -351,9 +351,7 @@ static func _recharge(state: GameState, data: GameData, report: Report) -> void:
 		for fighter: Battle.Fighter in report.defense.defenders:
 			fought[fighter.synth_id] = true
 	for synth: Synth in state.synths:
-		if fought.has(synth.id):
-			continue
-		var missing := _missing_battery(synth, data)
+		var missing := _missing_battery(synth, data) * (data.balance.defender_recharge if fought.has(synth.id) else 1.0)
 		if missing <= 0.0:
 			continue
 		var per_point := _power_per_point(synth, data)
