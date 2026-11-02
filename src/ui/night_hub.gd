@@ -14,6 +14,7 @@ var _pages: Dictionary[String, VBoxContainer] = {}
 ## Night Ops picks, kept while the player edits them.
 var _target: String = ""
 var _squad: Array[String] = []
+var _confirm := ConfirmModal.new()
 
 
 func _ready() -> void:
@@ -46,6 +47,8 @@ func _ready() -> void:
 	end.custom_minimum_size = Vector2(0, 54)
 	end.add_theme_font_size_override("font_size", 20)
 	column.add_child(end)
+	# Beside the hub, not inside it: a container would squeeze the full-screen modal.
+	get_parent().add_child.call_deferred(_confirm)
 	Session.state_changed.connect(refresh)
 	Session.phase_changed.connect(_on_phase_changed)
 	_on_phase_changed()
@@ -181,25 +184,33 @@ func _fill_ops(page: VBoxContainer) -> void:
 			elif not on:
 				_squad.erase(synth.id))
 		page.add_child(pick)
-	var row := HBoxContainer.new()
-	row.add_child(UiTheme.button(tr("ui.ops_plan"), func() -> void:
-		Session.act(GameLoop.plan_raid(state, _target, _squad, data))))
-	row.add_child(UiTheme.button(tr("ui.ops_cancel"), func() -> void:
-		GameLoop.cancel_raid(state)
-		_target = ""
-		_squad.clear()
-		Session.state_changed.emit()))
-	page.add_child(row)
 	page.add_child(HSeparator.new())
 	page.add_child(_wrap(tr("ui.ops_formation"), 18))
 	page.add_child(_wrap(tr("ui.ops_formation_help"), 14, UiTheme.TEXT_DIM))
 	var board := FormationBoard.new()
 	board.squad = _squad
 	page.add_child(board)
-	var plan := tr("ui.ops_planned") % [UiText.name(state.raid_target), state.raid_squad.size()] \
-		if state.raid_target != "" else tr("ui.ops_no_plan")
-	page.add_child(_wrap(plan, 18, UiTheme.PANEL_BORDER))
+	page.add_child(_wrap(tr("ui.ops_confirm_hint"), 16, UiTheme.PANEL_BORDER))
 
 
+## With a target and a squad picked, End Night asks first: raid tonight, or end
+## the night without one.
 func _end_night() -> void:
-	Session.end_night()
+	var state := Session.state
+	if _target == "" or _squad.is_empty():
+		GameLoop.cancel_raid(state)
+		Session.end_night()
+		return
+	var squad_names: Array[String] = []
+	for synth_id: String in _squad:
+		squad_names.append(Session.synth_name(state.synth_by_id(synth_id)))
+	_confirm.ask(tr("ui.confirm_raid") % UiText.name(_target), ", ".join(squad_names), tr("ui.confirm_raid_yes"),
+		func() -> void:
+			if Session.act(GameLoop.plan_raid(Session.state, _target, _squad, Session.data)):
+				Session.end_night(),
+		tr("ui.confirm_raid_no"),
+		func() -> void:
+			GameLoop.cancel_raid(Session.state)
+			_target = ""
+			_squad.clear()
+			Session.end_night())
