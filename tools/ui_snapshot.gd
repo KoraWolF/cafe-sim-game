@@ -251,6 +251,17 @@ func _run() -> void:
 		and game.cafe._pod_of.get(sleeper.id, -1) >= 0 and game.cafe._pod_of[sleeper.id] != pod_before)
 	GameLoop.assign_role(state, sleeper.id, Synth.SERVER)
 	_session.state_changed.emit()
+	await _frames(2)
+	# The Workers list on the left: one row per worker; a name picks the worker; a job menu sets the job.
+	print("CHECK Workers list shows every worker: ", game.hud.workers.visible and game.hud.workers._battery.size() == state.synths.size())
+	_shot("04c3_workers_list")
+	await _click(_centre_of(_button_with(game.hud.workers, _session.synth_name(sleeper))))
+	print("CHECK click a name in the list -> that worker picked: ", game.cafe.selected_synth == sleeper.id and game.hud._card.visible)
+	game.hud.workers._set_job(Synth.ROLES.find(Synth.REST), sleeper.id)
+	print("CHECK job menu in the list -> job set: ", sleeper.role == Synth.REST)
+	GameLoop.assign_role(state, sleeper.id, Synth.SERVER, data)
+	game.hud.close_synth_card()
+	_session.state_changed.emit()
 	_shot("04c_new_synth_in_pod")
 	print("CHECK Auto locked on day 1: ", game.hud._auto.disabled)
 	# A customer walking out can still be clicked on the way.

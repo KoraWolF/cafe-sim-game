@@ -68,6 +68,15 @@ func _ready() -> void:
 		hud.open_synth_card(synth_id))
 	cafe.job_clicked.connect(_give_job)
 	cafe.swap_clicked.connect(_swap_jobs)
+	hud.workers.picked.connect(func(synth_id: String) -> void:
+		var picked := Session.state.synth_by_id(cafe.selected_synth)
+		var other := Session.state.synth_by_id(synth_id)
+		# Same as in the café: one working and one resting swap, else pick this one.
+		if picked != null and picked != other and (picked.role == Synth.REST) != (other.role == Synth.REST):
+			_swap_jobs(picked.id, synth_id)
+			return
+		cafe.selected_synth = synth_id
+		hud.open_synth_card(synth_id))
 	cafe.blank_clicked.connect(hud.close_synth_card)
 	hud.card_closed.connect(func() -> void: cafe.selected_synth = "")
 	cafe.customer_clicked.connect(hud.confirm_convert)
