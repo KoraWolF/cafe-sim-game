@@ -42,3 +42,23 @@ func test_a_full_pay_line_keeps_customers_at_their_table() -> void:
 	GameLoop.advance(state, 40, data)
 	assert_true(not state.customers.has(waiting), "waited too long and left")
 	assert_eq(state.coins, coins, "without paying (nobody at the register either)")
+
+
+func test_ranged_defenders_walk_out_before_shooting() -> void:
+	var data := TestFixtures.data({"battle_damage_variance": 0.0})
+	var field := Battle.Field.bare(data.combat)
+	field.wall_off(4, 1)  # the café is row 0, the street rows 2 on
+	var raider := Battle.Fighter.make("a", 1.0, 1000.0, CombatConfig.TANK)
+	raider.cell = Vector2i(4, 0)  # right in front of the door
+	var shooters: Array[Battle.Fighter] = []
+	for i: int in 3:
+		shooters.append(Battle.Fighter.make("", 1.0, 1000.0, CombatConfig.RANGED))
+	var report := Battle.run([raider] as Array[Battle.Fighter], shooters, RandomNumberGenerator.new(), data, field)
+	var cells: Dictionary[int, Vector2i] = {}
+	for i: int in shooters.size():
+		cells[i] = shooters[i].cell
+	for event: Battle.Event in report.events:
+		if not event.side and event.kind == Battle.Event.MOVE:
+			cells[event.index] = event.to
+		if not event.side and event.kind == Battle.Event.ATTACK:
+			assert_true(field.outside(cells[event.index]), "a shooter fires only once it is outside")
