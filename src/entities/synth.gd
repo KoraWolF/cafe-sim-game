@@ -31,8 +31,10 @@ const ROLES: Array[String] = [SERVER, CHEF, CASHIER, REST]
 ## (walking from where it stands to the pick-up and on to the drop-off; see Shift).
 @export var task_remaining: float = 0.0
 @export var task_total: float = 0.0
-## Resting in its Pod when the café closed: only then does it recharge at night.
-@export var charging: bool = true
+## Its job and station before the café closed and everyone went to their Pod
+## for the night; it goes back to them in the morning ("" = it was resting).
+@export var day_role: String = ""
+@export var day_station: String = ""
 ## The placed piece a Server last stopped at ("" = by the kitchen): trips start from here.
 @export var spot_uid: String = ""
 ## Carrying a finished batch: from this stove piece ("" = not carrying)...
@@ -71,7 +73,7 @@ func is_busy() -> bool:
 func to_dict() -> Dictionary:
 	return {"id": id, "name": name, "species_id": species_id, "trait_id": trait_id, "role": role, "station_uid": station_uid,
 		"battery": battery, "battery_max": battery_max, "level": level, "xp": xp, "task_customer_id": task_customer_id, "task_recipe_id": task_recipe_id,
-		"task_remaining": task_remaining, "task_total": task_total, "spot_uid": spot_uid, "charging": charging, "task_stove_uid": task_stove_uid, "task_counter_uid": task_counter_uid, "task_bin_uid": task_bin_uid, "task_home_uid": task_home_uid,
+		"task_remaining": task_remaining, "task_total": task_total, "spot_uid": spot_uid, "day_role": day_role, "day_station": day_station, "task_stove_uid": task_stove_uid, "task_counter_uid": task_counter_uid, "task_bin_uid": task_bin_uid, "task_home_uid": task_home_uid,
 		"items": items.map(func(item: Item) -> Dictionary: return item.to_dict())}
 
 
@@ -94,7 +96,8 @@ static func from_dict(values: Dictionary) -> Synth:
 	synth.task_remaining = float(values.get("task_remaining", 0.0))
 	synth.task_total = maxf(float(values.get("task_total", 0.0)), synth.task_remaining)
 	synth.spot_uid = str(values.get("spot_uid", ""))
-	synth.charging = bool(values.get("charging", true))
+	synth.day_role = str(values.get("day_role", ""))
+	synth.day_station = str(values.get("day_station", ""))
 	synth.task_stove_uid = str(values.get("task_stove_uid", ""))
 	synth.task_counter_uid = str(values.get("task_counter_uid", ""))
 	synth.task_bin_uid = str(values.get("task_bin_uid", ""))
