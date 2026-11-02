@@ -51,4 +51,17 @@ Kept C: `audit_size` 3, `audit_strength` 1.2, `rival_growth_per_day` 0.02.
 
 - **Raids:** won about 80% (the sim bot picks targets with a rough power/HP guess, so it takes fights the door makes harder). The Alley falls 3 days sooner.
 - **Audits:** still lost a bit over half the time, and weaker Audits barely change that. They come at high Suspicion, on nights the bot raids with its 4 strongest, so only the weaker Synths are home to defend. Only about 16 Audits happen across all runs, so this number is noisy.
-- If that feels wrong in play, the fix is in who defends, not the numbers: a Synth who goes on the raid could hand its defender tick to the next most-charged one.
+
+## Raiders hand on their defender tick (branch `pass-tick`)
+A Synth who goes on a raid doesn't defend that night. If it was ticked, its tick goes to the most-charged Synth staying home that isn't ticked yet.
+
+| | C | With tick passing |
+|---|---|---|
+| Raids won | 32.0 / 39.6 | 34.0 / 39.6 |
+| MegaBean raids lost | 4.6 / 13 | 3.0 / 15.2 |
+| Audits lost | 1.8 / 3.2 | 0 / 3.6 |
+| Alley / Neon Market taken | day 14 / 20 | day 14 / 24 |
+| Customers seated | ~1,600 | ~1,730 |
+| Coins at day 40 | ~4,940 | ~6,570 |
+
+**Audits are now always beaten in the sim.** If they feel too easy in play, raise `audit_strength` back toward 1.5.

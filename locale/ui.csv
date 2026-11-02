@@ -508,5 +508,5 @@ ui.cook_queue,"Queue %s — %d coins (%d servings, %ds)"
 ui.stove_has_chef,This stove already has its Chef (%s).
 ui.night_button,Night
 ui.ops_defenders,Defenders tonight
-ui.ops_defenders_help,"If MegaBean raids the café, these fight it (tanks stand nearest the door). Those who fight don't recharge tonight. The ones with the most battery are ticked at closing."
+ui.ops_defenders_help,"If MegaBean raids the café, these fight it (tanks stand nearest the door). Those who fight don't recharge tonight. The ones with the most battery are ticked at closing; a raider hands its tick to the next one."
 ui.ops_defender,"%s · %s · Lv %d · %d%%"

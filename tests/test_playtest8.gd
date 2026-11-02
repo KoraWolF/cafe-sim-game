@@ -96,3 +96,17 @@ func test_a_megabean_raid_is_fought_in_the_players_cafe() -> void:
 	assert_eq(field.split, state.floor_rows + 1, "its floor, then the front wall")
 	assert_eq(field.door.x, Layout.door_cell(state).x, "the café's own door")
 	assert_eq(field.pieces.size(), state.placed.size(), "its own furniture")
+
+
+func test_a_raider_hands_its_defender_tick_to_the_next_most_charged() -> void:
+	var data := TestFixtures.data({"defender_count": 1})
+	var state := GameState.new_game(1, data)
+	var raider := state.add_synth("worker", "", data)
+	var spare := state.add_synth("worker", "", data)
+	raider.battery = 90.0
+	spare.battery = 60.0
+	state.synths[0].battery = 30.0
+	GameLoop.advance(state, data.balance.shift_seconds, data)
+	assert_eq(state.defenders, [raider.id] as Array[String], "the most charged is ticked")
+	assert_eq(GameLoop.raid_now(state, "weak", [raider.id] as Array[String], data), GameLoop.OK, "raided")
+	assert_eq(state.defenders, [spare.id] as Array[String], "its tick went to the next most charged")
