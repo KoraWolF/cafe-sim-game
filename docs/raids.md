@@ -22,7 +22,7 @@ The board is the café floor (8 wide; 4 rows deep, 5 for a flagship), its front 
 
 ## MegaBean raids on your café
 Fought the same way, inside **your own café** as you've laid it out, with its door (the front-right corner). MegaBean comes from the street.
-- **Who defends:** tick them under **Night Ops → Defenders tonight**. At closing the 4 with the most battery are ticked (`defender_count`).
+- **Who defends:** tick them under **Night Ops → Defenders tonight**. At closing the 6 with the most battery are ticked (`defender_count`).
 - They wait inside, tanks nearest the door.
 - Defenders who fought don't recharge that night.
 
