@@ -30,6 +30,8 @@ var _toasts := VBoxContainer.new()
 var _feed := VBoxContainer.new()
 var _recipe_menu := PopupMenu.new()
 var _save_buttons: Array[Button] = []
+## The Workers list on the left, under the quests.
+var workers := WorkersPanel.new()
 ## The speed Space resumes at.
 var _resume_speed: int = 1
 ## Size of the round Shop button.
@@ -57,6 +59,8 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build_top_bar()
 	_tracker.position = Vector2(16, UiTheme.TOP_BAR_HEIGHT + 8)
+	workers.position = Vector2(12, UiTheme.TOP_BAR_HEIGHT + 8)
+	add_child(workers)
 	_tracker.add_theme_constant_override("separation", 2)
 	_tracker.mouse_filter = Control.MOUSE_FILTER_IGNORE  # only its Claim buttons take clicks
 	add_child(_tracker)
@@ -270,6 +274,8 @@ func refresh() -> void:
 	quests_button.text = tr("ui.quests_button") + (" (%d)" % ready if ready > 0 else "")
 	_fill_tracker(state, data)
 	_tracker.visible = _tracker.get_child_count() > 0
+	workers.position.y = UiTheme.TOP_BAR_HEIGHT + 8 + (_tracker.get_combined_minimum_size().y + 10 if _tracker.visible else 0.0)
+	workers.refresh()
 	var unlocked := state.day >= data.balance.auto_unlock_day
 	_auto.disabled = not unlocked
 	_auto.set_pressed_no_signal(state.auto_night)

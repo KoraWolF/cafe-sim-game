@@ -367,7 +367,7 @@ static func swap_jobs(state: GameState, first_id: String, second_id: String) -> 
 
 ## Sets a role directly (Chefs and Cashiers then take a free station). A
 ## server carrying a dish or a batch has to finish the trip first.
-static func assign_role(state: GameState, synth_id: String, role: String) -> String:
+static func assign_role(state: GameState, synth_id: String, role: String, data: GameData = null) -> String:
 	var synth := state.synth_by_id(synth_id)
 	if synth == null:
 		return UNKNOWN_SYNTH
@@ -375,7 +375,15 @@ static func assign_role(state: GameState, synth_id: String, role: String) -> Str
 		return UNKNOWN_ROLE
 	if synth.is_busy():
 		return SYNTH_BUSY
+	if role == Synth.REST:
+		return Roles.rest(state, synth_id)
 	synth.role = role
+	synth.station_uid = ""
+	synth.day_role = ""
+	# A Chef or Cashier takes a free stove or register (or waits for one; with
+	# no data it is bound when the next shift starts).
+	if data != null:
+		Roles.bind_free(state, data)
 	return OK
 
 
