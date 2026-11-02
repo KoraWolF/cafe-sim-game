@@ -70,6 +70,7 @@ func test_night_ops_xp() -> void:
 	GameLoop.advance(state, 100, data)
 	var winner := state.add_synth("worker", "", data)
 	var home := state.add_synth("worker", "", data)
+	GameLoop.set_defender(state, home.id, true)  # added after closing: ticked by hand
 	GameLoop.plan_raid(state, "weak", [winner.id] as Array[String], data)
 	var report := GameLoop.end_night(state, data)
 	assert_true(report.raid.attackers_won and report.defense != null, "setup: raid and defense")

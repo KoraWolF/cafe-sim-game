@@ -4,6 +4,11 @@ extends PanelContainer
 ## A tab was opened: "summary", "staff" or "ops".
 ## Night Ops' Open map was pressed.
 signal map_requested
+## The window's Close was pressed (the round Night button opens it again).
+signal closed
+
+const WIDTH: float = 720.0
+const HEIGHT: float = 760.0
 signal tab_shown(key: String)
 ## The night screen, on the right so the café stays visible: Summary, Menu,
 ## Staff and Night Ops tabs, then "End Night". (The Shop and Arrange Floor are
@@ -17,17 +22,18 @@ var _pages: Dictionary[String, VBoxContainer] = {}
 
 
 func _ready() -> void:
-	set_anchors_and_offsets_preset(Control.PRESET_RIGHT_WIDE)
-	custom_minimum_size = Vector2(620, 0)
-	offset_left = -640
-	offset_top = UiTheme.TOP_BAR_HEIGHT + 12
-	offset_right = -12
-	offset_bottom = -12
+	# A window in the middle of the screen (the round Night button opens and closes it).
+	set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	offset_left = -WIDTH * 0.5
+	offset_right = WIDTH * 0.5
+	offset_top = -HEIGHT * 0.5 + UiTheme.TOP_BAR_HEIGHT * 0.5
+	offset_bottom = HEIGHT * 0.5 + UiTheme.TOP_BAR_HEIGHT * 0.5
 	var column := VBoxContainer.new()
 	add_child(column)
 	var header := HBoxContainer.new()
 	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(_title)
+	header.add_child(UiTheme.button(tr("ui.close"), closed.emit))
 	column.add_child(header)
 	_tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(_tabs)
@@ -51,9 +57,11 @@ func _ready() -> void:
 	_on_phase_changed()
 
 
+## Hidden by day; at night GameScreen shows it (unless the player closed it).
 func _on_phase_changed() -> void:
-	visible = Session.has_game() and Session.state.phase == GameState.Phase.NIGHT
-	if visible:
+	if not Session.has_game() or Session.state.phase != GameState.Phase.NIGHT:
+		visible = false
+	else:
 		_tabs.current_tab = 0
 		refresh()
 
@@ -149,10 +157,18 @@ func _fill_ops(page: VBoxContainer) -> void:
 	page.add_child(_wrap(tr("ui.ops_raided") if state.last_raid_day == state.day else tr("ui.ops_map_hint"), 15,
 		UiTheme.TEXT_DIM))
 	page.add_child(HSeparator.new())
-	# Who stands where when MegaBean comes to the café.
-	page.add_child(_wrap(tr("ui.ops_home_formation"), 18))
-	page.add_child(_wrap(tr("ui.ops_formation_help"), 14, UiTheme.TEXT_DIM))
-	page.add_child(FormationBoard.new())
+	# Who defends the café if MegaBean comes (they don't recharge if they fight).
+	page.add_child(_wrap(tr("ui.ops_defenders"), 18))
+	page.add_child(_wrap(tr("ui.ops_defenders_help"), 14, UiTheme.TEXT_DIM))
+	for synth: Synth in state.synths:
+		var pick := CheckBox.new()
+		pick.text = tr("ui.ops_defender") % [Session.synth_name(synth), tr("class." + data.species[synth.species_id].combat_class),
+			synth.level, SynthStats.battery_percent(synth, data)]
+		pick.button_pressed = state.defenders.has(synth.id)
+		pick.disabled = synth.battery <= 0.0
+		var synth_id := synth.id
+		pick.toggled.connect(func(on: bool) -> void: GameLoop.set_defender(Session.state, synth_id, on))
+		page.add_child(pick)
 
 
 func _end_night() -> void:

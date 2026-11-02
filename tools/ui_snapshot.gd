@@ -409,6 +409,27 @@ func _run() -> void:
 	await _frames(3)
 	print("CHECK Done -> back to the night hub: ", game.night.visible and not game.edit_panel.visible)
 
+	# Settings: a real click on the Music slider's left end turns music down, and it is saved.
+	game.hud.settings_requested.emit()
+	await _frames(2)
+	var slider: HSlider = game.settings._sliders["Music"]
+	var rect := slider.get_global_rect()
+	await _click(Vector2(rect.position.x + 4, rect.get_center().y))
+	Settings._config = null
+	print("CHECK settings slider -> Music volume saved low: ", Settings.volume("Music") < 0.2)
+	_shot("11b_settings")
+	Settings.set_volume("Music", music_volume)
+	game.settings.close()
+
+	# The night window: the round Night button closes and opens it.
+	await _click(_centre_of(game.hud.night_button))
+	await _frames(2)
+	var closed_ok: bool = not game.night.visible
+	await _click(_centre_of(game.hud.night_button))
+	await _frames(2)
+	print("CHECK the Night button closes and opens the night window: ", closed_ok and game.night.visible)
+	# Suspicion past the Audit line: the raid's end of night brings an Audit too.
+	state.add_suspicion(95.0)
 	# Raid from the map: Night Ops -> Open map -> the kiosk -> place a worker -> Start raid.
 	var raider := state.synths[-1]
 	raider.battery = 100.0
@@ -459,23 +480,7 @@ func _run() -> void:
 	_shot("13b_raid_results")
 	await _click(_centre_of(game.notice._continue))
 	await _frames(3)
-	print("CHECK results Continue -> back to the night hub: ", game.night.visible and not game.battle.visible)
-	# Settings: a real click on the Music slider's left end turns music down, and it is saved.
-	game.hud.settings_requested.emit()
-	await _frames(2)
-	var slider: HSlider = game.settings._sliders["Music"]
-	var rect := slider.get_global_rect()
-	await _click(Vector2(rect.position.x + 4, rect.get_center().y))
-	Settings._config = null
-	print("CHECK settings slider -> Music volume saved low: ", Settings.volume("Music") < 0.2)
-	_shot("11b_settings")
-	Settings.set_volume("Music", music_volume)
-	game.settings.close()
-
-	# Suspicion past the Audit line: End Night brings an Audit to watch.
-	state.add_suspicion(95.0)
-	await _click(_centre_of(_button_with(game.night, tr("ui.end_night"))))
-	await _frames(3)
+	# The raid ended the night: the Audit comes next.
 	print("CHECK before the Audit -> warning screen: ", game.notice.visible and game.notice._title.text == tr("ui.battle_audit"))
 	_shot("13c_audit_warning")
 	await _click(_centre_of(game.notice._continue))
@@ -489,7 +494,8 @@ func _run() -> void:
 	_shot("14b_audit_results")
 	await _click(_centre_of(game.notice._continue))
 	await _frames(5)
-	print("CHECK last Continue -> night report shown: ", game.report.visible and not game.battle.visible)
+	print("CHECK last Continue -> results as notes, the day already running: ", game.report.visible and not game.battle.visible
+		and state.phase == GameState.Phase.SHIFT and not _session.paused)
 	_shot("15_report")
 	Settings.set_tutorial_done(tutorial_was_done)
 	quit()

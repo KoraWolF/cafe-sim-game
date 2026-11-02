@@ -36,3 +36,19 @@ func test_a_cashier_takes_payments_only_once_at_the_register() -> void:
 	assert_true(Shift.active_cashiers(state, data).is_empty(), "not taking payments on the way")
 	GameLoop.advance(state, roundi(cashier.arrive_left), data)
 	assert_eq(Shift.active_cashiers(state, data), [cashier] as Array[Synth], "at the register: working")
+
+
+func test_defenders_are_the_most_charged_and_skip_the_recharge() -> void:
+	var data := TestFixtures.data({"defense_base_chance": 1.0, "defender_count": 1, "start_security": 1000.0})
+	var state := GameState.new_game(1, data)
+	var strong := state.add_synth("worker", "", data)
+	strong.role = Synth.REST
+	strong.battery = 50.0
+	GameLoop.advance(state, data.balance.shift_seconds, data)
+	assert_eq(state.defenders, [strong.id] as Array[String], "the one with the most battery is ticked")
+	state.power = 1000.0
+	var before := strong.battery
+	var report := GameLoop.end_night(state, data)
+	assert_eq(report.defense.defenders.size(), 1, "it defended")
+	assert_eq(strong.battery, before, "and was not in its Pod to recharge")
+	assert_true(state.synths[0].battery > 0.0, "the rest recharged")

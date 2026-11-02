@@ -644,6 +644,12 @@ static func _close(state: GameState, data: GameData, events: Events) -> void:
 			_clear_task(synth)
 	state.customers.clear()
 	state.leaving.clear()
+	# Tonight's defenders, until the player picks others: the most charged.
+	state.defenders.clear()
+	var charged := state.synths.duplicate()
+	charged.sort_custom(func(a: Synth, b: Synth) -> bool: return a.battery > b.battery)
+	for synth: Synth in charged.slice(0, data.balance.defender_count):
+		state.defenders.append(synth.id)
 	# Everyone goes to their Pod for the night (and recharges there), remembering
 	# their job for the morning.
 	for synth: Synth in state.synths:

@@ -246,12 +246,12 @@ static func _take_over(state: GameState, data: GameData, report: Report) -> void
 	state.suspicion[report.next_district] = 0.0
 
 
-## Synths who stayed home (and have battery) as defenders, with security HP.
+## Tonight's defenders (those with battery), with security HP.
 static func _home_defenders(state: GameState, data: GameData) -> Array[Battle.Fighter]:
 	var home: Array[Battle.Fighter] = []
 	for synth: Synth in state.synths:
-		if not state.raid_squad.has(synth.id) and synth.battery > 0.0:
-			home.append(synth_fighter(synth, state.security, data, state))
+		if state.defenders.has(synth.id) and not state.raid_squad.has(synth.id) and synth.battery > 0.0:
+			home.append(synth_fighter(synth, state.security, data))
 	return home
 
 
@@ -328,10 +328,16 @@ static func _steal(state: GameState, data: GameData, rng: RandomNumberGenerator,
 		report.stolen[synth.id] = amount
 
 
-## Fills every Synth's battery (all are in their Pods at night), in Synth order
-## while Power lasts.
+## Fills the batteries of the Synths in their Pods, in Synth order while Power
+## lasts. Those who fought MegaBean tonight were not in their Pods: no recharge.
 static func _recharge(state: GameState, data: GameData, report: Report) -> void:
+	var fought: Dictionary[String, bool] = {}
+	if report.defense != null:
+		for fighter: Battle.Fighter in report.defense.defenders:
+			fought[fighter.synth_id] = true
 	for synth: Synth in state.synths:
+		if fought.has(synth.id):
+			continue
 		var missing := _missing_battery(synth, data)
 		if missing <= 0.0:
 			continue

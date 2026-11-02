@@ -140,7 +140,8 @@ func test_lost_defense_costs_coins_and_a_core() -> void:
 func test_home_synths_defend() -> void:
 	var data := TestFixtures.data({"defense_base_chance": 1.0, "start_security": 100.0})
 	var state := _night(data)
-	state.add_synth("worker", "owl", data)
+	var guard := state.add_synth("worker", "owl", data)
+	GameLoop.set_defender(state, guard.id, true)
 	var coins := state.coins
 	var report := GameLoop.end_night(state, data)
 	assert_eq(report.defense.defenders.size(), 1, "the charged Synth defends")

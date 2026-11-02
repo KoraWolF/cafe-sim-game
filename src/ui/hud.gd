@@ -7,6 +7,8 @@ extends Control
 signal quit_to_menu
 signal settings_requested
 signal shop_requested
+## The round Night button: open or close the night window.
+signal night_requested
 signal quests_requested
 signal bag_requested
 ## The worker card was closed (the café drops its job selection).
@@ -25,6 +27,7 @@ var _speed_box := HBoxContainer.new()
 var _speed_buttons: Dictionary[int, Button] = {}
 var _auto := Button.new()
 var shop_button := UiTheme.button(tr("ui.shop_button"), shop_requested.emit)
+var night_button := UiTheme.button(tr("ui.night_button"), night_requested.emit)
 var arrange_button := UiTheme.button(tr("ui.arrange_button"), arrange_requested.emit)
 var _toasts := VBoxContainer.new()
 var _feed := VBoxContainer.new()
@@ -144,8 +147,24 @@ func _build_top_bar() -> void:
 	row.add_child(cog)
 
 
-## The Shop: a round button in the bottom-right corner.
+## The Menu: a round button in the bottom-right corner; Night: one at the top right.
 func _build_shop_button() -> void:
+	night_button.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	night_button.custom_minimum_size = Vector2(SHOP_BUTTON, SHOP_BUTTON)
+	night_button.offset_left = -SHOP_BUTTON - 24
+	night_button.offset_right = -24
+	night_button.offset_top = UiTheme.TOP_BAR_HEIGHT + 16
+	night_button.offset_bottom = night_button.offset_top + SHOP_BUTTON
+	night_button.add_theme_font_size_override("font_size", 20)
+	for state_name: String in ["normal", "hover", "pressed", "focus"]:
+		var style := StyleBoxFlat.new()
+		style.bg_color = Color("3a2f8f").lightened(0.0 if state_name == "normal" else 0.15)
+		style.border_color = UiTheme.PANEL_BORDER
+		style.set_border_width_all(3)
+		style.set_corner_radius_all(int(SHOP_BUTTON / 2))
+		night_button.add_theme_stylebox_override(state_name, style)
+	night_button.visible = false
+	add_child(night_button)
 	shop_button.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
 	shop_button.custom_minimum_size = Vector2(SHOP_BUTTON, SHOP_BUTTON)
 	shop_button.offset_left = -SHOP_BUTTON - 24
@@ -161,6 +180,10 @@ func _build_shop_button() -> void:
 		style.set_corner_radius_all(int(SHOP_BUTTON / 2))
 		shop_button.add_theme_stylebox_override(state_name, style)
 	add_child(shop_button)
+
+
+func show_night_button(on: bool) -> void:
+	night_button.visible = on
 
 
 ## Hides the round Menu button (while a strip is open at the bottom) and keeps

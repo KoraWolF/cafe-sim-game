@@ -1,41 +1,58 @@
 class_name ReportPanel
 extends PanelContainer
 ## What happened tonight, shown after the night's battles (GameScreen calls
-## show_report): the raid, takeovers, the MegaBean raid or Audit, theft,
-## income, recharging and level-ups. The next shift waits (paused) until the
-## player presses Start.
+## show_report) as notes at the top right that fade after a while: the raid,
+## takeovers, the MegaBean raid or Audit, theft, income, recharging and
+## level-ups. The next day starts at once.
+
+const WIDTH: float = 460.0
+## Seconds the notes stay up.
+const SHOW_SECONDS: float = 12.0
 
 var _lines := VBoxContainer.new()
-var _title := UiTheme.label("", 28, UiTheme.PANEL_BORDER)
-var _start := Button.new()
+var _title := UiTheme.label("", 20, UiTheme.PANEL_BORDER)
+## Seconds left before the notes fade away.
+var _left: float = 0.0
 
 
 func _ready() -> void:
-	set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	custom_minimum_size = Vector2(760, 0)
+	set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	position = Vector2(-WIDTH - 24, UiTheme.TOP_BAR_HEIGHT + 12)
+	custom_minimum_size = Vector2(WIDTH, 0)
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	visible = false
 	var column := VBoxContainer.new()
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(column)
 	column.add_child(_title)
 	column.add_child(_lines)
-	_start.custom_minimum_size = Vector2(0, 50)
-	_start.pressed.connect(_close)
-	column.add_child(_start)
 
 
+## Shows tonight's results as notes at the top right; the day is already running.
 func show_report(report: NightOps.Report) -> void:
 	for child: Node in _lines.get_children():
 		child.queue_free()
 	var state := Session.state
-	var night := state.day - 1
-	_title.text = tr("ui.report_title") % night
+	_title.text = tr("ui.report_title") % (state.day - 1)
 	for line: Array in lines(report):
-		_lines.add_child(UiTheme.label(line[0], 18, line[1]))
-	_start.text = tr("ui.continue_day") % state.day
-	Session.paused = true
+		var label := UiTheme.label(line[0], 15, line[1])
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.custom_minimum_size = Vector2(WIDTH - 20, 0)
+		_lines.add_child(label)
+	_left = SHOW_SECONDS
+	modulate.a = 1.0
 	visible = true
 	reset_size()
-	position = (get_parent_area_size() - size) * 0.5
+	position = Vector2(get_parent_area_size().x - size.x - 24, UiTheme.TOP_BAR_HEIGHT + 12)
+
+
+func _process(delta: float) -> void:
+	if not visible:
+		return
+	_left -= delta
+	modulate.a = clampf(_left, 0.0, 1.0)  # fades in the last second
+	if _left <= 0.0:
+		visible = false
 
 
 ## [text, colour] for each line of the report.
@@ -116,6 +133,3 @@ static func defense_lines(report: NightOps.Report) -> Array[Array]:
 	return result
 
 
-func _close() -> void:
-	visible = false
-	Session.paused = false

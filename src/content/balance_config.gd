@@ -120,6 +120,8 @@ var raid_suspicion: float = 12.0
 ## Suspicion each district loses every night.
 var suspicion_decay: float = 5.0
 var raid_squad_max: int = 4
+## Defenders ticked at closing: this many with the most battery.
+var defender_count: int = 4
 ## Rival guards (not flagships) grow stronger every day the district has been open:
 ## power/hp * (1 + rival_growth_per_day * days since the district opened).
 var rival_growth_per_day: float = 0.0

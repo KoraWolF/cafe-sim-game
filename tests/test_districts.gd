@@ -8,6 +8,7 @@ func _night(data: GameData) -> Array:
 	var state := GameState.new_game(1, data)
 	GameLoop.advance(state, data.balance.shift_seconds, data)
 	var raider := state.add_synth("worker", "", data)
+	GameLoop.set_defender(state, raider.id, true)  # added after closing: ticked by hand
 	return [state, raider]
 
 

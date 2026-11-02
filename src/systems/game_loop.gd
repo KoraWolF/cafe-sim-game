@@ -425,6 +425,17 @@ static func set_formation(state: GameState, synth_id: String, spot: Vector2i, da
 	return OK
 
 
+## Ticks or unticks a Synth as one of tonight's defenders.
+static func set_defender(state: GameState, synth_id: String, on: bool) -> String:
+	if state.synth_by_id(synth_id) == null:
+		return UNKNOWN_SYNTH
+	if on and not state.defenders.has(synth_id):
+		state.defenders.append(synth_id)
+	elif not on:
+		state.defenders.erase(synth_id)
+	return OK
+
+
 ## Plans tonight's raid; replaces any earlier plan.
 static func plan_raid(state: GameState, rival_id: String, synth_ids: Array[String], data: GameData) -> String:
 	if state.phase != GameState.Phase.NIGHT:
