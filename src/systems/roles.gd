@@ -17,6 +17,7 @@ static func assign_to(state: GameState, synth_id: String, uid: String, data: Gam
 		return GameLoop.UNKNOWN_PLACED
 	if synth.is_busy():
 		return GameLoop.SYNTH_BUSY
+	synth.day_role = ""  # a job given at night replaces the one it would go back to
 	match data.pieces[placed.piece_id].kind:
 		Piece.STOVE:
 			# A Chef stays with the dish it is cooking (other jobs are fine).
@@ -45,6 +46,7 @@ static func rest(state: GameState, synth_id: String) -> String:
 		return GameLoop.SYNTH_BUSY
 	synth.role = Synth.REST
 	synth.station_uid = ""
+	synth.day_role = ""
 	return GameLoop.OK
 
 

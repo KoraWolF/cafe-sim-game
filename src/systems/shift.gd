@@ -633,9 +633,14 @@ static func _close(state: GameState, data: GameData, events: Events) -> void:
 			_clear_task(synth)
 	state.customers.clear()
 	state.leaving.clear()
-	# Only those resting in their Pod at closing recharge tonight.
+	# Everyone goes to their Pod for the night (and recharges there), remembering
+	# their job for the morning.
 	for synth: Synth in state.synths:
-		synth.charging = synth.role == Synth.REST
+		if synth.role != Synth.REST:
+			synth.day_role = synth.role
+			synth.day_station = synth.station_uid
+			synth.role = Synth.REST
+			synth.station_uid = ""
 	state.phase = GameState.Phase.NIGHT
 	events.shift_ended = true
 

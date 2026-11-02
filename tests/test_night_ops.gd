@@ -25,7 +25,6 @@ func test_night_recharges_with_power_and_opens_next_day() -> void:
 	var state := _night(data)
 	var starter := state.synths[0]
 	assert_eq(starter.battery, 0.0, "drained 100 over the shift")
-	starter.charging = true  # as if it rested in its Pod at closing
 	var report := GameLoop.end_night(state, data)
 	# 100 points * 0.1 Power = 10 Power: exactly the starting 10.
 	assert_eq(starter.battery, 100.0, "recharged")
@@ -40,14 +39,13 @@ func test_partial_recharge_without_power() -> void:
 	var data := TestFixtures.data()
 	var state := _night(data)
 	state.power = 4.0
-	state.synths[0].charging = true
 	var report := GameLoop.end_night(state, data)
 	assert_eq(state.synths[0].battery, 40.0, "only 40 points for 4 Power")
 	assert_eq(state.power, 0.0, "power gone")
 	assert_eq(report.undercharged, [state.synths[0].id] as Array[String], "reported")
 
 
-func test_only_synths_resting_at_closing_recharge() -> void:
+func test_everyone_rests_at_closing_and_goes_back_to_work() -> void:
 	var data := TestFixtures.data()
 	var state := GameState.new_game(1, data)
 	var resting := state.add_synth("worker", "", data)
@@ -55,12 +53,14 @@ func test_only_synths_resting_at_closing_recharge() -> void:
 	resting.battery = 10.0
 	GameLoop.advance(state, data.balance.shift_seconds, data)
 	var worker := state.synths[0]
-	assert_true(not worker.charging and resting.charging, "setup: only the resting one charges")
-	var report := GameLoop.end_night(state, data)
-	assert_eq(worker.battery, 0.0, "worked until closing: not recharged")
-	assert_eq(report.not_in_pod, [worker.id] as Array[String], "reported")
-	assert_true(resting.battery > 10.0, "the resting one recharged")
-	assert_true(worker.charging, "next night it can charge again")
+	assert_eq(worker.role, Synth.REST, "the worker went to its Pod at closing")
+	assert_eq(worker.day_role, Synth.SERVER, "remembering its job")
+	state.power = 1000.0
+	GameLoop.end_night(state, data)
+	assert_eq(worker.battery, SynthStats.stat(worker, "battery_max", data), "everyone in the Pods recharged")
+	assert_true(resting.battery > 10.0, "the one resting all along too")
+	assert_eq(worker.role, Synth.SERVER, "back to work in the morning")
+	assert_eq(resting.role, Synth.REST, "the one resting stays resting")
 
 
 func test_buy_power() -> void:

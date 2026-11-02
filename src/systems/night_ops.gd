@@ -36,8 +36,6 @@ class Report:
 	var power_used: float = 0.0
 	## Synths whose battery is not full after recharging (Power ran out).
 	var undercharged: Array[String] = []
-	## Synths that were not in their Pod at closing: no recharge.
-	var not_in_pod: Array[String] = []
 	## Coins from owned districts.
 	var income: int = 0
 	## Synth id -> level reached (raiders and defenders earn XP).
@@ -113,11 +111,25 @@ static func resolve(state: GameState, data: GameData) -> Report:
 	state.raid_target = ""
 	state.raid_squad.clear()
 	state.day += 1
+	_back_to_work(state, data)
 	state.phase = GameState.Phase.SHIFT
 	state.shift_time = 0
 	state.next_arrival = b.first_arrival_seconds
 	state.closed = report.closed_next_shift
 	return report
+
+
+## Morning: everyone who worked yesterday goes back to that job and station
+## (a station sold overnight: a free one of its kind, see Roles.bind_free).
+static func _back_to_work(state: GameState, data: GameData) -> void:
+	for synth: Synth in state.synths:
+		if synth.day_role == "":
+			continue
+		synth.role = synth.day_role
+		synth.station_uid = synth.day_station if Layout.placed_by_uid(state, synth.day_station) != null else ""
+		synth.day_role = ""
+		synth.day_station = ""
+	Roles.bind_free(state, data)
 
 
 ## A rival's guards after the district has been open this many days.
@@ -281,15 +293,10 @@ static func _steal(state: GameState, data: GameData, rng: RandomNumberGenerator,
 		report.stolen[synth.id] = amount
 
 
-## Fills the batteries of Synths that were resting in their Pod at closing, in
-## Synth order while Power lasts.
+## Fills every Synth's battery (all are in their Pods at night), in Synth order
+## while Power lasts.
 static func _recharge(state: GameState, data: GameData, report: Report) -> void:
 	for synth: Synth in state.synths:
-		if not synth.charging:
-			if _missing_battery(synth, data) > 0.0:
-				report.not_in_pod.append(synth.id)
-			synth.charging = true
-			continue
 		var missing := _missing_battery(synth, data)
 		if missing <= 0.0:
 			continue
