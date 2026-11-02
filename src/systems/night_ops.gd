@@ -156,8 +156,10 @@ static func _back_to_work(state: GameState, data: GameData) -> void:
 	for synth: Synth in state.synths:
 		if synth.day_role == "":
 			continue
-		synth.role = synth.day_role
 		synth.station_uid = synth.day_station if Layout.placed_by_uid(state, synth.day_station) != null else ""
+		if synth.station_uid != "":
+			Roles.walk_to_station(state, synth, synth.station_uid, data)  # from the Pod
+		synth.role = synth.day_role
 		synth.day_role = ""
 		synth.day_station = ""
 	Roles.bind_free(state, data)

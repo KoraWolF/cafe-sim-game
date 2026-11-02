@@ -72,13 +72,12 @@ static func advance(state: GameState, seconds: int, data: GameData) -> Shift.Eve
 	return events
 
 
-## Starts a batch on an idle stove (any phase; it cooks only during shifts).
+## Starts a batch on an idle stove, or puts it in the stove's queue when it is
+## busy and has room (any phase; it cooks only during shifts).
 static func start_cooking(state: GameState, stove_index: int, recipe_id: String, data: GameData) -> String:
 	if stove_index < 0 or stove_index >= state.stoves.size():
 		return UNKNOWN_STOVE
 	var stove := state.stoves[stove_index]
-	if not stove.is_idle():
-		return STOVE_BUSY
 	var recipe: Recipe = data.recipes.get(recipe_id)
 	if recipe == null:
 		return UNKNOWN_RECIPE
@@ -86,9 +85,29 @@ static func start_cooking(state: GameState, stove_index: int, recipe_id: String,
 		return RECIPE_LOCKED
 	if state.coins < recipe.cost:
 		return NOT_ENOUGH_COINS
+	if not stove.is_idle() or stove.has_batch():
+		# Busy: it waits its turn, if the stove has room in its stack.
+		var placed := Layout.placed_by_uid(state, stove.piece_uid)
+		var stack := data.pieces[placed.piece_id].stack if placed != null else 1
+		if 1 + stove.queue.size() >= stack:
+			return STOVE_BUSY
+		state.coins -= recipe.cost
+		stove.queue.append(recipe.id)
+		return OK
 	state.coins -= recipe.cost
 	stove.recipe_id = recipe.id
 	stove.remaining = recipe.cook_seconds
+	return OK
+
+
+## Takes the last waiting dish off a stove's queue and refunds it.
+static func cancel_queued(state: GameState, stove_index: int, data: GameData) -> String:
+	if stove_index < 0 or stove_index >= state.stoves.size():
+		return UNKNOWN_STOVE
+	var stove := state.stoves[stove_index]
+	if stove.queue.is_empty():
+		return NOT_COOKING
+	state.coins += data.recipes[stove.queue.pop_back()].cost
 	return OK
 
 

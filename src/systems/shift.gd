@@ -120,6 +120,11 @@ static func _tick(state: GameState, data: GameData, rng: RandomNumberGenerator, 
 
 
 static func _cook(state: GameState, data: GameData, rng: RandomNumberGenerator, events: Events) -> void:
+	# A free stove starts the next dish in its queue (already paid for).
+	for stove: Stove in state.stoves:
+		if stove.is_idle() and not stove.has_batch() and not stove.queue.is_empty():
+			stove.recipe_id = stove.queue.pop_front()
+			stove.remaining = data.recipes[stove.recipe_id].cook_seconds
 	if state.stoves.all(func(stove: Stove) -> bool: return stove.is_idle() or stove.has_batch()):
 		return
 	var counters := Counters.in_use(state, data)
@@ -131,8 +136,8 @@ static func _cook(state: GameState, data: GameData, rng: RandomNumberGenerator, 
 		var rate := 1.0
 		var cooking: Array[Synth] = []
 		var chef := Roles.at_station(state, stove.piece_uid)
-		# Away carrying a batch, the Chef isn't cooking.
-		var working := chef != null and chef.role == Synth.CHEF and not chef.is_busy() \
+		# Away carrying a batch (or not there yet), the Chef isn't cooking.
+		var working := chef != null and chef.role == Synth.CHEF and not chef.is_busy() and chef.arrive_left <= 0.0 \
 			and SynthStats.work_factor(chef, state, data) > 0.0
 		var placed := Layout.placed_by_uid(state, stove.piece_uid)
 		if not working and (placed == null or not data.pieces[placed.piece_id].auto_cook):
@@ -361,6 +366,10 @@ static func _start_trip(state: GameState, synth: Synth, from_uid: String, to_uid
 
 
 ## Tiles walked between two placed pieces (2 if either is unknown).
+static func tiles_between(state: GameState, from_uid: String, to_uid: String, data: GameData) -> float:
+	return _tiles(state, from_uid, to_uid, data)
+
+
 static func _tiles(state: GameState, from_uid: String, to_uid: String, data: GameData) -> float:
 	var a := Layout.placed_by_uid(state, from_uid)
 	var b := Layout.placed_by_uid(state, to_uid)
@@ -584,6 +593,7 @@ static func active_cashiers(state: GameState, data: GameData) -> Array[Synth]:
 	for synth: Synth in state.synths:
 		var register := Layout.placed_by_uid(state, synth.station_uid)
 		if synth.role == Synth.CASHIER and register != null and data.pieces[register.piece_id].kind == Piece.REGISTER \
+				and synth.arrive_left <= 0.0 \
 				and SynthStats.work_factor(synth, state, data) > 0.0:
 			result.append(synth)
 	return result
@@ -603,6 +613,7 @@ static func _leave_angry(state: GameState, customer: Customer, data: GameData, e
 ## (pod_charge_per_second, free), up to their max.
 static func _drain(state: GameState, data: GameData) -> void:
 	for synth: Synth in state.synths:
+		synth.arrive_left = maxf(synth.arrive_left - 1.0, 0.0)  # walking to its station
 		if SynthStats.on_duty(synth):
 			synth.battery = maxf(synth.battery - maxf(SynthStats.stat(synth, "drain", data), 0.0), 0.0)
 		else:

@@ -502,3 +502,8 @@ class.tank,Tank
 class.fighter,Fighter
 class.ranged,Ranged
 class.fragile,Fragile
+ui.cook_throw,"Throw away the finished %d × %s"
+ui.cook_unqueue,"Take %s off the queue (refund %d coins)"
+ui.cook_queue_title,Queue next (%d / %d waiting)
+ui.cook_queue,"Queue %s — %d coins (%d servings, %ds)"
+ui.stove_has_chef,This stove already has its Chef (%s).

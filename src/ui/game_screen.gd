@@ -286,6 +286,13 @@ func _on_editor_changed() -> void:
 ## Rest). A Chef put at an idle stove gets its dish menu straight away.
 func _give_job(uid: String, at: Vector2) -> void:
 	var state := Session.state
+	# A stove that already has its Chef: just its dish menu, nobody moves.
+	var there := Roles.at_station(state, uid)
+	var picked_stove := Layout.stove_of(state, uid)
+	if picked_stove != null and there != null and there.role == Synth.CHEF and there.id != cafe.selected_synth:
+		Session.toast.emit(tr("ui.stove_has_chef") % Session.synth_name(there))
+		hud.open_recipe_menu(state.stoves.find(picked_stove), at)
+		return
 	var code := GameLoop.send_to_rest(state, cafe.selected_synth) if uid == "" \
 		else GameLoop.assign_to(state, cafe.selected_synth, uid, Session.data)
 	if Session.act(code):
@@ -293,7 +300,7 @@ func _give_job(uid: String, at: Vector2) -> void:
 		Session.toast.emit(tr("ui.job_now") % [Session.synth_name(synth), UiText.role(synth.role)])
 		Sfx.play("ui_click")
 		var stove := Layout.stove_of(state, uid)
-		if stove != null and stove.is_idle():
+		if stove != null:
 			hud.open_recipe_menu(state.stoves.find(stove), at)
 
 

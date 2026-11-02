@@ -29,6 +29,8 @@ var tags: Array[String] = []
 ## A stove that cooks with no Chef (base speed 1). A normal stove only cooks
 ## while its Chef works there.
 var auto_cook: bool = false
+## A stove: how many dishes it holds at once (one cooking, the rest waiting).
+var stack: int = 1
 
 
 static func from_dict(values: Dictionary) -> Piece:
@@ -42,6 +44,7 @@ static func from_dict(values: Dictionary) -> Piece:
 	piece.vibe = float(values.get("vibe", 0.0))
 	piece.tags.assign(values.get("tags", []))
 	piece.auto_cook = bool(values.get("auto_cook", false))
+	piece.stack = maxi(int(values.get("stack", 1)), 1)
 	return piece
 
 
