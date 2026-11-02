@@ -16,11 +16,12 @@ extends RefCounted
 ## A raid is fought in front of the rival café, a MegaBean raid in front of the
 ## player's (see Field and RaidField). The café has a front wall with one door:
 ## the defenders wait inside (tanks nearest the door, then fighters, fragile,
-## ranged), the attackers wait on the street in their formation, and nobody
-## fights until the first defender steps out of the door. Then the defenders
-## still inside keep walking out (nobody fights from inside, not even ranged
-## units), and the attackers never go in: the fight is on the street. Furniture blocks
-## walking and gives cover from ranged attacks.
+## ranged), the attackers wait on the street in their formation. The defenders
+## all walk out first, each as far toward the attackers as the open street goes
+## (so the first out, the tanks, stand in front), and the fight starts once they
+## are all out and in place (or after MUSTER_SECONDS if some can't get out).
+## Nobody fights from inside, and the attackers never go in: the fight is on
+## the street. Furniture blocks walking and gives cover from ranged attacks.
 ## The report keeps every event with its time, so the view can play the fight
 ## back (and, later, drive models and animations: see BattlePlayback).
 
@@ -168,6 +169,9 @@ class Unit:
 		return fighter.hp > 0.0
 
 
+## Longest the defenders of a café take to come out before the fight starts anyway.
+const MUSTER_SECONDS: float = 20.0
+
 const NEIGHBOURS: Array[Vector2i] = [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1),
 	Vector2i(1, 1), Vector2i(1, -1), Vector2i(-1, 1), Vector2i(-1, -1)]
 
@@ -189,14 +193,14 @@ static func run(attackers: Array[Fighter], defenders: Array[Fighter], rng: Rando
 			units.append(unit)
 	var time := 0.0
 	var engaged := report.field.door.x < 0
-	# The clock runs from the first step out of the door (from the start if nobody gets out).
-	while time - report.engaged_at < combat.max_seconds and _standing(units, true) and _standing(units, false):
-		if not engaged and units.any(func(unit: Unit) -> bool: return not unit.side and report.field.outside(unit.cell)):
+	# The clock runs from when the defenders are all out (see _mustered).
+	while (time - report.engaged_at < combat.max_seconds or not engaged) and _standing(units, true) and _standing(units, false):
+		if not engaged and (_mustered(units, time, report.field) or time >= MUSTER_SECONDS):
 			engaged = true
 			report.engaged_at = time
 		for unit: Unit in units:
 			if unit.alive() and (engaged or not unit.side):
-				_act(unit, units, time, report, rng, data)
+				_act(unit, units, time, report, rng, data, engaged)
 		time += combat.tick_seconds
 	report.duration = minf(time, report.engaged_at + combat.max_seconds)
 	report.attackers_won = _standing(units, true) and not _standing(units, false)
@@ -302,7 +306,7 @@ static func _board_cell(spot: Vector2i, attackers: bool, field: Field) -> Vector
 
 
 static func _act(unit: Unit, units: Array[Unit], time: float, report: Report, rng: RandomNumberGenerator,
-		data: GameData) -> void:
+		data: GameData, engaged := true) -> void:
 	var combat := data.combat
 	if time < unit.busy_until or time < unit.stunned_until:
 		return
@@ -310,6 +314,10 @@ static func _act(unit: Unit, units: Array[Unit], time: float, report: Report, rn
 		# Still inside: walk out first (nobody fights from inside, ranged or not).
 		unit.target = null
 		_move(unit, _step_out(unit, units, report.field), time, report, combat)
+		return
+	if not engaged:
+		# Out, before the fight: on toward the attackers, as far as the open street goes.
+		_move(unit, _muster_step(unit, units, report.field), time, report, combat)
 		return
 	if unit.target == null or not unit.target.alive():
 		unit.target = _pick_target(unit, units)
@@ -458,6 +466,21 @@ static func _cast(unit: Unit, skill: Dictionary, units: Array[Unit], time: float
 static func _step_toward(unit: Unit, units: Array[Unit], combat: CombatConfig, field: Field) -> Vector2i:
 	var reach := int(combat.value(unit.fighter.class_id, "range"))
 	return _first_step(unit, units, field, func(at: Vector2i) -> bool: return _distance(at, unit.target.cell) <= reach)
+
+
+## Whether a café's defenders are all out and in place: outside, done walking,
+## and none can get any closer to the attackers' rows.
+static func _mustered(units: Array[Unit], time: float, field: Field) -> bool:
+	return units.all(func(unit: Unit) -> bool:
+		return unit.side or not unit.alive() or (field.outside(unit.cell) and time >= unit.busy_until
+			and _muster_step(unit, units, field) == unit.cell))
+
+
+## A step out on the street toward the attackers' rows (never into them); the
+## unit's own cell when it can get no closer.
+static func _muster_step(unit: Unit, units: Array[Unit], field: Field) -> Vector2i:
+	return _first_step(unit, units, field, func(at: Vector2i) -> bool:
+		return at.y > unit.cell.y and at.y < field.split)
 
 
 ## The next tile toward the door and out of it; the unit's own cell if the way is blocked.

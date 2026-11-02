@@ -55,3 +55,19 @@ Worth tuning if it feels the same in play:
 | Coins at day 40 | ~6,490 | ~25,900 |
 
 **Raids are now always won,** and coins pile up from the loot. Rival guards come out of their door one at a time into a squad that is already waiting, and their ranged guards can no longer shoot from inside. Worth tuning next: stronger guards (`rival_growth_per_day`, or guard power and HP in `districts.json`), or the guards could all come out before the fight starts.
+
+## Guards all come out (branch `all-come-out`)
+- **Everyone comes out first:** the defenders all walk out before the fight starts, each as far toward the attackers as the open street goes. The first out (tanks) stand in front.
+- **When it starts:** once they are all out and in place. If some can't get out, it starts after 20 seconds (`MUSTER_SECONDS` in `battle.gd`).
+- **Both sides:** this holds for rival guards in a raid and for your defenders when MegaBean comes.
+- **Retuned for it:** `defense_power_per_day` 0.6, `defense_hp_per_day` 2.4, `audit_strength` 1.4.
+
+| | One at a time (v1.6.1) | All come out, first tuning | All come out, kept |
+|---|---|---|---|
+| Raids won | 40 / 40 | 39.2 / 40 | 38.2 / 40 |
+| MegaBean raids lost | 3.4 / 14.8 | 7.2 / 16.4 | 3.0 / 14.6 |
+| Audits lost | 1.6 / 5.4 | 4.4 / 5.2 | 1.8 / 5.0 |
+| Alley / Neon Market taken | day 8 / 16 | day 8 / 19 | day 8 / 19.4 |
+| Coins at day 40 | ~25,900 | ~3,260 | ~5,800 |
+
+Audits are touchy: at strength 1.2 none were lost.
