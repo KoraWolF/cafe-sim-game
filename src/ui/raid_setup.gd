@@ -2,9 +2,10 @@ class_name RaidSetup
 extends Control
 ## Planning a raid in front of the rival café: the café as it is (its tables,
 ## counters and décor; its guards where they will stand) and the player's 3
-## rows on the street before it. Pick a worker from the list on the left, then
-## a tile in your rows: it joins the squad there (or moves; one already there
-## swaps). Click a squad member's tile with nobody picked to take it out.
+## rows on the street before it. Drag a worker from the list on the left onto a
+## tile in your rows (or pick it, then click the tile): it joins the squad there.
+## Drag a squad member to another tile (one already there swaps), or back onto
+## the list to take it out; clicking its tile with nobody picked does that too.
 ## Start Raid fights at once; Back returns to the map.
 
 signal back
@@ -33,6 +34,7 @@ func _ready() -> void:
 	add_child(shade)
 	add_child(_board)
 	_board.cell_clicked.connect(_on_cell)
+	_board.set_drag_forwarding(_drag_from_board, _can_drop_on_board, _drop_on_board)
 	var top := VBoxContainer.new()
 	top.position = Vector2(30, 20)
 	top.add_child(_title)
@@ -46,6 +48,10 @@ func _ready() -> void:
 	column.add_child(_roster)
 	side.add_child(column)
 	add_child(side)
+	# Dropping a squad member back on the list takes it out.
+	side.set_drag_forwarding(Callable(), func(_at: Vector2, held: Variant) -> bool: return held is Dictionary 		and held.has("raid_synth"), func(_at: Vector2, held: Variant) -> void:
+			squad.erase(held["raid_synth"])
+			refresh())
 	var buttons := HBoxContainer.new()
 	buttons.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
 	buttons.position = Vector2(-220, -80)
@@ -91,6 +97,9 @@ func refresh() -> void:
 		pick.button_pressed = synth.id == _picked
 		pick.disabled = synth.battery <= 0.0
 		pick.add_theme_font_size_override("font_size", 14)
+		if synth.battery > 0.0:
+			var synth_id := synth.id
+			pick.set_drag_forwarding(func(_at: Vector2) -> Variant: return _drag_data(synth_id), Callable(), Callable())
 		_roster.add_child(pick)
 	_show_board(state, data, rival)
 
@@ -110,6 +119,37 @@ func _show_board(state: GameState, data: GameData, rival: RivalCafe) -> void:
 		guard_names.append(tr("ui.raid_guard") % NightOps.guard_level(state, rival, rival.defenders[i], data))
 	var field := RaidField.for_rival(rival, data.districts[state.district_id].is_flagship(rival.id), data)
 	_board.preview(Battle.setup(fighters, guards, data, field), names, guard_names)
+
+
+## What a drag carries: the worker, with its name under the mouse.
+func _drag_data(synth_id: String) -> Dictionary:
+	var label := UiTheme.label(Session.synth_name(Session.state.synth_by_id(synth_id)), 18, UiTheme.PANEL_BORDER)
+	set_drag_preview(label)
+	return {"raid_synth": synth_id}
+
+
+## Dragging a squad member off its tile.
+func _drag_from_board(at: Vector2) -> Variant:
+	var field := _board.playback.report.field
+	var cell := _board.cell_at(at)
+	var spot := Vector2i(cell.x, cell.y - field.split)
+	for synth_id: String in squad:
+		if squad[synth_id] == spot:
+			return _drag_data(synth_id)
+	return null
+
+
+func _can_drop_on_board(at: Vector2, held: Variant) -> bool:
+	if not (held is Dictionary and held.has("raid_synth")):
+		return false
+	var field := _board.playback.report.field
+	var cell := _board.cell_at(at)
+	return cell.x >= 0 and cell.x < field.board.x and cell.y >= field.split and cell.y < field.board.y
+
+
+func _drop_on_board(at: Vector2, held: Variant) -> void:
+	_picked = held["raid_synth"]
+	_on_cell(_board.cell_at(at))
 
 
 func _pick(synth_id: String) -> void:
