@@ -1,7 +1,9 @@
 """Draws the café furniture and décor as layered SVGs in the art guide's style.
 
 Run:  python tools/art/furniture_svg.py
-Writes art/furniture/<id>.svg and art/decor/<id>.svg (and art/furniture/pod.svg).
+Writes art/furniture/<id>.svg, art/decor/<id>.svg, art/furniture/pod.svg and the
+room: art/room/floor_a.svg, floor_b.svg, wall_plain.svg, wall_window.svg,
+wall_shelf.svg and door.svg.
 
 Style (docs/art-guide.md): round soft shapes, outlines in a darker shade of each
 material (no black), one gradient per material lit from the top-left, a flat
@@ -480,6 +482,102 @@ def pod():
     piece.write()
 
 
+
+# --- the room ---------------------------------------------------------------
+WALL_HEIGHT = 288  # 72 px in the game
+PLUM = "#3d2c5c"
+
+
+def floor_tile(name, color):
+    """One floor tile: warm wood planks running down-right."""
+    piece = Piece(name, 1, 1, 0, "room")
+    out = piece.layer("planks")
+    out.append('<polygon points="%s" fill="%s"/>' % (piece.pts([(0, 0), (1, 0), (1, 1), (0, 1)]),
+                                                     piece.gradient(shade(color, 0.06), shade(color, -0.06))))
+    for i in range(1, 4):
+        t = i / 4.0
+        out.append('<polyline points="%s" fill="none" stroke="%s" stroke-width="3" opacity="0.55"/>'
+                   % (piece.pts([(0, t), (1, t)]), shade(color, -0.3)))
+    for i, (t, a, b) in enumerate(((0.125, 0.2, 0.2), (0.375, 0.65, 0.65), (0.625, 0.35, 0.35), (0.875, 0.8, 0.8))):
+        out.append('<polyline points="%s" fill="none" stroke="%s" stroke-width="3" opacity="0.4"/>'
+                   % (piece.pts([(a, t - 0.125), (b, t + 0.125)]), shade(color, -0.3)))
+    out.append('<polygon points="%s" fill="none" stroke="%s" stroke-width="2" opacity="0.35"/>'
+               % (piece.pts([(0, 0), (1, 0), (1, 1), (0, 1)]), shade(color, -0.45)))
+    piece.write()
+
+
+def wall(name, kind):
+    """One tile-wide segment of the back-left wall (the plane x = 0, seen from inside).
+    The back-right wall is the same drawing mirrored."""
+    piece = Piece(name, 1, 1, WALL_HEIGHT, "room")
+    h = WALL_HEIGHT
+    out = piece.layer("wall")
+    out.append('<polygon points="%s" fill="%s"/>' % (piece.pts([(0, 0, h), (0, 1, h), (0, 1, 0), (0, 0, 0)]),
+                                                     piece.gradient(shade(PLUM, 0.08), shade(PLUM, -0.2))))
+    out = piece.layer("wainscot")
+    out.append('<polygon points="%s" fill="%s" stroke="%s" stroke-width="3" stroke-linejoin="round"/>'
+               % (piece.pts([(0, 0, 92), (0, 1, 92), (0, 1, 0), (0, 0, 0)]), piece.gradient("#a06a46", "#7a4e33"), "#4e3122"))
+    for t in (0.25, 0.5, 0.75):
+        out.append('<polyline points="%s" fill="none" stroke="#5e3b28" stroke-width="3" opacity="0.6"/>' % piece.pts([(0, t, 8), (0, t, 84)]))
+    out.append('<polyline points="%s" fill="none" stroke="#e9c48f" stroke-width="7" stroke-linecap="round"/>' % piece.pts([(0, 0, 94), (0, 1, 94)]))
+    if kind == "window":
+        out = piece.layer("window")
+        frame = [(0, 0.16, 236), (0, 0.84, 236), (0, 0.84, 124), (0, 0.16, 124)]
+        out.append('<polygon points="%s" fill="%s" stroke="#e9c48f" stroke-width="8" stroke-linejoin="round"/>'
+                   % (piece.pts(frame), piece.gradient("#1b2350", "#3a2a6a")))
+        for i, (y0, top, color) in enumerate(((0.22, 200, "#2c3a78"), (0.36, 180, "#25306a"), (0.52, 214, "#2c3a78"), (0.68, 170, "#25306a"))):
+            out.append('<polygon points="%s" fill="%s"/>' % (piece.pts([(0, y0, top), (0, y0 + 0.12, top), (0, y0 + 0.12, 128), (0, y0, 128)]), color))
+            for j in range(2):
+                lx, ly = piece.p(0, y0 + 0.04 + j * 0.05, top - 16)
+                out.append('<rect x="%.1f" y="%.1f" width="6" height="8" fill="%s"/>' % (lx, ly, ["#ffd36b", "#38e1ff"][(i + j) % 2]))
+        sx, sy = piece.p(0, 0.6, 222)
+        out.append('<circle cx="%.1f" cy="%.1f" r="24" fill="%s"/>' % (sx, sy, piece.glow("#ff4fd8")))
+        out.append('<polyline points="%s" fill="none" stroke="#e9c48f" stroke-width="5"/>' % piece.pts([(0, 0.5, 236), (0, 0.5, 124)]))
+    elif kind == "shelf":
+        out = piece.layer("shelf")
+        out.append('<polygon points="%s" fill="#c98b55" stroke="#6b4130" stroke-width="3" stroke-linejoin="round"/>'
+                   % piece.pts([(0, 0.18, 168), (0, 0.82, 168), (0.12, 0.82, 168), (0.12, 0.18, 168)]))
+        out.append('<polygon points="%s" fill="#8a5a3c"/>' % piece.pts([(0.12, 0.18, 168), (0.12, 0.82, 168), (0.12, 0.82, 160), (0.12, 0.18, 160)]))
+        for i, color in enumerate(("#f1e4cc", "#38e1ff", "#f1e4cc", "#ff8a3d")):
+            cx, cy = piece.p(0.06, 0.26 + i * 0.15, 168)
+            out.append('<path d="M %.1f %.1f l 4 -24 h 20 l 4 24 z" fill="%s" stroke="%s" stroke-width="3" stroke-linejoin="round"/>'
+                       % (cx - 14, cy, color, shade(color, -0.5)))
+        lx, ly = piece.p(0, 0.5, 220)
+        out.append('<circle cx="%.1f" cy="%.1f" r="20" fill="%s"/>' % (lx, ly, piece.glow("#ffd36b")))
+        out.append('<circle cx="%.1f" cy="%.1f" r="8" fill="#fff1b8" stroke="#c98a3a" stroke-width="3"/>' % (lx, ly))
+    out = piece.layer("neon_trim")
+    out.append('<polyline points="%s" fill="none" stroke="#38e1ff" stroke-width="5" stroke-linecap="round" opacity="0.85"/>'
+               % piece.pts([(0, 0, 262), (0, 1, 262)]))
+    out.append('<polygon points="%s" fill="#2a1f42"/>' % piece.pts([(0, 0, h), (0, 1, h), (0, 1, h - 10), (0, 0, h - 10)]))
+    piece.write()
+
+
+def door():
+    """The café door: a glass door with a striped awning, in the plane x = 0 of its
+    tile (the game puts it on the front-right edge, by the last row)."""
+    piece = Piece("door", 1, 1, WALL_HEIGHT + 40, "room")
+    out = piece.layer("frame")
+    for y in (0.04, 0.96):
+        out.append('<polygon points="%s" fill="%s" stroke="#4e3122" stroke-width="4" stroke-linejoin="round"/>'
+                   % (piece.pts([(0, y - 0.04, 270), (0, y + 0.04, 270), (0, y + 0.04, 0), (0, y - 0.04, 0)]), piece.gradient("#b07a50", "#7a4e33")))
+    out.append('<polygon points="%s" fill="%s" stroke="#4e3122" stroke-width="4" stroke-linejoin="round"/>'
+               % (piece.pts([(0, 0, 286), (0, 1, 286), (0, 1, 262), (0, 0, 262)]), piece.gradient("#b07a50", "#7a4e33")))
+    out = piece.layer("glass")
+    out.append('<polygon points="%s" fill="%s" opacity="0.35" stroke="#9feaff" stroke-width="3"/>'
+               % (piece.pts([(0, 0.1, 258), (0, 0.9, 258), (0, 0.9, 6), (0, 0.1, 6)]), piece.gradient("#d6fbff", "#38a8ff", vertical=False)))
+    out.append('<polyline points="%s" fill="none" stroke="#ffffff" stroke-width="6" opacity="0.5" stroke-linecap="round"/>'
+               % piece.pts([(0, 0.22, 230), (0, 0.4, 140)]))
+    hx, hy = piece.p(0, 0.78, 120)
+    out.append('<rect x="%.1f" y="%.1f" width="8" height="36" rx="4" fill="#e9c48f" stroke="#7a4e33" stroke-width="2"/>' % (hx - 4, hy - 18))
+    out = piece.layer("awning")
+    for i in range(4):
+        y0, y1 = i * 0.25, (i + 1) * 0.25
+        color = "#3fa58f" if i % 2 == 0 else "#f1e4cc"
+        out.append('<polygon points="%s" fill="%s" stroke="%s" stroke-width="3" stroke-linejoin="round"/>'
+                   % (piece.pts([(0, y0, 300), (0, y1, 300), (0.22, y1, 262), (0.22, y0, 262)]), color, shade(color, -0.45)))
+    out.append('<polyline points="%s" fill="none" stroke="%s" stroke-width="3" stroke-opacity="0.7"/>' % (piece.pts([(0.22, 0, 262), (0.22, 1, 262)]), RIM))
+    piece.write()
+
 if __name__ == "__main__":
     seat("seat", "")
     seat("seat_far", "far")
@@ -500,4 +598,10 @@ if __name__ == "__main__":
     neon_mural()
     zen_garden()
     pod()
+    floor_tile("floor_a", "#a8724a")
+    floor_tile("floor_b", "#9a6844")
+    wall("wall_plain", "")
+    wall("wall_window", "window")
+    wall("wall_shelf", "shelf")
+    door()
     print("furniture and décor written to", os.path.normpath(ROOT))

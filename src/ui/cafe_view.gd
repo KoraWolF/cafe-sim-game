@@ -405,6 +405,9 @@ func _draw() -> void:
 
 func _draw_floor(state: GameState, data: GameData) -> void:
 	var width := state.floor_width
+	if PieceArt.texture("floor_a") != null:
+		_draw_room(state, data)
+		return
 	# Back walls along the far edges.
 	var wall := Vector2(0, -70)
 	var top := Iso.to_world(Vector2.ZERO)
@@ -425,14 +428,37 @@ func _draw_floor(state: GameState, data: GameData) -> void:
 	_draw_pod_bay(state, data)
 
 
+## The drawn room: wood floor tiles, the two back walls (tile-wide segments,
+## some with a window or a shelf; the right wall is the left one mirrored), the
+## entrance mat and the Pod bay.
+func _draw_room(state: GameState, data: GameData) -> void:
+	for x: int in state.floor_width:
+		PieceArt.draw(self, _wall_kind(x), Vector2i.ONE, true, Iso.to_world(Vector2(x, 0)), Iso.TILE.x)
+	for y: int in state.floor_rows:
+		PieceArt.draw(self, _wall_kind(y + 1), Vector2i.ONE, false, Iso.to_world(Vector2(0, y)), Iso.TILE.x)
+	for y: int in state.floor_rows:
+		for x: int in state.floor_width:
+			PieceArt.draw(self, "floor_a" if (x + y) % 2 == 0 else "floor_b", Vector2i.ONE, false, Iso.to_world(Vector2(x, y)), Iso.TILE.x)
+	var door := Vector2(state.floor_width, state.floor_rows - 1)
+	draw_colored_polygon(PackedVector2Array([Iso.to_world(door), Iso.to_world(door + Vector2(0.6, 0)),
+		Iso.to_world(door + Vector2(0.6, 1)), Iso.to_world(door + Vector2(0, 1))]), UiTheme.ACCENT.darkened(0.4))
+	_draw_pod_bay(state, data)
+
+
+## Which wall segment stands at position i along a wall: a window every third, a shelf now and then.
+func _wall_kind(i: int) -> String:
+	return "wall_window" if i % 3 == 1 else ("wall_shelf" if i % 5 == 3 else "wall_plain")
+
+
 ## The café door: a frame on the front-right edge with a neon OPEN sign.
 func _draw_door(door: Vector2) -> void:
 	var up := Vector2(0, -78)
 	var a := Iso.to_world(door)
 	var b := Iso.to_world(door + Vector2(0, 1))
-	for post: Vector2 in [a, b]:
-		draw_line(post, post + up, Color("8a6a4a"), 6.0)
-	draw_line(a + up, b + up, Color("8a6a4a"), 8.0)
+	if not PieceArt.draw(self, "door", Vector2i.ONE, false, a, Iso.TILE.x):
+		for post: Vector2 in [a, b]:
+			draw_line(post, post + up, Color("8a6a4a"), 6.0)
+		draw_line(a + up, b + up, Color("8a6a4a"), 8.0)
 	var sign_at := (a + b) * 0.5 + up + Vector2(0, -14)
 	draw_rect(Rect2(sign_at - Vector2(30, 11), Vector2(60, 20)), Color("1a1428"))
 	var on := UiTheme.ACCENT if Session.state.phase == GameState.Phase.SHIFT else UiTheme.TEXT_DIM

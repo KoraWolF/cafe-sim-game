@@ -1,7 +1,7 @@
 class_name PieceArt
 extends RefCounted
-## Drawn art for furniture and décor: art/furniture/<name>.svg or
-## art/decor/<name>.svg (made by tools/art/furniture_svg.py, see
+## Drawn art for furniture, décor and the room: art/furniture/<name>.svg,
+## art/decor/<name>.svg or art/room/<name>.svg (made by tools/art/furniture_svg.py, see
 ## docs/art-guide.md). The café and battle views draw it in place of the
 ## placeholder blocks when it exists; a piece without art keeps its block.
 ##
@@ -15,7 +15,7 @@ const IMPORT_SCALE: float = 0.5
 ## A tile's width on the 4x canvas, and the canvas's margin.
 const CANVAS_TILE: float = 384.0
 const PAD: float = 16.0
-const FOLDERS: Array[String] = ["res://art/furniture/", "res://art/decor/"]
+const FOLDERS: Array[String] = ["res://art/furniture/", "res://art/decor/", "res://art/room/"]
 
 static var _cache: Dictionary[String, Texture2D] = {}
 
@@ -47,7 +47,7 @@ static func draw(canvas: CanvasItem, name: String, footprint: Vector2i, mirrored
 	var to_screen := tile_width / CANVAS_TILE
 	var rect := Rect2(top - anchor * to_screen, page * to_screen)
 	if mirrored:
-		rect = Rect2(rect.position + Vector2(rect.size.x, 0), Vector2(-rect.size.x, rect.size.y))
+		rect.size.x = -rect.size.x  # a negative width draws the same area flipped
 	canvas.draw_texture_rect(art, rect, false, tint)
 	return true
 

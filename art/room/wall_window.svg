@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café: wall_window. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="512" viewBox="0 0 416 512">
+  <defs>
+    <linearGradient id="wall_window_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4d3d69"/><stop offset="1" stop-color="#31234a"/></linearGradient>
+    <linearGradient id="wall_window_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a06a46"/><stop offset="1" stop-color="#7a4e33"/></linearGradient>
+    <linearGradient id="wall_window_g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b2350"/><stop offset="1" stop-color="#3a2a6a"/></linearGradient>
+    <radialGradient id="wall_window_r4" r="0.50"><stop offset="0" stop-color="#ff4fd8" stop-opacity="0.85"/><stop offset="1" stop-color="#ff4fd8" stop-opacity="0"/></radialGradient>
+  </defs>
+  <g inkscape:groupmode="layer" id="wall" inkscape:label="wall">
+    <polygon points="208.0,16.0 16.0,112.0 16.0,400.0 208.0,304.0" fill="url(#wall_window_g1)"/>
+  </g>
+  <g inkscape:groupmode="layer" id="wainscot" inkscape:label="wainscot">
+    <polygon points="208.0,212.0 16.0,308.0 16.0,400.0 208.0,304.0" fill="url(#wall_window_g2)" stroke="#4e3122" stroke-width="3" stroke-linejoin="round"/>
+    <polyline points="160.0,320.0 160.0,244.0" fill="none" stroke="#5e3b28" stroke-width="3" opacity="0.6"/>
+    <polyline points="112.0,344.0 112.0,268.0" fill="none" stroke="#5e3b28" stroke-width="3" opacity="0.6"/>
+    <polyline points="64.0,368.0 64.0,292.0" fill="none" stroke="#5e3b28" stroke-width="3" opacity="0.6"/>
+    <polyline points="208.0,210.0 16.0,306.0" fill="none" stroke="#e9c48f" stroke-width="7" stroke-linecap="round"/>
+  </g>
+  <g inkscape:groupmode="layer" id="window" inkscape:label="window">
+    <polygon points="177.3,83.4 46.7,148.6 46.7,260.6 177.3,195.4" fill="url(#wall_window_g3)" stroke="#e9c48f" stroke-width="8" stroke-linejoin="round"/>
+    <polygon points="165.8,125.1 142.7,136.6 142.7,208.6 165.8,197.1" fill="#2c3a78"/>
+    <rect x="158.1" y="145.0" width="6" height="8" fill="#ffd36b"/>
+    <rect x="148.5" y="149.8" width="6" height="8" fill="#38e1ff"/>
+    <polygon points="138.9,158.6 115.8,170.1 115.8,222.1 138.9,210.6" fill="#25306a"/>
+    <rect x="131.2" y="178.4" width="6" height="8" fill="#38e1ff"/>
+    <rect x="121.6" y="183.2" width="6" height="8" fill="#ffd36b"/>
+    <polygon points="108.2,139.9 85.1,151.4 85.1,237.4 108.2,225.9" fill="#2c3a78"/>
+    <rect x="100.5" y="159.8" width="6" height="8" fill="#ffd36b"/>
+    <rect x="90.9" y="164.6" width="6" height="8" fill="#38e1ff"/>
+    <polygon points="77.4,199.3 54.4,210.8 54.4,252.8 77.4,241.3" fill="#25306a"/>
+    <rect x="69.8" y="219.1" width="6" height="8" fill="#38e1ff"/>
+    <rect x="60.2" y="223.9" width="6" height="8" fill="#ffd36b"/>
+    <circle cx="92.8" cy="139.6" r="24" fill="url(#wall_window_r4)"/>
+    <polyline points="112.0,116.0 112.0,228.0" fill="none" stroke="#e9c48f" stroke-width="5"/>
+  </g>
+  <g inkscape:groupmode="layer" id="neon_trim" inkscape:label="neon_trim">
+    <polyline points="208.0,42.0 16.0,138.0" fill="none" stroke="#38e1ff" stroke-width="5" stroke-linecap="round" opacity="0.85"/>
+    <polygon points="208.0,16.0 16.0,112.0 16.0,122.0 208.0,26.0" fill="#2a1f42"/>
+  </g>
+</svg>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café: floor_b. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="224" viewBox="0 0 416 224">
+  <defs>
+    <linearGradient id="floor_b_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a0714f"/><stop offset="1" stop-color="#916240"/></linearGradient>
+  </defs>
+  <g inkscape:groupmode="layer" id="planks" inkscape:label="planks">
+    <polygon points="208.0,16.0 400.0,112.0 208.0,208.0 16.0,112.0" fill="url(#floor_b_g1)"/>
+    <polyline points="160.0,40.0 352.0,136.0" fill="none" stroke="#6c4930" stroke-width="3" opacity="0.55"/>
+    <polyline points="112.0,64.0 304.0,160.0" fill="none" stroke="#6c4930" stroke-width="3" opacity="0.55"/>
+    <polyline points="64.0,88.0 256.0,184.0" fill="none" stroke="#6c4930" stroke-width="3" opacity="0.55"/>
+    <polyline points="246.4,35.2 198.4,59.2" fill="none" stroke="#6c4930" stroke-width="3" opacity="0.4"/>
+    <polyline points="284.8,102.4 236.8,126.4" fill="none" stroke="#6c4930" stroke-width="3" opacity="0.4"/>
+    <polyline points="179.2,97.6 131.2,121.6" fill="none" stroke="#6c4930" stroke-width="3" opacity="0.4"/>
+    <polyline points="217.6,164.8 169.6,188.8" fill="none" stroke="#6c4930" stroke-width="3" opacity="0.4"/>
+    <polygon points="208.0,16.0 400.0,112.0 208.0,208.0 16.0,112.0" fill="none" stroke="#553925" stroke-width="2" opacity="0.35"/>
+  </g>
+</svg>
