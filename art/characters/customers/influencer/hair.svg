@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- NanoBrew Café rig part: customers/influencer/hair. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
-  <defs><linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffcd95"/><stop offset="1" stop-color="#bf905c"/></linearGradient></defs>
+  <defs><linearGradient id="hairl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff72e0"/><stop offset="1" stop-color="#cc3fad"/></linearGradient><linearGradient id="hairr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#47f3ff"/><stop offset="1" stop-color="#12a8b2"/></linearGradient></defs>
   <g inkscape:label="hair" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M26,190 C2,110 54,36 132,34 C214,34 254,104 234,192 C226,168 214,146 196,122 C170,108 120,104 92,118 C70,130 50,160 46,206 Z" fill="url(#hair)" stroke="#b5643a" stroke-width="4"/>
-    <path d="M30,180 Q20,240 52,264 Q46,222 56,190 Z M226,180 Q238,236 210,262 Q218,222 210,188 Z" fill="url(#hair)" stroke="#b5643a" stroke-width="4"/>
-    <path d="M120,46 C170,44 206,66 222,96" stroke="#fff1c9" stroke-width="7" fill="none" opacity="0.7"/>
-    <rect x="96" y="76" width="54" height="20" rx="9" fill="#2a2e3f" stroke="#16141f" stroke-width="3" transform="rotate(-8 123 86)"/>
-    <rect x="156" y="70" width="54" height="20" rx="9" fill="#2a2e3f" stroke="#16141f" stroke-width="3" transform="rotate(8 183 80)"/>
+    <path d="M26,190 C2,110 54,36 132,34 C214,34 254,104 234,192 C226,168 214,146 196,122 C170,108 120,104 92,118 C70,130 50,160 46,206 Z" fill="url(#hairl)" stroke="#6a1a5a" stroke-width="4"/>
+    <path d="M132,34 C214,34 254,104 234,192 C226,168 214,146 196,122 C176,110 150,104 132,106 Z" fill="url(#hairr)" stroke="#0a6f86" stroke-width="4"/>
+    <path d="M30,180 Q20,240 52,264 Q46,222 56,190 Z" fill="url(#hairl)" stroke="#6a1a5a" stroke-width="4"/>
+    <path d="M226,180 Q238,236 210,262 Q218,222 210,188 Z" fill="url(#hairr)" stroke="#0a6f86" stroke-width="4"/>
+    <path d="M196,182 l8 10 l-8 10" fill="none" stroke="#19f0ff" stroke-width="9" stroke-opacity="0.35"/><path d="M196,182 l8 10 l-8 10" fill="none" stroke="#19f0ff" stroke-width="3"/>
+    <path d="M92,200 l-10 6" fill="none" stroke="#ff2fb4" stroke-width="9" stroke-opacity="0.35"/><path d="M92,200 l-10 6" fill="none" stroke="#ff2fb4" stroke-width="3"/>
   </g>
 </svg>

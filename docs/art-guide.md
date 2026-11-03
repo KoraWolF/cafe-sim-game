@@ -2,7 +2,7 @@
 
 How to make the characters and furniture for NanoBrew Café yourself and plug them into the game. Everything on screen today is placeholder shapes drawn in code (`src/ui/cafe_view.gd`, `src/ui/battle_view.gd`). Real art replaces them without changing any game rules.
 
-**Style (decided 2026-10-27): 2D vector shapes with a digital-illustration finish.** Clean, scalable shapes, soft gradients, cel-shadow shapes and a neon rim light, instead of hand-painted pixels or black comic outlines.
+**Style (decided 2026-10-27): 2D vector shapes with a digital-illustration finish.** Clean, scalable shapes, soft gradients, cel-shadow shapes and a neon rim light, instead of hand-painted pixels or black comic outlines. **Theme (2026-11-03): a cyberpunk dive bar with chibi cyborgs** (see section 4).
 
 ![Template: the office worker (customer) and the Clerkbot (Synth) from one file](images/chibi_template_preview.png)
 
@@ -46,29 +46,29 @@ Every part of one character uses **the same 256 × 440 canvas and the same pivot
 
 ## 4. The style rules (your style bible)
 
-These are the rules the template follows. Change them once here if you want a different look, then keep every drawing consistent with them.
+**Theme (changed 2026-11-03): a cyberpunk dive bar with chibi cyborgs.** The vector style stays (clean shapes, gradients, tinted outlines), but the world is now a dark neon bar in the megacity and everyone wears tech. Change these rules once here, then keep every drawing consistent with them.
 
-1. **Shapes:** round, soft chibi shapes. Big head, small body, stubby limbs, rounded corners everywhere (round line joins).
-2. **Outlines:** no pure black. Each shape is outlined in a **darker shade of its own colour**, 4 px on the 4× canvas (skin → `#c98a68`, jacket → `#1e2852`).
-3. **Shading:** one **soft gradient** per material (light from the top-left), plus **one cel-shadow shape**, a flat darker shape at about 35–45% opacity under the arm or on the far cheek.
-4. **Neon rim light:** a thin cyan stroke (`#38e1ff`, about 70% opacity) on the right edge of the head and body: the neon city outside. Synths also get a soft glow in their species colour behind them.
-5. **Faces:** big dark eyes with one white highlight, a small mouth and soft blush. Faces are separate layers (`face_neutral`, `face_happy`, `face_angry`), so expressions just swap.
-6. **Silhouettes tell customers apart:**
-   - office worker: briefcase, neat hair block
-   - gym fan: wide shoulders, tank top
-   - gamer: hoodie, headset
-   - influencer: big hair, phone
-   - grandparent: cardigan, cane
-   - alien tourist: antennae, camera
-7. **Synths keep the human silhouette plus tech:** visor, robot arm, cable hair or a screen face, plus one glow colour per species:
-   - Clerkbot `#4fb3ff`
-   - Bulkform `#ff8a3d`
-   - Glitchling `#c46bff`
-   - Hypeform `#ff4fd8`
-   - Steady-unit `#9cff6b`
-   - Xeno `#3dffd0`
-8. **Palette roles:** a warm café interior (browns, cream, soft orange), cool neon accents (cyan, magenta), and MegaBean corporate (charcoal, coffee brown, red ties).
-9. **Check at game size:** the template's 1× preview is 64 × 110 px. If a detail vanishes at that size, simplify it.
+1. **Shapes:** chibi proportions (big head, small body, stubby limbs) with harder edges on tech: chrome plates, panel seams, cables, bolts. Rounded joins on skin and cloth, sharper corners on metal.
+2. **Outlines:** no pure black. Each shape is outlined in a darker shade of its own colour, 4 px on the 4× canvas. Metal is outlined in a deep steel blue (`#2a3046`).
+3. **Shading:** one gradient per material, lit from the top-left, plus one flat cel-shadow shape. Metal gets a sharp white highlight line on its lit edge.
+4. **Neon:** a cyan rim light (`#19f0ff`) on the right edges, and magenta (`#ff2fb4`) neon spill underneath things (bar undersides, stool rings, floor edges).
+5. **Grime:** a dive bar, not a showroom: dark stains, scratches, worn edges, sticker and graffiti marks. Keep it subtle so pieces still read at game size.
+6. **Palette roles:**
+   - the bar: near-black and dark plum (`#14111f`, `#1f1a2e`), gunmetal steel (`#4a5068`), chrome (`#c9d2e3`), oxblood vinyl (`#8a1f3a`);
+   - the neon: magenta `#ff2fb4`, cyan `#19f0ff`, acid green `#b6ff3b`, amber `#ffb03b` (bottles and warm lights);
+   - MegaBean: corporate black and red (`#16141c`, `#d62f45`), with the bean logo.
+7. **Characters are chibi cyborgs.**
+   - **Customers:** street style plus small implants (a cheek plate, an LED tattoo, an earpiece, a cyber eye).
+   - **Synths:** heavy chrome on top of that: a visor, a mechanical arm, glowing seams, and one glow colour per species: Clerkbot `#4fb3ff`, Bulkform `#ff8a3d`, Glitchling `#c46bff`, Hypeform `#ff4fd8`, Steady-unit `#9cff6b`, Xeno `#3dffd0`.
+   - **Silhouettes still tell customer types apart:**
+     - office worker: corp suit, LED tie, briefcase;
+     - gym fan: brawler build, tank top, energy can;
+     - gamer: netrunner hoodie, headset, cyberdeck;
+     - influencer: neon idol with two-tone hair and a holo phone;
+     - grandparent: chrome bun, LED glasses, a cane;
+     - alien tourist: antennae and a holo camera.
+8. **Faces:** big dark eyes with one white highlight, a small mouth and soft blush, so the cute read stays under the tech. Faces are separate parts (`face_neutral`, `face_happy`, `face_angry`, `face_eat`, `face_rest`).
+9. **Check at game size:** a character is about 97 × 60 px and a tile is 96 × 48. If a detail vanishes at that size, simplify it.
 
 ## 5. Making a character yourself, step by step
 
@@ -129,11 +129,11 @@ You don't animate these in the drawing program. You draw the parts; the animatio
 - `art/decor/`: every décor piece.
 
 **The room** is in `art/room/`:
-- `floor_a` / `floor_b`: wood-plank tiles, alternating;
-- `wall_plain`, `wall_window`, `wall_shelf`: one tile-wide segment of the back-left wall. The back-right wall is the same drawings mirrored, with a window every third segment and a shelf now and then;
-- `door`: a glass door with a striped awning.
+- `floor_a` / `floor_b`: dark concrete slabs with scuffs and neon reflections, alternating;
+- `wall_plain`, `wall_window`, `wall_shelf`: one tile-wide segment of the back-left wall. Each has dark tile, a steel base with magenta neon and cyan trim at the top. `wall_plain` adds a pipe and graffiti, `wall_window` a rainy city view, and `wall_shelf` back-bar shelves of glowing bottles. The back-right wall is the same drawings mirrored, with a window every third segment and a shelf now and then;
+- `door`: a steel frame with a half-open shutter, a glass door and a neon cocktail-glass sign.
 
-**How they're made.** They come from `tools/art/furniture_svg.py`. It draws every piece from the same iso parts (boxes, cylinders, discs, floor shadows), so the style rules above hold everywhere.
+**How they're made.** They come from `tools/art/furniture_svg.py`, drawn as a cyberpunk dive bar since 2026-11-03. It draws every piece from the same iso parts (boxes, cylinders, discs, floor shadows), so the style rules above hold everywhere.
 - Run `python tools/art/furniture_svg.py` to rebuild them all. A file edited by hand is overwritten when you rebuild, so either change the script or stop using it for that piece.
 - Each file has named layers (shadow, body, neon, …) for Inkscape.
 - Run `godot --headless --path . -s res://tools/art/preview_sheet.gd -- sheet.png` for a contact sheet at 2× and at game size.
@@ -151,32 +151,31 @@ You don't animate these in the drawing program. You draw the parts; the animatio
 
 **In the game.** `src/ui/piece_art.gd` finds a piece's art by its id, and the café and battle views draw it in place of the placeholder block. A piece with no SVG keeps its block, so new pieces can arrive one at a time. Drawn décor shows its name only while arranging.
 
-**Characters (v1.7): the rig is in, with all six customer types and their Synths.**
+**Characters (v1.7, cyborg theme 2026-11-03): the rig is in, with every customer type, Synth species and MegaBean look.**
 
-*The cast.* `python tools/art/characters_svg.py` draws the other five on the template's body shapes, each with its own clothes, hair, skin, prop and tech:
+*Parts.* `python tools/art/characters_svg.py` draws them all on the template's 256 × 440 canvas, using its body shapes and joints. Each type has its own clothes, hair, skin, implants, prop and five faces:
+- `art/characters/customers/<type>/`: shadow, leg_back, arm_back, leg_front, torso, arm_front, prop, head, hair, `face_neutral`, `face_happy`, `face_angry`, `face_eat`, `face_rest`;
+- `art/characters/synths/<species>/`: glow, arm_front (replaces the customer's), visor.
 
 | Customer | Look | Prop | Synth | Tech |
 | --- | --- | --- | --- | --- |
-| gym_fan | tank top, bare arms, headband, shorts | water bottle | bulkform | piston arm, eye band, jaw guard |
-| gamer | hoodie, headset | handheld console | glitchling | pixel-screen visor, cable arm |
-| influencer | big hair, cropped jacket, shades on the head | phone | hypeform | heart LED shades, ring-light arm |
-| grandparent | cardigan, bun, glasses | cane | steady_unit | monocle scanner, sturdy arm |
-| alien_tourist | antennae, lavender skin, flower shirt, camera strap | camera | xeno | crystal tiara, segmented arm |
+| office_worker | corp drone: dark suit, LED tie, ear jack | briefcase with an LED strip | clerkbot | blue visor, chrome arm |
+| gym_fan | brawler: neon tank top, LED headband, chrome jaw, cheek tattoo, shorts | energy can | bulkform | eye band, jaw guard, heavy fist |
+| gamer | netrunner: LED hoodie, lightning-streak hair, headset | cyberdeck | glitchling | pixel-screen visor, head cables |
+| influencer | neon idol: pink and cyan hair, holo jacket, face LEDs | holo phone | hypeform | heart LED shades, ring-light arm |
+| grandparent | chrome bun, LED glasses, circuit cardigan | cane with a glowing tip | steady_unit | scanner eye, cheek plate |
+| alien_tourist | lavender skin, glowing antennae, flight jacket | holo camera | xeno | crystal tiara, segmented arm |
 
-*MegaBean staff* are in `art/characters/megabean/<combat class>/`, made by the same script in the corporate palette (charcoal, coffee brown, red ties, the bean logo). Guards, raiders and auditors all use them by combat class:
+*How a Synth is built.* A Synth is its customer type's body plus its species' parts: a mechanical arm (instead of the customer's arm and prop), a visor or other head tech, and a glow in its species colour.
+
+*MegaBean staff* are in `art/characters/megabean/<combat class>/`: black-and-red corporate enforcers with red visor strips and the bean logo. Guards, raiders and auditors all use them by combat class:
 
 | Class | Look | Weapon |
 | --- | --- | --- |
-| fighter | security: charcoal suit, red tie, brown bean cap | stun baton |
-| tank | bouncer: wide brown uniform, sunglasses, earpiece | riot shield |
-| ranged | barista: cream shirt, brown apron, visor | espresso blaster |
-| fragile | intern: white shirt, red lanyard, ID badge | clipboard |
-
-*Parts.* `python tools/art/character_parts.py` splits the template into one SVG per part, all on the same 256 × 440 canvas:
-- `art/characters/customers/office_worker/`: shadow, leg_back, arm_back, leg_front, torso, arm_front, prop, head, hair, and faces `face_neutral`, `face_happy`, `face_angry`, `face_eat`, `face_rest`;
-- `art/characters/synths/clerkbot/`: glow, arm_front (replaces the customer's), visor.
-
-*How a Synth is built.* A Synth is its customer type's body plus its species' parts. The Clerkbot is the office worker with a visor, a robot arm and a glow, and no briefcase.
+| fighter | enforcer: black suit, red visor | shock baton |
+| tank | riot cyborg: armour, helmet | heavy shield |
+| ranged | gunner: red hair, eye scope, sash | caffeine rifle |
+| fragile | hacker intern: lanyard, glasses | holo tablet |
 
 *The rig.* `src/ui/character_art.gd` hangs the parts on joints (hips, neck, shoulders, hips for each leg) and poses them by time, so no animation files are needed:
 - in the café: idle, walk, carry (with a tray), sit, eat, cook, rest (eyes closed), happy, angry;

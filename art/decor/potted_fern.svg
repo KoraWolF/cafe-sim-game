@@ -2,44 +2,42 @@
 <!-- NanoBrew Café: potted_fern. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="494" viewBox="0 0 416 494">
   <defs>
-    <linearGradient id="potted_fern_g1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#dc8258"/><stop offset="1" stop-color="#8d4d30"/></linearGradient>
-    <linearGradient id="potted_fern_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#73584a"/><stop offset="1" stop-color="#5a3b2a"/></linearGradient>
-    <linearGradient id="potted_fern_g3" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ea9367"/><stop offset="1" stop-color="#975a3a"/></linearGradient>
-    <linearGradient id="potted_fern_g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#73584a"/><stop offset="1" stop-color="#5a3b2a"/></linearGradient>
+    <linearGradient id="potted_fern_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#51576e"/><stop offset="1" stop-color="#3e4357"/></linearGradient>
+    <linearGradient id="potted_fern_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#323647"/><stop offset="1" stop-color="#262a36"/></linearGradient>
+    <linearGradient id="potted_fern_g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#443a35"/><stop offset="1" stop-color="#2b1f1a"/></linearGradient>
   </defs>
   <g inkscape:groupmode="layer" id="shadow" inkscape:label="shadow">
     <polygon points="208.0,312.9 346.2,382.0 208.0,451.1 69.8,382.0" fill="#1a1230" opacity="0.35"/>
   </g>
-  <g inkscape:groupmode="layer" id="pot" inkscape:label="pot">
-    <path d="M 134.7 312.0 L 134.7 382.0 A 73.3 36.7 0 0 0 281.3 382.0 L 281.3 312.0 Z" fill="url(#potted_fern_g1)" stroke="#623621" stroke-width="4" stroke-linejoin="round"/>
-    <ellipse cx="208.0" cy="312.0" rx="73.3" ry="36.7" fill="url(#potted_fern_g2)" stroke="#623621" stroke-width="4" opacity="1.00"/>
-    <line x1="279.3" y1="378.0" x2="279.3" y2="314.0" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
-    <path d="M 129.3 312.0 L 129.3 326.0 A 78.7 39.4 0 0 0 286.7 326.0 L 286.7 312.0 Z" fill="url(#potted_fern_g3)" stroke="#683e28" stroke-width="4" stroke-linejoin="round"/>
-    <ellipse cx="208.0" cy="312.0" rx="78.7" ry="39.4" fill="url(#potted_fern_g4)" stroke="#683e28" stroke-width="4" opacity="1.00"/>
-    <line x1="284.7" y1="322.0" x2="284.7" y2="314.0" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+  <g inkscape:groupmode="layer" id="planter" inkscape:label="planter">
+    <polygon points="112.0,316.0 208.0,364.0 208.0,430.0 112.0,382.0" fill="url(#potted_fern_g1)" stroke="#2a3046" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="304.0,316.0 208.0,364.0 208.0,430.0 304.0,382.0" fill="url(#potted_fern_g2)" stroke="#2a3046" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="112.0,365.5 208.0,413.5 208.0,430.0 112.0,382.0" fill="#1e202a" opacity="0.3"/>
+    <polygon points="208.0,268.0 304.0,316.0 208.0,364.0 112.0,316.0" fill="url(#potted_fern_g3)" stroke="#2a3046" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="117.8,318.9 202.2,361.1" fill="none" stroke="#ffffff" stroke-width="3" stroke-opacity="0.35" stroke-linecap="round"/>
+    <polyline points="304.0,376.0 304.0,318.0 256.0,340.0" fill="none" stroke="#19f0ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <polyline points="115.8,329.9 204.2,374.1" fill="none" stroke="#b6ff3b" stroke-width="9" stroke-opacity="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="115.8,329.9 204.2,374.1" fill="none" stroke="#b6ff3b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="115.8,329.9 204.2,374.1" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
   <g inkscape:groupmode="layer" id="fronds" inkscape:label="fronds">
-    <path d="M 208.0 314.0 Q 144.2 265.7 114.0 279.8 Q 176.2 275.7 208.0 314.0 Z" fill="#3f9a52" stroke="#23552d" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M 208.0 314.0 Q 160.2 269.7 114.0 279.8" fill="none" stroke="#296435" stroke-width="2" opacity="0.6"/>
-    <path d="M 208.0 314.0 Q 248.9 299.2 297.3 281.5 Q 280.9 309.2 208.0 314.0 Z" fill="#3f9a52" stroke="#23552d" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M 208.0 314.0 Q 264.9 303.2 297.3 281.5" fill="none" stroke="#296435" stroke-width="2" opacity="0.6"/>
-    <path d="M 208.0 314.0 Q 149.7 236.4 108.4 230.4 Q 181.7 246.4 208.0 314.0 Z" fill="#56b866" stroke="#2f6538" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M 208.0 314.0 Q 165.7 240.4 108.4 230.4" fill="none" stroke="#387842" stroke-width="2" opacity="0.6"/>
-    <path d="M 208.0 314.0 Q 261.1 272.9 303.8 233.7 Q 293.1 282.9 208.0 314.0 Z" fill="#56b866" stroke="#2f6538" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M 208.0 314.0 Q 277.1 276.9 303.8 233.7" fill="none" stroke="#387842" stroke-width="2" opacity="0.6"/>
-    <path d="M 208.0 314.0 Q 172.0 214.2 133.0 184.1 Q 204.0 224.2 208.0 314.0 Z" fill="#3f9a52" stroke="#23552d" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M 208.0 314.0 Q 188.0 218.2 133.0 184.1" fill="none" stroke="#296435" stroke-width="2" opacity="0.6"/>
-    <path d="M 208.0 314.0 Q 258.0 240.8 283.0 184.1 Q 290.0 250.8 208.0 314.0 Z" fill="#3f9a52" stroke="#23552d" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M 208.0 314.0 Q 274.0 244.8 283.0 184.1" fill="none" stroke="#296435" stroke-width="2" opacity="0.6"/>
-    <path d="M 208.0 314.0 Q 204.8 200.8 178.5 146.6 Q 236.8 210.8 208.0 314.0 Z" fill="#6ccf73" stroke="#3b723f" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M 208.0 314.0 Q 220.8 204.8 178.5 146.6" fill="none" stroke="#46874b" stroke-width="2" opacity="0.6"/>
-    <path d="M 208.0 314.0 Q 237.2 213.9 236.7 151.5 Q 269.2 223.9 208.0 314.0 Z" fill="#56b866" stroke="#2f6538" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M 208.0 314.0 Q 253.2 217.9 236.7 151.5" fill="none" stroke="#387842" stroke-width="2" opacity="0.6"/>
-    <path d="M 208.0 314.0 Q 159.4 266.8 138.7 274.0 Q 191.4 276.8 208.0 314.0 Z" fill="#6ccf73" stroke="#3b723f" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M 208.0 314.0 Q 175.4 270.8 138.7 274.0" fill="none" stroke="#46874b" stroke-width="2" opacity="0.6"/>
-    <path d="M 208.0 314.0 Q 238.8 291.4 277.3 274.0 Q 270.8 301.4 208.0 314.0 Z" fill="#6ccf73" stroke="#3b723f" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M 208.0 314.0 Q 254.8 295.4 277.3 274.0" fill="none" stroke="#46874b" stroke-width="2" opacity="0.6"/>
-    <path d="M 208.0 314.0 Q 224.8 196.0 208.0 129.0 Q 256.8 206.0 208.0 314.0 Z" fill="#7bdc82" stroke="#447948" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M 208.0 314.0 Q 240.8 200.0 208.0 129.0" fill="none" stroke="#508f54" stroke-width="2" opacity="0.6"/>
+    <path d="M 208.0 316.0 Q 144.2 267.7 114.0 281.8 Q 176.2 277.7 208.0 316.0 Z" fill="#1f6b4a" stroke="#103625" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M 208.0 316.0 Q 160.2 271.7 114.0 281.8" fill="none" stroke="#b6ff3b" stroke-width="3" opacity="0.85"/>
+    <path d="M 208.0 316.0 Q 248.9 301.2 297.3 283.5 Q 280.9 311.2 208.0 316.0 Z" fill="#1f6b4a" stroke="#103625" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M 208.0 316.0 Q 264.9 305.2 297.3 283.5" fill="none" stroke="#b6ff3b" stroke-width="3" opacity="0.85"/>
+    <path d="M 208.0 316.0 Q 149.7 238.4 108.4 232.4 Q 181.7 248.4 208.0 316.0 Z" fill="#2a8a5a" stroke="#15452d" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M 208.0 316.0 Q 165.7 242.4 108.4 232.4" fill="none" stroke="#b6ff3b" stroke-width="3" opacity="0.85"/>
+    <path d="M 208.0 316.0 Q 261.1 274.9 303.8 235.7 Q 293.1 284.9 208.0 316.0 Z" fill="#2a8a5a" stroke="#15452d" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M 208.0 316.0 Q 277.1 278.9 303.8 235.7" fill="none" stroke="#b6ff3b" stroke-width="3" opacity="0.85"/>
+    <path d="M 208.0 316.0 Q 172.0 216.2 133.0 186.1 Q 204.0 226.2 208.0 316.0 Z" fill="#1f6b4a" stroke="#103625" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M 208.0 316.0 Q 188.0 220.2 133.0 186.1" fill="none" stroke="#b6ff3b" stroke-width="3" opacity="0.85"/>
+    <path d="M 208.0 316.0 Q 258.0 242.8 283.0 186.1 Q 290.0 252.8 208.0 316.0 Z" fill="#1f6b4a" stroke="#103625" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M 208.0 316.0 Q 274.0 246.8 283.0 186.1" fill="none" stroke="#b6ff3b" stroke-width="3" opacity="0.85"/>
+    <path d="M 208.0 316.0 Q 204.8 202.8 178.5 148.6 Q 236.8 212.8 208.0 316.0 Z" fill="#33a36a" stroke="#1a5235" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M 208.0 316.0 Q 220.8 206.8 178.5 148.6" fill="none" stroke="#b6ff3b" stroke-width="3" opacity="0.85"/>
+    <path d="M 208.0 316.0 Q 237.2 215.9 236.7 153.5 Q 269.2 225.9 208.0 316.0 Z" fill="#2a8a5a" stroke="#15452d" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M 208.0 316.0 Q 253.2 219.9 236.7 153.5" fill="none" stroke="#b6ff3b" stroke-width="3" opacity="0.85"/>
+    <path d="M 208.0 316.0 Q 224.8 198.0 208.0 131.0 Q 256.8 208.0 208.0 316.0 Z" fill="#3ab877" stroke="#1d5c3c" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M 208.0 316.0 Q 240.8 202.0 208.0 131.0" fill="none" stroke="#b6ff3b" stroke-width="3" opacity="0.85"/>
   </g>
 </svg>

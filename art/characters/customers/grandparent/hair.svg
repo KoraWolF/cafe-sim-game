@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- NanoBrew Café rig part: customers/grandparent/hair. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
-  <defs><linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ebe9f2"/><stop offset="1" stop-color="#c4c2cb"/></linearGradient></defs>
+  <defs><linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e1e4ed"/><stop offset="1" stop-color="#aeb1ba"/></linearGradient><linearGradient id="chrome" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5ebf5"/><stop offset="1" stop-color="#91969d"/></linearGradient></defs>
   <g inkscape:label="hair" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M40,170 C30,96 86,62 138,62 C196,64 232,100 222,160 C212,130 178,112 134,112 C98,114 70,132 62,170 Z" fill="url(#hair)" stroke="#8d8aa3" stroke-width="4"/>
-    <circle cx="132" cy="50" r="30" fill="url(#hair)" stroke="#8d8aa3" stroke-width="4"/>
-    <circle cx="118" cy="166" r="24" fill="none" stroke="#6b4130" stroke-width="5"/>
-    <circle cx="178" cy="164" r="25" fill="none" stroke="#6b4130" stroke-width="5"/>
-    <path d="M142,164 L153,164" stroke="#6b4130" stroke-width="5"/>
-    <path d="M110,150 L124,148" stroke="#ffffff" stroke-width="3" opacity="0.6"/>
+    <path d="M40,170 C30,96 86,62 138,62 C196,64 232,100 222,160 C212,130 178,112 134,112 C98,114 70,132 62,170 Z" fill="url(#hair)" stroke="#8d96ab" stroke-width="4"/>
+    <circle cx="132" cy="50" r="30" fill="url(#chrome)" stroke="#2a3046" stroke-width="4"/>
+    <path d="M108,40 Q132,30 156,40" fill="none" stroke="#b6ff3b" stroke-width="3"/>
+    <rect x="92" y="150" width="54" height="30" rx="10" fill="#b6ff3b" opacity="0.35" stroke="#2a3046" stroke-width="5"/>
+    <rect x="152" y="148" width="56" height="32" rx="10" fill="#b6ff3b" opacity="0.35" stroke="#2a3046" stroke-width="5"/>
+    <path d="M146,164 L152,164" stroke="#2a3046" stroke-width="5"/>
   </g>
 </svg>

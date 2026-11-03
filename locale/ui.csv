@@ -1,6 +1,6 @@
 keys,en
-ui.title,NanoBrew Café
-ui.subtitle,A cozy café where happy customers become synthetic staff
+ui.title,NanoBrew Bar
+ui.subtitle,A neon dive bar where happy customers become cyborg staff
 ui.new_game,New Game
 ui.continue,Continue
 ui.load_slot,Load Slot %d
@@ -25,17 +25,17 @@ ui.district,District
 ui.vibe,Vibe %d
 ui.menu_button,Menu
 ui.speed_pause,Pause
-ui.closed_today,The café is shut today after the Corporate Audit.
-ui.shift_over,Closing time! The café is closed for the night.
+ui.closed_today,The bar is shut today after the Corporate Audit.
+ui.shift_over,Closing time! The bar is closed for the night.
 ui.counter,Counter
-ui.cook_title,Cook on stove %d
-ui.cook_item,"%s — %d coins (%d servings, %ds)"
-ui.cooking,Cooking %s
+ui.cook_title,Mixer %d: pick a drink
+ui.cook_item,"%s — %d coins (%d glasses, %ds)"
+ui.cooking,Mixing %s
 ui.customer,A customer
 ui.converted,"%s became a %s! It walks to its Pod to rest (30%% battery used in the Pod)."
 ui.level_up,%s reached level %d!
 ui.tip,+%d coins (tip +%d)
-ui.broke_dish,A dish was dropped!
+ui.broke_dish,A glass was dropped!
 ui.left_angry,A customer left angry.
 ui.turned_away,The queue is full — a customer walked away.
 ui.glitch,Glitch!
@@ -53,7 +53,7 @@ ui.tab_ops,Night Ops
 ui.end_night,End Night
 ui.summary_line,"Served %d, loved it %d (%d%%), left angry %d, walked away %d"
 ui.summary_money,"Earned %d coins (tips %d). Coins now: %d"
-ui.summary_staff,"Conversions %d, dishes dropped %d, glitches %d"
+ui.summary_staff,"Conversions %d, drinks dropped %d, glitches %d"
 ui.upgrade_line,"%s — level %d / %d"
 ui.buy,Buy (%d)
 ui.maxed,Maxed
@@ -93,11 +93,11 @@ ui.report_raid_lost,Raid on %s: lost.
 ui.report_takeover,%s is yours! It pays %d coins every night.
 ui.report_next,%s opens tomorrow.
 ui.report_city,The whole city is yours!
-ui.report_defense_held,MegaBean raided the café — your Synths held them off.
-ui.report_defense_lost,MegaBean raided the café and took %d coins and %d cores.
+ui.report_defense_held,MegaBean raided the bar — your Synths held them off.
+ui.report_defense_lost,MegaBean raided the bar and took %d coins and %d cores.
 ui.report_audit_held,The Corporate Audit came — and failed!
-ui.report_audit_lost,The Corporate Audit took %d coins and one of your Synths. The café is shut tomorrow.
-ui.report_audit_lost_none,The Corporate Audit took %d coins. The café is shut tomorrow.
+ui.report_audit_lost,The Corporate Audit took %d coins and one of your Synths. The bar is shut tomorrow.
+ui.report_audit_lost_none,The Corporate Audit took %d coins. The bar is shut tomorrow.
 ui.report_quiet,A quiet night.
 ui.report_stolen,%s pocketed %d coins.
 ui.report_income,District income: +%d coins.
@@ -106,7 +106,7 @@ ui.report_undercharged,Not enough Energy: %d Synths are not fully charged.
 ui.report_level,%s reached level %d.
 ui.continue_day,Start Day %d
 ui.battle_raid,Raid on %s
-ui.battle_defense,MegaBean raids your café!
+ui.battle_defense,MegaBean raids your bar!
 ui.battle_audit,CORPORATE AUDIT!
 ui.battle_victory,VICTORY
 ui.battle_defeat,DEFEAT
@@ -118,13 +118,13 @@ ui.battle_raider,Raider %d
 ui.battle_auditor,Auditor %d
 ui.battle_gone,Lost Synth
 role.server,Server
-role.chef,Chef
+role.chef,Bartender
 role.rest,Rest
 error.wrong_phase,You can't do that right now.
-error.unknown_stove,That stove doesn't exist.
-error.stove_busy,That stove is busy (cooking, or its batch is waiting to be carried).
-error.unknown_recipe,Unknown dish.
-error.recipe_locked,You haven't unlocked that dish yet.
+error.unknown_stove,That mixer doesn't exist.
+error.stove_busy,"That mixer is busy (mixing, or its batch is waiting to be carried)."
+error.unknown_recipe,Unknown drink.
+error.recipe_locked,You haven't unlocked that drink yet.
 error.not_enough_coins,Not enough coins.
 error.not_enough_cores,Not enough Nano Cores.
 error.unknown_customer,That customer has left.
@@ -132,10 +132,10 @@ error.no_nanobrew,You need a NanoBrew to convert a customer.
 error.no_free_pod,Every Sync Pod is taken — buy and place another Pod.
 error.unknown_synth,Unknown Synth.
 error.unknown_role,Unknown role.
-error.synth_busy,That Synth is carrying a dish — wait a moment.
+error.synth_busy,That Synth is carrying a drink — wait a moment.
 error.bad_amount,Choose an amount above zero.
 error.unknown_target,Unknown target.
-error.target_cooldown,That café is still on guard after the last raid.
+error.target_cooldown,That bar is still on guard after the last raid.
 error.empty_squad,Pick at least one Synth for the squad.
 error.squad_too_big,That squad is too big.
 error.no_battery,A Synth in the squad has no battery.
@@ -161,64 +161,64 @@ tutorial.title,FIRST DAY
 tutorial.next,Next
 tutorial.skip_step,Skip step
 tutorial.skip_all,Skip tutorial
-tutorial.welcome,"Welcome to NanoBrew Café! Customers come in and sit down; your servers bring them whatever is ready on the nearest counter. Your job: keep the food coming and turn your happiest customers into Synth staff."
-tutorial.cook,Click a stove and pick a dish to cook. A server carries the finished batch to a free counter.
-tutorial.deliver,"Your server carries dishes from the counter to the tables. After eating, customers pay your Cashier at the register."
-tutorial.convert,"Click any customer — waiting, eating, paying or walking out — to spend your NanoBrew: they become a Synth."
-tutorial.card,"Click one of your Synths to see its card — then click a stove, counter, register or the Pod bay to give it that job."
-tutorial.night,"The café is closed: it's night. Plan for tomorrow here, then press End Night."
-tutorial.raid,"Open Night Ops → Open map, pick a MegaBean café, place your squad in front of it and Start raid. Raids bring Nano Cores (for NanoBrew) and Influence."
+tutorial.welcome,Welcome to NanoBrew Bar! Customers come in and sit down; your servers bring them whatever is ready on the nearest counter. Your job: keep the drinks coming and turn your happiest customers into Synth staff.
+tutorial.cook,Click a mixer and pick a drink to mix. A server carries the finished batch to a free counter.
+tutorial.deliver,"Your server carries drinks from the counter to the tables. After drinking, customers pay your Cashier at the register."
+tutorial.convert,"Click any customer — waiting, drinking, paying or walking out — to spend your NanoBrew: they become a Synth."
+tutorial.card,"Click one of your Synths to see its card — then click a mixer, counter, register or the Pod bay to give it that job."
+tutorial.night,"The bar is closed: it's night. Plan for tomorrow here, then press End Night."
+tutorial.raid,"Open Night Ops → Open map, pick a MegaBean bar, place your squad in front of it and Start raid. Raids bring Nano Cores (for NanoBrew) and Influence."
 tutorial.end_night,Press End Night to see the night play out.
 tutorial.done,That's the basics! Take over the Alley by beating its flagship. Good luck.
 ui.fx_level_up,LEVEL UP!
 ui.fx_new_synth,NEW SYNTH!
-tip.upgrade.stove,One more stove to cook on (place it on the floor).
+tip.upgrade.stove,One more mixer to mix drinks on (place it on the floor).
 tip.upgrade.seat,"One more seat. It needs its own table right beside it (not diagonal)."
 tip.upgrade.floor,"6×6 grows to 8, 9, 10, 12, 14, 15, 16, 18, then 20 tiles square: more customers and more Pods."
-tip.upgrade.security,Extra HP for every Synth defending the café at night.
-tip.role.server,Carries dishes from the counter to the tables (uses speed).
-tip.role.chef,Works its own stove and makes it cook faster (uses cooking). One Chef per stove.
+tip.upgrade.security,Extra HP for every Synth defending the bar at night.
+tip.role.server,Carries drinks from the counter to the tables (uses speed).
+tip.role.chef,Works its own mixer and makes it mix faster (uses mixing). One Bartender per mixer.
 tip.role.rest,"Resting in its Pod: no work, and the battery charges (0.4 a second, free). At closing everyone goes to their Pod and recharges fully at night, then goes back to their job in the morning."
 ui.cancel,Cancel
 ui.confirm_convert,Convert this %s into a %s (trait: %s)?
 ui.confirm_convert_details,"Uses 1 NanoBrew (%d → %d) and a Sync Pod (%d / %d). Suspicion goes up."
 ui.confirm_convert_yes,Use NanoBrew
-ui.ops_security,"Security level %d: every Synth defending the café at night gets +%d HP."
+ui.ops_security,Security level %d: every Synth defending the bar at night gets +%d HP.
 customer.stage_0,Waiting in line for a seat
-customer.stage_1,Seated and waiting for food
-customer.stage_2,Eating
+customer.stage_1,Seated and waiting for a drink
+customer.stage_2,Drinking
 customer.stage_3,Walking out
 customer.mood,Mood: %d%%
 customer.converts,"Converts to: %s — %s"
 customer.click_convert,Click to convert with NanoBrew.
 species.clerkbot.desc,"Clerkbot: a fast, steady server, but slows down late in the shift."
-species.bulkform.desc,"Bulkform: strong with a big battery — great raider, but clumsy: sometimes drops dishes."
-species.glitchling.desc,"Glitchling: cooks very fast as a chef, but glitches now and then."
+species.bulkform.desc,"Bulkform: strong with a big battery — great raider, but clumsy: sometimes drops drinks."
+species.glitchling.desc,"Glitchling: mixes very fast as a bartender, but glitches now and then."
 species.hypeform.desc,"Hypeform: a Cashier whose appeal brings more customers, but works slowly."
 species.steady_unit.desc,"Steady-unit: good at anything and barely uses battery, but slow."
-species.xeno.desc,"Xeno: a strong chef that unlocks Star Jelly, but needs special fuel (recharging costs 3× Power)."
+species.xeno.desc,"Xeno: a strong bartender that unlocks Star Elixir, but needs special fuel (recharging costs 3× Power)."
 trait.night_owl.desc,"Night Owl: works faster late in the shift instead of slower, +3 power in fights."
-trait.perfectionist.desc,"Perfectionist: dishes it serves make customers happier (+10), but it works 15% slower."
-trait.chatty.desc,"Chatty: dishes it serves earn bigger tips (+30%) and it greets a little, but works 10% slower."
+trait.perfectionist.desc,"Perfectionist: drinks it serves make customers happier (+10), but it works 15% slower."
+trait.chatty.desc,"Chatty: drinks it serves earn bigger tips (+30%) and it greets a little, but works 10% slower."
 trait.kleptomaniac.desc,"Kleptomaniac: brings back 30% more raid loot, but may pocket 10 coins at night."
 ui.door_open,OPEN
 ui.door_closed,CLOSED
-error.counter_needed,The café needs at least one counter for finished dishes.
+error.counter_needed,The bar needs at least one counter for finished drinks.
 customer.seat_vibe,Vibe at their seat: %d (décor within 2 tiles)
 ui.card_rename_hint,Click the pencil to rename (Enter to save)
-ui.card_power_help,"Power is how hard this Synth hits in raids and defending the café. Power = species base × (1 + 15% per level above 1) + trait bonus (Night Owl +3). Each hit deals power × battery (×0.5 below 20%, nothing when empty) × a random 0.8–1.2. Bases: Clerkbot 6, Bulkform 14, Glitchling 8, Hypeform 5, Steady-unit 7, Xeno 10."
+ui.card_power_help,"Power is how hard this Synth hits in raids and defending the bar. Power = species base × (1 + 15% per level above 1) + trait bonus (Night Owl +3). Each hit deals power × battery (×0.5 below 20%, nothing when empty) × a random 0.8–1.2. Bases: Clerkbot 6, Bulkform 14, Glitchling 8, Hypeform 5, Steady-unit 7, Xeno 10."
 error.empty_name,A name can't be empty.
 error.name_too_long,That name is too long (20 letters at most).
 ui.pod_bay,SYNC POD BAY  %d / %d
-error.counter_busy,Dishes are on that counter — serve them first.
-ui.stove_waiting,That stove's batch is waiting for a server to carry it to a free counter.
+error.counter_busy,Drinks are on that counter — serve them first.
+ui.stove_waiting,That mixer's batch is waiting for a server to carry it to a free counter.
 ui.stove_ready,Ready ×%d
-tip.upgrade.counter,"One more counter (1x1, place it on the floor). Each counter holds one dish; servers carry finished batches to the closest free one."
+tip.upgrade.counter,"One more counter (1x1, place it on the floor). Each counter holds one drink; servers carry finished batches to the closest free one."
 customer.battery_max,Max battery as a Synth: %d
-error.nothing_to_throw,There is no food there to throw away.
+error.nothing_to_throw,There are no drinks there to throw away.
 error.no_bin,Place a bin on the floor first.
 error.batch_on_the_way,A server is already carrying that batch to a counter.
-tip.upgrade.bin,"One more bin (1x1, place it on the floor). Servers throw unwanted food into the nearest one."
+tip.upgrade.bin,"One more bin (1x1, place it on the floor). Servers throw unwanted drinks into the nearest one."
 ui.confirm_throw,Throw away %d × %s?
 ui.confirm_throw_details,"A server carries it all to the nearest bin. No refund. At night it happens first thing tomorrow."
 ui.confirm_throw_yes,Throw away
@@ -230,11 +230,11 @@ ui.auto_stopped_audit,Auto stopped: a Corporate Audit is coming tonight — plan
 ui.auto_low_energy,Low Energy: %d of the %d needed to fully recharge. Buy Energy at night.
 ui.auto_night_done,Auto: the night passed quietly (+%d district income).
 ui.auto_night_done_plain,Auto: the night passed quietly.
-error.seat_busy,A customer is sitting there — move it instead, or wait until they leave.
+error.seat_busy,"A customer is sitting there — move it instead, or wait until they leave."
 ui.shop_button,Menu
 ui.arrange_button,Arrange
 ui.shop_title,Menu
-ui.upgrades_title,Café upgrades
+ui.upgrades_title,Bar upgrades
 ui.coins_line,Coins: %d
 ui.energy_in_shop,"Buy Energy in the Menu (round button, bottom right) — at any time."
 tip.upgrade.table,"One more table (1x1). A seat works only right beside a table — one seat per table, and the seat turns to face it."
@@ -242,10 +242,10 @@ ui.seat_no_table,No table
 role.cashier,Cashier
 tip.role.cashier,"Works its register: customers pay there on the way out (speed), and its appeal brings customers in faster. No Cashier, no payments."
 tip.upgrade.register,"One more register (1x1). Each needs its own Cashier; customers pay at the first free one."
-error.register_needed,The café needs at least one register.
+error.register_needed,The bar needs at least one register.
 customer.stage_4,Paying at the register
 customer.stage_5,Finished: waiting at the table for room in the pay line
-ui.register_label,Register
+ui.register_label,Pay Terminal
 ui.card_core,"%s · best: %s · trait: %s"
 ui.card_hp,HP %d
 ui.details,Details
@@ -259,7 +259,7 @@ ui.tab_gear,Equipment
 ui.details_best_role,"Best role: %s"
 ui.details_role_now,"Now: %s"
 ui.details_speed,Speed %.2f
-ui.details_cook,Cooking +%d%%
+ui.details_cook,Mixing +%d%%
 ui.details_appeal,Appeal +%d%%
 ui.details_power,Power %d
 ui.details_hp,HP %d
@@ -270,10 +270,10 @@ info.title,Info
 info.tab_stats,Stats
 info.tab_roles,Roles
 info.tab_traits,Traits
-info.stat.speed,"Speed: how fast a Server carries dishes and batches, and how fast a Cashier takes payments. 1.0 is normal; +15% per level."
-info.stat.cook,"Cooking: as Chef, added to its own stove's cooking speed (+60% makes it 1.6× faster); +15% per level."
+info.stat.speed,"Speed: how fast a Server carries drinks and batches, and how fast a Cashier takes payments. 1.0 is normal; +15% per level."
+info.stat.cook,"Mixing: as Bartender, added to its own mixer's mixing speed (+60% makes it 1.6× faster); +15% per level."
 info.stat.appeal,"Appeal: as Cashier, customers arrive more often (+50% means 1.5× as many). Several Cashiers add up."
-info.stat.power,"Power: damage per hit in raids and when defending the café. Grows 15% per level; low battery halves it."
+info.stat.power,Power: damage per hit in raids and when defending the bar. Grows 15% per level; low battery halves it.
 info.stat.hp,"HP: how much damage a Synth takes before it's knocked out of a fight. +15% per level; Security adds HP at home."
 info.stat.battery,"Battery: drains every second on duty and charges every second resting in the Pod (free). Below 20% a Synth works and fights at 75%; empty, it still works at 50%. Max battery is rolled per unit (70–200). At closing everyone goes to their Pod and recharges fully at night (with Energy), then back to work in the morning."
 info.stat.level,"Level: XP comes from work (deliveries, batches, payments, greeting) and fights. Each level raises the stats that grow."
@@ -290,7 +290,7 @@ tier.legendary,Legendary
 item.swift_boots,Swift Boots
 item.charm_ring,Charm Ring
 item.spark_amulet,Spark Amulet
-item.plate_amulet,Plate Amulet
+item.plate_amulet,Coaster Amulet
 item.neon_cap,Neon Cap
 item.beanie,Beanie
 item.top_hat,Top Hat
@@ -335,7 +335,7 @@ ui.quests_title,Quests
 ui.quests_tab_daily,Daily
 ui.quests_tab_story,Story
 ui.quests_tab_achievements,Achievements
-ui.quests_daily_note,Three new daily quests every real-world day. Targets grow as your café does.
+ui.quests_daily_note,Three new daily quests every real-world day. Targets grow as your bar does.
 ui.quests_story_step,Step %d of %d
 ui.quests_story_done,"The story is done — the whole city is yours, for now."
 ui.quests_achievements_note,%d of %d claimed
@@ -352,11 +352,11 @@ quest.daily.earn,Earn %d coins
 quest.daily.stars,%d customers love it
 quest.daily.convert,Convert %d customer
 quest.daily.raid,Win %d raid
-quest.daily.batches,Cook %d batches
-quest.daily.vibe,Reach %d café Vibe
+quest.daily.batches,Mix %d batches
+quest.daily.vibe,Reach %d bar Vibe
 quest.daily.clean_day,Finish %d day with nobody leaving angry
 quest.story.first_conversion,Convert your first customer into a Synth
-quest.story.second_stove,Get a second stove on the floor
+quest.story.second_stove,Get a second mixer on the floor
 quest.story.first_decor,Place a piece of décor
 quest.story.first_raid,Win your first raid on MegaBean
 quest.story.take_alley,Take over the Alley
@@ -371,7 +371,7 @@ quest.ach.level_5,Raise a Synth to level 5
 quest.ach.level_10,Raise a Synth to level 10
 quest.ach.raids_10,Win 10 raids
 quest.ach.legendary,Own a Legendary piece
-quest.ach.vibe_500,Reach 500 café Vibe
+quest.ach.vibe_500,Reach 500 bar Vibe
 quest.ach.whole_city,Take over the whole city
 ui.shop_tab_furniture,Furniture
 ui.shop_tab_decor,Décor
@@ -384,11 +384,11 @@ ui.piece_owned,"placed %d · stored %d"
 ui.buy_place,Buy (%d)
 ui.buy_store,Store
 ui.stored,%s stored (%d in storage).
-tip.piece.stove,"Cooks one batch at a time, only while its Chef works there. Click it to pick a dish."
-tip.piece.counter,Holds one dish; servers carry finished batches to the closest free counter.
+tip.piece.stove,"Mixes one batch at a time, only while its Bartender works there. Click it to pick a drink."
+tip.piece.counter,Holds one drink; servers carry finished batches to the closest free counter.
 tip.piece.seat,A customer sits here — it needs its own table right beside it.
-tip.piece.table,"Where the dish is served and eaten; one seat per table."
-tip.piece.bin,Servers throw unwanted food into the nearest bin.
+tip.piece.table,Where the drink is served and drunk; one stool per table.
+tip.piece.bin,Servers throw unwanted drinks into the nearest bin.
 tip.piece.register,"Customers pay here on the way out; each needs its own Cashier."
 ui.bag_button,Bag
 ui.bag_title,Bag
@@ -408,13 +408,13 @@ ui.bottle_xp,+%d XP
 ui.workshop_note,Scrap and Chips come from won raids (Chips from a district's flagship). A crafted piece goes into your Bag.
 ui.slots_note,"Click a slot to wear a spare piece or take one off. Everything you own is in the Bag."
 ui.slot_nothing_spare,No spare pieces for this slot
-error.no_job_there,"No job there — click a stove (Chef), counter or table (Server), register (Cashier) or the Pod bay (Rest)."
+error.no_job_there,"No job there — click a mixer (Bartender), counter or table (Server), register (Cashier) or the Pod bay (Rest)."
 ui.card_job,Job: %s%s
-ui.card_job_help,"To change the job, click a place in the café: a stove (Chef), a counter, table or bin (Server), a register (Cashier) or the Pod bay (Rest). Click another worker to switch; click empty floor to close."
+ui.card_job_help,"To change the job, click a place in the bar: a mixer (Bartender), a counter, table or bin (Server), a register (Cashier) or the Pod bay (Rest). Click another worker to switch; click empty floor to close."
 ui.job_now,%s is now %s.
 ui.cook_cancel,"Cancel %s (refund %d coins)"
-customer.eating,Eating: %s
-error.not_cooking,That stove is not cooking.
+customer.eating,Drinking: %s
+error.not_cooking,That mixer is not mixing.
 ui.delete_save,Delete
 ui.save_unreadable,This save can't be read.
 ui.save_details,"Day %d · %s · %d coins · %d staff · saved %s"
@@ -424,27 +424,27 @@ ui.confirm_delete_save,Delete %s?
 ui.confirm_delete_save_details,The save and its backup are removed for good.
 ui.save_over,"Save to Slot %d (now: Day %d, %s)"
 info.tab_help,Help
-help.cooking,"Cooking: click a stove and pick a dish. A stove only cooks while its Chef works there. Click a cooking stove to cancel its batch (full refund) or swap it for another dish. Servers carry finished batches to a free counter (up to 999 servings each), then bring each seated customer the dish on the counter nearest them — that is what they pay for. New dishes come from the story, achievements, won raids and holding off MegaBean."
-help.jobs,"Jobs: click a worker, then a place — a stove (Chef), a counter, table or bin (Server), a register (Cashier) or the Pod bay (Rest). Click a worker in the café and then one resting in the Pod bay (or the other way round) to swap their places. A Chef stays at its stove until its dish is done. Click empty floor to close the card. Space pauses."
-help.converting,"Converting: click any customer — in line, seated, eating, paying or walking out — to spend NanoBrew: they become a Synth. You can catch them until they walk out of sight."
+help.cooking,"Mixing: click a mixer and pick a drink. A mixer only mixes while its Bartender works there. Click a busy mixer to cancel its batch (full refund) or swap it for another drink. Servers carry finished batches to a free counter (up to 999 glasses each), then bring each seated customer the drink on the counter nearest them — that is what they pay for. New drinks come from the story, achievements, won raids and holding off MegaBean."
+help.jobs,"Jobs: click a worker, then a place — a mixer (Bartender), a counter, table or bin (Server), a register (Cashier) or the Pod bay (Rest). Click a worker in the bar and then one resting in the Pod bay (or the other way round) to swap their places. A Bartender stays at its mixer until its drink is done. Click empty floor to close the card. Space pauses."
+help.converting,"Converting: click any customer — in line, seated, drinking, paying or walking out — to spend NanoBrew: they become a Synth. You can catch them until they walk out of sight."
 help.quests,"Quests: daily quests, the story and achievements. Today's dailies are listed at the top left — claim a finished one right there, or anything from the Quests button."
-help.shop,"Menu: the round button at the bottom right. Furniture (with Sync Pods: one per tile along the café's side), décor, café upgrades, Energy and the Workshop — any time, the café keeps running. Buy puts the piece in your hand; Store keeps it for later (place it from Arrange)."
-help.arrange,"Arrange: move, rotate, place and sell furniture and décor — any time. Cancel puts back what you hold. Select several to store or sell many at once; storing and selling ask first. Pieces in use (a cooking stove, a counter with food, an occupied seat) can be moved but not picked up."
+help.shop,"Menu: the round button at the bottom right. Furniture (with Sync Pods: one per tile along the bar's side), décor, bar upgrades, Energy and the Workshop — any time, the bar keeps running. Buy puts the piece in your hand; Store keeps it for later (place it from Arrange)."
+help.arrange,"Arrange: move, rotate, place and sell furniture and décor — any time. Cancel puts back what you hold. Select several to store or sell many at once; storing and selling ask first. Pieces in use (a busy mixer, a counter with drinks, an occupied seat) can be moved but not picked up."
 help.bag,"Bag: everything you own — equipment, fashion and EXP bottles. Take a piece off before selling it."
-help.resources,"Resources: Coins pay for dishes, upgrades and décor. NanoBrew converts a customer. Nano Cores (from raids) brew NanoBrew. Energy recharges the batteries of Synths resting in their Pod at closing (2 coins each). Suspicion brings MegaBean raids — and at 90, a Corporate Audit. Influence unlocks the district's flagship. The district (e.g. Alley) is the part of the city you are taking over."
-help.auto,"Auto: each night passes by itself — no raid, batteries recharged (for those in their Pod) with the Energy you have. It stops for a Corporate Audit, and MegaBean raids on the café still play out. It unlocks on day 3."
+help.resources,"Resources: Coins pay for drinks, upgrades and décor. NanoBrew converts a customer. Nano Cores (from raids) brew NanoBrew. Energy recharges the batteries of Synths resting in their Pod at closing (2 coins each). Suspicion brings MegaBean raids — and at 90, a Corporate Audit. Influence unlocks the district's flagship. The district (e.g. Alley) is the part of the city you are taking over."
+help.auto,"Auto: each night passes by itself — no raid, batteries recharged (for those in their Pod) with the Energy you have. It stops for a Corporate Audit, and MegaBean raids on the bar still play out. It unlocks on day 3."
 help.windows,"Windows: drag a worker's Details window by its title to move it. Click the pencil on a worker's card to rename it."
-ui.pod_row,"Sync Pod — room for one more Synth (%d / %d, max = café side)"
+ui.pod_row,"Sync Pod — room for one more Synth (%d / %d, max = bar side)"
 ui.buy_pod,Buy %d
-name.floor,Café level
-name.neon_noodles,Neon Noodles
-name.byte_burger,Byte Burger
-name.glitch_gelato,Glitch Gelato
-name.circuit_cake,Circuit Cake
-name.quantum_croissant,Quantum Croissant
-name.plasma_pho,Plasma Pho
-reward.dish,New dish: %s
-ui.report_dish,New dish unlocked: %s!
+name.floor,Bar level
+name.neon_noodles,Neon Negroni
+name.byte_burger,Byte Bitters
+name.glitch_gelato,Glitch Gimlet
+name.circuit_cake,Circuit Sour
+name.quantum_croissant,Quantum Sake
+name.plasma_pho,Plasma Punch
+reward.dish,New drink: %s
+ui.report_dish,New drink unlocked: %s!
 ui.edit_select,Select several
 ui.edit_selected,%d selected (click pieces to add or remove)
 ui.edit_store_selected,Store selected
@@ -455,7 +455,7 @@ ui.confirm_sell_coins,You get %d coins back.
 ui.decor_card,"%d Vibe · %s"
 ui.energy_card,%d Energy
 ui.pod_name,Sync Pod
-ui.pod_card,"Room for one more Synth in the Pod bay. %d / %d (max = café side)."
+ui.pod_card,Room for one more Synth in the Pod bay. %d / %d (max = bar side).
 ui.upgrade_card,Level %d / %d
 ui.craft_title_basic,Basic craft
 ui.craft_title_advanced,Advanced craft
@@ -470,22 +470,22 @@ ui.battle_entering,The defenders are coming out of the door...
 help.combat,"Combat (raids and defending) is auto-chess style on a grid. Set where each Synth stands in Night Ops → Battle formation (front row faces the enemy). In the fight everyone walks to the nearest enemy and attacks when in range; fragile units go for the weakest. Classes: Tank (Bulkform: tough, armoured), Fighter (Steady-unit), Ranged (Clerkbot, Hypeform, Xeno: hit from 3 tiles), Fragile (Glitchling: fast, hard-hitting, frail). Mana fills from attacking and being hit; full mana casts the species skill: Slam (stun nearby), Fortify (shield), Overtime (attack faster), Chain spark (hits 3), Cheer (heal), Beam (big hit)."
 error.blocks_door,Keep the door clear: nothing can stand on the tile just inside it.
 error.blocks_way,That would block the way: everything people walk up to must be reachable from the door.
-error.chef_cooking,"This Chef is still cooking at its stove — wait until the dish is done, or give it another job first."
+error.chef_cooking,"This Bartender is still mixing at its mixer — wait until the drink is done, or give it another job first."
 ui.swapped,"%s is now %s, %s is now %s."
 ui.warn_attackers,%d MegaBean fighters are coming.
 ui.warn_defenders,Defending: %s
-ui.warn_nobody,Nobody can defend (no battery): the café is defenceless!
+ui.warn_nobody,Nobody can defend (no battery): the bar is defenceless!
 ui.result_xp,+%d XP: %s
 ui.result_level, (level %d!)
 ui.workers_title,Workers (%d)
 error.raided_tonight,"You have raided tonight already: one raid a night."
 ui.ops_open_map,Open map
-ui.ops_map_hint,"Pick a MegaBean café on the district map, set your squad in front of it, and raid. One raid a night."
+ui.ops_map_hint,"Pick a MegaBean bar on the district map, set your squad in front of it, and raid. One raid a night."
 ui.ops_raided,You have raided tonight. End the night when you're ready.
 ui.map_title,"%s — Influence %d / %d"
 ui.map_owned,Taken: %s
-ui.map_hint,Pick a café to raid tonight.
-ui.map_home,Your café
+ui.map_hint,Pick a bar to raid tonight.
+ui.map_home,Your bar
 ui.map_flagship," ★ flagship"
 ui.map_guards,"%d guards · avg Lv %.1f"
 ui.map_loot,"Loot %d coins + %d cores"
@@ -507,9 +507,29 @@ class.fragile,Fragile
 ui.cook_throw,"Throw away the finished %d × %s"
 ui.cook_unqueue,"Take %s off the queue (refund %d coins)"
 ui.cook_queue_title,Queue next (%d / %d waiting)
-ui.cook_queue,"Queue %s — %d coins (%d servings, %ds)"
-ui.stove_has_chef,This stove already has its Chef (%s).
+ui.cook_queue,"Queue %s — %d coins (%d glasses, %ds)"
+ui.stove_has_chef,This mixer already has its Bartender (%s).
 ui.night_button,Night
 ui.ops_defenders,Defenders tonight
-ui.ops_defenders_help,"If MegaBean raids the café, these fight it (tanks stand nearest the door). Those who fight only get back half their missing battery tonight. The ones with the most battery are ticked at closing; a raider hands its tick to the next one."
+ui.ops_defenders_help,"If MegaBean raids the bar, these fight it (tanks stand nearest the door). Those who fight only get back half their missing battery tonight. The ones with the most battery are ticked at closing; a raider hands its tick to the next one."
 ui.ops_defender,"%s · %s · Lv %d · %d%%"
+name.coffee,Neon Shot
+name.toast,Static Fizz
+name.ramen,Chrome Ale
+name.star_jelly,Star Elixir
+name.seat,Bar Stool
+name.table,High Table
+name.stove,Mixer
+name.counter,Bar Counter
+name.bin,Recycler
+name.register,Pay Terminal
+name.potted_fern,Neon Fern
+name.bubble_lamp,Orb Lamp
+name.glass_pod_plant,Bio Pod
+name.beanbag,Lounge Pod
+name.led_sign,Neon Sign
+name.holo_menu,Holo Menu
+name.vending_shrine,Vending Machine
+name.koi_tank,Holo Aquarium
+name.neon_mural,Graffiti Wall
+name.zen_garden,DJ Booth

@@ -1,50 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- NanoBrew Café rig part: customers/office_worker/torso. Made by tools/art/character_parts.py from art/templates/chibi_office_worker_se.svg (canvas 256 x 440, feet at 128, 430). -->
-<svg xmlns="http://www.w3.org/2000/svg"
-     xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-     width="256" height="440" viewBox="0 0 256 440">
-  <defs>
-    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#ffe3c8"/>
-      <stop offset="1" stop-color="#f4b994"/>
-    </linearGradient>
-    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#6b4a3a"/>
-      <stop offset="1" stop-color="#3e2a22"/>
-    </linearGradient>
-    <linearGradient id="jacket" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#5a74c4"/>
-      <stop offset="1" stop-color="#2f3f7c"/>
-    </linearGradient>
-    <linearGradient id="trousers" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#3a3f5c"/>
-      <stop offset="1" stop-color="#23263a"/>
-    </linearGradient>
-    <linearGradient id="leather" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#9a6a44"/>
-      <stop offset="1" stop-color="#5e3d26"/>
-    </linearGradient>
-    <linearGradient id="visor" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#9ff3ff"/>
-      <stop offset="0.5" stop-color="#4fb3ff"/>
-      <stop offset="1" stop-color="#2a6fd6"/>
-    </linearGradient>
-    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#e3e8f2"/>
-      <stop offset="1" stop-color="#8d96ab"/>
-    </linearGradient>
-    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#4fb3ff" stop-opacity="0.55"/>
-      <stop offset="1" stop-color="#4fb3ff" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
-  <g inkscape:label="torso" stroke-linejoin="round">
-    <path d="M78,250 Q128,230 182,250 L196,346 Q128,364 62,346 Z" fill="url(#jacket)" stroke="#1e2852" stroke-width="4"/>
-    <!-- cel shadow under the arm and along the far side -->
-    <path d="M78,250 Q74,300 66,344 Q86,352 104,355 Q92,300 96,252 Z" fill="#1e2852" opacity="0.35"/>
-    <path d="M108,246 L128,292 L150,246 Q128,238 108,246 Z" fill="#f4f6fb" stroke="#b9c0d6" stroke-width="3"/>
-    <path d="M123,262 L134,262 L139,312 L128,326 L118,312 Z" fill="#e3485a" stroke="#9c2434" stroke-width="3"/>
-    <!-- neon rim light on the right edge -->
-    <path d="M184,262 L194,340" stroke="#38e1ff" stroke-width="5" stroke-linecap="round" opacity="0.75"/>
+<!-- NanoBrew Café rig part: customers/office_worker/torso. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
+  <defs><linearGradient id="top" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#474a5b"/><stop offset="1" stop-color="#1c202e"/></linearGradient><linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7d5bc"/><stop offset="1" stop-color="#e8bd9d"/></linearGradient></defs>
+  <g inkscape:label="torso" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M78,250 Q128,230 182,250 L196,346 Q128,364 62,346 Z" fill="url(#top)" stroke="#13151f" stroke-width="4"/>
+    <path d="M78,250 Q74,300 66,344 Q86,352 104,355 Q92,300 96,252 Z" fill="#11131c" opacity="0.35"/>
+    <path d="M108,246 L128,292 L150,246 Q128,238 108,246 Z" fill="#d9dde8" stroke="#8d96ab" stroke-width="3"/>
+    <path d="M123,262 L134,262 L139,312 L128,326 L118,312 Z" fill="#14111f" stroke="#0a0812" stroke-width="3"/>
+    <path d="M128,268 L128,316" fill="none" stroke="#19f0ff" stroke-width="9" stroke-opacity="0.35"/><path d="M128,268 L128,316" fill="none" stroke="#19f0ff" stroke-width="3"/>
+    <path d="M164,276 l14 0" stroke="#ff2fb4" stroke-width="5"/>
+    <path d="M184,262 L194,340" stroke="#19f0ff" stroke-width="5" opacity="0.75"/>
   </g>
 </svg>

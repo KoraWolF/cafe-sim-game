@@ -1,10 +1,9 @@
-"""Draws the customer types and Synth species beyond the template's office worker
-and Clerkbot, as rig parts in the art guide's style.
+"""Draws every customer type, Synth species and MegaBean look as rig parts, in
+the art guide's style: chibi cyborgs for a cyberpunk dive bar.
 
 Run:  python tools/art/characters_svg.py
-Writes art/characters/customers/<type>/<part>.svg for gym_fan, gamer, influencer,
-grandparent and alien_tourist, art/characters/synths/<species>/{glow,
-arm_front,visor}.svg for bulkform, glitchling, hypeform, steady_unit and xeno, and
+Writes art/characters/customers/<type>/<part>.svg for every customer type,
+art/characters/synths/<species>/{glow, arm_front, visor}.svg for every species, and
 art/characters/megabean/<class>/<part>.svg for MegaBean's staff, one look per
 combat class (fighter, tank, ranged, fragile).
 
@@ -13,12 +12,12 @@ the same joints (hips 128,340; neck 130,244; shoulders 72,262 and 190,262), so
 the shared rig (src/ui/character_art.gd) poses them all the same way. Body
 shapes follow art/templates/chibi_office_worker_se.svg; each type changes its
 clothes, hair, skin and prop, so they read apart by silhouette.
-Re-running overwrites these files (not the office worker or the Clerkbot).
+Re-running overwrites these files.
 """
 import os
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", "art", "characters"))
-RIM = "#38e1ff"
+RIM = "#19f0ff"
 
 
 def shade(hex_color, amount):
@@ -126,85 +125,125 @@ def faces(folder, eye, big):
           '<path d="M144,206 Q151,210 158,206" fill="none" stroke="#7a3b3b" stroke-width="4"/>'])
 
 
+MAGENTA = "#ff2fb4"
+CYAN = "#19f0ff"
+ACID = "#b6ff3b"
+AMBER = "#ffb03b"
+CHROME_LINE = "#2a3046"
+
+
+def led(points, color, width=4):
+    """An LED line (tattoo, trim): a soft halo and a bright core."""
+    return ('<path d="%s" fill="none" stroke="%s" stroke-width="%d" stroke-opacity="0.35"/>'
+            '<path d="%s" fill="none" stroke="%s" stroke-width="%d"/>' % (points, color, width * 3, points, color, width))
+
+
+def cheek_plate(color):
+    """A chrome plate on the right cheek with two LEDs."""
+    return ('<path d="M190,176 L214,170 L216,196 L196,204 Z" fill="url(#chrome)" stroke="%s" stroke-width="3"/>'
+            '<circle cx="203" cy="182" r="3" fill="%s"/><circle cx="208" cy="192" r="3" fill="%s"/>' % (CHROME_LINE, color, color))
+
+
+CHROME_DEF = grad("chrome", "#dfe6f2", 0.2, -0.35)
+
 CUSTOMERS = {
-    "gym_fan": {
-        "skin": "#d9976a", "top": "#e3485a", "bottom": "#3a3f5c", "shoes": "#f1f1f5", "bare_arms": True, "wide": 10, "shorts": True,
-        "torso_details": ['<path d="M100,244 Q128,280 156,244 Q128,238 100,244 Z" fill="url(#skin)" stroke="#a86a46" stroke-width="3"/>',
-                          '<path d="M92,300 L164,300" stroke="#ffffff" stroke-width="6" opacity="0.8"/>'],
-        "hair": ['<path d="M44,150 C40,90 90,58 140,58 C196,60 230,96 220,148 C200,124 160,116 124,118 C96,120 70,130 58,152 Z" fill="url(#hair)" stroke="#2a1b15" stroke-width="4"/>',
-                 '<path d="M44,128 Q130,92 222,124 L222,142 Q130,110 46,146 Z" fill="#e3485a" stroke="#9c2434" stroke-width="4"/>',
-                 '<path d="M150,70 C176,74 198,90 206,108" stroke="#a37a62" stroke-width="5" fill="none" opacity="0.6"/>'],
-        "hair_defs": [grad("hair", "#4a3226", 0.1, -0.3)],
-        "prop": ['<rect x="186" y="318" width="26" height="54" rx="10" fill="url(#bottle)" stroke="#1d6f86" stroke-width="4"/>',
-                 '<rect x="190" y="306" width="18" height="14" rx="4" fill="#f1f1f5" stroke="#8d96ab" stroke-width="3"/>',
-                 '<path d="M193,330 L193,360" stroke="#ffffff" stroke-width="4" opacity="0.7"/>'],
-        "prop_defs": [grad("bottle", "#4fd0ff", 0.25, -0.2)],
+    "office_worker": {  # corp drone: dark suit, LED tie, earpiece
+        "skin": "#f4c7a5", "top": "#262a3e", "bottom": "#1c1f2e", "shoes": "#14111f",
+        "torso_details": ['<path d="M108,246 L128,292 L150,246 Q128,238 108,246 Z" fill="#d9dde8" stroke="#8d96ab" stroke-width="3"/>',
+                          '<path d="M123,262 L134,262 L139,312 L128,326 L118,312 Z" fill="#14111f" stroke="#0a0812" stroke-width="3"/>',
+                          led("M128,268 L128,316", CYAN, 3),
+                          '<path d="M164,276 l14 0" stroke="%s" stroke-width="5"/>' % MAGENTA],
+        "hair": ['<path d="M38,162 C28,84 88,46 140,50 C200,54 234,98 222,152 C204,122 164,104 122,110 C96,114 72,128 62,166 Z" fill="url(#hair)" stroke="#0e0b17" stroke-width="4"/>',
+                 led("M150,62 C178,66 204,86 210,112", CYAN, 3),
+                 '<rect x="40" y="150" width="18" height="30" rx="6" fill="url(#chrome)" stroke="%s" stroke-width="3"/>' % CHROME_LINE,
+                 '<circle cx="49" cy="160" r="4" fill="%s"/>' % CYAN],
+        "hair_defs": [grad("hair", "#2a2438", 0.1, -0.3), CHROME_DEF],
+        "prop": ['<path d="M186,338 Q198,322 212,338" fill="none" stroke="#14111f" stroke-width="5"/>',
+                 '<rect x="170" y="340" width="60" height="44" rx="7" fill="url(#case)" stroke="#0a0812" stroke-width="4"/>',
+                 led("M176,362 L224,362", CYAN, 3)],
+        "prop_defs": [grad("case", "#3a3f5c", 0.15, -0.3)],
     },
-    "gamer": {
-        "skin": "#ffe0c7", "top": "#6a4fc4", "bottom": "#2c3046",
-        "torso_details": ['<path d="M84,254 Q128,212 176,254 Q128,280 84,254 Z" fill="#5a40ad" stroke="#33236e" stroke-width="4"/>',
-                          '<path d="M118,268 L114,300 M140,268 L144,300" stroke="#f1e4cc" stroke-width="4"/>',
-                          '<path d="M96,318 Q128,330 162,318 L158,344 Q128,350 100,344 Z" fill="#5a40ad" stroke="#33236e" stroke-width="3"/>'],
-        "hair": ['<path d="M38,162 C24,84 92,40 140,46 C204,50 238,100 222,156 C214,124 190,110 170,116 C176,100 160,92 150,104 C140,90 118,96 116,110 C92,108 70,124 62,166 Z" fill="url(#hair)" stroke="#16141f" stroke-width="4"/>',
-                 '<path d="M34,152 Q30,46 130,40 Q230,44 226,150" fill="none" stroke="#2a2e3f" stroke-width="12"/>',
-                 '<rect x="208" y="130" width="28" height="44" rx="12" fill="#2a2e3f" stroke="#16141f" stroke-width="4"/>',
-                 '<rect x="214" y="138" width="16" height="28" rx="6" fill="#9cff6b" opacity="0.85"/>',
-                 '<path d="M222,172 Q214,206 180,212" fill="none" stroke="#2a2e3f" stroke-width="6"/>',
-                 '<circle cx="178" cy="212" r="7" fill="#2a2e3f"/>'],
-        "hair_defs": [grad("hair", "#2f2a40", 0.15, -0.2)],
-        "prop": ['<rect x="166" y="326" width="66" height="34" rx="12" fill="#2a2e3f" stroke="#16141f" stroke-width="4"/>',
-                 '<rect x="184" y="332" width="30" height="22" rx="3" fill="#38e1ff"/>',
-                 '<circle cx="175" cy="343" r="5" fill="#ff4fd8"/><circle cx="223" cy="343" r="5" fill="#9cff6b"/>'],
+    "gym_fan": {  # street brawler: neon tank top, buzz cut, chrome jaw, energy can
+        "skin": "#c98a5e", "top": "#1f1a2e", "bottom": "#2b2f42", "shoes": "#ff2fb4", "bare_arms": True, "wide": 10, "shorts": True,
+        "torso_details": ['<path d="M100,244 Q128,280 156,244 Q128,238 100,244 Z" fill="url(#skin)" stroke="#8a5a3a" stroke-width="3"/>',
+                          led("M98,296 L128,282 L158,296 L128,322 Z", ACID, 4)],
+        "hair": ['<path d="M44,150 C40,90 90,58 140,58 C196,60 230,96 220,148 C200,124 160,116 124,118 C96,120 70,130 58,152 Z" fill="url(#hair)" stroke="#0e0b17" stroke-width="4"/>',
+                 led("M60,100 Q132,72 214,98", MAGENTA, 5),
+                 '<path d="M118,226 Q152,244 192,222 L196,236 Q152,258 114,240 Z" fill="url(#chrome)" stroke="%s" stroke-width="3"/>' % CHROME_LINE,
+                 '<path d="M76,180 l10 -6 l4 14 M84,196 l10 -4" stroke="%s" stroke-width="3" fill="none"/>' % MAGENTA],
+        "hair_defs": [grad("hair", "#2a2026", 0.1, -0.3), CHROME_DEF],
+        "prop": ['<rect x="184" y="318" width="28" height="48" rx="8" fill="url(#can)" stroke="#2a3046" stroke-width="4"/>',
+                 led("M188,334 L208,334", ACID, 3),
+                 '<ellipse cx="198" cy="318" rx="14" ry="5" fill="#c9d2e3" stroke="#2a3046" stroke-width="2"/>'],
+        "prop_defs": [grad("can", "#1f1a2e", 0.2, -0.2)],
     },
-    "influencer": {
-        "skin": "#e9b38c", "top": "#ff6fb5", "bottom": "#f1ecf7", "shoes": "#ff6fb5",
-        "torso_details": ['<path d="M104,246 L128,300 L152,246 Q128,238 104,246 Z" fill="#ffffff" stroke="#d6c8e0" stroke-width="3"/>',
-                          '<path d="M108,262 Q128,286 150,262" fill="none" stroke="#ffd36b" stroke-width="4"/>',
-                          '<circle cx="128" cy="282" r="6" fill="#ffd36b" stroke="#c9a03a" stroke-width="2"/>'],
-        "hair": ['<path d="M26,190 C2,110 54,36 132,34 C214,34 254,104 234,192 C226,168 214,146 196,122 C170,108 120,104 92,118 C70,130 50,160 46,206 Z" fill="url(#hair)" stroke="#b5643a" stroke-width="4"/>',
-                 '<path d="M30,180 Q20,240 52,264 Q46,222 56,190 Z M226,180 Q238,236 210,262 Q218,222 210,188 Z" fill="url(#hair)" stroke="#b5643a" stroke-width="4"/>',
-                 '<path d="M120,46 C170,44 206,66 222,96" stroke="#fff1c9" stroke-width="7" fill="none" opacity="0.7"/>',
-                 '<rect x="96" y="76" width="54" height="20" rx="9" fill="#2a2e3f" stroke="#16141f" stroke-width="3" transform="rotate(-8 123 86)"/>',
-                 '<rect x="156" y="70" width="54" height="20" rx="9" fill="#2a2e3f" stroke="#16141f" stroke-width="3" transform="rotate(8 183 80)"/>'],
-        "hair_defs": [grad("hair", "#ffc07a", 0.2, -0.25)],
-        "prop": ['<rect x="186" y="290" width="30" height="52" rx="7" fill="#2a2e3f" stroke="#16141f" stroke-width="4"/>',
+    "gamer": {  # netrunner: LED hoodie, headset, cyberdeck
+        "skin": "#ffe0c7", "top": "#2a2045", "bottom": "#1c1f2e",
+        "torso_details": ['<path d="M84,254 Q128,212 176,254 Q128,280 84,254 Z" fill="#221a3a" stroke="#120e22" stroke-width="4"/>',
+                          led("M118,268 L114,300 M140,268 L144,300", CYAN, 3),
+                          led("M82,330 L176,330", MAGENTA, 3),
+                          '<path d="M96,318 Q128,330 162,318 L158,344 Q128,350 100,344 Z" fill="#221a3a" stroke="#120e22" stroke-width="3"/>'],
+        "hair": ['<path d="M38,162 C24,84 92,40 140,46 C204,50 238,100 222,156 C214,124 190,110 170,116 C176,100 160,92 150,104 C140,90 118,96 116,110 C92,108 70,124 62,166 Z" fill="url(#hair)" stroke="#0e0b17" stroke-width="4"/>',
+                 '<path d="M150,60 l18 30 l-10 0 l14 24" fill="none" stroke="%s" stroke-width="5"/>' % CYAN,
+                 '<path d="M34,152 Q30,46 130,40 Q230,44 226,150" fill="none" stroke="#14111f" stroke-width="12"/>',
+                 '<rect x="208" y="130" width="28" height="44" rx="12" fill="#14111f" stroke="#0a0812" stroke-width="4"/>',
+                 '<rect x="214" y="138" width="16" height="28" rx="6" fill="%s"/>' % MAGENTA,
+                 '<path d="M222,172 Q214,206 180,212" fill="none" stroke="#14111f" stroke-width="6"/>',
+                 '<circle cx="178" cy="212" r="7" fill="%s"/>' % CYAN],
+        "hair_defs": [grad("hair", "#1f2a5a", 0.15, -0.2)],
+        "prop": ['<rect x="164" y="326" width="70" height="36" rx="8" fill="#14111f" stroke="#0a0812" stroke-width="4"/>',
+                 '<rect x="172" y="332" width="54" height="16" rx="3" fill="%s"/>' % CYAN,
+                 '<path d="M176,354 l8 0 m4 0 l8 0 m4 0 l8 0 m4 0 l8 0" stroke="#7a829c" stroke-width="4"/>'],
+    },
+    "influencer": {  # neon idol: two-tone hair, holo jacket, LED face tattoo, holo phone
+        "skin": "#e9b38c", "top": "#c9d2e3", "bottom": "#14111f", "shoes": "#19f0ff",
+        "torso_details": ['<path d="M104,246 L128,300 L152,246 Q128,238 104,246 Z" fill="#14111f" stroke="#0a0812" stroke-width="3"/>',
+                          '<path d="M82,262 L176,300 M78,304 L180,340" stroke="#ff2fb4" stroke-width="6" opacity="0.5"/>',
+                          '<path d="M86,286 L178,320" stroke="#19f0ff" stroke-width="6" opacity="0.5"/>',
+                          led("M108,262 Q128,286 150,262", MAGENTA, 3)],
+        "hair": ['<path d="M26,190 C2,110 54,36 132,34 C214,34 254,104 234,192 C226,168 214,146 196,122 C170,108 120,104 92,118 C70,130 50,160 46,206 Z" fill="url(#hairl)" stroke="#6a1a5a" stroke-width="4"/>',
+                 '<path d="M132,34 C214,34 254,104 234,192 C226,168 214,146 196,122 C176,110 150,104 132,106 Z" fill="url(#hairr)" stroke="#0a6f86" stroke-width="4"/>',
+                 '<path d="M30,180 Q20,240 52,264 Q46,222 56,190 Z" fill="url(#hairl)" stroke="#6a1a5a" stroke-width="4"/>',
+                 '<path d="M226,180 Q238,236 210,262 Q218,222 210,188 Z" fill="url(#hairr)" stroke="#0a6f86" stroke-width="4"/>',
+                 led("M196,182 l8 10 l-8 10", CYAN, 3), led("M92,200 l-10 6", MAGENTA, 3)],
+        "hair_defs": [grad("hairl", "#ff4fd8", 0.2, -0.2), grad("hairr", "#19f0ff", 0.2, -0.3)],
+        "prop": ['<rect x="186" y="290" width="30" height="52" rx="7" fill="#14111f" stroke="#0a0812" stroke-width="4"/>',
                  '<rect x="190" y="296" width="22" height="38" rx="3" fill="url(#screen)"/>',
-                 '<path d="M196,306 l10,0 M196,314 l6,0" stroke="#ffffff" stroke-width="3" opacity="0.8"/>'],
+                 '<path d="M170,262 L232,262 L216,294 L186,294 Z" fill="#19f0ff" opacity="0.25"/>'],
         "prop_defs": [grad("screen", "#ff4fd8", 0.3, -0.1)],
     },
-    "grandparent": {
-        "skin": "#f7d2bd", "top": "#8fb08a", "bottom": "#7a5a44", "shoes": "#5e3d26",
-        "torso_details": ['<path d="M108,246 L128,290 L148,246 Q128,238 108,246 Z" fill="#f4f0e6" stroke="#c9c0a8" stroke-width="3"/>',
-                          '<path d="M128,292 L128,350" stroke="#5e7a58" stroke-width="3"/>',
-                          '<circle cx="134" cy="306" r="5" fill="#f1e4cc" stroke="#8a7a5a" stroke-width="2"/>',
-                          '<circle cx="134" cy="326" r="5" fill="#f1e4cc" stroke="#8a7a5a" stroke-width="2"/>',
-                          '<path d="M80,280 L176,280" stroke="#a9c4a4" stroke-width="3" opacity="0.6"/>'],
-        "hair": ['<path d="M40,170 C30,96 86,62 138,62 C196,64 232,100 222,160 C212,130 178,112 134,112 C98,114 70,132 62,170 Z" fill="url(#hair)" stroke="#8d8aa3" stroke-width="4"/>',
-                 '<circle cx="132" cy="50" r="30" fill="url(#hair)" stroke="#8d8aa3" stroke-width="4"/>',
-                 '<circle cx="118" cy="166" r="24" fill="none" stroke="#6b4130" stroke-width="5"/>',
-                 '<circle cx="178" cy="164" r="25" fill="none" stroke="#6b4130" stroke-width="5"/>',
-                 '<path d="M142,164 L153,164" stroke="#6b4130" stroke-width="5"/>',
-                 '<path d="M110,150 L124,148" stroke="#ffffff" stroke-width="3" opacity="0.6"/>'],
-        "hair_defs": [grad("hair", "#e6e4ef", 0.2, -0.15)],
-        "prop": ['<path d="M206,330 L220,428" stroke="#6b4130" stroke-width="9"/>',
-                 '<path d="M190,334 Q196,310 214,318 Q222,322 220,336" fill="none" stroke="#6b4130" stroke-width="9"/>',
-                 '<path d="M208,340 L218,420" stroke="#a87a52" stroke-width="3" opacity="0.7"/>'],
+    "grandparent": {  # retro cyborg grandma: chrome bun, LED glasses, circuit cardigan, cane
+        "skin": "#f7d2bd", "top": "#3a4a5a", "bottom": "#2b2236", "shoes": "#14111f",
+        "torso_details": ['<path d="M108,246 L128,290 L148,246 Q128,238 108,246 Z" fill="#d9dde8" stroke="#8d96ab" stroke-width="3"/>',
+                          '<path d="M128,292 L128,350" stroke="#22303e" stroke-width="3"/>',
+                          '<circle cx="134" cy="306" r="5" fill="%s"/><circle cx="134" cy="326" r="5" fill="%s"/>' % (ACID, ACID),
+                          led("M84,286 L100,286 L106,300 L120,300", ACID, 2), led("M176,310 L160,310 L154,322", ACID, 2)],
+        "hair": ['<path d="M40,170 C30,96 86,62 138,62 C196,64 232,100 222,160 C212,130 178,112 134,112 C98,114 70,132 62,170 Z" fill="url(#hair)" stroke="#8d96ab" stroke-width="4"/>',
+                 '<circle cx="132" cy="50" r="30" fill="url(#chrome)" stroke="%s" stroke-width="4"/>' % CHROME_LINE,
+                 '<path d="M108,40 Q132,30 156,40" fill="none" stroke="%s" stroke-width="3"/>' % ACID,
+                 '<rect x="92" y="150" width="54" height="30" rx="10" fill="%s" opacity="0.35" stroke="%s" stroke-width="5"/>' % (ACID, "#2a3046"),
+                 '<rect x="152" y="148" width="56" height="32" rx="10" fill="%s" opacity="0.35" stroke="%s" stroke-width="5"/>' % (ACID, "#2a3046"),
+                 '<path d="M146,164 L152,164" stroke="#2a3046" stroke-width="5"/>'],
+        "hair_defs": [grad("hair", "#d9dde8", 0.2, -0.2), CHROME_DEF],
+        "prop": ['<path d="M206,330 L220,428" stroke="#2a3046" stroke-width="9"/>',
+                 '<path d="M190,334 Q196,310 214,318 Q222,322 220,336" fill="none" stroke="#2a3046" stroke-width="9"/>',
+                 '<circle cx="220" cy="428" r="8" fill="%s"/>' % ACID, led("M210,350 L218,412", ACID, 2)],
     },
-    "alien_tourist": {
-        "skin": "#b9a7f0", "top": "#3fa58f", "bottom": "#c9b48a", "shoes": "#f1e4cc", "shorts": True, "no_ears": True,
-        "eyes": "#1a2a4a", "big_eyes": True,
-        "torso_details": ['<path d="M108,246 L128,276 L148,246 Q128,238 108,246 Z" fill="#f1e4cc" stroke="#c9b48a" stroke-width="3"/>',
-                          '<circle cx="96" cy="292" r="10" fill="#ff8fa3"/><circle cx="160" cy="312" r="10" fill="#ffd36b"/>',
-                          '<circle cx="112" cy="334" r="8" fill="#ff8fa3"/><circle cx="170" cy="276" r="7" fill="#ffffff"/>',
-                          '<path d="M96,250 L178,326" stroke="#2a2e3f" stroke-width="5"/>'],
-        "hair": ['<path d="M96,74 Q80,30 64,18" fill="none" stroke="#9a86d8" stroke-width="7"/>',
-                 '<path d="M166,72 Q186,28 204,16" fill="none" stroke="#9a86d8" stroke-width="7"/>',
-                 '<circle cx="62" cy="16" r="12" fill="#3dffd0" stroke="#1d8f78" stroke-width="3"/>',
-                 '<circle cx="206" cy="14" r="12" fill="#3dffd0" stroke="#1d8f78" stroke-width="3"/>'],
-        "prop": ['<rect x="168" y="326" width="58" height="40" rx="8" fill="#2a2e3f" stroke="#16141f" stroke-width="4"/>',
-                 '<circle cx="197" cy="346" r="13" fill="#5a6a9a" stroke="#16141f" stroke-width="3"/>',
-                 '<circle cx="197" cy="346" r="6" fill="#9feaff"/>',
-                 '<rect x="174" y="318" width="16" height="10" rx="3" fill="#2a2e3f"/>'],
+    "alien_tourist": {  # off-world tourist: lavender skin, glowing antennae, flight jacket, holo camera
+        "skin": "#b9a7f0", "top": "#3a2a5a", "bottom": "#2b2f42", "shoes": "#c9d2e3", "shorts": True, "no_ears": True,
+        "eyes": "#0a1a3a", "big_eyes": True,
+        "torso_details": ['<path d="M108,246 L128,276 L148,246 Q128,238 108,246 Z" fill="#c9d2e3" stroke="#7a829c" stroke-width="3"/>',
+                          '<rect x="150" y="270" width="22" height="16" rx="3" fill="%s"/>' % AMBER,
+                          led("M84,320 L176,320", CYAN, 3),
+                          '<path d="M96,250 L178,326" stroke="#14111f" stroke-width="5"/>'],
+        "hair": ['<path d="M96,74 Q80,30 64,18" fill="none" stroke="#7a62c8" stroke-width="7"/>',
+                 '<path d="M166,72 Q186,28 204,16" fill="none" stroke="#7a62c8" stroke-width="7"/>',
+                 '<circle cx="62" cy="16" r="16" fill="%s" opacity="0.35"/><circle cx="62" cy="16" r="10" fill="%s"/>' % (MAGENTA, MAGENTA),
+                 '<circle cx="206" cy="14" r="16" fill="%s" opacity="0.35"/><circle cx="206" cy="14" r="10" fill="%s"/>' % (CYAN, CYAN)],
+        "prop": ['<rect x="168" y="326" width="58" height="40" rx="8" fill="#14111f" stroke="#0a0812" stroke-width="4"/>',
+                 '<circle cx="197" cy="346" r="13" fill="#2a3046" stroke="#0a0812" stroke-width="3"/>',
+                 '<circle cx="197" cy="346" r="6" fill="%s"/>' % MAGENTA,
+                 '<path d="M226,330 L250,316 L250,370 L226,356 Z" fill="%s" opacity="0.25"/>' % CYAN],
     },
 }
 
@@ -212,74 +251,68 @@ CUSTOMERS = {
 # --- a Synth species' tech parts --------------------------------------------
 def synth(species_id, color, arm, visor):
     folder = "synths/" + species_id
-    write(folder, "glow", ['<radialGradient id="glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="%s" stop-opacity="0.55"/>'
+    write(folder, "glow", ['<radialGradient id="glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="%s" stop-opacity="0.6"/>'
                            '<stop offset="1" stop-color="%s" stop-opacity="0"/></radialGradient>' % (color, color)],
           ['<ellipse cx="128" cy="300" rx="128" ry="150" fill="url(#glow)"/>'])
-    metal = grad("metal", "#c9cfdc", 0.3, -0.3)
+    metal = grad("metal", "#c9d2e3", 0.3, -0.4)
     write(folder, "arm_front", [metal, grad("lit", color, 0.3, -0.2)], arm)
     write(folder, "visor", [metal, grad("lit", color, 0.4, -0.25, horizontal=True)], visor)
 
 
+def mech_arm(color, extra=""):
+    """A chrome mechanical arm with a glowing elbow, piston lines and claw fingers."""
+    return ['<rect x="176" y="254" width="32" height="48" rx="8" fill="url(#metal)" stroke="#2a3046" stroke-width="4"/>',
+            '<path d="M182,264 L202,264 M182,276 L202,276" stroke="#2a3046" stroke-width="3"/>',
+            '<circle cx="192" cy="306" r="12" fill="url(#lit)" stroke="#2a3046" stroke-width="4"/>',
+            '<circle cx="192" cy="306" r="18" fill="%s" opacity="0.25"/>' % color,
+            '<rect x="181" y="308" width="24" height="36" rx="6" fill="url(#metal)" stroke="#2a3046" stroke-width="4"/>',
+            '<path d="M186,316 L186,336" stroke="%s" stroke-width="4"/>' % color,
+            '<path d="M182,344 l-6,14 M193,346 l0,16 M204,344 l6,14" stroke="#2a3046" stroke-width="6"/>',
+            '<path d="M204,262 L204,298" stroke="%s" stroke-width="3" opacity="0.9"/>' % CYAN] + ([extra] if extra else [])
+
+
+def jack(color):
+    """A chrome ear jack with a status LED (on the far side of the head)."""
+    return ('<rect x="40" y="148" width="22" height="34" rx="6" fill="url(#metal)" stroke="#2a3046" stroke-width="4"/>'
+            '<circle cx="51" cy="158" r="4" fill="%s"/>' % color)
+
+
 SYNTHS = {
-    "bulkform": ("#ff8a3d",
-        ['<rect x="172" y="250" width="40" height="52" rx="14" fill="url(#metal)" stroke="#5b647a" stroke-width="4"/>',
-         '<rect x="186" y="262" width="8" height="30" rx="4" fill="#ff8a3d"/>',
-         '<circle cx="192" cy="306" r="13" fill="url(#lit)" stroke="#a8541f" stroke-width="4"/>',
-         '<rect x="178" y="308" width="30" height="34" rx="9" fill="url(#metal)" stroke="#5b647a" stroke-width="4"/>',
-         '<rect x="170" y="336" width="46" height="30" rx="12" fill="url(#metal)" stroke="#5b647a" stroke-width="4"/>',
-         '<path d="M178,344 L208,344 M178,354 L208,354" stroke="#8d96ab" stroke-width="4"/>',
-         '<path d="M208,262 L210,334" stroke="#38e1ff" stroke-width="3" opacity="0.9"/>'],
-        ['<path d="M70,150 Q130,132 214,146 L214,166 Q130,152 70,170 Z" fill="url(#lit)" stroke="#a8541f" stroke-width="4"/>',
-         '<path d="M100,152 L150,146" stroke="#ffffff" stroke-width="4" opacity="0.8"/>',
-         '<path d="M112,214 Q150,236 192,212 L196,228 Q150,252 110,230 Z" fill="url(#metal)" stroke="#5b647a" stroke-width="4"/>',
-         '<path d="M128,226 l0,10 M146,230 l0,10 M164,228 l0,10" stroke="#5b647a" stroke-width="3"/>',
-         '<rect x="44" y="150" width="20" height="30" rx="6" fill="url(#metal)" stroke="#5b647a" stroke-width="4"/>']),
-    "glitchling": ("#c46bff",
-        ['<rect x="180" y="256" width="24" height="44" rx="10" fill="url(#metal)" stroke="#5b647a" stroke-width="4"/>',
-         '<path d="M182,270 Q196,278 202,268 M182,286 Q196,294 202,284" stroke="#c46bff" stroke-width="4" fill="none"/>',
-         '<circle cx="192" cy="304" r="10" fill="url(#lit)" stroke="#7a3aa8" stroke-width="4"/>',
-         '<rect x="183" y="306" width="20" height="34" rx="8" fill="url(#metal)" stroke="#5b647a" stroke-width="4"/>',
-         '<path d="M184,342 l-4,12 M193,344 l0,14 M202,342 l4,12" stroke="#c46bff" stroke-width="5"/>',
-         '<path d="M200,262 L200,296" stroke="#38e1ff" stroke-width="3" opacity="0.9"/>'],
-        ['<rect x="80" y="134" width="138" height="58" rx="16" fill="#1a1428" stroke="#7a3aa8" stroke-width="4"/>',
+    "clerkbot": ("#4fb3ff", mech_arm("#4fb3ff"),
+        ['<rect x="84" y="140" width="130" height="44" rx="12" fill="url(#lit)" stroke="#123a7a" stroke-width="4"/>',
+         '<path d="M96,152 L150,152" stroke="#ffffff" stroke-width="5" opacity="0.8"/>',
+         '<path d="M84,184 L60,196 M214,184 L226,198" stroke="#2a3046" stroke-width="5"/>', jack("#4fb3ff")]),
+    "bulkform": ("#ff8a3d", mech_arm("#ff8a3d", '<rect x="166" y="334" width="52" height="34" rx="10" fill="url(#metal)" stroke="#2a3046" stroke-width="4"/>'),
+        ['<path d="M70,150 Q130,132 214,146 L214,166 Q130,152 70,170 Z" fill="url(#lit)" stroke="#8a3a10" stroke-width="4"/>',
+         '<path d="M112,214 Q150,236 192,212 L196,230 Q150,254 110,232 Z" fill="url(#metal)" stroke="#2a3046" stroke-width="4"/>',
+         '<path d="M128,226 l0,12 M146,230 l0,12 M164,228 l0,12" stroke="#2a3046" stroke-width="3"/>', jack("#ff8a3d")]),
+    "glitchling": ("#c46bff", mech_arm("#c46bff"),
+        ['<rect x="80" y="134" width="138" height="58" rx="12" fill="#0a0812" stroke="#5a1f8a" stroke-width="4"/>',
          '<rect x="104" y="150" width="18" height="18" fill="#c46bff"/><rect x="170" y="150" width="18" height="18" fill="#c46bff"/>',
-         '<rect x="88" y="174" width="40" height="5" fill="#38e1ff" opacity="0.8"/><rect x="150" y="142" width="56" height="4" fill="#ff4fd8" opacity="0.7"/>',
-         '<rect x="44" y="150" width="20" height="30" rx="6" fill="url(#metal)" stroke="#5b647a" stroke-width="4"/>']),
-    "hypeform": ("#ff4fd8",
-        ['<rect x="178" y="256" width="28" height="44" rx="10" fill="url(#metal)" stroke="#5b647a" stroke-width="4"/>',
-         '<circle cx="192" cy="304" r="11" fill="url(#lit)" stroke="#a82a8c" stroke-width="4"/>',
-         '<rect x="182" y="306" width="22" height="34" rx="8" fill="url(#metal)" stroke="#5b647a" stroke-width="4"/>',
-         '<circle cx="193" cy="352" r="18" fill="none" stroke="#ffd9f4" stroke-width="7"/>',
-         '<circle cx="193" cy="352" r="18" fill="none" stroke="#ff4fd8" stroke-width="3"/>',
-         '<path d="M200,262 L200,296" stroke="#38e1ff" stroke-width="3" opacity="0.9"/>'],
-        ['<path d="M86,160 C86,138 118,136 122,156 C126,136 156,138 152,162 C150,180 122,192 118,196 C112,190 86,178 86,160 Z" fill="url(#lit)" stroke="#a82a8c" stroke-width="4"/>',
-         '<path d="M148,160 C148,138 180,136 184,156 C188,136 218,138 214,162 C212,180 184,192 180,196 C174,190 148,178 148,160 Z" fill="url(#lit)" stroke="#a82a8c" stroke-width="4"/>',
-         '<path d="M146,158 L154,158" stroke="#a82a8c" stroke-width="5"/>',
-         '<path d="M98,150 L110,146" stroke="#ffffff" stroke-width="4" opacity="0.8"/>']),
-    "steady_unit": ("#9cff6b",
-        ['<rect x="176" y="256" width="32" height="46" rx="14" fill="url(#metal)" stroke="#5b647a" stroke-width="4"/>',
-         '<circle cx="192" cy="306" r="14" fill="url(#lit)" stroke="#4f8a2f" stroke-width="4"/>',
-         '<rect x="180" y="310" width="26" height="32" rx="12" fill="url(#metal)" stroke="#5b647a" stroke-width="4"/>',
-         '<circle cx="193" cy="350" r="15" fill="url(#metal)" stroke="#5b647a" stroke-width="4"/>',
-         '<path d="M202,262 L202,296" stroke="#38e1ff" stroke-width="3" opacity="0.9"/>'],
-        ['<circle cx="178" cy="164" r="28" fill="url(#lit)" stroke="#4f8a2f" stroke-width="5" opacity="0.55"/>',
-         '<circle cx="178" cy="164" r="28" fill="none" stroke="#5b647a" stroke-width="6"/>',
-         '<path d="M206,160 L226,140" stroke="#5b647a" stroke-width="5"/>',
-         '<path d="M226,140 L226,104" stroke="#8d96ab" stroke-width="4"/><circle cx="226" cy="100" r="7" fill="#9cff6b"/>',
-         '<rect x="44" y="150" width="20" height="30" rx="6" fill="url(#metal)" stroke="#5b647a" stroke-width="4"/>']),
-    "xeno": ("#3dffd0",
-        ['<path d="M188,256 Q206,276 192,300 Q178,322 196,342" fill="none" stroke="#5b647a" stroke-width="26"/>',
-         '<path d="M188,256 Q206,276 192,300 Q178,322 196,342" fill="none" stroke="url(#metal)" stroke-width="18"/>',
-         '<circle cx="196" cy="270" r="6" fill="#3dffd0"/><circle cx="188" cy="306" r="6" fill="#3dffd0"/><circle cx="190" cy="334" r="6" fill="#3dffd0"/>',
-         '<path d="M196,344 l-8,16 M196,346 l2,18 M198,344 l10,14" stroke="#5b647a" stroke-width="6"/>'],
-        ['<path d="M62,120 Q130,92 210,118 L204,132 Q130,108 68,134 Z" fill="url(#metal)" stroke="#5b647a" stroke-width="4"/>',
-         '<path d="M130,108 L118,74 L130,60 L142,74 Z" fill="url(#lit)" stroke="#1d8f78" stroke-width="4"/>',
-         '<path d="M96,118 L88,96 L100,92 Z M164,116 L172,94 L160,90 Z" fill="url(#lit)" stroke="#1d8f78" stroke-width="3"/>']),
+         '<rect x="88" y="174" width="40" height="5" fill="#19f0ff"/><rect x="150" y="142" width="56" height="4" fill="#ff2fb4"/>',
+         '<path d="M60,120 Q40,80 70,60 M200,110 Q230,80 214,52" fill="none" stroke="#2a3046" stroke-width="6"/>', jack("#c46bff")]),
+    "hypeform": ("#ff4fd8", mech_arm("#ff4fd8", '<circle cx="193" cy="352" r="20" fill="none" stroke="#ff4fd8" stroke-width="6"/>'),
+        ['<path d="M86,160 C86,138 118,136 122,156 C126,136 156,138 152,162 C150,180 122,192 118,196 C112,190 86,178 86,160 Z" fill="url(#lit)" stroke="#8a1a6a" stroke-width="4"/>',
+         '<path d="M148,160 C148,138 180,136 184,156 C188,136 218,138 214,162 C212,180 184,192 180,196 C174,190 148,178 148,160 Z" fill="url(#lit)" stroke="#8a1a6a" stroke-width="4"/>',
+         '<path d="M146,158 L154,158" stroke="#8a1a6a" stroke-width="5"/>',
+         '<path d="M190,200 l14 6 l-4 14" fill="none" stroke="#19f0ff" stroke-width="4"/>', jack("#ff4fd8")]),
+    "steady_unit": ("#9cff6b", mech_arm("#9cff6b"),
+        ['<circle cx="178" cy="164" r="30" fill="url(#lit)" stroke="#2a3046" stroke-width="6" opacity="0.9"/>',
+         '<circle cx="178" cy="164" r="12" fill="#14111f"/><circle cx="178" cy="164" r="5" fill="#9cff6b"/>',
+         '<path d="M208,160 L228,140 L228,100" fill="none" stroke="#2a3046" stroke-width="5"/><circle cx="228" cy="96" r="8" fill="#9cff6b"/>',
+         '<path d="M96,186 L120,180 L124,200 L100,206 Z" fill="url(#metal)" stroke="#2a3046" stroke-width="3"/>', jack("#9cff6b")]),
+    "xeno": ("#3dffd0", ['<path d="M188,256 Q206,276 192,300 Q178,322 196,342" fill="none" stroke="#2a3046" stroke-width="26"/>',
+                        '<path d="M188,256 Q206,276 192,300 Q178,322 196,342" fill="none" stroke="url(#metal)" stroke-width="18"/>',
+                        '<circle cx="196" cy="270" r="6" fill="#3dffd0"/><circle cx="188" cy="306" r="6" fill="#3dffd0"/><circle cx="190" cy="334" r="6" fill="#3dffd0"/>',
+                        '<path d="M196,344 l-8,16 M196,346 l2,18 M198,344 l10,14" stroke="#2a3046" stroke-width="6"/>'],
+        ['<path d="M62,120 Q130,92 210,118 L204,134 Q130,108 68,136 Z" fill="url(#metal)" stroke="#2a3046" stroke-width="4"/>',
+         '<path d="M130,108 L118,74 L130,60 L142,74 Z" fill="url(#lit)" stroke="#0a6f5a" stroke-width="4"/>',
+         '<path d="M96,118 L88,96 L100,92 Z M164,116 L172,94 L160,90 Z" fill="url(#lit)" stroke="#0a6f5a" stroke-width="3"/>']),
 }
 
 
-# --- MegaBean staff: corporate charcoal, coffee brown and red ties --------------
-BEAN = ('<ellipse cx="%d" cy="%d" rx="9" ry="12" fill="#6b4a2f" stroke="#f1e4cc" stroke-width="3" transform="rotate(25 %d %d)"/>'
+# --- MegaBean staff: corporate black and red enforcers, with the bean logo -------
+BEAN = ('<ellipse cx="%d" cy="%d" rx="9" ry="12" fill="#d62f45" stroke="#f1e4cc" stroke-width="3" transform="rotate(25 %d %d)"/>'
         '<path d="M%d,%d q4,8 0,16" fill="none" stroke="#f1e4cc" stroke-width="2"/>')
 
 
@@ -287,60 +320,59 @@ def bean(x, y):
     return BEAN % (x, y, x, y, x - 1, y - 8)
 
 
+RED = "#d62f45"
+VISOR = '<rect x="86" y="146" width="130" height="30" rx="10" fill="#0a0812" stroke="#2a3046" stroke-width="4"/>' \
+        '<rect x="96" y="156" width="110" height="8" rx="4" fill="#d62f45"/>' \
+        '<rect x="96" y="156" width="110" height="8" rx="4" fill="none" stroke="#d62f45" stroke-width="10" stroke-opacity="0.3"/>'
+
 STAFF = {
-    "fighter": {  # security
-        "skin": "#e8b48f", "top": "#2b2d3a", "bottom": "#23263a",
-        "torso_details": ['<path d="M108,246 L128,292 L150,246 Q128,238 108,246 Z" fill="#f4f6fb" stroke="#b9c0d6" stroke-width="3"/>',
-                          '<path d="M123,262 L134,262 L139,312 L128,326 L118,312 Z" fill="#e3485a" stroke="#9c2434" stroke-width="3"/>',
-                          bean(164, 282)],
-        "hair": ['<path d="M40,150 C34,92 86,56 136,56 C192,58 228,92 222,146 C206,120 166,108 126,110 C96,112 70,126 60,152 Z" fill="#2a1b15" stroke="#16100c" stroke-width="4"/>',
-                 '<path d="M40,124 C40,64 92,40 134,40 C186,40 226,66 226,122 Z" fill="#6b4a2f" stroke="#3e2a1c" stroke-width="4"/>',
-                 '<path d="M150,118 Q210,112 250,128 Q212,140 150,132 Z" fill="#5a3b26" stroke="#3e2a1c" stroke-width="4"/>',
-                 bean(132, 80)],
-        "prop": ['<path d="M200,334 L222,276" stroke="#2a2e3f" stroke-width="12"/>',
-                 '<path d="M219,284 L226,264" stroke="#e3485a" stroke-width="12"/>',
-                 '<circle cx="227" cy="262" r="7" fill="#ffd36b" opacity="0.9"/>'],
+    "fighter": {  # enforcer with a shock baton
+        "skin": "#e8b48f", "top": "#16141c", "bottom": "#16141c", "shoes": "#0a0812",
+        "torso_details": ['<path d="M96,256 L160,256 L166,300 L90,300 Z" fill="#2a2834" stroke="#0a0812" stroke-width="3"/>',
+                          led("M90,300 L166,300", RED, 3), bean(128, 278)],
+        "hair": ['<path d="M40,150 C34,92 86,56 136,56 C192,58 228,92 222,146 C206,120 166,108 126,110 C96,112 70,126 60,152 Z" fill="#14111f" stroke="#0a0812" stroke-width="4"/>',
+                 VISOR],
+        "prop": ['<path d="M200,334 L222,276" stroke="#2a2834" stroke-width="12"/>',
+                 '<path d="M219,284 L226,264" stroke="%s" stroke-width="12"/>' % CYAN,
+                 '<path d="M226,262 l8,-10 l-4,10 l8,-6" fill="none" stroke="%s" stroke-width="3"/>' % CYAN],
     },
-    "tank": {  # bouncer with a riot shield
-        "skin": "#a8714a", "top": "#3e2a22", "bottom": "#23263a", "wide": 16,
-        "torso_details": ['<path d="M112,246 L128,272 L144,246 Q128,240 112,246 Z" fill="#2b2d3a"/>',
-                          '<path d="M86,300 L172,300" stroke="#6b4a2f" stroke-width="10"/>', bean(128, 300)],
-        "hair": ['<path d="M48,130 C52,84 96,64 134,64 C178,64 214,86 216,128 C196,112 164,104 132,104 C100,104 72,112 48,130 Z" fill="#1c1410" stroke="#0e0a08" stroke-width="4"/>',
-                 '<rect x="88" y="146" width="126" height="34" rx="12" fill="#16141f" stroke="#0a0910" stroke-width="4"/>',
-                 '<path d="M100,154 L140,154" stroke="#5a6a9a" stroke-width="5" opacity="0.8"/>',
-                 '<path d="M54,170 Q46,200 70,214" fill="none" stroke="#2a2e3f" stroke-width="4"/>',
-                 '<rect x="46" y="158" width="14" height="20" rx="5" fill="#2a2e3f"/>'],
-        "prop": ['<rect x="166" y="244" width="74" height="132" rx="16" fill="url(#shield)" stroke="#2a2e3f" stroke-width="5"/>',
-                 '<rect x="176" y="256" width="54" height="40" rx="6" fill="#9feaff" opacity="0.4"/>',
-                 bean(203, 330).replace('rx="9" ry="12"', 'rx="16" ry="21"')],
-        "prop_defs": [grad("shield", "#5a6a8a", 0.25, -0.25)],
+    "tank": {  # riot cyborg with a heavy shield
+        "skin": "#a8714a", "top": "#16141c", "bottom": "#16141c", "wide": 16,
+        "torso_details": ['<path d="M80,256 L178,256 L184,330 L74,330 Z" fill="url(#armor)" stroke="#0a0812" stroke-width="4"/>',
+                          led("M86,300 L172,300", RED, 4), bean(128, 278)],
+        "torso_defs": [grad("armor", "#3a3846", 0.15, -0.3)],
+        "hair": ['<path d="M42,140 C42,74 92,48 134,48 C182,48 224,74 222,140 Z" fill="url(#helm)" stroke="#0a0812" stroke-width="4"/>',
+                 VISOR],
+        "hair_defs": [grad("helm", "#3a3846", 0.2, -0.3)],
+        "prop": ['<rect x="166" y="244" width="76" height="134" rx="14" fill="url(#shield)" stroke="#0a0812" stroke-width="5"/>',
+                 '<rect x="176" y="256" width="56" height="40" rx="6" fill="#19f0ff" opacity="0.25"/>',
+                 led("M172,318 L236,318", RED, 4),
+                 bean(204, 346).replace('rx="9" ry="12"', 'rx="14" ry="18"')],
+        "prop_defs": [grad("shield", "#2a2834", 0.25, -0.25)],
     },
-    "ranged": {  # barista with an espresso blaster
-        "skin": "#f2c9a8", "top": "#f1e4cc", "bottom": "#2b2d3a", "sleeve": "#f1e4cc",
-        "torso_details": ['<path d="M88,262 L168,262 L176,350 Q128,362 80,350 Z" fill="#6b4a2f" stroke="#3e2a1c" stroke-width="4"/>',
-                          '<path d="M100,262 Q128,236 156,262" fill="none" stroke="#6b4a2f" stroke-width="6"/>',
-                          '<path d="M110,306 L146,306 L144,330 L112,330 Z" fill="#5a3b26" stroke="#3e2a1c" stroke-width="3"/>',
-                          bean(128, 286)],
-        "hair": ['<path d="M42,160 C34,92 88,58 138,58 C194,60 230,96 222,150 C204,124 164,110 124,112 C96,114 72,128 62,160 Z" fill="#7a4a2a" stroke="#3e2410" stroke-width="4"/>',
-                 '<path d="M44,124 Q134,96 222,120 L222,136 Q134,110 44,140 Z" fill="#6b4a2f" stroke="#3e2a1c" stroke-width="4"/>',
-                 '<path d="M150,128 Q212,124 248,140 Q210,150 150,142 Z" fill="#5a3b26" stroke="#3e2a1c" stroke-width="4"/>'],
-        "prop": ['<rect x="178" y="322" width="54" height="30" rx="8" fill="#2b2d3a" stroke="#16141f" stroke-width="4"/>',
-                 '<path d="M224,326 L246,318 L246,340 L224,346 Z" fill="#6b4a2f" stroke="#3e2a1c" stroke-width="4"/>',
-                 '<rect x="186" y="350" width="14" height="22" rx="4" fill="#2b2d3a"/>',
-                 '<circle cx="200" cy="337" r="6" fill="#ff8a3d"/>'],
+    "ranged": {  # gunner with a caffeine rifle
+        "skin": "#f2c9a8", "top": "#16141c", "bottom": "#16141c",
+        "torso_details": ['<path d="M100,250 L156,330" stroke="%s" stroke-width="8"/>' % RED, bean(108, 300)],
+        "hair": ['<path d="M42,160 C34,92 88,58 138,58 C194,60 230,96 222,150 C204,124 164,110 124,112 C96,114 72,128 62,160 Z" fill="#d62f45" stroke="#6a1020" stroke-width="4"/>',
+                 '<rect x="160" y="150" width="50" height="26" rx="8" fill="#0a0812" stroke="#2a3046" stroke-width="3"/>',
+                 '<circle cx="186" cy="163" r="8" fill="%s"/>' % RED],
+        "prop": ['<rect x="168" y="324" width="72" height="22" rx="6" fill="#2a2834" stroke="#0a0812" stroke-width="4"/>',
+                 '<rect x="236" y="328" width="18" height="12" rx="3" fill="#0a0812"/>',
+                 '<rect x="180" y="344" width="14" height="22" rx="4" fill="#2a2834"/>',
+                 led("M176,330 L226,330", RED, 3)],
     },
-    "fragile": {  # intern
-        "skin": "#ffe0c7", "top": "#f4f6fb", "bottom": "#3a3f5c",
-        "torso_details": ['<path d="M108,246 Q128,262 150,246" fill="none" stroke="#c9cfdc" stroke-width="4"/>',
-                          '<path d="M104,250 L124,312 M154,250 L134,312" stroke="#e3485a" stroke-width="5"/>',
-                          '<rect x="114" y="308" width="30" height="36" rx="4" fill="#ffffff" stroke="#8d96ab" stroke-width="3"/>',
-                          '<rect x="120" y="314" width="18" height="10" fill="#6b4a2f"/><path d="M120,332 l18,0" stroke="#8d96ab" stroke-width="3"/>'],
-        "hair": ['<path d="M36,166 C22,90 84,44 140,48 C202,52 240,100 222,160 C214,130 196,116 180,122 C186,104 168,96 158,110 C150,94 128,98 124,112 C98,110 72,126 62,166 Z" fill="#e0a85a" stroke="#9a6a2a" stroke-width="4"/>',
-                 '<path d="M126,50 Q120,30 136,24 M150,52 Q160,30 176,34" fill="none" stroke="#9a6a2a" stroke-width="5"/>'],
-        "prop": ['<rect x="176" y="300" width="50" height="64" rx="5" fill="#b07a50" stroke="#6b4130" stroke-width="4"/>',
-                 '<rect x="184" y="312" width="34" height="46" fill="#ffffff"/>',
-                 '<rect x="192" y="294" width="18" height="12" rx="3" fill="#8d96ab" stroke="#5b647a" stroke-width="2"/>',
-                 '<path d="M190,324 l22,0 M190,334 l22,0 M190,344 l14,0" stroke="#8d96ab" stroke-width="3"/>'],
+    "fragile": {  # corporate hacker intern with a holo tablet
+        "skin": "#ffe0c7", "top": "#2a2834", "bottom": "#16141c",
+        "torso_details": ['<path d="M104,250 L124,312 M154,250 L134,312" stroke="%s" stroke-width="5"/>' % RED,
+                          '<rect x="114" y="308" width="30" height="36" rx="4" fill="#f4f6fb" stroke="#8d96ab" stroke-width="3"/>',
+                          '<rect x="120" y="314" width="18" height="10" fill="%s"/>' % RED],
+        "hair": ['<path d="M36,166 C22,90 84,44 140,48 C202,52 240,100 222,160 C214,130 196,116 180,122 C186,104 168,96 158,110 C150,94 128,98 124,112 C98,110 72,126 62,166 Z" fill="#e0e4ee" stroke="#8d96ab" stroke-width="4"/>',
+                 '<path d="M90,150 L210,150" stroke="#0a0812" stroke-width="4"/>',
+                 '<circle cx="118" cy="166" r="22" fill="none" stroke="#0a0812" stroke-width="5"/>',
+                 '<circle cx="178" cy="164" r="22" fill="none" stroke="#0a0812" stroke-width="5"/>'],
+        "prop": ['<rect x="174" y="302" width="54" height="62" rx="6" fill="#14111f" stroke="#0a0812" stroke-width="4"/>',
+                 '<rect x="180" y="308" width="42" height="50" rx="3" fill="%s" opacity="0.85"/>' % RED,
+                 '<path d="M186,320 l28,0 M186,332 l20,0 M186,344 l26,0" stroke="#ffffff" stroke-width="3" opacity="0.8"/>'],
     },
 }
 

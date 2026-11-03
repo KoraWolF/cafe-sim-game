@@ -3,7 +3,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
   <defs></defs>
   <g inkscape:label="hair" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M36,166 C22,90 84,44 140,48 C202,52 240,100 222,160 C214,130 196,116 180,122 C186,104 168,96 158,110 C150,94 128,98 124,112 C98,110 72,126 62,166 Z" fill="#e0a85a" stroke="#9a6a2a" stroke-width="4"/>
-    <path d="M126,50 Q120,30 136,24 M150,52 Q160,30 176,34" fill="none" stroke="#9a6a2a" stroke-width="5"/>
+    <path d="M36,166 C22,90 84,44 140,48 C202,52 240,100 222,160 C214,130 196,116 180,122 C186,104 168,96 158,110 C150,94 128,98 124,112 C98,110 72,126 62,166 Z" fill="#e0e4ee" stroke="#8d96ab" stroke-width="4"/>
+    <path d="M90,150 L210,150" stroke="#0a0812" stroke-width="4"/>
+    <circle cx="118" cy="166" r="22" fill="none" stroke="#0a0812" stroke-width="5"/>
+    <circle cx="178" cy="164" r="22" fill="none" stroke="#0a0812" stroke-width="5"/>
   </g>
 </svg>

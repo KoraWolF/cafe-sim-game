@@ -1,42 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- NanoBrew Café: zen_garden. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="800" height="606" viewBox="0 0 800 606">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="800" height="676" viewBox="0 0 800 676">
   <defs>
-    <linearGradient id="zen_garden_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bc7d51"/><stop offset="1" stop-color="#9b653e"/></linearGradient>
-    <linearGradient id="zen_garden_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7e5232"/><stop offset="1" stop-color="#603e26"/></linearGradient>
-    <linearGradient id="zen_garden_g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cd9d7d"/><stop offset="1" stop-color="#c6906b"/></linearGradient>
-    <linearGradient id="zen_garden_g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbf1dc"/><stop offset="1" stop-color="#e6d3ad"/></linearGradient>
-    <linearGradient id="zen_garden_g5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a7a4bd"/><stop offset="1" stop-color="#6c6984"/></linearGradient>
-    <linearGradient id="zen_garden_g6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a7a4bd"/><stop offset="1" stop-color="#6c6984"/></linearGradient>
-    <linearGradient id="zen_garden_g7" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a7a4bd"/><stop offset="1" stop-color="#6c6984"/></linearGradient>
+    <linearGradient id="zen_garden_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d1b28"/><stop offset="1" stop-color="#110e1a"/></linearGradient>
+    <linearGradient id="zen_garden_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e0c15"/><stop offset="1" stop-color="#0a0910"/></linearGradient>
+    <linearGradient id="zen_garden_g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3547"/><stop offset="1" stop-color="#1f1a2e"/></linearGradient>
+    <linearGradient id="zen_garden_g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d1b28"/><stop offset="1" stop-color="#110e1a"/></linearGradient>
+    <linearGradient id="zen_garden_g5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e0c15"/><stop offset="1" stop-color="#0a0910"/></linearGradient>
+    <linearGradient id="zen_garden_g6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#443d4e"/><stop offset="1" stop-color="#2a2236"/></linearGradient>
+    <linearGradient id="zen_garden_g7" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#51576e"/><stop offset="1" stop-color="#3e4357"/></linearGradient>
+    <linearGradient id="zen_garden_g8" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#323647"/><stop offset="1" stop-color="#262a36"/></linearGradient>
+    <linearGradient id="zen_garden_g9" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7d8192"/><stop offset="1" stop-color="#6b7083"/></linearGradient>
+    <linearGradient id="zen_garden_g10" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff2fb4"/><stop offset="1" stop-color="#5a1f8a"/></linearGradient>
   </defs>
   <g inkscape:groupmode="layer" id="shadow" inkscape:label="shadow">
-    <polygon points="400.0,198.3 799.4,398.0 400.0,597.7 0.6,398.0" fill="#1a1230" opacity="0.35"/>
+    <polygon points="400.0,260.6 814.7,468.0 400.0,675.4 -14.7,468.0" fill="#ff2fb4" opacity="0.22"/>
   </g>
-  <g inkscape:groupmode="layer" id="frame" inkscape:label="frame">
-    <polygon points="31.4,372.0 400.0,556.3 400.0,582.3 31.4,398.0" fill="url(#zen_garden_g1)" stroke="#533621" stroke-width="4" stroke-linejoin="round"/>
-    <polygon points="768.6,372.0 400.0,556.3 400.0,582.3 768.6,398.0" fill="url(#zen_garden_g2)" stroke="#533621" stroke-width="4" stroke-linejoin="round"/>
-    <polygon points="400.0,187.7 768.6,372.0 400.0,556.3 31.4,372.0" fill="url(#zen_garden_g3)" stroke="#533621" stroke-width="4" stroke-linejoin="round"/>
-    <polyline points="37.1,374.9 394.2,553.4" fill="none" stroke="#ffffff" stroke-width="3" stroke-opacity="0.35" stroke-linecap="round"/>
-    <polyline points="768.6,392.0 768.6,374.0 584.3,464.2" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+  <g inkscape:groupmode="layer" id="speakers" inkscape:label="speakers">
+    <polygon points="304.0,143.2 400.0,191.2 400.0,391.2 304.0,343.2" fill="url(#zen_garden_g1)" stroke="#0a0812" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="496.0,143.2 400.0,191.2 400.0,391.2 496.0,343.2" fill="url(#zen_garden_g2)" stroke="#0a0812" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="304.0,321.2 400.0,369.2 400.0,391.2 304.0,343.2" fill="#08070c" opacity="0.3"/>
+    <polygon points="400.0,95.2 496.0,143.2 400.0,191.2 304.0,143.2" fill="url(#zen_garden_g3)" stroke="#0a0812" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="309.8,146.1 394.2,188.3" fill="none" stroke="#ffffff" stroke-width="3" stroke-opacity="0.35" stroke-linecap="round"/>
+    <polyline points="496.0,337.2 496.0,145.2 448.0,167.2" fill="none" stroke="#19f0ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <circle cx="448.0" cy="307.2" r="26" fill="#2a2236" stroke="#4a5068" stroke-width="4"/>
+    <circle cx="448.0" cy="307.2" r="10" fill="#ff2fb4"/>
+    <circle cx="448.0" cy="227.2" r="26" fill="#2a2236" stroke="#4a5068" stroke-width="4"/>
+    <circle cx="448.0" cy="227.2" r="10" fill="#ff2fb4"/>
   </g>
-  <g inkscape:groupmode="layer" id="sand" inkscape:label="sand">
-    <polygon points="400.0,206.9 730.2,372.0 400.0,537.1 69.8,372.0" fill="url(#zen_garden_g4)"/>
-    <polyline points="356.5,240.2 663.7,393.8" fill="none" stroke="#cdb789" stroke-width="3" opacity="0.8"/>
-    <polyline points="301.4,267.7 608.6,421.3" fill="none" stroke="#cdb789" stroke-width="3" opacity="0.8"/>
-    <polyline points="246.4,295.2 553.6,448.8" fill="none" stroke="#cdb789" stroke-width="3" opacity="0.8"/>
-    <polyline points="191.4,322.7 498.6,476.3" fill="none" stroke="#cdb789" stroke-width="3" opacity="0.8"/>
-    <polyline points="136.3,350.2 443.5,503.8" fill="none" stroke="#cdb789" stroke-width="3" opacity="0.8"/>
+  <g inkscape:groupmode="layer" id="desk" inkscape:label="desk">
+    <polygon points="131.2,416.4 400.0,550.8 400.0,640.8 131.2,506.4" fill="url(#zen_garden_g4)" stroke="#0a0812" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="649.6,426.0 400.0,550.8 400.0,640.8 649.6,516.0" fill="url(#zen_garden_g5)" stroke="#0a0812" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="131.2,484.4 400.0,618.8 400.0,640.8 131.2,506.4" fill="#08070c" opacity="0.3"/>
+    <polygon points="380.8,291.6 649.6,426.0 400.0,550.8 131.2,416.4" fill="url(#zen_garden_g6)" stroke="#0a0812" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="137.0,419.3 394.2,547.9" fill="none" stroke="#ffffff" stroke-width="3" stroke-opacity="0.35" stroke-linecap="round"/>
+    <polyline points="649.6,510.0 649.6,428.0 524.8,488.4" fill="none" stroke="#19f0ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <polyline points="135.0,428.3 400.0,560.8 645.8,437.9" fill="none" stroke="#19f0ff" stroke-width="12" stroke-opacity="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="135.0,428.3 400.0,560.8 645.8,437.9" fill="none" stroke="#19f0ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="135.0,428.3 400.0,560.8 645.8,437.9" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <ellipse cx="380.8" cy="378.0" rx="70.6" ry="35.3" fill="#14111f" stroke="#4a5068" stroke-width="4" opacity="1.00"/>
+    <ellipse cx="380.8" cy="378.0" rx="48.9" ry="24.4" fill="#2a2236" stroke="#0a0812" stroke-width="4" opacity="1.00"/>
+    <ellipse cx="380.8" cy="378.0" rx="13.6" ry="6.8" fill="#ffb03b"/>
+    <ellipse cx="409.6" cy="469.2" rx="70.6" ry="35.3" fill="#14111f" stroke="#4a5068" stroke-width="4" opacity="1.00"/>
+    <ellipse cx="409.6" cy="469.2" rx="48.9" ry="24.4" fill="#2a2236" stroke="#0a0812" stroke-width="4" opacity="1.00"/>
+    <ellipse cx="409.6" cy="469.2" rx="13.6" ry="6.8" fill="#ffb03b"/>
+    <rect x="530.4" y="400.4" width="8" height="16" fill="#b6ff3b"/>
+    <rect x="553.4" y="387.4" width="8" height="29" fill="#ffb03b"/>
+    <rect x="576.5" y="374.4" width="8" height="42" fill="#ff2fb4"/>
+    <rect x="599.5" y="391.4" width="8" height="25" fill="#b6ff3b"/>
+    <rect x="622.6" y="378.4" width="8" height="38" fill="#ffb03b"/>
+    <rect x="645.6" y="395.4" width="8" height="21" fill="#ff2fb4"/>
   </g>
-  <g inkscape:groupmode="layer" id="stones" inkscape:label="stones">
-    <ellipse cx="380.8" cy="283.1" rx="43.4" ry="32.6" fill="url(#zen_garden_g5)" stroke="#4a4760" stroke-width="4"/>
-    <ellipse cx="419.2" cy="392.8" rx="54.3" ry="40.7" fill="url(#zen_garden_g6)" stroke="#4a4760" stroke-width="4"/>
-    <ellipse cx="572.8" cy="358.4" rx="27.2" ry="20.4" fill="url(#zen_garden_g7)" stroke="#4a4760" stroke-width="4"/>
-  </g>
-  <g inkscape:groupmode="layer" id="bonsai" inkscape:label="bonsai">
-    <path d="M 227.2 372.0 q 6 -40 -10 -70" fill="none" stroke="#6b4130" stroke-width="10" stroke-linecap="round"/>
-    <ellipse cx="197.2" cy="292.0" rx="30" ry="18" fill="#56b866" stroke="#2f7a40" stroke-width="3"/>
-    <ellipse cx="237.2" cy="277.0" rx="30" ry="18" fill="#56b866" stroke="#2f7a40" stroke-width="3"/>
-    <ellipse cx="223.2" cy="312.0" rx="30" ry="18" fill="#56b866" stroke="#2f7a40" stroke-width="3"/>
+  <g inkscape:groupmode="layer" id="laptop" inkscape:label="laptop">
+    <polygon points="415.4,364.3 473.0,393.1 473.0,399.1 415.4,370.3" fill="url(#zen_garden_g7)" stroke="#2a3046" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="515.2,372.0 473.0,393.1 473.0,399.1 515.2,378.0" fill="url(#zen_garden_g8)" stroke="#2a3046" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="457.6,343.2 515.2,372.0 473.0,393.1 415.4,364.3" fill="url(#zen_garden_g9)" stroke="#2a3046" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="421.1,367.2 467.2,390.2" fill="none" stroke="#ffffff" stroke-width="3" stroke-opacity="0.35" stroke-linecap="round"/>
+    <polygon points="453.8,345.1 511.4,373.9 511.4,329.9 453.8,301.1" fill="url(#zen_garden_g10)"/>
   </g>
 </svg>

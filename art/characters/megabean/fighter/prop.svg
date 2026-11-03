@@ -3,8 +3,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
   <defs></defs>
   <g inkscape:label="prop" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M200,334 L222,276" stroke="#2a2e3f" stroke-width="12"/>
-    <path d="M219,284 L226,264" stroke="#e3485a" stroke-width="12"/>
-    <circle cx="227" cy="262" r="7" fill="#ffd36b" opacity="0.9"/>
+    <path d="M200,334 L222,276" stroke="#2a2834" stroke-width="12"/>
+    <path d="M219,284 L226,264" stroke="#19f0ff" stroke-width="12"/>
+    <path d="M226,262 l8,-10 l-4,10 l8,-6" fill="none" stroke="#19f0ff" stroke-width="3"/>
   </g>
 </svg>
