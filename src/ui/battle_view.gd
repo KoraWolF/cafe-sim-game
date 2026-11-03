@@ -317,7 +317,8 @@ func _draw_unit(side: bool, index: int, state: Dictionary) -> void:
 		# A rigged Synth or MegaBean staff: the shared rig's battle animations.
 		var flash := 1.0 - t / BattlePlayback.ANIM_SECONDS["hurt"] if anim == "hurt" else 0.0
 		var pose := {"anim": "walk" if anim == "move" else anim, "t": t if anim in ["attack", "hurt", "cast", "down"] else _time,
-			"face": "angry" if anim in ["attack", "hurt"] else "neutral", "mirror": facing.x < 0.0, "glow": _glow(fighter),
+			"face": "angry" if anim in ["attack", "hurt"] else "neutral", "mirror": facing.x < 0.0, "back": facing.y < -0.01,
+			"glow": _glow(fighter),
 			"tint": Color(1.0 + flash, 1.0 + flash, 1.0 + flash, alpha)}
 		if anim == "cast":
 			draw_arc(feet + Vector2(0, -40), 30.0 + 50.0 * t, 0, TAU, 40, Color(_glow(fighter), 1.0 - t / 0.6), 4.0)

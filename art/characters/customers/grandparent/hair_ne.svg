@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café rig part: customers/grandparent/hair_ne. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
+  <defs><linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e1e4ed"/><stop offset="1" stop-color="#aeb1ba"/></linearGradient><linearGradient id="chrome" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5ebf5"/><stop offset="1" stop-color="#91969d"/></linearGradient><linearGradient id="chrome" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5ebf5"/><stop offset="1" stop-color="#91969d"/></linearGradient></defs>
+  <g inkscape:label="hair_ne" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M38,166 C28,84 88,48 132,48 C190,50 236,90 222,170 Q214,206 184,214 Q132,226 80,214 Q50,206 38,166 Z" fill="url(#hair)" stroke="#8d96ab" stroke-width="4"/>
+    <circle cx="132" cy="50" r="30" fill="url(#chrome)" stroke="#2a3046" stroke-width="4"/>
+    <path d="M60,166 Q130,176 204,164" fill="none" stroke="#2a3046" stroke-width="4"/>
+  </g>
+</svg>

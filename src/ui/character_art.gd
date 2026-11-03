@@ -60,14 +60,16 @@ static func _body(type_id: String) -> String:
 
 ## Draws a character with its feet at `feet` on canvas, `size` world px per
 ## canvas px, posed by pose: {"anim", "t" (seconds into it), "face" ("neutral",
-## "happy", "angry", "eat", "rest"), "mirror" (facing left), "tint", "glow"
-## (species colour)}. Returns the head's centre (for clicks and overlays).
+## "happy", "angry", "eat", "rest"), "mirror" (facing left), "back" (walking
+## away: the back-view parts, no face), "tint", "glow" (species colour)}.
+## Returns the head's centre (for clicks and overlays).
 static func draw(canvas: CanvasItem, feet: Vector2, size: float, type_id: String, species_id: String, pose: Dictionary) -> Vector2:
 	var body := _body(type_id)
 	var tech := "synths/" + species_id if species_id != "" else ""
 	var bones := _pose(pose.get("anim", "idle"), float(pose.get("t", 0.0)))
 	var tint: Color = pose.get("tint", Color.WHITE)
 	var mirror := -1.0 if pose.get("mirror", false) else 1.0
+	var back: bool = pose.get("back", false)
 	var base := Transform2D(0.0, feet) * Transform2D(0.0, Vector2(size * mirror, size), 0.0, Vector2.ZERO) \
 		* Transform2D(0.0, -FEET)
 	# Knocked down: the whole body tips over at the feet.
@@ -82,7 +84,7 @@ static func draw(canvas: CanvasItem, feet: Vector2, size: float, type_id: String
 	_put(canvas, root * _about(HIP_BACK, bones["leg_back"], legs), body, "leg_back", tint)
 	_put(canvas, torso * _about(SHOULDER_BACK, bones["arm_back"]), body, "arm_back", tint)
 	_put(canvas, root * _about(HIP_FRONT, bones["leg_front"], legs), body, "leg_front", tint)
-	_put(canvas, torso, body, "torso", tint)
+	_put(canvas, torso, body, _view(body, "torso", back), tint)
 	var arm := torso * _about(SHOULDER_FRONT, bones["arm_front"])
 	if tech != "":
 		_put(canvas, arm, tech, "arm_front", tint)
@@ -92,12 +94,13 @@ static func draw(canvas: CanvasItem, feet: Vector2, size: float, type_id: String
 			_put(canvas, arm, body, "prop", tint)
 	if bones["tray"]:
 		_draw_tray(canvas, arm * HAND_FRONT, size)
-	_put(canvas, head, body, "head", tint)
-	var face: String = "face_" + str(pose.get("face", "neutral"))
-	_put(canvas, head, body, face if _part(body, face) != null else "face_neutral", tint)
-	_put(canvas, head, body, "hair", tint)
+	_put(canvas, head, body, _view(body, "head", back), tint)
+	if not back:
+		var face: String = "face_" + str(pose.get("face", "neutral"))
+		_put(canvas, head, body, face if _part(body, face) != null else "face_neutral", tint)
+	_put(canvas, head, body, _view(body, "hair", back), tint)
 	if tech != "":
-		_put(canvas, head, tech, "visor", tint)
+		_put(canvas, head, tech, _view(tech, "visor", back), tint)
 	canvas.draw_set_transform_matrix(Transform2D.IDENTITY)
 	return head * HEAD_CENTRE
 
@@ -176,6 +179,11 @@ static func _pose(anim: String, t: float) -> Dictionary:
 			bones["fall"] = -1.45
 			bones["prop"] = false
 	return bones
+
+
+## A part's back-view version when walking away and it has one (name + "_ne"), else the part.
+static func _view(folder: String, name: String, back: bool) -> String:
+	return name + "_ne" if back and _part(folder, name + "_ne") != null else name
 
 
 ## A part's texture, or null if that character has no such part.

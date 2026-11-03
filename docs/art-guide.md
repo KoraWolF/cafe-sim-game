@@ -191,6 +191,12 @@ You don't animate these in the drawing program. You draw the parts; the animatio
 - `godot --path . --resolution 1700x1300 -s res://tools/art/rig_sheet.gd -- cast.png cast`: every customer type beside its Synth, in several poses;
 - `godot --path . --resolution 1300x900 -s res://tools/art/rig_sheet.gd -- staff.png staff`: MegaBean's staff in their battle animations.
 
+*The back view.* Every body also has `torso_ne`, `head_ne` (both ears, no face) and `hair_ne`, and every species has `visor_ne` (its strap or tiara from behind). Legs, arms and props are shared with the front.
+- The rig uses the back parts and hides the face when the pose has `"back": true`.
+- **Café:** a character shows its back while walking up the screen (away from the camera), and a Bartender shows it while working its mixer.
+- **Battles:** a unit shows its back whenever it faces up the board.
+- **Mirroring:** the art faces up-right and is mirrored for up-left, like the front.
+- **Check sheet:** `godot --path . --resolution 1700x1300 -s res://tools/art/rig_sheet.gd -- back.png back` draws every body walking away.
+
 *Still to come:*
-- the back view (NE), for walking away;
 - outfits drawn on the rig (hats are still drawn as shapes above the head).
