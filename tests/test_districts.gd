@@ -1,6 +1,6 @@
 extends TestCase
-## District takeover (Influence, flagship, income, next district) and the Corporate Audit.
-## Data from TestFixtures: "town" needs 3 Influence, then "city" needs 2.
+## Town takeover (bars beaten, the boss, income, next town) and the Corporate Audit.
+## Data from TestFixtures: "town" has bars "weak" and "fort" and boss "hq"; then "city" has "shop" and boss "tower".
 
 
 ## A game whose first shift just closed, with a charged worker (10 power, 30 hp).
@@ -26,22 +26,37 @@ func test_won_raid_earns_influence() -> void:
 	assert_eq(state.current_influence(), 1, "town Influence")
 
 
-func test_flagship_is_locked_until_enough_influence() -> void:
+func test_the_boss_opens_once_every_bar_is_beaten() -> void:
 	var data := TestFixtures.data()
 	var setup := _night(data)
 	var state: GameState = setup[0]
-	assert_eq(GameLoop.plan_raid(state, "hq", _ids(setup[1]), data), GameLoop.FLAGSHIP_LOCKED, "locked at 0")
+	assert_eq(GameLoop.plan_raid(state, "hq", _ids(setup[1]), data), GameLoop.FLAGSHIP_LOCKED, "locked with no bar beaten")
 	assert_true(not NightOps.raid_targets(state, data).any(func(r: RivalCafe) -> bool: return r.id == "hq"), "not listed")
-	state.influence["town"] = 3
-	assert_true(NightOps.raid_targets(state, data).any(func(r: RivalCafe) -> bool: return r.id == "hq"), "listed at 3")
+	state.beaten.append("weak")
+	assert_eq(GameLoop.plan_raid(state, "hq", _ids(setup[1]), data), GameLoop.FLAGSHIP_LOCKED, "still locked with one of two")
+	state.beaten.append("fort")
+	assert_true(NightOps.raid_targets(state, data).any(func(r: RivalCafe) -> bool: return r.id == "hq"), "listed with both")
 	assert_eq(GameLoop.plan_raid(state, "hq", _ids(setup[1]), data), GameLoop.OK, "unlocked")
+
+
+func test_a_first_win_marks_the_bar_beaten() -> void:
+	var data := TestFixtures.data()
+	var setup := _night(data)
+	var state: GameState = setup[0]
+	state.beaten.append("fort")
+	GameLoop.plan_raid(state, "weak", _ids(setup[1]), data)
+	var report := GameLoop.end_night(state, data)
+	assert_true(report.raid.attackers_won and report.first_win, "a first win")
+	assert_eq(state.beaten, ["fort", "weak"] as Array[String], "now beaten")
+	assert_true(report.boss_opened, "the last bar: the boss opens")
+	assert_eq(NightOps.bars_beaten(state, data.districts["town"]), 2, "2 of 2")
 
 
 func test_beating_the_flagship_takes_the_district() -> void:
 	var data := TestFixtures.data()
 	var setup := _night(data)
 	var state: GameState = setup[0]
-	state.influence["town"] = 3
+	state.beaten.append_array(["weak", "fort"] as Array[String])
 	state.add_suspicion(30.0)
 	GameLoop.plan_raid(state, "hq", _ids(setup[1]), data)
 	var coins := state.coins
@@ -74,7 +89,7 @@ func test_taking_the_last_district_wins_the_city() -> void:
 	var state: GameState = setup[0]
 	state.owned_districts.append("town")
 	state.district_id = "city"
-	state.influence["city"] = 2
+	state.beaten.append("shop")
 	assert_true(not state.owns_city(data), "not yet")
 	GameLoop.plan_raid(state, "tower", _ids(setup[1]), data)
 	var report := GameLoop.end_night(state, data)
@@ -152,6 +167,7 @@ func test_district_progress_survives_saving() -> void:
 	state.district_id = "city"
 	state.district_started_day = 1
 	state.influence = {"town": 3, "city": 1} as Dictionary[String, int]
+	state.beaten.append_array(["weak", "fort", "hq"] as Array[String])
 	state.closed = true
 	SaveSystem.save(state, path)
 	var errors: PackedStringArray = []
@@ -188,3 +204,24 @@ func test_version_1_save_is_migrated() -> void:
 		assert_eq(loaded.district_started_day, 1, "default start day")
 		assert_true(loaded.owned_districts.is_empty() and loaded.influence.is_empty(), "nothing owned")
 		assert_eq(loaded.synths[0].level, 1, "v1 -> v2 -> v3: level 1")
+
+
+func test_a_version_20_save_counts_taken_towns_as_beaten() -> void:
+	var data := TestFixtures.data()
+	var path := "user://test_saves/v20.json"
+	var state := GameState.new_game(1, data)
+	state.owned_districts.append("town")
+	state.district_id = "city"
+	var raw := SaveSystem.to_dict(state)
+	raw.erase("beaten")
+	raw["version"] = 20
+	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	file.store_string(JSON.stringify(raw))
+	file.close()
+	var errors: PackedStringArray = []
+	var loaded := SaveSystem.load_file(path, data, errors)
+	SaveSystem.delete_save(path)
+	assert_true(loaded != null, "loaded: %s" % ", ".join(errors))
+	if loaded != null:
+		assert_eq(loaded.beaten, ["weak", "fort", "hq"] as Array[String], "the taken town's bars and boss")

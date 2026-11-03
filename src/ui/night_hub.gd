@@ -137,8 +137,8 @@ func _fill_ops(page: VBoxContainer) -> void:
 	var data := Session.data
 	var b := data.balance
 	var district := data.districts[state.district_id]
-	page.add_child(_wrap(tr("ui.ops_district") % [UiText.name(district.id), state.current_influence(),
-		district.influence_required, roundi(state.current_suspicion())], 20))
+	page.add_child(_wrap(tr("ui.ops_district") % [UiText.name(district.id), NightOps.bars_beaten(state, district),
+		district.rivals.size(), roundi(state.current_suspicion())], 20))
 	if state.owned_districts.is_empty():
 		page.add_child(_wrap(tr("ui.ops_none_owned"), 16, UiTheme.TEXT_DIM))
 	else:

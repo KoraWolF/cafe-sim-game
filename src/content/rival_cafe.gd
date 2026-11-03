@@ -16,6 +16,8 @@ var layout_rows: int = 0
 var layout_pieces: Array[Dictionary] = []
 ## Its door's column (-1 = the middle).
 var layout_door: int = -1
+## Where it stands on the town map, as a share of the map's size ((-1, -1) = placed by the map).
+var spot: Vector2 = Vector2(-1, -1)
 
 
 static func from_dict(values: Dictionary) -> RivalCafe:
@@ -28,6 +30,9 @@ static func from_dict(values: Dictionary) -> RivalCafe:
 	rival.loot_coins = int(values.get("loot_coins", 0))
 	rival.loot_cores = int(values.get("loot_cores", 0))
 	rival.influence = int(values.get("influence", 0))
+	var spot: Variant = values.get("spot", [])
+	if spot is Array and (spot as Array).size() == 2:
+		rival.spot = Vector2(float(spot[0]), float(spot[1]))
 	var layout: Variant = values.get("layout", {})
 	if layout is Dictionary and int(layout.get("rows", 0)) > 0:
 		rival.layout_rows = int(layout["rows"])

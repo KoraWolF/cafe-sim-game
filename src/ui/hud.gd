@@ -294,7 +294,7 @@ func refresh() -> void:
 	_resources.text = "   %s %d   %s %d   %s %d   %s %d   %s %d%%   %s   %s" % [
 		tr("ui.coins"), state.coins, tr("ui.nanobrew"), state.nanobrew, tr("ui.cores"), state.cores,
 		tr("ui.power"), roundi(state.power), tr("ui.suspicion"), roundi(state.current_suspicion()),
-		UiText.name(district.id), tr("ui.influence") % [state.current_influence(), district.influence_required]]
+		UiText.name(district.id), tr("ui.influence") % [NightOps.bars_beaten(state, district), district.rivals.size()]]
 	var in_shift := state.phase == GameState.Phase.SHIFT
 	_speed_box.visible = in_shift
 	for speed: int in _speed_buttons:

@@ -17,6 +17,10 @@ class Report:
 	var loot_coins: int = 0
 	var loot_cores: int = 0
 	var influence_gained: int = 0
+	## The raided bar was beaten for the first time tonight.
+	var first_win: bool = false
+	## That first win was the last bar of the town: its boss is open.
+	var boss_opened: bool = false
 	## District taken over tonight ("" = none) and the district that opens next
 	## ("" = none: the whole city is yours).
 	var district_taken: String = ""
@@ -96,7 +100,12 @@ static func average_level(state: GameState, rival: RivalCafe, data: GameData) ->
 ## True when the current district's flagship can be challenged.
 static func flagship_unlocked(state: GameState, data: GameData) -> bool:
 	var district := data.districts[state.district_id]
-	return not state.owned_districts.has(district.id) and state.current_influence() >= district.influence_required
+	return not state.owned_districts.has(district.id) and bars_beaten(state, district) >= district.rivals.size()
+
+
+## How many of a town's bars (not its boss) have been beaten.
+static func bars_beaten(state: GameState, district: District) -> int:
+	return district.rivals.filter(func(rival: RivalCafe) -> bool: return state.beaten.has(rival.id)).size()
 
 
 ## Chance MegaBean raids the café tonight (ignoring the Audit).
@@ -225,6 +234,10 @@ static func _raid(state: GameState, data: GameData, rng: RandomNumberGenerator, 
 	report.loot_coins = roundi(rival.loot_coins * (1.0 + maxf(loot_bonus, 0.0)))
 	report.loot_cores = rival.loot_cores
 	report.influence_gained = rival.influence
+	if not state.beaten.has(rival.id):
+		state.beaten.append(rival.id)
+		report.first_win = true
+		report.boss_opened = not district.is_flagship(rival.id) and flagship_unlocked(state, data)
 	state.coins += report.loot_coins
 	state.cores += report.loot_cores
 	state.influence[district.id] = state.current_influence() + rival.influence

@@ -1,12 +1,28 @@
-# Raids from the map
+# Raids from the town map
+
+## Towns
+The city is split into towns, taken one after another (`data/districts.json`, in order):
+
+| Town | Bars | Boss | Guard levels |
+| --- | --- | --- | --- |
+| Alley (start) | Kiosk, Cart, Stand, Express, Corner | Alley Flagship | 1–4 |
+| Neon Market | Drive, Arcade, Lounge, Club, Rooftop | Tower | 3–7 |
+| Chrome Heights | Lab, Plaza, Casino, Spire, Vault | HQ | 6–10 |
+
+- **Opening the boss:** beat every bar in town once (each first win marks the bar **beaten**), and the boss bar opens.
+- **Taking the town:** beat the boss and the town is yours. It pays its income every night, and the next town opens with fresh Suspicion.
+- **Beaten bars:** they stay on the map and can be raided again for loot after their cooldown. They don't count again.
+- **Influence:** it's still earned, but no longer opens anything.
 
 ## How it plays
 1. At night, go to **Night Ops → Open map**.
-2. The **district map** shows your café and the district's MegaBean cafés as pins. Each pin shows:
-   - how many guards and their **average level**;
-   - the loot, plus Influence for rivals;
-   - why it can't be raided, if so: already raided tonight, cooling down for *n* nights, or the flagship locked until you have enough Influence.
-3. Click a café to open the **raid screen**. The enemy café is drawn as it is: its counters, stove, tables, seats and décor, its front wall with one **door** (the green tile), and its guards waiting inside. In front of it is the street: 2 open rows, then your **3 rows**.
+2. The **town map** is a neon town about two screens wide.
+   - **Moving around:** drag it with the mouse, or scroll (Shift + scroll moves sideways).
+   - **The bars:** each MegaBean bar is a red-signed building, and the boss a taller tower with a crown. Beaten bars carry a green check, and your own bar has a cyan sign.
+   - **Minimap:** the corner minimap shows every bar and what's on screen; click it to jump there.
+   - **Town tabs:** the tabs at the top show the towns. Ones you've taken can be looked at, and the next ones are locked.
+   - **A bar's card:** click a bar to see its guards and their **average level**, its loot, whether it's beaten, and why it can't be raided, if so: already raided tonight, cooling down, or the boss locked until every bar is beaten.
+3. Press **Raid this bar** on the card to open the **raid screen**. The enemy café is drawn as it is: its counters, stove, tables, seats and décor, its front wall with one **door** (the green tile), and its guards waiting inside. In front of it is the street: 2 open rows, then your **3 rows**.
    - Drag a worker from the list on the left onto a tile in your rows (or pick it, then click the tile). One already there swaps places.
    - Drag a squad member to another tile, or back onto the list to take it out.
    - Up to 4 in the squad (`raid_squad_max`).
