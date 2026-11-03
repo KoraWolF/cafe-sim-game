@@ -1,35 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- NanoBrew Café: stove. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="394" viewBox="0 0 416 394">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="454" viewBox="0 0 416 454">
   <defs>
-    <linearGradient id="stove_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a3abc2"/><stop offset="1" stop-color="#8f96ab"/></linearGradient>
-    <linearGradient id="stove_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a8092"/><stop offset="1" stop-color="#656a78"/></linearGradient>
+    <linearGradient id="stove_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a7aec4"/><stop offset="1" stop-color="#8990a3"/></linearGradient>
+    <linearGradient id="stove_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6f7484"/><stop offset="1" stop-color="#555965"/></linearGradient>
     <linearGradient id="stove_g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b6176"/><stop offset="1" stop-color="#454b63"/></linearGradient>
+    <linearGradient id="stove_g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb35c"/><stop offset="1" stop-color="#c4452a"/></linearGradient>
+    <linearGradient id="stove_g5" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#cd5d4d"/><stop offset="1" stop-color="#833328"/></linearGradient>
+    <linearGradient id="stove_g6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8e4a43"/><stop offset="1" stop-color="#7a2a22"/></linearGradient>
   </defs>
   <g inkscape:groupmode="layer" id="shadow" inkscape:label="shadow">
-    <polygon points="208.0,186.0 400.0,282.0 208.0,378.0 16.0,282.0" fill="#1a1230" opacity="0.35"/>
+    <polygon points="208.0,240.2 411.5,342.0 208.0,443.8 4.5,342.0" fill="#1a1230" opacity="0.35"/>
   </g>
   <g inkscape:groupmode="layer" id="body" inkscape:label="body">
-    <polygon points="39.0,170.0 208.0,254.5 208.0,366.5 39.0,282.0" fill="url(#stove_g1)" stroke="#494d57" stroke-width="4" stroke-linejoin="round"/>
-    <polygon points="377.0,170.0 208.0,254.5 208.0,366.5 377.0,282.0" fill="url(#stove_g2)" stroke="#494d57" stroke-width="4" stroke-linejoin="round"/>
-    <polygon points="208.0,85.5 377.0,170.0 208.0,254.5 39.0,170.0" fill="url(#stove_g3)" stroke="#494d57" stroke-width="4" stroke-linejoin="round"/>
-    <polyline points="377.0,276.0 377.0,172.0 292.5,212.2" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <polygon points="27.5,214.0 208.0,304.2 208.0,432.2 27.5,342.0" fill="url(#stove_g1)" stroke="#494d57" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="388.5,214.0 208.0,304.2 208.0,432.2 388.5,342.0" fill="url(#stove_g2)" stroke="#494d57" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="27.5,320.0 208.0,410.2 208.0,432.2 27.5,342.0" fill="#41444e" opacity="0.3"/>
+    <polygon points="208.0,123.8 388.5,214.0 208.0,304.2 27.5,214.0" fill="url(#stove_g3)" stroke="#494d57" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="33.3,216.9 202.2,301.4" fill="none" stroke="#ffffff" stroke-width="3" stroke-opacity="0.35" stroke-linecap="round"/>
+    <polyline points="388.5,336.0 388.5,216.0 298.2,259.1" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+  </g>
+  <g inkscape:groupmode="layer" id="oven" inkscape:label="oven">
+    <polygon points="359.7,260.4 236.8,321.8 236.8,403.8 359.7,342.4" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="3" stroke-linejoin="round"/>
+    <polygon points="344.3,284.1 252.2,330.2 252.2,380.2 344.3,334.1" fill="url(#stove_g4)" opacity="0.9"/>
+    <polyline points="340.5,258.0 256.0,300.2" fill="none" stroke="#d9dde8" stroke-width="6" stroke-linecap="round"/>
+  </g>
+  <g inkscape:groupmode="layer" id="knobs" inkscape:label="knobs">
+    <circle cx="52.5" cy="250.5" r="9" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="3"/>
+    <line x1="52.5" y1="250.5" x2="52.5" y2="243.5" stroke="#ff8a3d" stroke-width="3"/>
+    <circle cx="94.7" cy="271.6" r="9" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="3"/>
+    <line x1="94.7" y1="271.6" x2="94.7" y2="264.6" stroke="#ff8a3d" stroke-width="3"/>
+    <circle cx="137.0" cy="292.7" r="9" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="3"/>
+    <line x1="137.0" y1="292.7" x2="137.0" y2="285.7" stroke="#ff8a3d" stroke-width="3"/>
+    <circle cx="179.2" cy="313.8" r="9" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="3"/>
+    <line x1="179.2" y1="313.8" x2="179.2" y2="306.8" stroke="#ff8a3d" stroke-width="3"/>
+    <polygon points="79.4,289.9 156.2,328.3 156.2,348.3 79.4,309.9" fill="#38e1ff" opacity="0.85" stroke="#1d6f86" stroke-width="3"/>
   </g>
   <g inkscape:groupmode="layer" id="burners" inkscape:label="burners">
-    <ellipse cx="208.0" cy="135.4" rx="35.3" ry="17.6" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="4" opacity="1.00"/>
-    <ellipse cx="208.0" cy="135.4" rx="24.4" ry="12.2" fill="none" stroke="#ff8a3d" stroke-width="4" opacity="0.8"/>
-    <ellipse cx="277.1" cy="170.0" rx="35.3" ry="17.6" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="4" opacity="1.00"/>
-    <ellipse cx="277.1" cy="170.0" rx="24.4" ry="12.2" fill="none" stroke="#ff8a3d" stroke-width="4" opacity="0.8"/>
-    <ellipse cx="138.9" cy="170.0" rx="35.3" ry="17.6" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="4" opacity="1.00"/>
-    <ellipse cx="138.9" cy="170.0" rx="24.4" ry="12.2" fill="none" stroke="#ff8a3d" stroke-width="4" opacity="0.8"/>
-    <ellipse cx="208.0" cy="204.6" rx="35.3" ry="17.6" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="4" opacity="1.00"/>
-    <ellipse cx="208.0" cy="204.6" rx="24.4" ry="12.2" fill="none" stroke="#ff8a3d" stroke-width="4" opacity="0.8"/>
+    <ellipse cx="208.0" cy="175.6" rx="38.0" ry="19.0" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="4" opacity="1.00"/>
+    <ellipse cx="208.0" cy="175.6" rx="27.2" ry="13.6" fill="none" stroke="#ff8a3d" stroke-width="4" opacity="0.85"/>
+    <ellipse cx="284.8" cy="214.0" rx="38.0" ry="19.0" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="4" opacity="1.00"/>
+    <ellipse cx="284.8" cy="214.0" rx="27.2" ry="13.6" fill="none" stroke="#ff8a3d" stroke-width="4" opacity="0.85"/>
+    <ellipse cx="131.2" cy="214.0" rx="38.0" ry="19.0" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="4" opacity="1.00"/>
+    <ellipse cx="131.2" cy="214.0" rx="27.2" ry="13.6" fill="none" stroke="#ff8a3d" stroke-width="4" opacity="0.85"/>
+    <ellipse cx="208.0" cy="252.4" rx="38.0" ry="19.0" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="4" opacity="1.00"/>
+    <ellipse cx="208.0" cy="252.4" rx="27.2" ry="13.6" fill="none" stroke="#ff8a3d" stroke-width="4" opacity="0.85"/>
   </g>
-  <g inkscape:groupmode="layer" id="knobs_and_display" inkscape:label="knobs_and_display">
-    <circle cx="69.8" cy="213.4" r="9" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="3"/>
-    <circle cx="117.8" cy="237.4" r="9" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="3"/>
-    <circle cx="165.8" cy="261.4" r="9" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="3"/>
-    <polygon points="340.5,208.2 244.5,256.2 244.5,276.2 340.5,228.2" fill="#38e1ff" opacity="0.85" stroke="#1d6f86" stroke-width="3"/>
-    <polygon points="350.1,243.4 234.9,301.0 234.9,339.0 350.1,281.4" fill="#2a2e3f" opacity="0.9"/>
+  <g inkscape:groupmode="layer" id="pot" inkscape:label="pot">
+    <path d="M 164.6 135.6 L 164.6 175.6 A 43.4 21.7 0 0 0 251.4 175.6 L 251.4 135.6 Z" fill="url(#stove_g5)" stroke="#5a241b" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="208.0" cy="135.6" rx="43.4" ry="21.7" fill="url(#stove_g6)" stroke="#5a241b" stroke-width="4" opacity="1.00"/>
+    <line x1="249.4" y1="171.6" x2="249.4" y2="137.6" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <rect x="247.4" y="139.6" width="22" height="8" rx="4" fill="#2a2e3f"/>
+    <path d="M 192.6 123.9 q -8 -10 0 -20 q 8 -10 0 -20" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity="0.55"/>
+    <path d="M 208.0 131.6 q -8 -10 0 -20 q 8 -10 0 -20" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity="0.55"/>
+    <path d="M 223.4 139.3 q -8 -10 0 -20 q 8 -10 0 -20" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity="0.55"/>
   </g>
 </svg>

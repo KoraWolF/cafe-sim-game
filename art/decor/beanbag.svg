@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- NanoBrew Café: beanbag. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="344" viewBox="0 0 416 344">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="364" viewBox="0 0 416 364">
   <defs>
     <linearGradient id="beanbag_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9ab3"/><stop offset="1" stop-color="#d94f73"/></linearGradient>
   </defs>
   <g inkscape:groupmode="layer" id="shadow" inkscape:label="shadow">
-    <polygon points="208.0,143.7 384.6,232.0 208.0,320.3 31.4,232.0" fill="#1a1230" opacity="0.35"/>
+    <polygon points="208.0,156.0 400.0,252.0 208.0,348.0 16.0,252.0" fill="#1a1230" opacity="0.35"/>
   </g>
   <g inkscape:groupmode="layer" id="bag" inkscape:label="bag">
-    <path d="M 88.0 242.0 C 68.0 162.0 148.0 112.0 208.0 132.0 C 268.0 107.0 353.0 162.0 328.0 242.0 C 288.0 282.0 128.0 282.0 88.0 242.0 Z" fill="url(#beanbag_g1)" stroke="#733241" stroke-width="4" stroke-linejoin="round"/>
-    <path d="M 138.0 192.0 Q 208.0 222.0 278.0 192.0" fill="none" stroke="#994357" stroke-width="5" opacity="0.6" stroke-linecap="round"/>
-    <ellipse cx="158.0" cy="152.0" rx="34" ry="16" fill="#ffffff" opacity="0.3"/>
-    <path d="M 308.0 172.0 C 348.0 192.0 338.0 232.0 318.0 248.0" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7"/>
+    <path d="M 73.0 262.0 C 53.0 172.0 143.0 117.0 208.0 140.0 C 273.0 112.0 368.0 172.0 343.0 262.0 C 298.0 308.0 118.0 308.0 73.0 262.0 Z" fill="url(#beanbag_g1)" stroke="#733241" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M 128.0 206.0 Q 208.0 240.0 288.0 206.0" fill="none" stroke="#994357" stroke-width="4" stroke-dasharray="10 8" opacity="0.7" stroke-linecap="round"/>
+    <path d="M 198.0 144.0 Q 188.0 192.0 204.0 228.0" fill="none" stroke="#994357" stroke-width="4" stroke-dasharray="10 8" opacity="0.7" stroke-linecap="round"/>
+    <path d="M 98.0 212.0 Q 148.0 232.0 168.0 282.0" fill="none" stroke="#994357" stroke-width="4" stroke-dasharray="10 8" opacity="0.7" stroke-linecap="round"/>
+    <ellipse cx="152.0" cy="162.0" rx="38" ry="18" fill="#ffffff" opacity="0.3"/>
+    <path d="M 320.0 182.0 C 364.0 206.0 354.0 252.0 332.0 270.0" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7"/>
   </g>
 </svg>

@@ -1,22 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- NanoBrew Café: table. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="354" viewBox="0 0 416 354">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="394" viewBox="0 0 416 394">
   <defs>
     <linearGradient id="table_g1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#775041"/><stop offset="1" stop-color="#462a1f"/></linearGradient>
     <linearGradient id="table_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9b7e72"/><stop offset="1" stop-color="#896759"/></linearGradient>
     <linearGradient id="table_g3" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#bf8358"/><stop offset="1" stop-color="#784e30"/></linearGradient>
     <linearGradient id="table_g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d2a98b"/><stop offset="1" stop-color="#ca9a77"/></linearGradient>
+    <linearGradient id="table_g5" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f2e6d0"/><stop offset="1" stop-color="#9d9485"/></linearGradient>
+    <linearGradient id="table_g6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#659c73"/><stop offset="1" stop-color="#4a8a5a"/></linearGradient>
   </defs>
   <g inkscape:groupmode="layer" id="shadow" inkscape:label="shadow">
-    <polygon points="208.0,153.7 384.6,242.0 208.0,330.3 31.4,242.0" fill="#1a1230" opacity="0.35"/>
+    <polygon points="208.0,186.0 400.0,282.0 208.0,378.0 16.0,282.0" fill="#1a1230" opacity="0.35"/>
   </g>
   <g inkscape:groupmode="layer" id="table" inkscape:label="table">
-    <ellipse cx="208.0" cy="240.0" rx="54.3" ry="27.2" fill="#563426" stroke="#2b1a13" stroke-width="4" opacity="1.00"/>
-    <path d="M 191.7 154.0 L 191.7 238.0 A 16.3 8.1 0 0 0 224.3 238.0 L 224.3 154.0 Z" fill="url(#table_g1)" stroke="#301d16" stroke-width="4" stroke-linejoin="round"/>
-    <ellipse cx="208.0" cy="154.0" rx="16.3" ry="8.1" fill="url(#table_g2)" stroke="#301d16" stroke-width="4" opacity="1.00"/>
-    <path d="M 94.0 146.0 L 94.0 156.0 A 114.0 57.0 0 0 0 322.0 156.0 L 322.0 146.0 Z" fill="url(#table_g3)" stroke="#533621" stroke-width="4" stroke-linejoin="round"/>
-    <ellipse cx="208.0" cy="146.0" rx="114.0" ry="57.0" fill="url(#table_g4)" stroke="#533621" stroke-width="4" opacity="1.00"/>
-    <line x1="320.0" y1="152.0" x2="320.0" y2="148.0" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
-    <ellipse cx="208.0" cy="146.0" rx="79.8" ry="39.9" fill="none" stroke="#8b5a38" stroke-width="3" opacity="0.5"/>
+    <ellipse cx="208.0" cy="280.0" rx="65.2" ry="32.6" fill="#563426" stroke="#2b1a13" stroke-width="4" opacity="1.00"/>
+    <path d="M 189.0 184.0 L 189.0 278.0 A 19.0 9.5 0 0 0 227.0 278.0 L 227.0 184.0 Z" fill="url(#table_g1)" stroke="#301d16" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="208.0" cy="184.0" rx="19.0" ry="9.5" fill="url(#table_g2)" stroke="#301d16" stroke-width="4" opacity="1.00"/>
+    <path d="M 83.1 172.0 L 83.1 184.0 A 124.9 62.5 0 0 0 332.9 184.0 L 332.9 172.0 Z" fill="url(#table_g3)" stroke="#533621" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="208.0" cy="172.0" rx="124.9" ry="62.5" fill="url(#table_g4)" stroke="#533621" stroke-width="4" opacity="1.00"/>
+    <line x1="330.9" y1="180.0" x2="330.9" y2="174.0" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <ellipse cx="208.0" cy="172.0" rx="89.9" ry="45.0" fill="none" stroke="#8b5a38" stroke-width="3" opacity="0.4"/>
+    <ellipse cx="208.0" cy="172.0" rx="56.2" ry="28.1" fill="none" stroke="#8b5a38" stroke-width="3" opacity="0.4"/>
+  </g>
+  <g inkscape:groupmode="layer" id="vase" inkscape:label="vase">
+    <path d="M 179.1 99.9 L 179.1 125.9 A 13.6 6.8 0 0 0 206.2 125.9 L 206.2 99.9 Z" fill="url(#table_g5)" stroke="#6c675c" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="192.6" cy="99.9" rx="13.6" ry="6.8" fill="url(#table_g6)" stroke="#6c675c" stroke-width="4" opacity="1.00"/>
+    <path d="M 192.6 99.9 q -4 -18 -12 -26 M 192.6 99.9 q 4 -20 12 -24" fill="none" stroke="#3f9a52" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="180.6" cy="71.9" r="8" fill="#ff6f91" stroke="#8c3d50" stroke-width="2"/>
+    <circle cx="204.6" cy="73.9" r="8" fill="#ffd36b" stroke="#8c743b" stroke-width="2"/>
+    <circle cx="192.6" cy="63.9" r="8" fill="#ff6f91" stroke="#8c3d50" stroke-width="2"/>
   </g>
 </svg>

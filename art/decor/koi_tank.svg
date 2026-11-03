@@ -2,8 +2,8 @@
 <!-- NanoBrew Café: koi_tank. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="800" height="586" viewBox="0 0 800 586">
   <defs>
-    <linearGradient id="koi_tank_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8d8aa3"/><stop offset="1" stop-color="#7c798f"/></linearGradient>
-    <linearGradient id="koi_tank_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a687a"/><stop offset="1" stop-color="#575665"/></linearGradient>
+    <linearGradient id="koi_tank_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#928fa7"/><stop offset="1" stop-color="#767489"/></linearGradient>
+    <linearGradient id="koi_tank_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#605e6f"/><stop offset="1" stop-color="#494855"/></linearGradient>
     <linearGradient id="koi_tank_g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bcb9cf"/><stop offset="1" stop-color="#b3b0c8"/></linearGradient>
     <linearGradient id="koi_tank_g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5fd4ff"/><stop offset="1" stop-color="#1f6fb3"/></linearGradient>
   </defs>
@@ -13,7 +13,9 @@
   <g inkscape:groupmode="layer" id="stone_rim" inkscape:label="stone_rim">
     <polygon points="39.0,308.0 400.0,488.5 400.0,558.5 39.0,378.0" fill="url(#koi_tank_g1)" stroke="#3f3e49" stroke-width="4" stroke-linejoin="round"/>
     <polygon points="761.0,308.0 400.0,488.5 400.0,558.5 761.0,378.0" fill="url(#koi_tank_g2)" stroke="#3f3e49" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="39.0,360.5 400.0,541.0 400.0,558.5 39.0,378.0" fill="#383741" opacity="0.3"/>
     <polygon points="400.0,127.5 761.0,308.0 400.0,488.5 39.0,308.0" fill="url(#koi_tank_g3)" stroke="#3f3e49" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="44.8,310.9 394.2,485.6" fill="none" stroke="#ffffff" stroke-width="3" stroke-opacity="0.35" stroke-linecap="round"/>
     <polyline points="761.0,372.0 761.0,310.0 580.5,398.2" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
   </g>
   <g inkscape:groupmode="layer" id="water" inkscape:label="water">

@@ -1,40 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- NanoBrew Café: register. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="404" viewBox="0 0 416 404">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="424" viewBox="0 0 416 424">
   <defs>
-    <linearGradient id="register_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4b5aa8"/><stop offset="1" stop-color="#424f94"/></linearGradient>
-    <linearGradient id="register_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#38447e"/><stop offset="1" stop-color="#2e3868"/></linearGradient>
+    <linearGradient id="register_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5261ab"/><stop offset="1" stop-color="#3f4c8d"/></linearGradient>
+    <linearGradient id="register_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#333d72"/><stop offset="1" stop-color="#272f57"/></linearGradient>
     <linearGradient id="register_g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7d88c1"/><stop offset="1" stop-color="#6b78b8"/></linearGradient>
-    <linearGradient id="register_g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1e4cc"/><stop offset="1" stop-color="#d4c9b4"/></linearGradient>
-    <linearGradient id="register_g5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b5ab99"/><stop offset="1" stop-color="#958d7e"/></linearGradient>
+    <linearGradient id="register_g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2e5ce"/><stop offset="1" stop-color="#cac0ab"/></linearGradient>
+    <linearGradient id="register_g5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a49b8b"/><stop offset="1" stop-color="#7d776a"/></linearGradient>
     <linearGradient id="register_g6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6eedf"/><stop offset="1" stop-color="#f5ecdb"/></linearGradient>
-    <linearGradient id="register_g7" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a2e3f"/><stop offset="1" stop-color="#252837"/></linearGradient>
-    <linearGradient id="register_g8" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#20222f"/><stop offset="1" stop-color="#1a1d27"/></linearGradient>
+    <linearGradient id="register_g7" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#333647"/><stop offset="1" stop-color="#232735"/></linearGradient>
+    <linearGradient id="register_g8" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d1f2b"/><stop offset="1" stop-color="#161821"/></linearGradient>
     <linearGradient id="register_g9" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#656975"/><stop offset="1" stop-color="#505462"/></linearGradient>
     <linearGradient id="register_g10" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7ff0ff"/><stop offset="1" stop-color="#1aa6d1"/></linearGradient>
+    <linearGradient id="register_g11" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#424761"/><stop offset="1" stop-color="#31354c"/></linearGradient>
+    <linearGradient id="register_g12" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#272b3d"/><stop offset="1" stop-color="#1e212f"/></linearGradient>
+    <linearGradient id="register_g13" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#707588"/><stop offset="1" stop-color="#5d6278"/></linearGradient>
+    <linearGradient id="register_g14" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c4f0ff"/><stop offset="1" stop-color="#7c9ba6"/></linearGradient>
+    <linearGradient id="register_g15" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ebfcff"/><stop offset="1" stop-color="#e8fbff"/></linearGradient>
   </defs>
   <g inkscape:groupmode="layer" id="shadow" inkscape:label="shadow">
-    <polygon points="208.0,192.2 407.7,292.0 208.0,391.8 8.3,292.0" fill="#1a1230" opacity="0.35"/>
+    <polygon points="208.0,212.2 407.7,312.0 208.0,411.8 8.3,312.0" fill="#1a1230" opacity="0.35"/>
   </g>
   <g inkscape:groupmode="layer" id="stand" inkscape:label="stand">
-    <polygon points="39.0,212.0 208.0,296.5 208.0,376.5 39.0,292.0" fill="url(#register_g1)" stroke="#22284c" stroke-width="4" stroke-linejoin="round"/>
-    <polygon points="377.0,212.0 208.0,296.5 208.0,376.5 377.0,292.0" fill="url(#register_g2)" stroke="#22284c" stroke-width="4" stroke-linejoin="round"/>
-    <polygon points="208.0,127.5 377.0,212.0 208.0,296.5 39.0,212.0" fill="url(#register_g3)" stroke="#22284c" stroke-width="4" stroke-linejoin="round"/>
-    <polyline points="377.0,286.0 377.0,214.0 292.5,254.2" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
-    <polygon points="23.7,204.0 208.0,296.2 208.0,304.2 23.7,212.0" fill="url(#register_g4)" stroke="#6c675c" stroke-width="4" stroke-linejoin="round"/>
-    <polygon points="392.3,204.0 208.0,296.2 208.0,304.2 392.3,212.0" fill="url(#register_g5)" stroke="#6c675c" stroke-width="4" stroke-linejoin="round"/>
-    <polygon points="208.0,111.8 392.3,204.0 208.0,296.2 23.7,204.0" fill="url(#register_g6)" stroke="#6c675c" stroke-width="4" stroke-linejoin="round"/>
-    <polyline points="392.3,206.0 392.3,206.0 300.2,250.1" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <polygon points="39.0,220.0 208.0,304.5 208.0,396.5 39.0,312.0" fill="url(#register_g1)" stroke="#22284c" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="377.0,220.0 208.0,304.5 208.0,396.5 377.0,312.0" fill="url(#register_g2)" stroke="#22284c" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="39.0,290.0 208.0,374.5 208.0,396.5 39.0,312.0" fill="#1e2443" opacity="0.3"/>
+    <polygon points="208.0,135.5 377.0,220.0 208.0,304.5 39.0,220.0" fill="url(#register_g3)" stroke="#22284c" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="44.8,222.9 202.2,301.6" fill="none" stroke="#ffffff" stroke-width="3" stroke-opacity="0.35" stroke-linecap="round"/>
+    <polyline points="377.0,306.0 377.0,222.0 292.5,262.2" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <polyline points="46.7,245.8 200.3,322.6" fill="none" stroke="#ffd36b" stroke-width="4" opacity="0.8"/>
+    <polygon points="23.7,210.0 208.0,302.2 208.0,312.2 23.7,220.0" fill="url(#register_g4)" stroke="#6c675c" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="392.3,210.0 208.0,302.2 208.0,312.2 392.3,220.0" fill="url(#register_g5)" stroke="#6c675c" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="208.0,117.8 392.3,210.0 208.0,302.2 23.7,210.0" fill="url(#register_g6)" stroke="#6c675c" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="29.4,212.9 202.2,299.3" fill="none" stroke="#ffffff" stroke-width="3" stroke-opacity="0.35" stroke-linecap="round"/>
+    <polyline points="392.3,214.0 392.3,212.0 300.2,256.1" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
   </g>
   <g inkscape:groupmode="layer" id="terminal" inkscape:label="terminal">
-    <polygon points="138.9,178.2 219.5,218.5 219.5,240.5 138.9,200.2" fill="url(#register_g7)" stroke="#13151c" stroke-width="4" stroke-linejoin="round"/>
-    <polygon points="288.6,183.9 219.5,218.5 219.5,240.5 288.6,205.9" fill="url(#register_g8)" stroke="#13151c" stroke-width="4" stroke-linejoin="round"/>
-    <polygon points="208.0,143.6 288.6,183.9 219.5,218.5 138.9,178.2" fill="url(#register_g9)" stroke="#13151c" stroke-width="4" stroke-linejoin="round"/>
-    <polyline points="288.6,199.9 288.6,185.9 254.1,201.2" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
-    <polygon points="169.6,160.8 250.2,201.1 227.2,156.6 146.6,116.3" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="4" stroke-linejoin="round"/>
-    <polygon points="173.4,160.6 238.7,193.2 223.4,156.9 158.1,124.2" fill="url(#register_g10)" opacity="0.95"/>
-    <line x1="179.2" y1="137.2" x2="221.4" y2="158.3" stroke="#0d3b52" stroke-width="4" stroke-linecap="round"/>
-    <line x1="179.2" y1="149.2" x2="209.9" y2="164.6" stroke="#0d3b52" stroke-width="4" stroke-linecap="round"/>
-    <line x1="179.2" y1="161.2" x2="198.4" y2="170.8" stroke="#0d3b52" stroke-width="4" stroke-linecap="round"/>
+    <polygon points="150.4,180.2 227.2,218.6 227.2,242.6 150.4,204.2" fill="url(#register_g7)" stroke="#13151c" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="292.5,186.0 227.2,218.6 227.2,242.6 292.5,210.0" fill="url(#register_g8)" stroke="#13151c" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="215.7,147.6 292.5,186.0 227.2,218.6 150.4,180.2" fill="url(#register_g9)" stroke="#13151c" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="156.2,183.1 221.4,215.8" fill="none" stroke="#ffffff" stroke-width="3" stroke-opacity="0.35" stroke-linecap="round"/>
+    <polyline points="292.5,204.0 292.5,188.0 259.8,202.3" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <polygon points="173.4,164.9 257.9,207.1 234.9,158.6 150.4,116.4" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="177.3,164.6 246.4,199.2 231.0,158.9 161.9,124.3" fill="url(#register_g10)" opacity="0.95"/>
+    <line x1="181.1" y1="140.2" x2="227.2" y2="163.3" stroke="#0d3b52" stroke-width="4" stroke-linecap="round"/>
+    <line x1="181.1" y1="152.2" x2="215.7" y2="169.5" stroke="#0d3b52" stroke-width="4" stroke-linecap="round"/>
+    <line x1="181.1" y1="164.2" x2="204.2" y2="175.8" stroke="#0d3b52" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <g inkscape:groupmode="layer" id="card_reader" inkscape:label="card_reader">
+    <polygon points="192.6,233.8 219.5,247.2 219.5,277.2 192.6,263.8" fill="url(#register_g11)" stroke="#1a1c28" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="257.9,228.0 219.5,247.2 219.5,277.2 257.9,258.0" fill="url(#register_g12)" stroke="#1a1c28" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="231.0,214.6 257.9,228.0 219.5,247.2 192.6,233.8" fill="url(#register_g13)" stroke="#1a1c28" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="198.4,236.6 213.8,244.3" fill="none" stroke="#ffffff" stroke-width="3" stroke-opacity="0.35" stroke-linecap="round"/>
+    <polyline points="257.9,252.0 257.9,230.0 238.7,237.6" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <circle cx="225.3" cy="230.9" r="5" fill="#9cff6b"/>
+  </g>
+  <g inkscape:groupmode="layer" id="tip_jar" inkscape:label="tip_jar">
+    <path d="M 86.4 162.3 L 86.4 202.3 A 21.7 10.9 0 0 0 129.9 202.3 L 129.9 162.3 Z" fill="url(#register_g14)" stroke="#566c73" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="108.2" cy="162.3" rx="21.7" ry="10.9" fill="url(#register_g15)" stroke="#566c73" stroke-width="4" opacity="0.60"/>
+    <ellipse cx="102.2" cy="192.3" rx="8" ry="4" fill="#ffd36b" stroke="#a87a2a" stroke-width="2"/>
+    <ellipse cx="114.2" cy="186.3" rx="8" ry="4" fill="#e9c48f" stroke="#a87a2a" stroke-width="2"/>
+    <ellipse cx="108.2" cy="178.3" rx="8" ry="4" fill="#ffd36b" stroke="#a87a2a" stroke-width="2"/>
   </g>
 </svg>

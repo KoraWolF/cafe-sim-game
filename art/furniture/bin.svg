@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- NanoBrew Café: bin. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="364" viewBox="0 0 416 364">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="394" viewBox="0 0 416 394">
   <defs>
     <linearGradient id="bin_g1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4eac98"/><stop offset="1" stop-color="#296b5d"/></linearGradient>
     <linearGradient id="bin_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4e8579"/><stop offset="1" stop-color="#2f6f61"/></linearGradient>
@@ -8,16 +8,17 @@
     <linearGradient id="bin_g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#64b7a5"/><stop offset="1" stop-color="#49aa95"/></linearGradient>
   </defs>
   <g inkscape:groupmode="layer" id="shadow" inkscape:label="shadow">
-    <polygon points="208.0,182.9 346.2,252.0 208.0,321.1 69.8,252.0" fill="#1a1230" opacity="0.35"/>
+    <polygon points="208.0,205.2 361.6,282.0 208.0,358.8 54.4,282.0" fill="#1a1230" opacity="0.35"/>
   </g>
   <g inkscape:groupmode="layer" id="bin" inkscape:label="bin">
-    <path d="M 132.0 168.0 L 132.0 252.0 A 76.0 38.0 0 0 0 284.0 252.0 L 284.0 168.0 Z" fill="url(#bin_g1)" stroke="#1c4a40" stroke-width="4" stroke-linejoin="round"/>
-    <ellipse cx="208.0" cy="168.0" rx="76.0" ry="38.0" fill="url(#bin_g2)" stroke="#1c4a40" stroke-width="4" opacity="1.00"/>
-    <line x1="282.0" y1="248.0" x2="282.0" y2="170.0" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
-    <path d="M 126.5 158.0 L 126.5 168.0 A 81.5 40.7 0 0 0 289.5 168.0 L 289.5 158.0 Z" fill="url(#bin_g3)" stroke="#163b33" stroke-width="4" stroke-linejoin="round"/>
-    <ellipse cx="208.0" cy="158.0" rx="81.5" ry="40.7" fill="url(#bin_g4)" stroke="#163b33" stroke-width="4" opacity="1.00"/>
-    <line x1="287.5" y1="164.0" x2="287.5" y2="160.0" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
-    <rect x="188.0" y="132.0" width="40" height="16" rx="8" fill="#2c7364" stroke="#194239" stroke-width="3"/>
-    <path d="M 142.2 234.9 l 12 -20 l 12 20 z" fill="none" stroke="#e8fff6" stroke-width="5" stroke-linejoin="round" opacity="0.9"/>
+    <path d="M 121.1 182.0 L 121.1 282.0 A 86.9 43.4 0 0 0 294.9 282.0 L 294.9 182.0 Z" fill="url(#bin_g1)" stroke="#1c4a40" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="208.0" cy="182.0" rx="86.9" ry="43.4" fill="url(#bin_g2)" stroke="#1c4a40" stroke-width="4" opacity="1.00"/>
+    <line x1="292.9" y1="278.0" x2="292.9" y2="184.0" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <path d="M 121.1 236.0 A 86.9 43.4 0 0 0 294.9 236.0 L 294.9 210.0 A 86.9 43.4 0 0 1 121.1 210.0 Z" fill="#e8fff6" opacity="0.85"/>
+    <path d="M 196.0 271.4 l 12 -18 l 12 18 z" fill="none" stroke="#3fa58f" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M 115.7 170.0 L 115.7 182.0 A 92.3 46.2 0 0 0 300.3 182.0 L 300.3 170.0 Z" fill="url(#bin_g3)" stroke="#163b33" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="208.0" cy="170.0" rx="92.3" ry="46.2" fill="url(#bin_g4)" stroke="#163b33" stroke-width="4" opacity="1.00"/>
+    <line x1="298.3" y1="178.0" x2="298.3" y2="172.0" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <path d="M 186.0 158.0 q 22 -22 44 0" fill="none" stroke="#235b4f" stroke-width="7" stroke-linecap="round"/>
   </g>
 </svg>

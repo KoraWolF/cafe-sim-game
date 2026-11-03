@@ -6,8 +6,8 @@
     <linearGradient id="led_sign_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#797588"/><stop offset="1" stop-color="#615d73"/></linearGradient>
     <linearGradient id="led_sign_g3" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4a455e"/><stop offset="1" stop-color="#262234"/></linearGradient>
     <linearGradient id="led_sign_g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#797588"/><stop offset="1" stop-color="#615d73"/></linearGradient>
-    <linearGradient id="led_sign_g5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#241c3d"/><stop offset="1" stop-color="#201936"/></linearGradient>
-    <linearGradient id="led_sign_g6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b152e"/><stop offset="1" stop-color="#161126"/></linearGradient>
+    <linearGradient id="led_sign_g5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d2545"/><stop offset="1" stop-color="#1e1833"/></linearGradient>
+    <linearGradient id="led_sign_g6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#181329"/><stop offset="1" stop-color="#130f20"/></linearGradient>
     <linearGradient id="led_sign_g7" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#524871"/><stop offset="1" stop-color="#3a2f5e"/></linearGradient>
   </defs>
   <g inkscape:groupmode="layer" id="shadow" inkscape:label="shadow">
@@ -22,7 +22,9 @@
   <g inkscape:groupmode="layer" id="panel" inkscape:label="panel">
     <polygon points="117.8,129.9 444.2,293.1 444.2,413.1 117.8,249.9" fill="url(#led_sign_g5)" stroke="#100d1b" stroke-width="4" stroke-linejoin="round"/>
     <polygon points="471.0,279.7 444.2,293.1 444.2,413.1 471.0,399.7" fill="url(#led_sign_g6)" stroke="#100d1b" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="117.8,227.9 444.2,391.1 444.2,413.1 117.8,249.9" fill="#0e0b18" opacity="0.3"/>
     <polygon points="144.6,116.5 471.0,279.7 444.2,293.1 117.8,129.9" fill="url(#led_sign_g7)" stroke="#100d1b" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="123.5,132.8 438.4,290.2" fill="none" stroke="#ffffff" stroke-width="3" stroke-opacity="0.35" stroke-linecap="round"/>
     <polyline points="471.0,393.7 471.0,281.7 457.6,286.4" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
   </g>
   <g inkscape:groupmode="layer" id="neon" inkscape:label="neon">

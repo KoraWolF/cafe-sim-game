@@ -2,8 +2,8 @@
 <!-- NanoBrew Café: neon_mural. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="608" height="610" viewBox="0 0 608 610">
   <defs>
-    <linearGradient id="neon_mural_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2246"/><stop offset="1" stop-color="#261e3e"/></linearGradient>
-    <linearGradient id="neon_mural_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#201a34"/><stop offset="1" stop-color="#1b152b"/></linearGradient>
+    <linearGradient id="neon_mural_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#332b4d"/><stop offset="1" stop-color="#241d3b"/></linearGradient>
+    <linearGradient id="neon_mural_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d1730"/><stop offset="1" stop-color="#161224"/></linearGradient>
     <linearGradient id="neon_mural_g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a507c"/><stop offset="1" stop-color="#43386a"/></linearGradient>
   </defs>
   <g inkscape:groupmode="layer" id="shadow" inkscape:label="shadow">
@@ -12,7 +12,9 @@
   <g inkscape:groupmode="layer" id="wall" inkscape:label="wall">
     <polygon points="110.1,124.2 455.7,297.0 455.7,547.0 110.1,374.2" fill="url(#neon_mural_g1)" stroke="#130f1f" stroke-width="4" stroke-linejoin="round"/>
     <polygon points="486.4,281.6 455.7,297.0 455.7,547.0 486.4,531.6" fill="url(#neon_mural_g2)" stroke="#130f1f" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="110.1,352.2 455.7,525.0 455.7,547.0 110.1,374.2" fill="#110e1c" opacity="0.3"/>
     <polygon points="140.8,108.8 486.4,281.6 455.7,297.0 110.1,124.2" fill="url(#neon_mural_g3)" stroke="#130f1f" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="115.8,127.0 449.9,294.1" fill="none" stroke="#ffffff" stroke-width="3" stroke-opacity="0.35" stroke-linecap="round"/>
     <polyline points="486.4,525.6 486.4,283.6 471.0,289.3" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
   </g>
   <g inkscape:groupmode="layer" id="neon" inkscape:label="neon">
