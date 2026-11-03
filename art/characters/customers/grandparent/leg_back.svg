@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café rig part: customers/grandparent/leg_back. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
+  <defs><linearGradient id="bottom" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8e7360"/><stop offset="1" stop-color="#5c4433"/></linearGradient><linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f9ddce"/><stop offset="1" stop-color="#ebc8b4"/></linearGradient></defs>
+  <g inkscape:label="leg_back" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="98" y="336" width="30" height="76" rx="13" fill="url(#bottom)" stroke="#37281f" stroke-width="4"/>
+    <ellipse cx="110" cy="414" rx="22" ry="11" fill="#5e3d26" stroke="#2f1e13" stroke-width="4"/>
+    <path d="M94,418 l32,0" stroke="#3d2819" stroke-width="4"/>
+  </g>
+</svg>

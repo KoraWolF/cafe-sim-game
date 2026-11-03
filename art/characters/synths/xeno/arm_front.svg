@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café rig part: synths/xeno/arm_front. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
+  <defs><linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9dde6"/><stop offset="1" stop-color="#8d919a"/></linearGradient><linearGradient id="lit" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#77ffde"/><stop offset="1" stop-color="#31cca6"/></linearGradient></defs>
+  <g inkscape:label="arm_front" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M188,256 Q206,276 192,300 Q178,322 196,342" fill="none" stroke="#5b647a" stroke-width="26"/>
+    <path d="M188,256 Q206,276 192,300 Q178,322 196,342" fill="none" stroke="url(#metal)" stroke-width="18"/>
+    <circle cx="196" cy="270" r="6" fill="#3dffd0"/><circle cx="188" cy="306" r="6" fill="#3dffd0"/><circle cx="190" cy="334" r="6" fill="#3dffd0"/>
+    <path d="M196,344 l-8,16 M196,346 l2,18 M198,344 l10,14" stroke="#5b647a" stroke-width="6"/>
+  </g>
+</svg>

@@ -423,8 +423,10 @@ func _name(side: bool, index: int) -> String:
 	return names[index] if index < names.size() else ""
 
 
-## The species of a player's unit ("" for MegaBean's or a Synth that has gone).
+## The species of a player's unit ("" for MegaBean's).
 func _species(fighter: Battle.Fighter) -> String:
+	if fighter.species_id != "":
+		return fighter.species_id
 	var synth := Session.state.synth_by_id(fighter.synth_id) if fighter.synth_id != "" else null
 	return synth.species_id if synth != null else ""
 

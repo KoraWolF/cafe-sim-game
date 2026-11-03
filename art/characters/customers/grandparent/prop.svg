@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café rig part: customers/grandparent/prop. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
+  <defs></defs>
+  <g inkscape:label="prop" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M206,330 L220,428" stroke="#6b4130" stroke-width="9"/>
+    <path d="M190,334 Q196,310 214,318 Q222,322 220,336" fill="none" stroke="#6b4130" stroke-width="9"/>
+    <path d="M208,340 L218,420" stroke="#a87a52" stroke-width="3" opacity="0.7"/>
+  </g>
+</svg>

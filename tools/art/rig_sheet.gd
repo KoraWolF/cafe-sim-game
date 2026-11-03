@@ -1,32 +1,51 @@
 extends SceneTree
-## A sheet of every rig animation (a few moments of each) for the office worker
-## and the Clerkbot, to check the rig by eye. Needs a window (not --headless):
+## Sheets for checking the rig by eye. Needs a window (not --headless).
 ##   godot --path . --resolution 1600x900 -s res://tools/art/rig_sheet.gd -- <out.png>
+##     every animation, for the office worker and the Clerkbot;
+##   godot --path . --resolution 1700x1300 -s res://tools/art/rig_sheet.gd -- <out.png> cast
+##     every customer type (idle, walk, eat, happy, angry) beside its Synth (idle, carry, cook, attack, hurt).
 
 const ANIMS: Array[String] = ["idle", "walk", "carry", "sit", "eat", "cook", "rest", "happy", "angry", "attack", "cast",
 	"hurt", "down"]
 const FACES: Dictionary[String, String] = {"eat": "eat", "rest": "rest", "happy": "happy", "angry": "angry", "attack": "angry",
 	"hurt": "angry"}
+const CAST: Array[Array] = [["office_worker", "clerkbot", "4fb3ff"], ["gym_fan", "bulkform", "ff8a3d"],
+	["gamer", "glitchling", "c46bff"], ["influencer", "hypeform", "ff4fd8"], ["grandparent", "steady_unit", "9cff6b"],
+	["alien_tourist", "xeno", "3dffd0"]]
+const CUSTOMER_ANIMS: Array[String] = ["idle", "walk", "eat", "happy", "angry"]
+const SYNTH_ANIMS: Array[String] = ["idle", "carry", "cook", "attack", "hurt"]
 
 
 func _init() -> void:
-	var out := OS.get_cmdline_user_args()[0]
+	var args := OS.get_cmdline_user_args()
+	var cast := args.has("cast")
 	var view := Control.new()
 	view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	view.draw.connect(func() -> void:
 		view.draw_rect(Rect2(Vector2.ZERO, view.size), Color("1b1630"))
+		if cast:
+			for row: int in CAST.size():
+				var anims: Array[String] = CUSTOMER_ANIMS + SYNTH_ANIMS
+				for i: int in anims.size():
+					var species: String = "" if i < CUSTOMER_ANIMS.size() else CAST[row][1]
+					var feet := Vector2(80 + i * 160 + (40 if species != "" else 0), 190 + row * 210)
+					_pose(view, feet, 0.4, CAST[row][0], species, anims[i], Color(CAST[row][2]))
+			return
 		for row: int in 2:
-			var species := "" if row == 0 else "clerkbot"
 			for i: int in ANIMS.size():
-				var feet := Vector2(70 + i * 118, 330 + row * 400)
-				var t := 0.3 if ANIMS[i] in ["attack", "hurt", "cast", "down"] else 0.75
-				CharacterArt.draw(view, feet, 0.42, "office_worker", species, {"anim": ANIMS[i], "t": t,
-					"face": FACES.get(ANIMS[i], "neutral"), "glow": Color("4fb3ff")})
-				view.draw_string(ThemeDB.fallback_font, feet + Vector2(-40, 40), ANIMS[i], HORIZONTAL_ALIGNMENT_LEFT, -1, 18))
+				_pose(view, Vector2(70 + i * 118, 330 + row * 400), 0.42, "office_worker", "" if row == 0 else "clerkbot",
+					ANIMS[i], Color("4fb3ff"))
+				view.draw_string(ThemeDB.fallback_font, Vector2(30 + i * 118, 370 + row * 400), ANIMS[i],
+					HORIZONTAL_ALIGNMENT_LEFT, -1, 18))
 	root.add_child(view)
 	for frame: int in 5:
 		await process_frame
 	await RenderingServer.frame_post_draw
-	root.get_viewport().get_texture().get_image().save_png(out)
-	print("rig sheet -> ", out)
+	root.get_viewport().get_texture().get_image().save_png(args[0])
+	print("rig sheet -> ", args[0])
 	quit()
+
+
+func _pose(view: Control, feet: Vector2, size: float, type_id: String, species: String, anim: String, glow: Color) -> void:
+	var t := 0.3 if anim in ["attack", "hurt", "cast", "down"] else 0.75
+	CharacterArt.draw(view, feet, size, type_id, species, {"anim": anim, "t": t, "face": FACES.get(anim, "neutral"), "glow": glow})

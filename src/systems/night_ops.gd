@@ -193,6 +193,7 @@ static func synth_fighter(synth: Synth, extra_hp: float, data: GameData, state: 
 	var species := data.species[synth.species_id]
 	var fighter := Battle.Fighter.make(synth.id, power, SynthStats.stat(synth, "hp", data) + extra_hp,
 		species.combat_class, species.skill)
+	fighter.species_id = synth.species_id
 	if state != null:
 		fighter.cell = state.formation.get(synth.id, Vector2i(-1, -1))
 	return fighter

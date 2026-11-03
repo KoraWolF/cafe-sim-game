@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café rig part: customers/influencer/arm_front. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
+  <defs><linearGradient id="sleeve" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff85c0"/><stop offset="1" stop-color="#bf5388"/></linearGradient><linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eec6a9"/><stop offset="1" stop-color="#ddaa85"/></linearGradient></defs>
+  <g inkscape:label="arm_front" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="176" y="258" width="30" height="82" rx="15" fill="url(#sleeve)" stroke="#8c3d64" stroke-width="4" transform="rotate(-6 191 258)"/>
+    <circle cx="198" cy="344" r="15" fill="url(#skin)" stroke="#a37d62" stroke-width="4"/>
+  </g>
+</svg>

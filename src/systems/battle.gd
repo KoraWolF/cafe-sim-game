@@ -30,6 +30,8 @@ class Fighter:
 	extends RefCounted
 	## Synth id for the player's side; "" for MegaBean fighters.
 	var synth_id: String = ""
+	## The Synth's species, for drawing it (kept even if the Synth is lost that night).
+	var species_id: String = ""
 	var class_id: String = CombatConfig.FIGHTER
 	## "" = no skill.
 	var skill_id: String = ""
