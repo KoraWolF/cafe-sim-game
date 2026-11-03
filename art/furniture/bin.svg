@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café: bin. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="364" viewBox="0 0 416 364">
+  <defs>
+    <linearGradient id="bin_g1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4eac98"/><stop offset="1" stop-color="#296b5d"/></linearGradient>
+    <linearGradient id="bin_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4e8579"/><stop offset="1" stop-color="#2f6f61"/></linearGradient>
+    <linearGradient id="bin_g3" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#428e7d"/><stop offset="1" stop-color="#20564a"/></linearGradient>
+    <linearGradient id="bin_g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#64b7a5"/><stop offset="1" stop-color="#49aa95"/></linearGradient>
+  </defs>
+  <g inkscape:groupmode="layer" id="shadow" inkscape:label="shadow">
+    <polygon points="208.0,182.9 346.2,252.0 208.0,321.1 69.8,252.0" fill="#1a1230" opacity="0.35"/>
+  </g>
+  <g inkscape:groupmode="layer" id="bin" inkscape:label="bin">
+    <path d="M 132.0 168.0 L 132.0 252.0 A 76.0 38.0 0 0 0 284.0 252.0 L 284.0 168.0 Z" fill="url(#bin_g1)" stroke="#1c4a40" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="208.0" cy="168.0" rx="76.0" ry="38.0" fill="url(#bin_g2)" stroke="#1c4a40" stroke-width="4" opacity="1.00"/>
+    <line x1="282.0" y1="248.0" x2="282.0" y2="170.0" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <path d="M 126.5 158.0 L 126.5 168.0 A 81.5 40.7 0 0 0 289.5 168.0 L 289.5 158.0 Z" fill="url(#bin_g3)" stroke="#163b33" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="208.0" cy="158.0" rx="81.5" ry="40.7" fill="url(#bin_g4)" stroke="#163b33" stroke-width="4" opacity="1.00"/>
+    <line x1="287.5" y1="164.0" x2="287.5" y2="160.0" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <rect x="188.0" y="132.0" width="40" height="16" rx="8" fill="#2c7364" stroke="#194239" stroke-width="3"/>
+    <path d="M 142.2 234.9 l 12 -20 l 12 20 z" fill="none" stroke="#e8fff6" stroke-width="5" stroke-linejoin="round" opacity="0.9"/>
+  </g>
+</svg>

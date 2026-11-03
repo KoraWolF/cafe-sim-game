@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café: potted_fern. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="454" viewBox="0 0 416 454">
+  <defs>
+    <linearGradient id="potted_fern_g1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#dc8258"/><stop offset="1" stop-color="#8d4d30"/></linearGradient>
+    <linearGradient id="potted_fern_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#73584a"/><stop offset="1" stop-color="#5a3b2a"/></linearGradient>
+  </defs>
+  <g inkscape:groupmode="layer" id="shadow" inkscape:label="shadow">
+    <polygon points="208.0,280.6 330.9,342.0 208.0,403.4 85.1,342.0" fill="#1a1230" opacity="0.35"/>
+  </g>
+  <g inkscape:groupmode="layer" id="pot" inkscape:label="pot">
+    <path d="M 142.8 278.0 L 142.8 342.0 A 65.2 32.6 0 0 0 273.2 342.0 L 273.2 278.0 Z" fill="url(#potted_fern_g1)" stroke="#623621" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="208.0" cy="278.0" rx="65.2" ry="32.6" fill="url(#potted_fern_g2)" stroke="#623621" stroke-width="4" opacity="1.00"/>
+    <line x1="271.2" y1="338.0" x2="271.2" y2="280.0" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+  </g>
+  <g inkscape:groupmode="layer" id="fronds" inkscape:label="fronds">
+    <path d="M 208.0 282.0 Q 240.3 216.9 249.0 169.2 Q 268.3 226.9 208.0 282.0 Z" fill="#3f9a52" stroke="#23552d" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M 208.0 282.0 Q 194.1 197.0 165.2 164.5 Q 222.1 207.0 208.0 282.0 Z" fill="#3f9a52" stroke="#23552d" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M 208.0 282.0 Q 250.4 251.5 284.6 217.7 Q 278.4 261.5 208.0 282.0 Z" fill="#56b866" stroke="#2f6538" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M 208.0 282.0 Q 162.6 217.4 127.6 214.5 Q 190.6 227.4 208.0 282.0 Z" fill="#56b866" stroke="#2f6538" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M 208.0 282.0 Q 224.9 187.5 208.0 132.0 Q 252.9 197.5 208.0 282.0 Z" fill="#6ccf73" stroke="#3b723f" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M 208.0 282.0 Q 242.0 272.0 283.2 254.6 Q 270.0 282.0 208.0 282.0 Z" fill="#3f9a52" stroke="#23552d" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M 208.0 282.0 Q 155.0 239.2 128.1 252.9 Q 183.0 249.2 208.0 282.0 Z" fill="#3f9a52" stroke="#23552d" stroke-width="3" stroke-linejoin="round"/>
+  </g>
+</svg>

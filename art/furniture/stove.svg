@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café: stove. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="394" viewBox="0 0 416 394">
+  <defs>
+    <linearGradient id="stove_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a3abc2"/><stop offset="1" stop-color="#8f96ab"/></linearGradient>
+    <linearGradient id="stove_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a8092"/><stop offset="1" stop-color="#656a78"/></linearGradient>
+    <linearGradient id="stove_g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b6176"/><stop offset="1" stop-color="#454b63"/></linearGradient>
+  </defs>
+  <g inkscape:groupmode="layer" id="shadow" inkscape:label="shadow">
+    <polygon points="208.0,186.0 400.0,282.0 208.0,378.0 16.0,282.0" fill="#1a1230" opacity="0.35"/>
+  </g>
+  <g inkscape:groupmode="layer" id="body" inkscape:label="body">
+    <polygon points="39.0,170.0 208.0,254.5 208.0,366.5 39.0,282.0" fill="url(#stove_g1)" stroke="#494d57" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="377.0,170.0 208.0,254.5 208.0,366.5 377.0,282.0" fill="url(#stove_g2)" stroke="#494d57" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="208.0,85.5 377.0,170.0 208.0,254.5 39.0,170.0" fill="url(#stove_g3)" stroke="#494d57" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="377.0,276.0 377.0,172.0 292.5,212.2" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+  </g>
+  <g inkscape:groupmode="layer" id="burners" inkscape:label="burners">
+    <ellipse cx="208.0" cy="135.4" rx="35.3" ry="17.6" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="4" opacity="1.00"/>
+    <ellipse cx="208.0" cy="135.4" rx="24.4" ry="12.2" fill="none" stroke="#ff8a3d" stroke-width="4" opacity="0.8"/>
+    <ellipse cx="277.1" cy="170.0" rx="35.3" ry="17.6" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="4" opacity="1.00"/>
+    <ellipse cx="277.1" cy="170.0" rx="24.4" ry="12.2" fill="none" stroke="#ff8a3d" stroke-width="4" opacity="0.8"/>
+    <ellipse cx="138.9" cy="170.0" rx="35.3" ry="17.6" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="4" opacity="1.00"/>
+    <ellipse cx="138.9" cy="170.0" rx="24.4" ry="12.2" fill="none" stroke="#ff8a3d" stroke-width="4" opacity="0.8"/>
+    <ellipse cx="208.0" cy="204.6" rx="35.3" ry="17.6" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="4" opacity="1.00"/>
+    <ellipse cx="208.0" cy="204.6" rx="24.4" ry="12.2" fill="none" stroke="#ff8a3d" stroke-width="4" opacity="0.8"/>
+  </g>
+  <g inkscape:groupmode="layer" id="knobs_and_display" inkscape:label="knobs_and_display">
+    <circle cx="69.8" cy="213.4" r="9" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="3"/>
+    <circle cx="117.8" cy="237.4" r="9" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="3"/>
+    <circle cx="165.8" cy="261.4" r="9" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="3"/>
+    <polygon points="340.5,208.2 244.5,256.2 244.5,276.2 340.5,228.2" fill="#38e1ff" opacity="0.85" stroke="#1d6f86" stroke-width="3"/>
+    <polygon points="350.1,243.4 234.9,301.0 234.9,339.0 350.1,281.4" fill="#2a2e3f" opacity="0.9"/>
+  </g>
+</svg>

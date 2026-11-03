@@ -45,6 +45,7 @@ var _banner_heard: bool = false
 
 
 func _ready() -> void:
+	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS  # drawn art stays smooth when zoomed out
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	visible = false
 	var shade := ColorRect.new()
@@ -254,6 +255,14 @@ func _draw_furniture(piece: Dictionary) -> void:
 	var data_piece: Piece = Session.data.pieces[piece["piece_id"]]
 	var size := Vector2(data_piece.footprint(piece.get("rotated", false)))
 	var cell := Vector2(piece["cell"]) - Vector2(0.5, 0.5)
+	# Its art, from the footprint's top corner on screen (the board may be turned round).
+	var highest := _screen(cell)
+	for corner: Vector2 in [cell + Vector2(size.x, 0), cell + size, cell + Vector2(0, size.y)]:
+		if _screen(corner).y < highest.y:
+			highest = _screen(corner)
+	var art: String = piece["piece_id"] if data_piece.kind != Piece.SEAT else "seat"
+	if PieceArt.draw(self, art, data_piece.footprint(false), piece.get("rotated", false), highest, TILE.x * _zoom()):
+		return
 	var top := _screen(cell)
 	var right := _screen(cell + Vector2(size.x, 0))
 	var bottom := _screen(cell + size)

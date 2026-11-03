@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café: pod. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="554" viewBox="0 0 416 554">
+  <defs>
+    <linearGradient id="pod_g1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#586592"/><stop offset="1" stop-color="#303958"/></linearGradient>
+    <linearGradient id="pod_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#58658e"/><stop offset="1" stop-color="#3a4a7a"/></linearGradient>
+    <linearGradient id="pod_g3" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#d6fbff"/><stop offset="1" stop-color="#38a8ff"/></linearGradient>
+  </defs>
+  <g inkscape:groupmode="layer" id="base" inkscape:label="base">
+    <polygon points="208.0,369.0 353.9,442.0 208.0,515.0 62.1,442.0" fill="#1a1230" opacity="0.35"/>
+    <path d="M 126.5 416.0 L 126.5 442.0 A 81.5 40.7 0 0 0 289.5 442.0 L 289.5 416.0 Z" fill="url(#pod_g1)" stroke="#21283d" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="208.0" cy="416.0" rx="81.5" ry="40.7" fill="url(#pod_g2)" stroke="#21283d" stroke-width="4" opacity="1.00"/>
+    <line x1="287.5" y1="438.0" x2="287.5" y2="418.0" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <ellipse cx="208.0" cy="416.0" rx="57.0" ry="28.5" fill="#38e1ff" opacity="0.5"/>
+  </g>
+  <g inkscape:groupmode="layer" id="glass" inkscape:label="glass">
+    <path d="M 141.2 416.0 L 141.2 232.8 A 66.8 66.8 0 0 1 274.8 232.8 L 274.8 416.0 A 66.8 33.4 0 0 1 141.2 416.0 Z" fill="url(#pod_g3)" stroke="#9feaff" stroke-width="4" opacity="0.5"/>
+    <path d="M 167.9 386.0 L 167.9 232.8" stroke="#ffffff" stroke-width="7" opacity="0.5" stroke-linecap="round"/>
+  </g>
+  <g inkscape:groupmode="layer" id="cap" inkscape:label="cap">
+    <ellipse cx="208.0" cy="189.4" rx="56.8" ry="23.4" fill="#5a6a9a" stroke="#2c3560" stroke-width="4"/>
+    <line x1="272.8" y1="406.0" x2="272.8" y2="232.8" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7"/>
+  </g>
+</svg>

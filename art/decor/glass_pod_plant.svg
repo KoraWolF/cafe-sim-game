@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café: glass_pod_plant. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="454" viewBox="0 0 416 454">
+  <defs>
+    <linearGradient id="glass_pod_plant_g1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#585d76"/><stop offset="1" stop-color="#303345"/></linearGradient>
+    <linearGradient id="glass_pod_plant_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4c4f61"/><stop offset="1" stop-color="#2c3045"/></linearGradient>
+    <linearGradient id="glass_pod_plant_g3" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#d6fbff"/><stop offset="1" stop-color="#5fd4ff"/></linearGradient>
+  </defs>
+  <g inkscape:groupmode="layer" id="shadow" inkscape:label="shadow">
+    <polygon points="208.0,272.9 346.2,342.0 208.0,411.1 69.8,342.0" fill="#1a1230" opacity="0.35"/>
+  </g>
+  <g inkscape:groupmode="layer" id="base" inkscape:label="base">
+    <path d="M 126.5 312.0 L 126.5 342.0 A 81.5 40.7 0 0 0 289.5 342.0 L 289.5 312.0 Z" fill="url(#glass_pod_plant_g1)" stroke="#212430" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="208.0" cy="312.0" rx="81.5" ry="40.7" fill="url(#glass_pod_plant_g2)" stroke="#212430" stroke-width="4" opacity="1.00"/>
+    <line x1="287.5" y1="338.0" x2="287.5" y2="314.0" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <ellipse cx="208.0" cy="326.0" rx="81.5" ry="40.7" fill="none" stroke="#3dffd0" stroke-width="5" opacity="0.9"/>
+  </g>
+  <g inkscape:groupmode="layer" id="plant" inkscape:label="plant">
+    <ellipse cx="184.0" cy="263.0" rx="18" ry="45.0" fill="#4fbf6a" stroke="#2b693a" stroke-width="3"/>
+    <ellipse cx="208.0" cy="248.0" rx="18" ry="60.0" fill="#6ad97e" stroke="#3a7745" stroke-width="3"/>
+    <ellipse cx="234.0" cy="268.0" rx="18" ry="40.0" fill="#3f9a52" stroke="#23552d" stroke-width="3"/>
+  </g>
+  <g inkscape:groupmode="layer" id="glass" inkscape:label="glass">
+    <path d="M 134.7 312.0 L 134.7 215.3 A 73.3 73.3 0 0 1 281.3 215.3 L 281.3 312.0 A 73.3 36.7 0 0 1 134.7 312.0 Z" fill="url(#glass_pod_plant_g3)" stroke="#9feaff" stroke-width="4" opacity="0.55"/>
+    <path d="M 159.1 282.0 Q 151.0 182.0 191.7 158.0" fill="none" stroke="#ffffff" stroke-width="6" opacity="0.6" stroke-linecap="round"/>
+  </g>
+</svg>

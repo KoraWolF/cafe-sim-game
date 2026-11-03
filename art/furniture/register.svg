@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café: register. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="404" viewBox="0 0 416 404">
+  <defs>
+    <linearGradient id="register_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4b5aa8"/><stop offset="1" stop-color="#424f94"/></linearGradient>
+    <linearGradient id="register_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#38447e"/><stop offset="1" stop-color="#2e3868"/></linearGradient>
+    <linearGradient id="register_g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7d88c1"/><stop offset="1" stop-color="#6b78b8"/></linearGradient>
+    <linearGradient id="register_g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1e4cc"/><stop offset="1" stop-color="#d4c9b4"/></linearGradient>
+    <linearGradient id="register_g5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b5ab99"/><stop offset="1" stop-color="#958d7e"/></linearGradient>
+    <linearGradient id="register_g6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6eedf"/><stop offset="1" stop-color="#f5ecdb"/></linearGradient>
+    <linearGradient id="register_g7" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a2e3f"/><stop offset="1" stop-color="#252837"/></linearGradient>
+    <linearGradient id="register_g8" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#20222f"/><stop offset="1" stop-color="#1a1d27"/></linearGradient>
+    <linearGradient id="register_g9" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#656975"/><stop offset="1" stop-color="#505462"/></linearGradient>
+    <linearGradient id="register_g10" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7ff0ff"/><stop offset="1" stop-color="#1aa6d1"/></linearGradient>
+  </defs>
+  <g inkscape:groupmode="layer" id="shadow" inkscape:label="shadow">
+    <polygon points="208.0,192.2 407.7,292.0 208.0,391.8 8.3,292.0" fill="#1a1230" opacity="0.35"/>
+  </g>
+  <g inkscape:groupmode="layer" id="stand" inkscape:label="stand">
+    <polygon points="39.0,212.0 208.0,296.5 208.0,376.5 39.0,292.0" fill="url(#register_g1)" stroke="#22284c" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="377.0,212.0 208.0,296.5 208.0,376.5 377.0,292.0" fill="url(#register_g2)" stroke="#22284c" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="208.0,127.5 377.0,212.0 208.0,296.5 39.0,212.0" fill="url(#register_g3)" stroke="#22284c" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="377.0,286.0 377.0,214.0 292.5,254.2" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <polygon points="23.7,204.0 208.0,296.2 208.0,304.2 23.7,212.0" fill="url(#register_g4)" stroke="#6c675c" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="392.3,204.0 208.0,296.2 208.0,304.2 392.3,212.0" fill="url(#register_g5)" stroke="#6c675c" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="208.0,111.8 392.3,204.0 208.0,296.2 23.7,204.0" fill="url(#register_g6)" stroke="#6c675c" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="392.3,206.0 392.3,206.0 300.2,250.1" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+  </g>
+  <g inkscape:groupmode="layer" id="terminal" inkscape:label="terminal">
+    <polygon points="138.9,178.2 219.5,218.5 219.5,240.5 138.9,200.2" fill="url(#register_g7)" stroke="#13151c" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="288.6,183.9 219.5,218.5 219.5,240.5 288.6,205.9" fill="url(#register_g8)" stroke="#13151c" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="208.0,143.6 288.6,183.9 219.5,218.5 138.9,178.2" fill="url(#register_g9)" stroke="#13151c" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="288.6,199.9 288.6,185.9 254.1,201.2" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <polygon points="169.6,160.8 250.2,201.1 227.2,156.6 146.6,116.3" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="173.4,160.6 238.7,193.2 223.4,156.9 158.1,124.2" fill="url(#register_g10)" opacity="0.95"/>
+    <line x1="179.2" y1="137.2" x2="221.4" y2="158.3" stroke="#0d3b52" stroke-width="4" stroke-linecap="round"/>
+    <line x1="179.2" y1="149.2" x2="209.9" y2="164.6" stroke="#0d3b52" stroke-width="4" stroke-linecap="round"/>
+    <line x1="179.2" y1="161.2" x2="198.4" y2="170.8" stroke="#0d3b52" stroke-width="4" stroke-linecap="round"/>
+  </g>
+</svg>

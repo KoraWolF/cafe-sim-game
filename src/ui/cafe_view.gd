@@ -93,6 +93,7 @@ var _heads: Dictionary[String, Vector2] = {}
 
 
 func _ready() -> void:
+	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS  # drawn art stays smooth when zoomed out
 	add_child(camera)
 	camera.make_current()
 	fit_camera()
@@ -458,8 +459,10 @@ func _draw_pod_bay(state: GameState, data: GameData) -> void:
 		14, UiTheme.PANEL_BORDER)
 
 
-## One glass Sync Pod standing at base (world).
+## One glass Sync Pod standing at base (world): its art, or a placeholder.
 func _draw_pod(base: Vector2) -> void:
+	if PieceArt.draw(self, "pod", Vector2i.ONE, false, base - Vector2(0, Iso.TILE.y * 0.5), Iso.TILE.x):
+		return
 	draw_set_transform(base, 0, Vector2(1, 0.45))
 	draw_circle(Vector2.ZERO, 22, Color("3a4a7a"))
 	draw_set_transform(Vector2.ZERO)
@@ -485,7 +488,13 @@ func _draw_piece(placed: PlacedPiece) -> void:
 	var color := piece_color(piece)
 	if editor != null and placed.uid == editor.held_uid:
 		color.a = 0.3  # being moved: the ghost shows where it goes
-	_draw_block(Vector2(placed.cell), size, HEIGHTS.get(piece.kind, 20.0), color)
+	var art := [piece.id, placed.rotated]
+	if piece.kind == Piece.SEAT:
+		var paired := Layout.placed_by_uid(Session.state, Session.state.seat_table.get(placed.uid, ""))
+		art = PieceArt.seat(paired.cell - placed.cell if paired != null else Vector2i.ZERO)
+	if not PieceArt.draw(self, art[0], piece.footprint(false), art[1], Iso.to_world(Vector2(placed.cell)), Iso.TILE.x,
+			Color(1, 1, 1, color.a)):
+		_draw_block(Vector2(placed.cell), size, HEIGHTS.get(piece.kind, 20.0), color)
 	var label_at := Iso.centre(placed.cell, Vector2i(size)) - Vector2(0, HEIGHTS.get(piece.kind, 20.0) + 6)
 	if piece.kind == Piece.STOVE:
 		var stove := Layout.stove_of(Session.state, placed.uid)
@@ -496,8 +505,8 @@ func _draw_piece(placed: PlacedPiece) -> void:
 			var recipe := data.recipes[stove.recipe_id]
 			_draw_bar(label_at + Vector2(0, -10), 60, 1.0 - stove.remaining / recipe.cook_seconds, UiTheme.WARN)
 			_text(label_at + Vector2(0, -20), UiText.name(recipe.id), 14, UiTheme.TEXT)
-	elif piece.kind == Piece.DECOR:
-		_text(label_at, UiText.name(piece.id), 12, UiTheme.TEXT_DIM)
+	elif piece.kind == Piece.DECOR and (editor != null or PieceArt.texture(piece.id) == null):
+		_text(label_at, UiText.name(piece.id), 12, UiTheme.TEXT_DIM)  # drawn décor is named only while arranging
 	elif piece.kind == Piece.COUNTER:
 		var state := Session.state
 		_draw_cups(Iso.centre(placed.cell, Vector2i(size)) - Vector2(0, HEIGHTS["counter"]),
@@ -506,11 +515,12 @@ func _draw_piece(placed: PlacedPiece) -> void:
 		var state := Session.state
 		var table := Layout.placed_by_uid(state, state.seat_table.get(placed.uid, ""))
 		if table != null:
-			# A backrest on the side away from its table: the seat faces the table.
-			var facing := table.cell - placed.cell
-			var back := Vector2(placed.cell) + Vector2(maxf(-facing.x, 0.0) * 0.8, maxf(-facing.y, 0.0) * 0.8)
-			var thin := Vector2(0.2, 1.0) if facing.x != 0 else Vector2(1.0, 0.2)
-			_draw_block(back, thin, 34.0, color.darkened(0.1))
+			if PieceArt.texture("seat_far") == null:
+				# A backrest on the side away from its table: the seat faces the table.
+				var facing := table.cell - placed.cell
+				var back := Vector2(placed.cell) + Vector2(maxf(-facing.x, 0.0) * 0.8, maxf(-facing.y, 0.0) * 0.8)
+				var thin := Vector2(0.2, 1.0) if facing.x != 0 else Vector2(1.0, 0.2)
+				_draw_block(back, thin, 34.0, color.darkened(0.1))
 		else:
 			# Works only beside a table.
 			_text(label_at, tr("ui.seat_no_table"), 12, UiTheme.BAD)
@@ -591,7 +601,10 @@ func _draw_editing(state: GameState, data: GameData) -> void:
 		_draw_range(cell, Vector2i(size), state, data)
 		for seat_uid: String in preview["seats"]:
 			_outline(Layout.placed_by_uid(state, seat_uid), UiTheme.GOOD)
-	_draw_block(Vector2(cell), size, HEIGHTS.get(piece.kind, 20.0), color)
+	_draw_tile_marks(cell, size, color)
+	if not PieceArt.draw(self, piece.id, piece.footprint(false), editor.rotated, Iso.to_world(Vector2(cell)), Iso.TILE.x,
+			Color(color, 0.75).lightened(0.4)):
+		_draw_block(Vector2(cell), size, HEIGHTS.get(piece.kind, 20.0), color)
 	for uid: String in preview["matches"]:
 		_outline(Layout.placed_by_uid(state, uid), UiTheme.WARN)
 	var label_at := Iso.centre(cell, Vector2i(size)) - Vector2(0, HEIGHTS.get(piece.kind, 20.0) + 14)
@@ -620,6 +633,13 @@ func _outline(placed: PlacedPiece, color: Color) -> void:
 	draw_polyline(PackedVector2Array([Iso.to_world(cell) + lift, Iso.to_world(cell + Vector2(size.x, 0)) + lift,
 		Iso.to_world(cell + size) + lift, Iso.to_world(cell + Vector2(0, size.y)) + lift, Iso.to_world(cell) + lift]),
 		color, 3.0)
+
+
+## The tiles a held piece would take, tinted (green: fits, red: doesn't).
+func _draw_tile_marks(cell: Vector2i, size: Vector2, color: Color) -> void:
+	var corners := PackedVector2Array([Iso.to_world(Vector2(cell)), Iso.to_world(Vector2(cell) + Vector2(size.x, 0)),
+		Iso.to_world(Vector2(cell) + size), Iso.to_world(Vector2(cell) + Vector2(0, size.y))])
+	draw_colored_polygon(corners, Color(color, 0.35))
 
 
 ## An isometric box on the floor.
