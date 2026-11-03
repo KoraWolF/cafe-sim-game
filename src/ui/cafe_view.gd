@@ -85,6 +85,11 @@ var _trips: Dictionary[String, Dictionary] = {}
 var _effects: Array[Dictionary] = []
 var camera := Camera2D.new()
 var _time: float = 0.0
+## The rigged characters' animation clock (stands still while the game is paused),
+## where each was last drawn, and which way each faces (true = left).
+var _rig_time: float = 0.0
+var _rig_seen: Dictionary[String, Vector2] = {}
+var _rig_left: Dictionary[String, bool] = {}
 var _drag_from := Vector2.ZERO
 var _dragging := false
 var _pressed := false
@@ -104,6 +109,8 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_time += delta
+	if Session.has_game() and not (Session.paused or (Session.state.speed == 0 and Session.state.phase == GameState.Phase.SHIFT)):
+		_rig_time += delta
 	_walk_delta = delta
 	for effect: Dictionary in _effects:
 		effect["age"] += delta
@@ -968,7 +975,15 @@ func _stove_front(index: int, state: GameState, data: GameData) -> Vector2:
 
 func _draw_customer(customer: Customer, at: Vector2) -> void:
 	var color: Color = UiTheme.CUSTOMER_COLORS.get(customer.type_id, Color.GRAY)
-	var head := _draw_body(at, color, Color("ffd9b8"), customer.id)
+	var head: Vector2
+	if CharacterArt.has_art(customer.type_id):
+		var anim: String = {Customer.Stage.WAITING_FOOD: "sit", Customer.Stage.EATING: "eat",
+			Customer.Stage.WAITING_PAY: "sit"}.get(customer.stage, "idle")
+		var face := "eat" if customer.stage == Customer.Stage.EATING else ("angry" if customer.satisfaction < 30.0 \
+			else ("happy" if customer.starred else "neutral"))
+		head = _draw_rigged(customer.id, at, customer.type_id, "", anim, face)
+	else:
+		head = _draw_body(at, color, Color("ffd9b8"), customer.id)
 	var above := head + Vector2(0, -30)
 	if customer.stage == Customer.Stage.EATING:
 		_draw_bar(above + Vector2(0, 8), 34, 1.0 - float(customer.timer) / Session.data.balance.eat_seconds, UiTheme.GOOD)
@@ -976,7 +991,12 @@ func _draw_customer(customer: Customer, at: Vector2) -> void:
 
 func _draw_leaver(leaver: Dictionary) -> void:
 	var color: Color = UiTheme.CUSTOMER_COLORS.get(leaver["type_id"], Color.GRAY)
-	var head := _draw_body(leaver["at"], color, Color("ffd9b8"), leaver.get("id", ""))
+	var head: Vector2
+	if CharacterArt.has_art(leaver["type_id"]):
+		head = _draw_rigged(leaver.get("id", ""), leaver["at"], leaver["type_id"], "", "angry" if leaver["angry"] else "idle",
+			"angry" if leaver["angry"] else "neutral")
+	else:
+		head = _draw_body(leaver["at"], color, Color("ffd9b8"), leaver.get("id", ""))
 	if leaver["angry"]:
 		_text(head + Vector2(0, -26), "!", 24, UiTheme.BAD)
 
@@ -992,13 +1012,30 @@ func _draw_synth(synth: Synth, at: Vector2) -> void:
 	var data := Session.data
 	var outfit := Items.worn(synth, "outfit", data)
 	var body := Color(data.items.fashion[outfit.type_id]["color"]) if outfit != null else Color("9aa3b8")
-	var head := _draw_body(at, body, glow, synth.id, true)
+	var head: Vector2
+	var body_type := CharacterArt.body_of(synth.species_id, data)
+	var rigged := CharacterArt.has_art(body_type, synth.species_id)
+	if rigged:
+		var anim := "idle"
+		var face := "neutral"
+		if synth.role == Synth.REST:
+			anim = "rest"
+			face = "rest"
+		elif synth.is_delivering() or synth.is_carrying():
+			anim = "carry_still"
+		elif synth.role == Synth.CHEF:
+			var stove := Layout.stove_of(Session.state, synth.station_uid)
+			anim = "cook" if stove != null and not stove.is_idle() else "idle"
+		head = _draw_rigged(synth.id, at, body_type, synth.species_id, anim, face, glow)
+	else:
+		head = _draw_body(at, body, glow, synth.id, true)
 	var hat := Items.worn(synth, "hat", data)
 	if hat != null:
 		var hat_color := Color(data.items.fashion[hat.type_id]["color"])
-		draw_rect(Rect2(head + Vector2(-13, -20), Vector2(26, 9)), hat_color)
-		draw_rect(Rect2(head + Vector2(-8, -27), Vector2(16, 8)), hat_color)
-		draw_rect(Rect2(head + Vector2(-13, -20), Vector2(26, 9)), hat_color.darkened(0.5), false, 1.5)
+		var brim := head + (Vector2(0, -16) if rigged else Vector2.ZERO)
+		draw_rect(Rect2(brim + Vector2(-13, -20), Vector2(26, 9)), hat_color)
+		draw_rect(Rect2(brim + Vector2(-8, -27), Vector2(16, 8)), hat_color)
+		draw_rect(Rect2(brim + Vector2(-13, -20), Vector2(26, 9)), hat_color.darkened(0.5), false, 1.5)
 	var above := head + Vector2(0, -38 if hat != null else -28)
 	_draw_bar(above + Vector2(0, 6), 34, synth.battery / SynthStats.stat(synth, "battery_max", data), _battery_color(synth, data))
 	_text(above + Vector2(0, -4), "Lv%d" % synth.level, 13, glow)
@@ -1006,6 +1043,26 @@ func _draw_synth(synth: Synth, at: Vector2) -> void:
 		draw_circle(head + Vector2(16, 18), 7, Color.WHITE)
 		if synth.is_carrying():
 			draw_circle(head + Vector2(20, 12), 6, Color.WHITE)
+
+
+## A rigged character (see CharacterArt) standing at `at` (cell units), posed
+## by anim and face; walking whenever it moved since the last frame, facing the
+## way it last went. Returns its head's centre (and records it for clicks).
+func _draw_rigged(person_id: String, at: Vector2, type_id: String, species_id: String, anim: String, face: String,
+		glow := Color.WHITE) -> Vector2:
+	var feet := Iso.to_world(at)
+	var last: Vector2 = _rig_seen.get(person_id, feet)
+	_rig_seen[person_id] = feet
+	if absf(feet.x - last.x) > 0.05:
+		_rig_left[person_id] = feet.x < last.x
+	if feet.distance_to(last) > 0.05 and anim != "angry":
+		anim = "carry" if anim == "carry_still" else "walk"
+	var pose := {"anim": anim, "t": _rig_time + float(absi(person_id.hash()) % 100) / 37.0, "face": face,
+		"mirror": _rig_left.get(person_id, false), "glow": glow}
+	var head := CharacterArt.draw(self, feet, CharacterArt.SIZE, type_id, species_id, pose)
+	if person_id != "":
+		_heads[person_id] = head
+	return head
 
 
 ## Shadow, body and head of a chibi; returns the head position. Synths get a visor.
