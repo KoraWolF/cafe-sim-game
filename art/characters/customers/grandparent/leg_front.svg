@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- NanoBrew Café rig part: customers/grandparent/leg_front. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
-  <defs><linearGradient id="bottom" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8e7360"/><stop offset="1" stop-color="#5c4433"/></linearGradient><linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f9ddce"/><stop offset="1" stop-color="#ebc8b4"/></linearGradient></defs>
+  <defs><linearGradient id="bottom" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4b4354"/><stop offset="1" stop-color="#201a28"/></linearGradient><linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f9ddce"/><stop offset="1" stop-color="#ebc8b4"/></linearGradient></defs>
   <g inkscape:label="leg_front" stroke-linejoin="round" stroke-linecap="round">
-    <rect x="134" y="338" width="32" height="76" rx="13" fill="url(#bottom)" stroke="#37281f" stroke-width="4"/>
-    <ellipse cx="154" cy="418" rx="24" ry="12" fill="#5e3d26" stroke="#2f1e13" stroke-width="4"/>
-    <path d="M136,422 l36,0" stroke="#3d2819" stroke-width="4"/>
+    <rect x="134" y="338" width="32" height="76" rx="13" fill="url(#bottom)" stroke="#130f18" stroke-width="4"/>
+    <ellipse cx="154" cy="418" rx="24" ry="12" fill="#14111f" stroke="#0a0810" stroke-width="4"/>
+    <path d="M136,422 l36,0" stroke="#0d0b14" stroke-width="4"/>
   </g>
 </svg>

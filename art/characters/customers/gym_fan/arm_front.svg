@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- NanoBrew Café rig part: customers/gym_fan/arm_front. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
-  <defs><linearGradient id="sleeve" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dfa780"/><stop offset="1" stop-color="#a37150"/></linearGradient><linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e2b18f"/><stop offset="1" stop-color="#ce8f65"/></linearGradient></defs>
+  <defs><linearGradient id="sleeve" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d19c76"/><stop offset="1" stop-color="#976846"/></linearGradient><linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d6a786"/><stop offset="1" stop-color="#bf8359"/></linearGradient></defs>
   <g inkscape:label="arm_front" stroke-linejoin="round" stroke-linecap="round">
-    <rect x="174" y="258" width="34" height="82" rx="15" fill="url(#sleeve)" stroke="#986a4a" stroke-width="4" transform="rotate(-6 191 258)"/>
-    <circle cx="198" cy="344" r="15" fill="url(#skin)" stroke="#986a4a" stroke-width="4"/>
+    <rect x="174" y="258" width="34" height="82" rx="15" fill="url(#sleeve)" stroke="#8d6142" stroke-width="4" transform="rotate(-6 191 258)"/>
+    <circle cx="198" cy="344" r="15" fill="url(#skin)" stroke="#8d6142" stroke-width="4"/>
   </g>
 </svg>

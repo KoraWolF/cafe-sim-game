@@ -4,7 +4,7 @@
   <defs></defs>
   <g inkscape:label="face_happy" stroke-linejoin="round" stroke-linecap="round">
     <ellipse cx="100" cy="196" rx="13" ry="7" fill="#ff8fa3" opacity="0.8"/><ellipse cx="196" cy="194" rx="14" ry="7" fill="#ff8fa3" opacity="0.8"/>
-    <path d="M106,170 Q118,150 130,170 M162,168 Q176,148 190,168" fill="none" stroke="#1a2a4a" stroke-width="7"/>
+    <path d="M106,170 Q118,150 130,170 M162,168 Q176,148 190,168" fill="none" stroke="#0a1a3a" stroke-width="7"/>
     <path d="M134,198 Q151,226 170,197 Z" fill="#7a3b3b" stroke="#7a3b3b" stroke-width="4"/>
     <path d="M142,206 Q151,214 162,205" fill="#ff8fa3"/>
   </g>

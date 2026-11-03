@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- NanoBrew Café rig part: synths/hypeform/arm_front. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
-  <defs><linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9dde6"/><stop offset="1" stop-color="#8d919a"/></linearGradient><linearGradient id="lit" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff84e4"/><stop offset="1" stop-color="#cc3fad"/></linearGradient></defs>
+  <defs><linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9e0eb"/><stop offset="1" stop-color="#797e88"/></linearGradient><linearGradient id="lit" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff84e4"/><stop offset="1" stop-color="#cc3fad"/></linearGradient></defs>
   <g inkscape:label="arm_front" stroke-linejoin="round" stroke-linecap="round">
-    <rect x="178" y="256" width="28" height="44" rx="10" fill="url(#metal)" stroke="#5b647a" stroke-width="4"/>
-    <circle cx="192" cy="304" r="11" fill="url(#lit)" stroke="#a82a8c" stroke-width="4"/>
-    <rect x="182" y="306" width="22" height="34" rx="8" fill="url(#metal)" stroke="#5b647a" stroke-width="4"/>
-    <circle cx="193" cy="352" r="18" fill="none" stroke="#ffd9f4" stroke-width="7"/>
-    <circle cx="193" cy="352" r="18" fill="none" stroke="#ff4fd8" stroke-width="3"/>
-    <path d="M200,262 L200,296" stroke="#38e1ff" stroke-width="3" opacity="0.9"/>
+    <rect x="176" y="254" width="32" height="48" rx="8" fill="url(#metal)" stroke="#2a3046" stroke-width="4"/>
+    <path d="M182,264 L202,264 M182,276 L202,276" stroke="#2a3046" stroke-width="3"/>
+    <circle cx="192" cy="306" r="12" fill="url(#lit)" stroke="#2a3046" stroke-width="4"/>
+    <circle cx="192" cy="306" r="18" fill="#ff4fd8" opacity="0.25"/>
+    <rect x="181" y="308" width="24" height="36" rx="6" fill="url(#metal)" stroke="#2a3046" stroke-width="4"/>
+    <path d="M186,316 L186,336" stroke="#ff4fd8" stroke-width="4"/>
+    <path d="M182,344 l-6,14 M193,346 l0,16 M204,344 l6,14" stroke="#2a3046" stroke-width="6"/>
+    <path d="M204,262 L204,298" stroke="#19f0ff" stroke-width="3" opacity="0.9"/>
+    <circle cx="193" cy="352" r="20" fill="none" stroke="#ff4fd8" stroke-width="6"/>
   </g>
 </svg>

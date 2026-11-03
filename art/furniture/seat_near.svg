@@ -1,37 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- NanoBrew Café: seat_near. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="394" viewBox="0 0 416 394">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="434" viewBox="0 0 416 434">
   <defs>
-    <linearGradient id="seat_near_g1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#aab2c7"/><stop offset="1" stop-color="#6a6f7e"/></linearGradient>
-    <linearGradient id="seat_near_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c0c6d5"/><stop offset="1" stop-color="#b5bcce"/></linearGradient>
-    <linearGradient id="seat_near_g3" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#eb935d"/><stop offset="1" stop-color="#975a33"/></linearGradient>
-    <linearGradient id="seat_near_g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#efa77b"/><stop offset="1" stop-color="#ec9864"/></linearGradient>
-    <linearGradient id="seat_near_g5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#714938"/><stop offset="1" stop-color="#5a3728"/></linearGradient>
-    <linearGradient id="seat_near_g6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#492c21"/><stop offset="1" stop-color="#382219"/></linearGradient>
-    <linearGradient id="seat_near_g7" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#957669"/><stop offset="1" stop-color="#866355"/></linearGradient>
-    <linearGradient id="seat_near_g8" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eb9661"/><stop offset="1" stop-color="#c67543"/></linearGradient>
+    <linearGradient id="seat_near_g1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#cdd6e5"/><stop offset="1" stop-color="#838894"/></linearGradient>
+    <linearGradient id="seat_near_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dae0ec"/><stop offset="1" stop-color="#d4dbe9"/></linearGradient>
+    <linearGradient id="seat_near_g3" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#93314a"/><stop offset="1" stop-color="#5a1426"/></linearGradient>
+    <linearGradient id="seat_near_g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ab5e71"/><stop offset="1" stop-color="#9c4158"/></linearGradient>
+    <linearGradient id="seat_near_g5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cbd4e4"/><stop offset="1" stop-color="#a9b0bf"/></linearGradient>
+    <linearGradient id="seat_near_g6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#898f9a"/><stop offset="1" stop-color="#696d76"/></linearGradient>
+    <linearGradient id="seat_near_g7" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d8deeb"/><stop offset="1" stop-color="#d3dae8"/></linearGradient>
+    <linearGradient id="seat_near_g8" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cbd4e4"/><stop offset="1" stop-color="#a9b0bf"/></linearGradient>
+    <linearGradient id="seat_near_g9" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#898f9a"/><stop offset="1" stop-color="#696d76"/></linearGradient>
+    <linearGradient id="seat_near_g10" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d8deeb"/><stop offset="1" stop-color="#d3dae8"/></linearGradient>
+    <linearGradient id="seat_near_g11" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9c4158"/><stop offset="1" stop-color="#6e192e"/></linearGradient>
   </defs>
   <g inkscape:groupmode="layer" id="shadow" inkscape:label="shadow">
-    <polygon points="208.0,201.4 369.3,282.0 208.0,362.6 46.7,282.0" fill="#1a1230" opacity="0.35"/>
+    <polygon points="208.0,252.9 346.2,322.0 208.0,391.1 69.8,322.0" fill="#ff2fb4" opacity="0.22"/>
   </g>
   <g inkscape:groupmode="layer" id="stool" inkscape:label="stool">
-    <ellipse cx="208.0" cy="280.0" rx="70.6" ry="35.3" fill="#7a8092" stroke="#3d4049" stroke-width="4" opacity="1.00"/>
-    <path d="M 191.7 246.0 L 191.7 282.0 A 16.3 8.1 0 0 0 224.3 282.0 L 224.3 246.0 Z" fill="url(#seat_near_g1)" stroke="#494d57" stroke-width="4" stroke-linejoin="round"/>
-    <ellipse cx="208.0" cy="246.0" rx="16.3" ry="8.1" fill="url(#seat_near_g2)" stroke="#494d57" stroke-width="4" opacity="1.00"/>
-    <ellipse cx="208.0" cy="266.0" rx="54.3" ry="27.2" fill="none" stroke="#6a6f7e" stroke-width="6"/>
-    <path d="M 107.5 222.0 L 107.5 248.0 A 100.5 50.2 0 0 0 308.5 248.0 L 308.5 222.0 Z" fill="url(#seat_near_g3)" stroke="#693e24" stroke-width="4" stroke-linejoin="round"/>
-    <ellipse cx="208.0" cy="222.0" rx="100.5" ry="50.2" fill="url(#seat_near_g4)" stroke="#693e24" stroke-width="4" opacity="1.00"/>
-    <line x1="306.5" y1="244.0" x2="306.5" y2="224.0" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
-    <ellipse cx="208.0" cy="222.0" rx="78.4" ry="39.2" fill="none" stroke="#975a33" stroke-width="3" stroke-dasharray="10 8" opacity="0.7"/>
-    <ellipse cx="177.9" cy="209.4" rx="40.2" ry="17.6" fill="#ffffff" opacity="0.2"/>
+    <ellipse cx="208.0" cy="320.0" rx="65.2" ry="32.6" fill="#4a5068" stroke="#2a3046" stroke-width="4" opacity="1.00"/>
+    <path d="M 194.4 252.0 L 194.4 322.0 A 13.6 6.8 0 0 0 221.6 322.0 L 221.6 252.0 Z" fill="url(#seat_near_g1)" stroke="#2a3046" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="208.0" cy="252.0" rx="13.6" ry="6.8" fill="url(#seat_near_g2)" stroke="#2a3046" stroke-width="4" opacity="1.00"/>
+    <ellipse cx="208.0" cy="298.0" rx="54.3" ry="27.2" fill="none" stroke="#c9d2e3" stroke-width="7"/>
+    <ellipse cx="208.0" cy="302.0" rx="54.3" ry="27.2" fill="none" stroke="#ff2fb4" stroke-width="3" opacity="0.9"/>
+    <path d="M 115.7 232.0 L 115.7 254.0 A 92.3 46.2 0 0 0 300.3 254.0 L 300.3 232.0 Z" fill="url(#seat_near_g3)" stroke="#3e0e1a" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="208.0" cy="232.0" rx="92.3" ry="46.2" fill="url(#seat_near_g4)" stroke="#3e0e1a" stroke-width="4" opacity="1.00"/>
+    <line x1="298.3" y1="250.0" x2="298.3" y2="234.0" stroke="#19f0ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <ellipse cx="208.0" cy="232.0" rx="72.0" ry="36.0" fill="none" stroke="#531323" stroke-width="3" stroke-dasharray="8 7" opacity="0.6"/>
+    <ellipse cx="180.3" cy="218.2" rx="32.3" ry="13.8" fill="#ffffff" opacity="0.22"/>
+    <path d="M 226.5 232.0 l 14 6" stroke="#000000" stroke-width="3" opacity="0.35"/>
   </g>
   <g inkscape:groupmode="layer" id="backrest" inkscape:label="backrest">
-    <polygon points="196.5,185.7 219.5,197.2 219.5,309.2 196.5,297.7" fill="url(#seat_near_g5)" stroke="#301d16" stroke-width="4" stroke-linejoin="round"/>
-    <polygon points="342.4,135.8 219.5,197.2 219.5,309.2 342.4,247.8" fill="url(#seat_near_g6)" stroke="#301d16" stroke-width="4" stroke-linejoin="round"/>
-    <polygon points="196.5,275.7 219.5,287.2 219.5,309.2 196.5,297.7" fill="#2b1a13" opacity="0.3"/>
-    <polygon points="319.4,124.2 342.4,135.8 219.5,197.2 196.5,185.7" fill="url(#seat_near_g7)" stroke="#301d16" stroke-width="4" stroke-linejoin="round"/>
-    <polyline points="202.2,188.6 213.8,194.3" fill="none" stroke="#ffffff" stroke-width="3" stroke-opacity="0.35" stroke-linecap="round"/>
-    <polyline points="342.4,241.8 342.4,137.8 281.0,166.5" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
-    <polygon points="300.2,142.0 208.0,188.1 208.0,248.1 300.2,202.0" fill="url(#seat_near_g8)" stroke="#744528" stroke-width="3" stroke-linejoin="round"/>
+    <polygon points="302.1,164.9 313.6,170.6 313.6,254.6 302.1,248.9" fill="url(#seat_near_g5)" stroke="#2a3046" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="325.1,164.9 313.6,170.6 313.6,254.6 325.1,248.9" fill="url(#seat_near_g6)" stroke="#2a3046" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="302.1,227.9 313.6,233.6 313.6,254.6 302.1,248.9" fill="#50545b" opacity="0.3"/>
+    <polygon points="313.6,159.1 325.1,164.9 313.6,170.6 302.1,164.9" fill="url(#seat_near_g7)" stroke="#2a3046" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="307.8,167.8 307.8,167.8" fill="none" stroke="#ffffff" stroke-width="3" stroke-opacity="0.35" stroke-linecap="round"/>
+    <polygon points="202.2,214.8 213.8,220.6 213.8,304.6 202.2,298.8" fill="url(#seat_near_g8)" stroke="#2a3046" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="225.3,214.8 213.8,220.6 213.8,304.6 225.3,298.8" fill="url(#seat_near_g9)" stroke="#2a3046" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="202.2,277.8 213.8,283.6 213.8,304.6 202.2,298.8" fill="#50545b" opacity="0.3"/>
+    <polygon points="213.8,209.0 225.3,214.8 213.8,220.6 202.2,214.8" fill="url(#seat_near_g10)" stroke="#2a3046" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="208.0,217.7 208.0,217.7" fill="none" stroke="#ffffff" stroke-width="3" stroke-opacity="0.35" stroke-linecap="round"/>
+    <polygon points="311.7,150.2 196.5,207.8 196.5,249.8 311.7,192.2" fill="url(#seat_near_g11)" stroke="#3e0e1a" stroke-width="3" stroke-linejoin="round"/>
   </g>
 </svg>

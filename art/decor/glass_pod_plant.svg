@@ -1,30 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- NanoBrew Café: glass_pod_plant. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="474" viewBox="0 0 416 474">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="494" viewBox="0 0 416 494">
   <defs>
-    <linearGradient id="glass_pod_plant_g1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#585d76"/><stop offset="1" stop-color="#303345"/></linearGradient>
-    <linearGradient id="glass_pod_plant_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4c4f61"/><stop offset="1" stop-color="#2c3045"/></linearGradient>
-    <linearGradient id="glass_pod_plant_g3" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#d6fbff"/><stop offset="1" stop-color="#5fd4ff"/></linearGradient>
+    <linearGradient id="glass_pod_plant_g1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#585e74"/><stop offset="1" stop-color="#303444"/></linearGradient>
+    <linearGradient id="glass_pod_plant_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4b4e5e"/><stop offset="1" stop-color="#2b2f42"/></linearGradient>
+    <linearGradient id="glass_pod_plant_g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b6ff3b"/><stop offset="1" stop-color="#1f6b2a"/></linearGradient>
+    <linearGradient id="glass_pod_plant_g4" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#585e74"/><stop offset="1" stop-color="#303444"/></linearGradient>
+    <linearGradient id="glass_pod_plant_g5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4b4e5e"/><stop offset="1" stop-color="#2b2f42"/></linearGradient>
   </defs>
   <g inkscape:groupmode="layer" id="shadow" inkscape:label="shadow">
-    <polygon points="208.0,289.0 353.9,362.0 208.0,435.0 62.1,362.0" fill="#1a1230" opacity="0.35"/>
+    <polygon points="208.0,305.2 361.6,382.0 208.0,458.8 54.4,382.0" fill="#b6ff3b" opacity="0.22"/>
   </g>
   <g inkscape:groupmode="layer" id="base" inkscape:label="base">
-    <path d="M 121.1 328.0 L 121.1 362.0 A 86.9 43.4 0 0 0 294.9 362.0 L 294.9 328.0 Z" fill="url(#glass_pod_plant_g1)" stroke="#212430" stroke-width="4" stroke-linejoin="round"/>
-    <ellipse cx="208.0" cy="328.0" rx="86.9" ry="43.4" fill="url(#glass_pod_plant_g2)" stroke="#212430" stroke-width="4" opacity="1.00"/>
-    <line x1="292.9" y1="358.0" x2="292.9" y2="330.0" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
-    <ellipse cx="208.0" cy="344.0" rx="86.9" ry="43.4" fill="none" stroke="#3dffd0" stroke-width="5" opacity="0.9"/>
+    <path d="M 121.1 348.0 L 121.1 382.0 A 86.9 43.4 0 0 0 294.9 382.0 L 294.9 348.0 Z" fill="url(#glass_pod_plant_g1)" stroke="#2a3046" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="208.0" cy="348.0" rx="86.9" ry="43.4" fill="url(#glass_pod_plant_g2)" stroke="#2a3046" stroke-width="4" opacity="1.00"/>
+    <line x1="292.9" y1="378.0" x2="292.9" y2="350.0" stroke="#19f0ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
   </g>
-  <g inkscape:groupmode="layer" id="plant" inkscape:label="plant">
-    <ellipse cx="174.0" cy="284.0" rx="16" ry="40.0" fill="#3f9a52" stroke="#23552d" stroke-width="3"/>
-    <ellipse cx="194.0" cy="264.0" rx="16" ry="60.0" fill="#4fbf6a" stroke="#2b693a" stroke-width="3"/>
-    <ellipse cx="216.0" cy="251.5" rx="16" ry="72.5" fill="#6ad97e" stroke="#3a7745" stroke-width="3"/>
-    <ellipse cx="238.0" cy="274.0" rx="16" ry="50.0" fill="#3f9a52" stroke="#23552d" stroke-width="3"/>
-    <ellipse cx="178.0" cy="310.0" rx="10" ry="7" fill="#3dffd0" stroke="#1d8f78" stroke-width="2"/>
-    <ellipse cx="232.0" cy="314.0" rx="10" ry="7" fill="#3dffd0" stroke="#1d8f78" stroke-width="2"/>
+  <g inkscape:groupmode="layer" id="fluid" inkscape:label="fluid">
+    <rect x="136.8" y="178.0" width="142.5" height="170.0" rx="42.7" fill="url(#glass_pod_plant_g3)" opacity="0.75"/>
+    <ellipse cx="192.0" cy="285.0" rx="12" ry="55.0" fill="#1f6b4a" stroke="#103625" stroke-width="3"/>
+    <ellipse cx="216.0" cy="270.0" rx="12" ry="70.0" fill="#2a8a5a" stroke="#15452d" stroke-width="3"/>
+    <ellipse cx="230.0" cy="295.0" rx="12" ry="45.0" fill="#1f6b4a" stroke="#103625" stroke-width="3"/>
+    <circle cx="188.0" cy="308.0" r="3" fill="#ffffff" opacity="0.55"/>
+    <circle cx="199.0" cy="282.0" r="4" fill="#ffffff" opacity="0.55"/>
+    <circle cx="210.0" cy="256.0" r="5" fill="#ffffff" opacity="0.55"/>
+    <circle cx="221.0" cy="230.0" r="3" fill="#ffffff" opacity="0.55"/>
+    <circle cx="232.0" cy="204.0" r="4" fill="#ffffff" opacity="0.55"/>
   </g>
   <g inkscape:groupmode="layer" id="glass" inkscape:label="glass">
-    <path d="M 128.1 328.0 L 128.1 217.9 A 79.9 79.9 0 0 1 287.9 217.9 L 287.9 328.0 A 79.9 40.0 0 0 1 128.1 328.0 Z" fill="url(#glass_pod_plant_g3)" stroke="#9feaff" stroke-width="4" opacity="0.5"/>
-    <path d="M 156.0 298.0 Q 148.0 182.0 192.0 154.0" fill="none" stroke="#ffffff" stroke-width="6" opacity="0.6" stroke-linecap="round"/>
+    <rect x="136.8" y="148.0" width="142.5" height="200.0" rx="42.7" fill="none" stroke="#c9d2e3" stroke-width="5" opacity="0.8"/>
+    <path d="M 126.5 164.0 L 126.5 182.0 A 81.5 40.7 0 0 0 289.5 182.0 L 289.5 164.0 Z" fill="url(#glass_pod_plant_g4)" stroke="#2a3046" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="208.0" cy="164.0" rx="81.5" ry="40.7" fill="url(#glass_pod_plant_g5)" stroke="#2a3046" stroke-width="4" opacity="1.00"/>
+    <line x1="287.5" y1="178.0" x2="287.5" y2="166.0" stroke="#19f0ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <path d="M 165.3 328.0 L 165.3 178.0" stroke="#ffffff" stroke-width="6" opacity="0.4"/>
   </g>
 </svg>

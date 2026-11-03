@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- NanoBrew Café rig part: synths/xeno/glow. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
-  <defs><radialGradient id="glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#3dffd0" stop-opacity="0.55"/><stop offset="1" stop-color="#3dffd0" stop-opacity="0"/></radialGradient></defs>
+  <defs><radialGradient id="glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#3dffd0" stop-opacity="0.6"/><stop offset="1" stop-color="#3dffd0" stop-opacity="0"/></radialGradient></defs>
   <g inkscape:label="glow" stroke-linejoin="round" stroke-linecap="round">
     <ellipse cx="128" cy="300" rx="128" ry="150" fill="url(#glow)"/>
   </g>
