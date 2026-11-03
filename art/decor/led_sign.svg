@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café: led_sign. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="608" height="550" viewBox="0 0 608 550">
+  <defs>
+    <linearGradient id="led_sign_g1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4a455e"/><stop offset="1" stop-color="#262234"/></linearGradient>
+    <linearGradient id="led_sign_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#797588"/><stop offset="1" stop-color="#615d73"/></linearGradient>
+    <linearGradient id="led_sign_g3" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4a455e"/><stop offset="1" stop-color="#262234"/></linearGradient>
+    <linearGradient id="led_sign_g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#797588"/><stop offset="1" stop-color="#615d73"/></linearGradient>
+    <linearGradient id="led_sign_g5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#241c3d"/><stop offset="1" stop-color="#201936"/></linearGradient>
+    <linearGradient id="led_sign_g6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b152e"/><stop offset="1" stop-color="#161126"/></linearGradient>
+    <linearGradient id="led_sign_g7" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#524871"/><stop offset="1" stop-color="#3a2f5e"/></linearGradient>
+  </defs>
+  <g inkscape:groupmode="layer" id="shadow" inkscape:label="shadow">
+    <polygon points="169.6,292.1 499.8,457.2 428.8,492.7 98.6,327.6" fill="#1a1230" opacity="0.35"/>
+  </g>
+  <g inkscape:groupmode="layer" id="stand" inkscape:label="stand">
+    <path d="M 165.6 267.2 L 165.6 337.2 A 13.6 6.8 0 0 0 192.8 337.2 L 192.8 267.2 Z" fill="url(#led_sign_g1)" stroke="#1a1824" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="179.2" cy="267.2" rx="13.6" ry="6.8" fill="url(#led_sign_g2)" stroke="#1a1824" stroke-width="4" opacity="1.00"/>
+    <path d="M 396.0 382.4 L 396.0 452.4 A 13.6 6.8 0 0 0 423.2 452.4 L 423.2 382.4 Z" fill="url(#led_sign_g3)" stroke="#1a1824" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="409.6" cy="382.4" rx="13.6" ry="6.8" fill="url(#led_sign_g4)" stroke="#1a1824" stroke-width="4" opacity="1.00"/>
+  </g>
+  <g inkscape:groupmode="layer" id="panel" inkscape:label="panel">
+    <polygon points="117.8,129.9 444.2,293.1 444.2,413.1 117.8,249.9" fill="url(#led_sign_g5)" stroke="#100d1b" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="471.0,279.7 444.2,293.1 444.2,413.1 471.0,399.7" fill="url(#led_sign_g6)" stroke="#100d1b" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="144.6,116.5 471.0,279.7 444.2,293.1 117.8,129.9" fill="url(#led_sign_g7)" stroke="#100d1b" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="471.0,393.7 471.0,281.7 457.6,286.4" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+  </g>
+  <g inkscape:groupmode="layer" id="neon" inkscape:label="neon">
+    <polygon points="146.6,174.3 415.4,308.7 415.4,382.7 146.6,248.3" fill="none" stroke="#ff4fd8" stroke-width="6" stroke-linejoin="round" opacity="0.95"/>
+    <polygon points="194.6,213.3 252.2,242.1 242.6,282.3 204.2,263.1" fill="none" stroke="#38e1ff" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M 211.8 215.0 q -6 -8 0 -16" fill="none" stroke="#38e1ff" stroke-width="5" stroke-linecap="round"/>
+    <path d="M 234.9 226.5 q -6 -8 0 -16" fill="none" stroke="#38e1ff" stroke-width="5" stroke-linecap="round"/>
+    <path d="M 338.6 312.3 c -24 -18 -34 6 0 26 c 34 -20 24 -44 0 -26 z" fill="none" stroke="#ffd36b" stroke-width="6" stroke-linejoin="round" transform="rotate(26.6 338.6 312.3)"/>
+  </g>
+</svg>

@@ -123,4 +123,27 @@ You don't animate these in the drawing program. You draw the parts; the animatio
 
 ## 9. How it plugs into the game
 
-When the first character's parts exist, I'll add a sprite layer to the café and battle views. For each customer type or Synth species, if its folder exists the game uses the rigged parts, otherwise the current placeholder. So art can arrive one character at a time, and nothing breaks while it's incomplete. Furniture and décor work the same way.
+**Furniture and décor are in (v1.7, 2026-11-03).** Every piece in `data/pieces.json`, plus the Sync Pod, has an SVG:
+
+- `art/furniture/`: `seat`, `seat_far`, `seat_near`, `table`, `stove`, `counter`, `bin`, `register`, `pod`;
+- `art/decor/`: every décor piece.
+
+**How they're made.** They come from `tools/art/furniture_svg.py`. It draws every piece from the same iso parts (boxes, cylinders, discs, floor shadows), so the style rules above hold everywhere.
+- Run `python tools/art/furniture_svg.py` to rebuild them all. A file edited by hand is overwritten when you rebuild, so either change the script or stop using it for that piece.
+- Each file has named layers (shadow, body, neon, …) for Inkscape.
+- Run `godot --headless --path . -s res://tools/art/preview_sheet.gd -- sheet.png` for a contact sheet at 2× and at game size.
+
+**Canvas rule.** The canvas is 4× the game size, so a tile is a 384 × 192 diamond. For a footprint of w × d tiles:
+- the canvas is (w + d) × 192 + 32 wide;
+- the top corner of the top-left tile sits at (d × 192 + 16, canvas height − (w + d) × 96 − 16).
+
+**Rotation and seats.** A rotated piece uses the same drawing mirrored. Seats have three drawings:
+- `seat`: no table;
+- `seat_far`: the backrest on the far edge, used for a table down-right (mirrored: down-left);
+- `seat_near`: the backrest on the near edge, used for a table up-left (mirrored: up-right).
+
+**Import.** Each SVG's `.import` uses `svg/scale=0.5` (a 2× texture) and mipmaps, so it stays smooth when the café is zoomed out. A new SVG needs the same two settings, or it draws at the wrong size.
+
+**In the game.** `src/ui/piece_art.gd` finds a piece's art by its id, and the café and battle views draw it in place of the placeholder block. A piece with no SVG keeps its block, so new pieces can arrive one at a time. Drawn décor shows its name only while arranging.
+
+**Characters next.** They follow the same idea: when a customer type's or Synth species' folder exists, the game uses the rigged parts; otherwise it draws the current placeholder.

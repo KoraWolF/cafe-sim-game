@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café: seat. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="374" viewBox="0 0 416 374">
+  <defs>
+    <linearGradient id="seat_g1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#aab2c7"/><stop offset="1" stop-color="#6a6f7e"/></linearGradient>
+    <linearGradient id="seat_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c0c6d5"/><stop offset="1" stop-color="#b5bcce"/></linearGradient>
+    <linearGradient id="seat_g3" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#eb935d"/><stop offset="1" stop-color="#975a33"/></linearGradient>
+    <linearGradient id="seat_g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eea679"/><stop offset="1" stop-color="#eb9661"/></linearGradient>
+  </defs>
+  <g inkscape:groupmode="layer" id="shadow" inkscape:label="shadow">
+    <polygon points="208.0,189.0 353.9,262.0 208.0,335.0 62.1,262.0" fill="#1a1230" opacity="0.35"/>
+  </g>
+  <g inkscape:groupmode="layer" id="stool" inkscape:label="stool">
+    <path d="M 189.0 222.0 L 189.0 262.0 A 19.0 9.5 0 0 0 227.0 262.0 L 227.0 222.0 Z" fill="url(#seat_g1)" stroke="#494d57" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="208.0" cy="222.0" rx="19.0" ry="9.5" fill="url(#seat_g2)" stroke="#494d57" stroke-width="4" opacity="1.00"/>
+    <ellipse cx="208.0" cy="260.0" rx="65.2" ry="32.6" fill="#82899b" stroke="#41444e" stroke-width="4" opacity="1.00"/>
+    <path d="M 118.4 206.0 L 118.4 228.0 A 89.6 44.8 0 0 0 297.6 228.0 L 297.6 206.0 Z" fill="url(#seat_g3)" stroke="#693e24" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="208.0" cy="206.0" rx="89.6" ry="44.8" fill="url(#seat_g4)" stroke="#693e24" stroke-width="4" opacity="1.00"/>
+    <line x1="295.6" y1="224.0" x2="295.6" y2="208.0" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <ellipse cx="185.6" cy="197.0" rx="40.3" ry="17.9" fill="#ffffff" opacity="0.18"/>
+  </g>
+</svg>

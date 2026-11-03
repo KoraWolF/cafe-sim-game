@@ -1,0 +1,503 @@
+"""Draws the café furniture and décor as layered SVGs in the art guide's style.
+
+Run:  python tools/art/furniture_svg.py
+Writes art/furniture/<id>.svg and art/decor/<id>.svg (and art/furniture/pod.svg).
+
+Style (docs/art-guide.md): round soft shapes, outlines in a darker shade of each
+material (no black), one gradient per material lit from the top-left, a flat
+cel shadow, and a thin cyan rim light on the right edges.
+
+Canvas: 4x the game size. A floor tile is a 384 x 192 diamond. A piece with a
+footprint of w x d tiles has a canvas (w + d) * 192 + 2 * PAD wide; the top
+corner of its top-left tile sits at (d * 192 + PAD, height - (w + d) * 96 - PAD).
+The game finds that anchor from the canvas size, so every file follows it.
+Rotated pieces are drawn mirrored by the game (a w x d footprint mirrored is d x w).
+
+Editing a file by hand is fine; re-running this script overwrites it.
+"""
+import math
+import os
+
+PAD = 16
+HX = 192.0  # half a tile's width at 4x
+HY = 96.0   # half a tile's height at 4x
+RIM = "#38e1ff"
+ROOT = os.path.join(os.path.dirname(__file__), "..", "..", "art")
+
+
+def shade(hex_color, amount):
+    """Lighter (amount > 0) or darker (amount < 0) version of a colour."""
+    hex_color = hex_color.lstrip("#")
+    r, g, b = (int(hex_color[i:i + 2], 16) for i in (0, 2, 4))
+    if amount >= 0:
+        r, g, b = (round(c + (255 - c) * amount) for c in (r, g, b))
+    else:
+        r, g, b = (round(c * (1 + amount)) for c in (r, g, b))
+    return "#%02x%02x%02x" % (r, g, b)
+
+
+class Piece:
+    def __init__(self, piece_id, w, d, height, folder):
+        self.id = piece_id
+        self.w, self.d = w, d
+        self.width = (w + d) * HX + 2 * PAD
+        self.height = (w + d) * HY + height + 2 * PAD
+        self.ox = d * HX + PAD
+        self.oy = self.height - (w + d) * HY - PAD
+        self.folder = folder
+        self.defs = []
+        self.layers = []  # (name, [svg elements])
+        self._grad = 0
+
+    # --- projection -------------------------------------------------------
+    def p(self, x, y, z=0.0):
+        """Screen point of floor cell position (x, y) in tiles, z px (4x) up."""
+        return (self.ox + (x - y) * HX, self.oy + (x + y) * HY - z)
+
+    def pts(self, points):
+        return " ".join("%.1f,%.1f" % self.p(*q) for q in points)
+
+    # --- paint ------------------------------------------------------------
+    def gradient(self, light, dark, vertical=True):
+        self._grad += 1
+        gid = "%s_g%d" % (self.id, self._grad)
+        x2, y2 = ("0", "1") if vertical else ("1", "0")
+        self.defs.append('<linearGradient id="%s" x1="0" y1="0" x2="%s" y2="%s">'
+                         '<stop offset="0" stop-color="%s"/><stop offset="1" stop-color="%s"/></linearGradient>'
+                         % (gid, x2, y2, light, dark))
+        return "url(#%s)" % gid
+
+    def glow(self, color, radius=1.0):
+        self._grad += 1
+        gid = "%s_r%d" % (self.id, self._grad)
+        self.defs.append('<radialGradient id="%s" r="%.2f"><stop offset="0" stop-color="%s" stop-opacity="0.85"/>'
+                         '<stop offset="1" stop-color="%s" stop-opacity="0"/></radialGradient>' % (gid, radius * 0.5, color, color))
+        return "url(#%s)" % gid
+
+    def layer(self, name):
+        elements = []
+        self.layers.append((name, elements))
+        return elements
+
+    # --- shapes -----------------------------------------------------------
+    def floor_shadow(self, out, x0, y0, w, d, grow=0.06):
+        out.append('<polygon points="%s" fill="#1a1230" opacity="0.35"/>' % self.pts(
+            [(x0 - grow, y0 - grow), (x0 + w + grow, y0 - grow), (x0 + w + grow, y0 + d + grow), (x0 - grow, y0 + d + grow)]))
+
+    def box(self, out, x0, y0, w, d, z0, h, color, top=None, rim=True, outline=None):
+        """An upright box: its two near sides and top, outlined, rim-lit on the right."""
+        line = outline or shade(color, -0.55)
+        top = top or shade(color, 0.18)
+        x1, y1, z1 = x0 + w, y0 + d, z0 + h
+        left = self.gradient(color, shade(color, -0.12))
+        right = self.gradient(shade(color, -0.25), shade(color, -0.38))
+        out.append('<polygon points="%s" fill="%s" stroke="%s" stroke-width="4" stroke-linejoin="round"/>'
+                   % (self.pts([(x0, y1, z1), (x1, y1, z1), (x1, y1, z0), (x0, y1, z0)]), left, line))
+        out.append('<polygon points="%s" fill="%s" stroke="%s" stroke-width="4" stroke-linejoin="round"/>'
+                   % (self.pts([(x1, y0, z1), (x1, y1, z1), (x1, y1, z0), (x1, y0, z0)]), right, line))
+        out.append('<polygon points="%s" fill="%s" stroke="%s" stroke-width="4" stroke-linejoin="round"/>'
+                   % (self.pts([(x0, y0, z1), (x1, y0, z1), (x1, y1, z1), (x0, y1, z1)]),
+                      self.gradient(shade(top, 0.12), top), line))
+        if rim and h > 6:
+            out.append('<polyline points="%s" fill="none" stroke="%s" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>'
+                       % (self.pts([(x1, y0, z0 + 6), (x1, y0, z1 - 2), (x1 + 0.0, y1 * 0.5 + y0 * 0.5, z1)]), RIM))
+
+    def ellipse_xy(self, cx, cy, z, r):
+        x, y = self.p(cx, cy, z)
+        return x, y, r * HX * math.sqrt(2), r * HY * math.sqrt(2)
+
+    def cylinder(self, out, cx, cy, r, z0, h, color, top=None, rim=True, outline=None, top_opacity=1.0):
+        line = outline or shade(color, -0.55)
+        top = top or shade(color, 0.2)
+        x, y0, rx, ry = self.ellipse_xy(cx, cy, z0, r)
+        y1 = y0 - h
+        side = self.gradient(shade(color, 0.08), shade(color, -0.35), vertical=False)
+        out.append('<path d="M %.1f %.1f L %.1f %.1f A %.1f %.1f 0 0 0 %.1f %.1f L %.1f %.1f Z" fill="%s" stroke="%s" '
+                   'stroke-width="4" stroke-linejoin="round"/>' % (x - rx, y1, x - rx, y0, rx, ry, x + rx, y0, x + rx, y1,
+                                                                   side, line))
+        out.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="%s" stroke="%s" stroke-width="4" opacity="%.2f"/>'
+                   % (x, y1, rx, ry, self.gradient(shade(top, 0.15), top), line, top_opacity))
+        if rim and h > 6:
+            out.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="%s" stroke-width="3" stroke-opacity="0.7" '
+                       'stroke-linecap="round"/>' % (x + rx - 2, y0 - 4, x + rx - 2, y1 + 2, RIM))
+
+    def disc(self, out, cx, cy, z, r, color, outline=None, opacity=1.0):
+        x, y, rx, ry = self.ellipse_xy(cx, cy, z, r)
+        out.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="%s" stroke="%s" stroke-width="4" opacity="%.2f"/>'
+                   % (x, y, rx, ry, color, outline or shade(color if color.startswith("#") else "#888888", -0.5), opacity))
+
+    def write(self):
+        folder = os.path.join(ROOT, self.folder)
+        os.makedirs(folder, exist_ok=True)
+        body = []
+        for name, elements in self.layers:
+            body.append('  <g inkscape:groupmode="layer" id="%s" inkscape:label="%s">\n    %s\n  </g>'
+                        % (name, name, "\n    ".join(elements)))
+        svg = ('<?xml version="1.0" encoding="UTF-8"?>\n'
+               '<!-- NanoBrew Café: %s. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->\n'
+               '<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" '
+               'width="%d" height="%d" viewBox="0 0 %d %d">\n  <defs>\n    %s\n  </defs>\n%s\n</svg>\n'
+               % (self.id, self.width, self.height, self.width, self.height, "\n    ".join(self.defs), "\n".join(body)))
+        with open(os.path.join(folder, self.id + ".svg"), "w", encoding="utf-8", newline="\n") as f:
+            f.write(svg)
+
+
+# --- the pieces -----------------------------------------------------------
+WOOD = "#b9784a"
+WOOD_DARK = "#6b4130"
+STEEL = "#a3abc2"
+CREAM = "#f1e4cc"
+TEAL = "#3fa58f"
+CUSHION = "#e98a4f"
+
+
+def seat(name, back):
+    """A round cushioned stool; back = "" (none), "far" (upper-left edge) or "near" (lower-right edge)."""
+    piece = Piece(name, 1, 1, 150, "furniture")
+    out = piece.layer("shadow")
+    piece.floor_shadow(out, 0.18, 0.18, 0.64, 0.64)
+    if back == "far":
+        piece.box(piece.layer("backrest"), 0.14, 0.22, 0.12, 0.56, 36, 100, WOOD_DARK)
+    out = piece.layer("stool")
+    piece.cylinder(out, 0.5, 0.5, 0.07, 0, 40, STEEL, rim=False)
+    piece.disc(out, 0.5, 0.5, 2, 0.24, shade(STEEL, -0.2))
+    piece.cylinder(out, 0.5, 0.5, 0.33, 34, 22, CUSHION, top=shade(CUSHION, 0.1))
+    x, y, rx, ry = piece.ellipse_xy(0.5, 0.5, 56, 0.33)
+    out.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="#ffffff" opacity="0.18"/>' % (x - rx * 0.25, y - ry * 0.2, rx * 0.45, ry * 0.4))
+    if back == "near":
+        piece.box(piece.layer("backrest"), 0.74, 0.22, 0.12, 0.56, 36, 100, WOOD_DARK)
+    piece.write()
+
+
+def table():
+    piece = Piece("table", 1, 1, 130, "furniture")
+    piece.floor_shadow(piece.layer("shadow"), 0.1, 0.1, 0.8, 0.8)
+    out = piece.layer("table")
+    piece.disc(out, 0.5, 0.5, 2, 0.2, shade(WOOD_DARK, -0.2))
+    piece.cylinder(out, 0.5, 0.5, 0.06, 4, 84, WOOD_DARK, rim=False)
+    piece.cylinder(out, 0.5, 0.5, 0.42, 86, 10, WOOD, top=shade(WOOD, 0.25))
+    x, y, rx, ry = piece.ellipse_xy(0.5, 0.5, 96, 0.42)
+    out.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="none" stroke="%s" stroke-width="3" opacity="0.5"/>'
+               % (x, y, rx * 0.7, ry * 0.7, shade(WOOD, -0.25)))
+    piece.write()
+
+
+def stove():
+    piece = Piece("stove", 1, 1, 170, "furniture")
+    piece.floor_shadow(piece.layer("shadow"), 0.06, 0.06, 0.88, 0.88)
+    out = piece.layer("body")
+    piece.box(out, 0.06, 0.06, 0.88, 0.88, 0, 112, STEEL, top="#454b63")
+    out = piece.layer("burners")
+    for cx, cy in ((0.32, 0.32), (0.68, 0.32), (0.32, 0.68), (0.68, 0.68)):
+        piece.disc(out, cx, cy, 112, 0.13, "#2a2e3f", outline="#1c1f2c")
+        x, y, rx, ry = piece.ellipse_xy(cx, cy, 112, 0.09)
+        out.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="none" stroke="#ff8a3d" stroke-width="4" opacity="0.8"/>' % (x, y, rx, ry))
+    out = piece.layer("knobs_and_display")
+    for i in range(3):
+        x, y = piece.p(0.22 + i * 0.25, 0.94, 84)
+        out.append('<circle cx="%.1f" cy="%.1f" r="9" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="3"/>' % (x, y))
+    out.append('<polygon points="%s" fill="#38e1ff" opacity="0.85" stroke="#1d6f86" stroke-width="3"/>'
+               % piece.pts([(0.94, 0.25, 92), (0.94, 0.75, 92), (0.94, 0.75, 72), (0.94, 0.25, 72)]))
+    out.append('<polygon points="%s" fill="#2a2e3f" opacity="0.9"/>' % piece.pts([(0.94, 0.2, 52), (0.94, 0.8, 52), (0.94, 0.8, 14), (0.94, 0.2, 14)]))
+    piece.write()
+
+
+def counter():
+    piece = Piece("counter", 1, 1, 150, "furniture")
+    piece.floor_shadow(piece.layer("shadow"), 0.02, 0.02, 0.96, 0.96)
+    out = piece.layer("cabinet")
+    piece.box(out, 0.04, 0.04, 0.92, 0.92, 0, 94, WOOD)
+    out.append('<polyline points="%s" fill="none" stroke="%s" stroke-width="3" opacity="0.6"/>' % (
+        piece.pts([(0.12, 0.96, 70), (0.12, 0.96, 18), (0.88, 0.96, 18), (0.88, 0.96, 70), (0.12, 0.96, 70)]), shade(WOOD, -0.35)))
+    out = piece.layer("top")
+    piece.box(out, 0.0, 0.0, 1.0, 1.0, 94, 10, CREAM, top=shade(CREAM, 0.3))
+    out = piece.layer("led")
+    out.append('<polyline points="%s" fill="none" stroke="#ff4fd8" stroke-width="5" stroke-opacity="0.85" stroke-linecap="round"/>'
+               % piece.pts([(0.06, 0.96, 6), (0.94, 0.96, 6)]))
+    piece.write()
+
+
+def bin_piece():
+    piece = Piece("bin", 1, 1, 140, "furniture")
+    piece.floor_shadow(piece.layer("shadow"), 0.2, 0.2, 0.6, 0.6)
+    out = piece.layer("bin")
+    piece.cylinder(out, 0.5, 0.5, 0.28, 0, 84, TEAL, top="#2f6f61")
+    piece.cylinder(out, 0.5, 0.5, 0.3, 84, 10, shade(TEAL, -0.2), top=shade(TEAL, 0.05))
+    x, y = piece.p(0.5, 0.5, 112)
+    out.append('<rect x="%.1f" y="%.1f" width="40" height="16" rx="8" fill="%s" stroke="%s" stroke-width="3"/>' % (x - 20, y - 8, shade(TEAL, -0.3), shade(TEAL, -0.6)))
+    x, y = piece.p(0.5, 0.78, 50)
+    out.append('<path d="M %.1f %.1f l 12 -20 l 12 20 z" fill="none" stroke="#e8fff6" stroke-width="5" stroke-linejoin="round" opacity="0.9"/>' % (x - 12, y + 6))
+    piece.write()
+
+
+def register():
+    piece = Piece("register", 1, 1, 180, "furniture")
+    piece.floor_shadow(piece.layer("shadow"), 0.04, 0.04, 0.92, 0.92)
+    out = piece.layer("stand")
+    piece.box(out, 0.06, 0.06, 0.88, 0.88, 0, 80, "#4b5aa8")
+    piece.box(out, 0.02, 0.02, 0.96, 0.96, 80, 8, CREAM, top=shade(CREAM, 0.3))
+    out = piece.layer("terminal")
+    piece.box(out, 0.3, 0.3, 0.42, 0.36, 88, 22, "#2a2e3f")
+    # The screen, tilted toward the customers (down-left).
+    out.append('<polygon points="%s" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="4" stroke-linejoin="round"/>'
+               % piece.pts([(0.3, 0.5, 112), (0.72, 0.5, 112), (0.72, 0.62, 168), (0.3, 0.62, 168)]))
+    out.append('<polygon points="%s" fill="%s" opacity="0.95"/>'
+               % (piece.pts([(0.34, 0.52, 118), (0.68, 0.52, 118), (0.68, 0.6, 162), (0.34, 0.6, 162)]), piece.gradient("#7ff0ff", "#1aa6d1")))
+    # A little receipt on the screen (no text: SVG fonts don't travel).
+    for i in range(3):
+        a = piece.p(0.4, 0.55, 150 - i * 12)
+        b = piece.p(0.62 - i * 0.06, 0.55, 150 - i * 12)
+        out.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#0d3b52" stroke-width="4" stroke-linecap="round"/>' % (a + b))
+    piece.write()
+
+
+def potted_fern():
+    piece = Piece("potted_fern", 1, 1, 230, "decor")
+    piece.floor_shadow(piece.layer("shadow"), 0.24, 0.24, 0.52, 0.52)
+    out = piece.layer("pot")
+    piece.cylinder(out, 0.5, 0.5, 0.24, 0, 64, "#d9774a", top="#5a3b2a")
+    out = piece.layer("fronds")
+    x, y = piece.p(0.5, 0.5, 60)
+    for angle, length, color in ((-70, 120, "#3f9a52"), (-110, 125, "#3f9a52"), (-40, 100, "#56b866"), (-140, 105, "#56b866"),
+                                 (-90, 150, "#6ccf73"), (-20, 80, "#3f9a52"), (-160, 85, "#3f9a52")):
+        a = math.radians(angle)
+        tx, ty = x + math.cos(a) * length, y + math.sin(a) * length
+        cx, cy = x + math.cos(a + 0.35) * length * 0.6, y + math.sin(a + 0.35) * length * 0.6 - 10
+        out.append('<path d="M %.1f %.1f Q %.1f %.1f %.1f %.1f Q %.1f %.1f %.1f %.1f Z" fill="%s" stroke="%s" stroke-width="3" stroke-linejoin="round"/>'
+                   % (x, y, cx - 14, cy, tx, ty, cx + 14, cy + 10, x, y, color, shade(color, -0.45)))
+    piece.write()
+
+
+def bubble_lamp():
+    piece = Piece("bubble_lamp", 1, 1, 260, "decor")
+    out = piece.layer("glow")
+    x, y = piece.p(0.5, 0.5, 200)
+    out.append('<circle cx="%.1f" cy="%.1f" r="110" fill="%s"/>' % (x, y, piece.glow("#ffd36b")))
+    piece.floor_shadow(piece.layer("shadow"), 0.3, 0.3, 0.4, 0.4)
+    out = piece.layer("lamp")
+    piece.cylinder(out, 0.5, 0.5, 0.2, 0, 14, "#3a3550", rim=False)
+    piece.cylinder(out, 0.5, 0.5, 0.03, 14, 150, "#c9a46a", rim=False)
+    out.append('<circle cx="%.1f" cy="%.1f" r="46" fill="%s" stroke="#c98a3a" stroke-width="4"/>' % (x, y, piece.gradient("#fff6cf", "#ffc04d")))
+    out.append('<circle cx="%.1f" cy="%.1f" r="14" fill="#ffffff" opacity="0.7"/>' % (x - 16, y - 16))
+    out.append('<path d="M %.1f %.1f A 46 46 0 0 1 %.1f %.1f" fill="none" stroke="%s" stroke-width="3" stroke-opacity="0.7"/>' % (x + 32, y - 33, x + 33, y + 32, RIM))
+    piece.write()
+
+
+def glass_pod_plant():
+    piece = Piece("glass_pod_plant", 1, 1, 230, "decor")
+    piece.floor_shadow(piece.layer("shadow"), 0.2, 0.2, 0.6, 0.6)
+    out = piece.layer("base")
+    piece.cylinder(out, 0.5, 0.5, 0.3, 0, 30, "#4a4f6a", top="#2c3045")
+    x, y, rx, ry = piece.ellipse_xy(0.5, 0.5, 30, 0.3)
+    out.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="none" stroke="#3dffd0" stroke-width="5" opacity="0.9"/>' % (x, y + 14, rx, ry))
+    out = piece.layer("plant")
+    for dx, h, color in ((-24, 90, "#4fbf6a"), (0, 120, "#6ad97e"), (26, 80, "#3f9a52")):
+        out.append('<ellipse cx="%.1f" cy="%.1f" rx="18" ry="%.1f" fill="%s" stroke="%s" stroke-width="3"/>' % (x + dx, y - h / 2 - 4, h / 2, color, shade(color, -0.45)))
+    out = piece.layer("glass")
+    top = y - 170
+    out.append('<path d="M %.1f %.1f L %.1f %.1f A %.1f %.1f 0 0 1 %.1f %.1f L %.1f %.1f A %.1f %.1f 0 0 1 %.1f %.1f Z" fill="%s" '
+               'stroke="#9feaff" stroke-width="4" opacity="0.55"/>' % (x - rx * 0.9, y, x - rx * 0.9, top + rx * 0.9, rx * 0.9, rx * 0.9,
+                                                                   x + rx * 0.9, top + rx * 0.9, x + rx * 0.9, y, rx * 0.9, ry * 0.9, x - rx * 0.9, y,
+                                                                   piece.gradient("#d6fbff", "#5fd4ff", vertical=False)))
+    out.append('<path d="M %.1f %.1f Q %.1f %.1f %.1f %.1f" fill="none" stroke="#ffffff" stroke-width="6" opacity="0.6" stroke-linecap="round"/>'
+               % (x - rx * 0.6, y - 30, x - rx * 0.7, top + 40, x - rx * 0.2, top + 16))
+    piece.write()
+
+
+def beanbag():
+    piece = Piece("beanbag", 1, 1, 120, "decor")
+    piece.floor_shadow(piece.layer("shadow"), 0.1, 0.1, 0.8, 0.8)
+    out = piece.layer("bag")
+    x, y = piece.p(0.5, 0.5, 0)
+    color = "#ff6f91"
+    out.append('<path d="M %.1f %.1f C %.1f %.1f %.1f %.1f %.1f %.1f C %.1f %.1f %.1f %.1f %.1f %.1f C %.1f %.1f %.1f %.1f %.1f %.1f Z" '
+               'fill="%s" stroke="%s" stroke-width="4" stroke-linejoin="round"/>'
+               % (x - 120, y + 10, x - 140, y - 70, x - 60, y - 120, x, y - 100,
+                  x + 60, y - 125, x + 145, y - 70, x + 120, y + 10,
+                  x + 80, y + 50, x - 80, y + 50, x - 120, y + 10,
+                  piece.gradient("#ff9ab3", "#d94f73"), shade(color, -0.55)))
+    out.append('<path d="M %.1f %.1f Q %.1f %.1f %.1f %.1f" fill="none" stroke="%s" stroke-width="5" opacity="0.6" stroke-linecap="round"/>'
+               % (x - 70, y - 40, x, y - 10, x + 70, y - 40, shade(color, -0.4)))
+    out.append('<ellipse cx="%.1f" cy="%.1f" rx="34" ry="16" fill="#ffffff" opacity="0.3"/>' % (x - 50, y - 80))
+    out.append('<path d="M %.1f %.1f C %.1f %.1f %.1f %.1f %.1f %.1f" fill="none" stroke="%s" stroke-width="3" stroke-opacity="0.7"/>'
+               % (x + 100, y - 60, x + 140, y - 40, x + 130, y, x + 110, y + 16, RIM))
+    piece.write()
+
+
+def led_sign():
+    piece = Piece("led_sign", 2, 1, 230, "decor")
+    piece.floor_shadow(piece.layer("shadow"), 0.2, 0.4, 1.6, 0.25)
+    out = piece.layer("stand")
+    for px in (0.4, 1.6):
+        piece.cylinder(out, px, 0.55, 0.05, 0, 70, "#3a3550", rim=False)
+    out = piece.layer("panel")
+    piece.box(out, 0.15, 0.48, 1.7, 0.14, 70, 120, "#241c3d", top="#3a2f5e")
+    out = piece.layer("neon")
+    a = piece.p(0.3, 0.62, 160)
+    b = piece.p(1.7, 0.62, 160)
+    c = piece.p(1.7, 0.62, 86)
+    d = piece.p(0.3, 0.62, 86)
+    out.append('<polygon points="%.1f,%.1f %.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="none" stroke="#ff4fd8" stroke-width="6" stroke-linejoin="round" opacity="0.95"/>'
+               % (a + b + c + d))
+    # A neon coffee cup with steam, and a heart (no text: SVG fonts don't travel).
+    cup = [(0.55, 0.62, 145), (0.85, 0.62, 145), (0.8, 0.62, 100), (0.6, 0.62, 100)]
+    out.append('<polygon points="%s" fill="none" stroke="#38e1ff" stroke-width="6" stroke-linejoin="round"/>' % piece.pts(cup))
+    for i in range(2):
+        sx, sy = piece.p(0.64 + i * 0.12, 0.62, 152)
+        out.append('<path d="M %.1f %.1f q -6 -8 0 -16" fill="none" stroke="#38e1ff" stroke-width="5" stroke-linecap="round"/>' % (sx, sy))
+    hx, hy = piece.p(1.3, 0.62, 118)
+    out.append('<path d="M %.1f %.1f c -24 -18 -34 6 0 26 c 34 -20 24 -44 0 -26 z" fill="none" stroke="#ffd36b" stroke-width="6" '
+               'stroke-linejoin="round" transform="rotate(26.6 %.1f %.1f)"/>' % (hx, hy, hx, hy))
+    piece.write()
+
+
+def holo_menu():
+    piece = Piece("holo_menu", 1, 1, 260, "decor")
+    piece.floor_shadow(piece.layer("shadow"), 0.3, 0.3, 0.4, 0.4)
+    out = piece.layer("pedestal")
+    piece.cylinder(out, 0.5, 0.5, 0.18, 0, 50, "#3a3f5a", top="#2c3045")
+    x, y, rx, ry = piece.ellipse_xy(0.5, 0.5, 50, 0.12)
+    out.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="#38e1ff" opacity="0.9"/>' % (x, y, rx, ry))
+    out = piece.layer("hologram")
+    out.append('<polygon points="%.1f,%.1f %.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="#38e1ff" opacity="0.18"/>' % (x - rx, y, x + rx, y, x + 70, y - 90, x - 70, y - 90))
+    panel = [piece.p(0.2, 0.5, 220), piece.p(0.8, 0.5, 220), piece.p(0.8, 0.5, 100), piece.p(0.2, 0.5, 100)]
+    out.append('<polygon points="%s" fill="%s" stroke="#9feaff" stroke-width="4" stroke-linejoin="round" opacity="0.75"/>'
+               % (" ".join("%.1f,%.1f" % q for q in panel), piece.gradient("#7ff0ff", "#1a7fd1")))
+    for i in range(4):
+        a = piece.p(0.28, 0.5, 200 - i * 26)
+        b = piece.p(0.62 - (i % 2) * 0.12, 0.5, 200 - i * 26)
+        out.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#e8fdff" stroke-width="6" stroke-linecap="round" opacity="0.85"/>' % (a + b))
+    piece.write()
+
+
+def vending_shrine():
+    piece = Piece("vending_shrine", 1, 2, 330, "decor")
+    piece.floor_shadow(piece.layer("shadow"), 0.04, 0.04, 0.92, 1.92)
+    out = piece.layer("machine")
+    piece.box(out, 0.08, 0.1, 0.84, 1.8, 0, 250, "#e8e2f0", top="#ffffff")
+    out = piece.layer("window")
+    out.append('<polygon points="%s" fill="%s" stroke="#5a6a9a" stroke-width="4" stroke-linejoin="round"/>'
+               % (piece.pts([(0.92, 0.25, 230), (0.92, 1.45, 230), (0.92, 1.45, 90), (0.92, 0.25, 90)]), piece.gradient("#2c3a6a", "#1a2244")))
+    colors = ["#ff4fd8", "#38e1ff", "#ffd36b", "#9cff6b", "#ff8a3d"]
+    for row in range(3):
+        for col in range(5):
+            cx, cy = piece.p(0.92, 0.38 + col * 0.23, 205 - row * 44)
+            out.append('<rect x="%.1f" y="%.1f" width="16" height="26" rx="5" fill="%s" stroke="%s" stroke-width="2"/>'
+                       % (cx - 8, cy - 13, colors[(row + col) % 5], shade(colors[(row + col) % 5], -0.5)))
+    out.append('<polygon points="%s" fill="#2a2e3f"/>' % piece.pts([(0.92, 0.5, 60), (0.92, 1.2, 60), (0.92, 1.2, 30), (0.92, 0.5, 30)]))
+    out = piece.layer("roof")
+    piece.box(out, 0.0, 0.0, 1.0, 2.0, 250, 16, "#d6453d", top="#ff6b5f")
+    for py in (0.2, 1.8):
+        piece.box(out, 0.85, py - 0.05, 0.1, 0.1, 266, 34, "#d6453d")
+    piece.box(out, 0.83, 0.05, 0.14, 1.9, 300, 12, "#d6453d", top="#ff6b5f")
+    piece.write()
+
+
+def koi_tank():
+    piece = Piece("koi_tank", 2, 2, 170, "decor")
+    piece.floor_shadow(piece.layer("shadow"), 0.04, 0.04, 1.92, 1.92)
+    out = piece.layer("stone_rim")
+    piece.box(out, 0.06, 0.06, 1.88, 1.88, 0, 70, "#8d8aa3", top="#b3b0c8")
+    out = piece.layer("water")
+    out.append('<polygon points="%s" fill="%s" opacity="0.92"/>' % (piece.pts([(0.2, 0.2, 70), (1.8, 0.2, 70), (1.8, 1.8, 70), (0.2, 1.8, 70)]),
+                                                                     piece.gradient("#5fd4ff", "#1f6fb3")))
+    for fx, fy, angle, color in ((0.7, 0.8, -20, "#ff8a3d"), (1.3, 1.1, 160, "#ffffff"), (0.9, 1.4, 40, "#ff8a3d")):
+        x, y = piece.p(fx, fy, 70)
+        out.append('<g transform="rotate(%d %.1f %.1f)"><ellipse cx="%.1f" cy="%.1f" rx="30" ry="12" fill="%s" stroke="#c4552a" stroke-width="3"/>'
+                   '<path d="M %.1f %.1f l 20 -12 l 0 24 z" fill="%s" stroke="#c4552a" stroke-width="3" stroke-linejoin="round"/></g>'
+                   % (angle, x, y, x, y, color, x + 28, y, color))
+    for px, py in ((0.5, 1.5), (1.5, 0.5)):
+        x, y, rx, ry = piece.ellipse_xy(px, py, 70, 0.16)
+        out.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="#6ccf73" stroke="#3f9a52" stroke-width="3"/>' % (x, y, rx, ry))
+    x, y = piece.p(1.0, 1.0, 70)
+    out.append('<ellipse cx="%.1f" cy="%.1f" rx="60" ry="14" fill="#ffffff" opacity="0.25"/>' % (x - 80, y - 40))
+    piece.write()
+
+
+def neon_mural():
+    piece = Piece("neon_mural", 2, 1, 290, "decor")
+    piece.floor_shadow(piece.layer("shadow"), 0.1, 0.4, 1.8, 0.3)
+    out = piece.layer("wall")
+    piece.box(out, 0.1, 0.45, 1.8, 0.16, 0, 250, "#2b2246", top="#43386a")
+    out = piece.layer("neon")
+    cup = [(0.55, 0.61, 200), (0.95, 0.61, 200), (0.9, 0.61, 110), (0.6, 0.61, 110)]
+    out.append('<polygon points="%s" fill="none" stroke="#38e1ff" stroke-width="7" stroke-linejoin="round"/>' % piece.pts(cup))
+    hx, hy = piece.p(0.97, 0.61, 175)
+    out.append('<path d="M %.1f %.1f q 26 6 18 34" fill="none" stroke="#38e1ff" stroke-width="7" stroke-linecap="round"/>' % (hx, hy))
+    for i in range(3):
+        a = piece.p(0.62 + i * 0.1, 0.61, 215)
+        out.append('<path d="M %.1f %.1f q -10 -14 0 -28 q 10 -14 0 -28" fill="none" stroke="#ff4fd8" stroke-width="6" stroke-linecap="round"/>' % a)
+    for i in range(3):
+        a = piece.p(1.15, 0.61, 200 - i * 34)
+        b = piece.p(1.75, 0.61, 200 - i * 34)
+        out.append('<path d="M %.1f %.1f Q %.1f %.1f %.1f %.1f" fill="none" stroke="%s" stroke-width="6" stroke-linecap="round"/>'
+                   % (a[0], a[1], (a[0] + b[0]) / 2, (a[1] + b[1]) / 2 - 22, b[0], b[1], ["#ff4fd8", "#ffd36b", "#9cff6b"][i]))
+    piece.write()
+
+
+def zen_garden():
+    piece = Piece("zen_garden", 2, 2, 190, "decor")
+    piece.floor_shadow(piece.layer("shadow"), 0.02, 0.02, 1.96, 1.96)
+    out = piece.layer("frame")
+    piece.box(out, 0.04, 0.04, 1.92, 1.92, 0, 26, WOOD)
+    out = piece.layer("sand")
+    out.append('<polygon points="%s" fill="%s"/>' % (piece.pts([(0.14, 0.14, 26), (1.86, 0.14, 26), (1.86, 1.86, 26), (0.14, 1.86, 26)]),
+                                                     piece.gradient("#fbf1dc", "#e6d3ad")))
+    for i in range(1, 6):
+        t = i / 6.0
+        out.append('<polyline points="%s" fill="none" stroke="#cdb789" stroke-width="3" opacity="0.8"/>'
+                   % piece.pts([(0.2, 0.14 + t * 1.72, 26), (1.8, 0.14 + t * 1.72, 26)]))
+    out = piece.layer("stones")
+    for sx, sy, r in ((0.6, 0.7, 0.16), (1.3, 1.2, 0.2), (1.45, 0.55, 0.1)):
+        x, y, rx, ry = piece.ellipse_xy(sx, sy, 26, r)
+        out.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="%s" stroke="#4a4760" stroke-width="4"/>'
+                   % (x, y - ry, rx, ry * 1.5, piece.gradient("#a7a4bd", "#6c6984")))
+    out = piece.layer("bonsai")
+    x, y = piece.p(0.55, 1.45, 26)
+    out.append('<path d="M %.1f %.1f q 6 -40 -10 -70" fill="none" stroke="#6b4130" stroke-width="10" stroke-linecap="round"/>' % (x, y))
+    for dx, dy in ((-30, -80), (10, -95), (-4, -60)):
+        out.append('<ellipse cx="%.1f" cy="%.1f" rx="30" ry="18" fill="#56b866" stroke="#2f7a40" stroke-width="3"/>' % (x + dx, y + dy))
+    piece.write()
+
+
+def pod():
+    """A Sync Pod for the Pod bay: drawn standing, its base centre at the bottom middle (see PieceArt.POD_ANCHOR)."""
+    piece = Piece("pod", 1, 1, 330, "furniture")
+    out = piece.layer("base")
+    piece.floor_shadow(out, 0.18, 0.18, 0.64, 0.64)
+    piece.cylinder(out, 0.5, 0.5, 0.3, 0, 26, "#4a5888", top="#3a4a7a")
+    x, y, rx, ry = piece.ellipse_xy(0.5, 0.5, 26, 0.3)
+    out.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="#38e1ff" opacity="0.5"/>' % (x, y, rx * 0.7, ry * 0.7))
+    out = piece.layer("glass")
+    gx, top = rx * 0.82, y - 250
+    out.append('<path d="M %.1f %.1f L %.1f %.1f A %.1f %.1f 0 0 1 %.1f %.1f L %.1f %.1f A %.1f %.1f 0 0 1 %.1f %.1f Z" fill="%s" '
+               'stroke="#9feaff" stroke-width="4" opacity="0.5"/>' % (x - gx, y, x - gx, top + gx, gx, gx, x + gx, top + gx, x + gx, y, gx, ry * 0.82, x - gx, y,
+                                                                    piece.gradient("#d6fbff", "#38a8ff", vertical=False)))
+    out.append('<path d="M %.1f %.1f L %.1f %.1f" stroke="#ffffff" stroke-width="7" opacity="0.5" stroke-linecap="round"/>' % (x - gx * 0.6, y - 30, x - gx * 0.6, top + gx))
+    out = piece.layer("cap")
+    out.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="#5a6a9a" stroke="#2c3560" stroke-width="4"/>' % (x, top + gx * 0.35, gx * 0.85, gx * 0.35))
+    out.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="%s" stroke-width="3" stroke-opacity="0.7"/>' % (x + gx - 2, y - 10, x + gx - 2, top + gx, RIM))
+    piece.write()
+
+
+if __name__ == "__main__":
+    seat("seat", "")
+    seat("seat_far", "far")
+    seat("seat_near", "near")
+    table()
+    stove()
+    counter()
+    bin_piece()
+    register()
+    potted_fern()
+    bubble_lamp()
+    glass_pod_plant()
+    beanbag()
+    led_sign()
+    holo_menu()
+    vending_shrine()
+    koi_tank()
+    neon_mural()
+    zen_garden()
+    pod()
+    print("furniture and décor written to", os.path.normpath(ROOT))

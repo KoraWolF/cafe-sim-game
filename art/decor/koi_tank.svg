@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café: koi_tank. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="800" height="586" viewBox="0 0 800 586">
+  <defs>
+    <linearGradient id="koi_tank_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8d8aa3"/><stop offset="1" stop-color="#7c798f"/></linearGradient>
+    <linearGradient id="koi_tank_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a687a"/><stop offset="1" stop-color="#575665"/></linearGradient>
+    <linearGradient id="koi_tank_g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bcb9cf"/><stop offset="1" stop-color="#b3b0c8"/></linearGradient>
+    <linearGradient id="koi_tank_g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5fd4ff"/><stop offset="1" stop-color="#1f6fb3"/></linearGradient>
+  </defs>
+  <g inkscape:groupmode="layer" id="shadow" inkscape:label="shadow">
+    <polygon points="400.0,182.2 791.7,378.0 400.0,573.8 8.3,378.0" fill="#1a1230" opacity="0.35"/>
+  </g>
+  <g inkscape:groupmode="layer" id="stone_rim" inkscape:label="stone_rim">
+    <polygon points="39.0,308.0 400.0,488.5 400.0,558.5 39.0,378.0" fill="url(#koi_tank_g1)" stroke="#3f3e49" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="761.0,308.0 400.0,488.5 400.0,558.5 761.0,378.0" fill="url(#koi_tank_g2)" stroke="#3f3e49" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="400.0,127.5 761.0,308.0 400.0,488.5 39.0,308.0" fill="url(#koi_tank_g3)" stroke="#3f3e49" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="761.0,372.0 761.0,310.0 580.5,398.2" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+  </g>
+  <g inkscape:groupmode="layer" id="water" inkscape:label="water">
+    <polygon points="400.0,154.4 707.2,308.0 400.0,461.6 92.8,308.0" fill="url(#koi_tank_g4)" opacity="0.92"/>
+    <g transform="rotate(-20 380.8 260.0)"><ellipse cx="380.8" cy="260.0" rx="30" ry="12" fill="#ff8a3d" stroke="#c4552a" stroke-width="3"/><path d="M 408.8 260.0 l 20 -12 l 0 24 z" fill="#ff8a3d" stroke="#c4552a" stroke-width="3" stroke-linejoin="round"/></g>
+    <g transform="rotate(160 438.4 346.4)"><ellipse cx="438.4" cy="346.4" rx="30" ry="12" fill="#ffffff" stroke="#c4552a" stroke-width="3"/><path d="M 466.4 346.4 l 20 -12 l 0 24 z" fill="#ffffff" stroke="#c4552a" stroke-width="3" stroke-linejoin="round"/></g>
+    <g transform="rotate(40 304.0 336.8)"><ellipse cx="304.0" cy="336.8" rx="30" ry="12" fill="#ff8a3d" stroke="#c4552a" stroke-width="3"/><path d="M 332.0 336.8 l 20 -12 l 0 24 z" fill="#ff8a3d" stroke="#c4552a" stroke-width="3" stroke-linejoin="round"/></g>
+    <ellipse cx="208.0" cy="308.0" rx="43.4" ry="21.7" fill="#6ccf73" stroke="#3f9a52" stroke-width="3"/>
+    <ellipse cx="592.0" cy="308.0" rx="43.4" ry="21.7" fill="#6ccf73" stroke="#3f9a52" stroke-width="3"/>
+    <ellipse cx="320.0" cy="268.0" rx="60" ry="14" fill="#ffffff" opacity="0.25"/>
+  </g>
+</svg>

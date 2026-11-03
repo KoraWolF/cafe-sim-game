@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café: table. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="354" viewBox="0 0 416 354">
+  <defs>
+    <linearGradient id="table_g1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#775041"/><stop offset="1" stop-color="#462a1f"/></linearGradient>
+    <linearGradient id="table_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9b7e72"/><stop offset="1" stop-color="#896759"/></linearGradient>
+    <linearGradient id="table_g3" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#bf8358"/><stop offset="1" stop-color="#784e30"/></linearGradient>
+    <linearGradient id="table_g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d2a98b"/><stop offset="1" stop-color="#ca9a77"/></linearGradient>
+  </defs>
+  <g inkscape:groupmode="layer" id="shadow" inkscape:label="shadow">
+    <polygon points="208.0,153.7 384.6,242.0 208.0,330.3 31.4,242.0" fill="#1a1230" opacity="0.35"/>
+  </g>
+  <g inkscape:groupmode="layer" id="table" inkscape:label="table">
+    <ellipse cx="208.0" cy="240.0" rx="54.3" ry="27.2" fill="#563426" stroke="#2b1a13" stroke-width="4" opacity="1.00"/>
+    <path d="M 191.7 154.0 L 191.7 238.0 A 16.3 8.1 0 0 0 224.3 238.0 L 224.3 154.0 Z" fill="url(#table_g1)" stroke="#301d16" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="208.0" cy="154.0" rx="16.3" ry="8.1" fill="url(#table_g2)" stroke="#301d16" stroke-width="4" opacity="1.00"/>
+    <path d="M 94.0 146.0 L 94.0 156.0 A 114.0 57.0 0 0 0 322.0 156.0 L 322.0 146.0 Z" fill="url(#table_g3)" stroke="#533621" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="208.0" cy="146.0" rx="114.0" ry="57.0" fill="url(#table_g4)" stroke="#533621" stroke-width="4" opacity="1.00"/>
+    <line x1="320.0" y1="152.0" x2="320.0" y2="148.0" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <ellipse cx="208.0" cy="146.0" rx="79.8" ry="39.9" fill="none" stroke="#8b5a38" stroke-width="3" opacity="0.5"/>
+  </g>
+</svg>

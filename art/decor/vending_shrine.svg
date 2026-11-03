@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café: vending_shrine. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="608" height="650" viewBox="0 0 608 650">
+  <defs>
+    <linearGradient id="vending_shrine_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8e2f0"/><stop offset="1" stop-color="#ccc7d3"/></linearGradient>
+    <linearGradient id="vending_shrine_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#aeaab4"/><stop offset="1" stop-color="#908c95"/></linearGradient>
+    <linearGradient id="vending_shrine_g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#ffffff"/></linearGradient>
+    <linearGradient id="vending_shrine_g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c3a6a"/><stop offset="1" stop-color="#1a2244"/></linearGradient>
+    <linearGradient id="vending_shrine_g5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d6453d"/><stop offset="1" stop-color="#bc3d36"/></linearGradient>
+    <linearGradient id="vending_shrine_g6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a0342e"/><stop offset="1" stop-color="#852b26"/></linearGradient>
+    <linearGradient id="vending_shrine_g7" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7d72"/><stop offset="1" stop-color="#ff6b5f"/></linearGradient>
+    <linearGradient id="vending_shrine_g8" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d6453d"/><stop offset="1" stop-color="#bc3d36"/></linearGradient>
+    <linearGradient id="vending_shrine_g9" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a0342e"/><stop offset="1" stop-color="#852b26"/></linearGradient>
+    <linearGradient id="vending_shrine_g10" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e17873"/><stop offset="1" stop-color="#dd6660"/></linearGradient>
+    <linearGradient id="vending_shrine_g11" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d6453d"/><stop offset="1" stop-color="#bc3d36"/></linearGradient>
+    <linearGradient id="vending_shrine_g12" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a0342e"/><stop offset="1" stop-color="#852b26"/></linearGradient>
+    <linearGradient id="vending_shrine_g13" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e17873"/><stop offset="1" stop-color="#dd6660"/></linearGradient>
+    <linearGradient id="vending_shrine_g14" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d6453d"/><stop offset="1" stop-color="#bc3d36"/></linearGradient>
+    <linearGradient id="vending_shrine_g15" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a0342e"/><stop offset="1" stop-color="#852b26"/></linearGradient>
+    <linearGradient id="vending_shrine_g16" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7d72"/><stop offset="1" stop-color="#ff6b5f"/></linearGradient>
+  </defs>
+  <g inkscape:groupmode="layer" id="shadow" inkscape:label="shadow">
+    <polygon points="400.0,342.2 599.7,442.0 208.0,637.8 8.3,538.0" fill="#1a1230" opacity="0.35"/>
+  </g>
+  <g inkscape:groupmode="layer" id="machine" inkscape:label="machine">
+    <polygon points="50.6,286.1 211.8,366.7 211.8,616.7 50.6,536.1" fill="url(#vending_shrine_g1)" stroke="#68666c" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="557.4,193.9 211.8,366.7 211.8,616.7 557.4,443.9" fill="url(#vending_shrine_g2)" stroke="#68666c" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="396.2,113.3 557.4,193.9 211.8,366.7 50.6,286.1" fill="url(#vending_shrine_g3)" stroke="#68666c" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="557.4,437.9 557.4,195.9 384.6,280.3" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+  </g>
+  <g inkscape:groupmode="layer" id="window" inkscape:label="window">
+    <polygon points="528.6,228.3 298.2,343.5 298.2,483.5 528.6,368.3" fill="url(#vending_shrine_g4)" stroke="#5a6a9a" stroke-width="4" stroke-linejoin="round"/>
+    <rect x="495.7" y="252.8" width="16" height="26" rx="5" fill="#ff4fd8" stroke="#80286c" stroke-width="2"/>
+    <rect x="451.5" y="274.9" width="16" height="26" rx="5" fill="#38e1ff" stroke="#1c7080" stroke-width="2"/>
+    <rect x="407.4" y="297.0" width="16" height="26" rx="5" fill="#ffd36b" stroke="#806a36" stroke-width="2"/>
+    <rect x="363.2" y="319.0" width="16" height="26" rx="5" fill="#9cff6b" stroke="#4e8036" stroke-width="2"/>
+    <rect x="319.0" y="341.1" width="16" height="26" rx="5" fill="#ff8a3d" stroke="#80451e" stroke-width="2"/>
+    <rect x="495.7" y="296.8" width="16" height="26" rx="5" fill="#38e1ff" stroke="#1c7080" stroke-width="2"/>
+    <rect x="451.5" y="318.9" width="16" height="26" rx="5" fill="#ffd36b" stroke="#806a36" stroke-width="2"/>
+    <rect x="407.4" y="341.0" width="16" height="26" rx="5" fill="#9cff6b" stroke="#4e8036" stroke-width="2"/>
+    <rect x="363.2" y="363.0" width="16" height="26" rx="5" fill="#ff8a3d" stroke="#80451e" stroke-width="2"/>
+    <rect x="319.0" y="385.1" width="16" height="26" rx="5" fill="#ff4fd8" stroke="#80286c" stroke-width="2"/>
+    <rect x="495.7" y="340.8" width="16" height="26" rx="5" fill="#ffd36b" stroke="#806a36" stroke-width="2"/>
+    <rect x="451.5" y="362.9" width="16" height="26" rx="5" fill="#9cff6b" stroke="#4e8036" stroke-width="2"/>
+    <rect x="407.4" y="385.0" width="16" height="26" rx="5" fill="#ff8a3d" stroke="#80451e" stroke-width="2"/>
+    <rect x="363.2" y="407.0" width="16" height="26" rx="5" fill="#ff4fd8" stroke="#80286c" stroke-width="2"/>
+    <rect x="319.0" y="429.1" width="16" height="26" rx="5" fill="#38e1ff" stroke="#1c7080" stroke-width="2"/>
+    <polygon points="480.6,422.3 346.2,489.5 346.2,519.5 480.6,452.3" fill="#2a2e3f"/>
+  </g>
+  <g inkscape:groupmode="layer" id="roof" inkscape:label="roof">
+    <polygon points="16.0,272.0 208.0,368.0 208.0,384.0 16.0,288.0" fill="url(#vending_shrine_g5)" stroke="#601f1b" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="592.0,176.0 208.0,368.0 208.0,384.0 592.0,192.0" fill="url(#vending_shrine_g6)" stroke="#601f1b" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="400.0,80.0 592.0,176.0 208.0,368.0 16.0,272.0" fill="url(#vending_shrine_g7)" stroke="#601f1b" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="592.0,186.0 592.0,178.0 400.0,272.0" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <polygon points="515.2,151.6 534.4,161.2 534.4,195.2 515.2,185.6" fill="url(#vending_shrine_g8)" stroke="#601f1b" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="553.6,151.6 534.4,161.2 534.4,195.2 553.6,185.6" fill="url(#vending_shrine_g9)" stroke="#601f1b" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="534.4,142.0 553.6,151.6 534.4,161.2 515.2,151.6" fill="url(#vending_shrine_g10)" stroke="#601f1b" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="553.6,179.6 553.6,153.6 544.0,156.4" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <polygon points="208.0,305.2 227.2,314.8 227.2,348.8 208.0,339.2" fill="url(#vending_shrine_g11)" stroke="#601f1b" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="246.4,305.2 227.2,314.8 227.2,348.8 246.4,339.2" fill="url(#vending_shrine_g12)" stroke="#601f1b" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="227.2,295.6 246.4,305.2 227.2,314.8 208.0,305.2" fill="url(#vending_shrine_g13)" stroke="#601f1b" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="246.4,333.2 246.4,307.2 236.8,310.0" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+    <polygon points="185.0,300.9 211.8,314.3 211.8,326.3 185.0,312.9" fill="url(#vending_shrine_g14)" stroke="#601f1b" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="576.6,131.9 211.8,314.3 211.8,326.3 576.6,143.9" fill="url(#vending_shrine_g15)" stroke="#601f1b" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="549.8,118.5 576.6,131.9 211.8,314.3 185.0,300.9" fill="url(#vending_shrine_g16)" stroke="#601f1b" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="576.6,137.9 576.6,133.9 394.2,223.1" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
+  </g>
+</svg>
