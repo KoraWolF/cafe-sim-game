@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café rig part: megabean/ranged/arm_back. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
+  <defs><linearGradient id="sleeve" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c7bdac"/><stop offset="1" stop-color="#877f72"/></linearGradient><linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f5d6be"/><stop offset="1" stop-color="#e6bfa0"/></linearGradient></defs>
+  <g inkscape:label="arm_back" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="57" y="258" width="30" height="82" rx="15" fill="url(#sleeve)" stroke="#857d70" stroke-width="4" transform="rotate(8 72 258)"/>
+    <circle cx="66" cy="342" r="14" fill="url(#skin)" stroke="#a98d76" stroke-width="4"/>
+  </g>
+</svg>

@@ -163,6 +163,15 @@ You don't animate these in the drawing program. You draw the parts; the animatio
 | grandparent | cardigan, bun, glasses | cane | steady_unit | monocle scanner, sturdy arm |
 | alien_tourist | antennae, lavender skin, flower shirt, camera strap | camera | xeno | crystal tiara, segmented arm |
 
+*MegaBean staff* are in `art/characters/megabean/<combat class>/`, made by the same script in the corporate palette (charcoal, coffee brown, red ties, the bean logo). Guards, raiders and auditors all use them by combat class:
+
+| Class | Look | Weapon |
+| --- | --- | --- |
+| fighter | security: charcoal suit, red tie, brown bean cap | stun baton |
+| tank | bouncer: wide brown uniform, sunglasses, earpiece | riot shield |
+| ranged | barista: cream shirt, brown apron, visor | espresso blaster |
+| fragile | intern: white shirt, red lanyard, ID badge | clipboard |
+
 *Parts.* `python tools/art/character_parts.py` splits the template into one SVG per part, all on the same 256 × 440 canvas:
 - `art/characters/customers/office_worker/`: shadow, leg_back, arm_back, leg_front, torso, arm_front, prop, head, hair, and faces `face_neutral`, `face_happy`, `face_angry`, `face_eat`, `face_rest`;
 - `art/characters/synths/clerkbot/`: glow, arm_front (replaces the customer's), visor.
@@ -176,13 +185,13 @@ You don't animate these in the drawing program. You draw the parts; the animatio
 *In the game.*
 - **Café.** A character walks whenever it moves and faces the way it last went: the art faces right and is mirrored for left. Customers sit while waiting and eat with the eating face; angry customers stomp out. Synths carry trays, stir at a cooking stove, and close their eyes in the Pod.
 - **Battles.** Rigged Synths use the same rig.
-- **Fallback.** Any customer type or species without parts keeps the old placeholder. So does MegaBean staff for now.
+- **Fallback.** Any customer type, species or MegaBean class without parts keeps the old placeholder.
 
 *Check by eye.* `tools/art/rig_sheet.gd` draws two sheets. It needs a window, not `--headless`:
 - `godot --path . --resolution 1600x900 -s res://tools/art/rig_sheet.gd -- rig.png`: every animation for the office worker and the Clerkbot;
-- `godot --path . --resolution 1700x1300 -s res://tools/art/rig_sheet.gd -- cast.png cast`: every customer type beside its Synth, in several poses.
+- `godot --path . --resolution 1700x1300 -s res://tools/art/rig_sheet.gd -- cast.png cast`: every customer type beside its Synth, in several poses;
+- `godot --path . --resolution 1300x900 -s res://tools/art/rig_sheet.gd -- staff.png staff`: MegaBean's staff in their battle animations.
 
 *Still to come:*
-- MegaBean staff (still placeholders in battles);
 - the back view (NE), for walking away;
 - outfits drawn on the rig (hats are still drawn as shapes above the head).

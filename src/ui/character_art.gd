@@ -5,7 +5,9 @@ extends RefCounted
 ## art/characters/customers/<type>/, a Synth species' tech parts in
 ## art/characters/synths/<species>/ (made by tools/art/character_parts.py). A
 ## Synth is its customer type's body plus its species' parts (its arm_front
-## replaces the customer's, and it has no prop). Every part is drawn on the same
+## replaces the customer's, and it has no prop). MegaBean's staff are in
+## art/characters/megabean/<combat class>/, drawn as type_id "megabean/<class>".
+## Every part is drawn on the same
 ## 256 x 440 canvas with the feet at (128, 430), so the bones only rotate
 ## parts about their joints.
 ##
@@ -48,7 +50,12 @@ static func body_of(species_id: String, data: GameData) -> String:
 static func has_art(type_id: String, species_id := "") -> bool:
 	if species_id != "" and _part("synths/" + species_id, "visor") == null:
 		return false
-	return type_id != "" and _part("customers/" + type_id, "torso") != null
+	return type_id != "" and _part(_body(type_id), "torso") != null
+
+
+## The folder of a type's body parts: a customer type, or "megabean/<class>".
+static func _body(type_id: String) -> String:
+	return type_id if type_id.begins_with("megabean/") else "customers/" + type_id
 
 
 ## Draws a character with its feet at `feet` on canvas, `size` world px per
@@ -56,7 +63,7 @@ static func has_art(type_id: String, species_id := "") -> bool:
 ## "happy", "angry", "eat", "rest"), "mirror" (facing left), "tint", "glow"
 ## (species colour)}. Returns the head's centre (for clicks and overlays).
 static func draw(canvas: CanvasItem, feet: Vector2, size: float, type_id: String, species_id: String, pose: Dictionary) -> Vector2:
-	var body := "customers/" + type_id
+	var body := _body(type_id)
 	var tech := "synths/" + species_id if species_id != "" else ""
 	var bones := _pose(pose.get("anim", "idle"), float(pose.get("t", 0.0)))
 	var tint: Color = pose.get("tint", Color.WHITE)
@@ -158,16 +165,13 @@ static func _pose(anim: String, t: float) -> Dictionary:
 			var swing := sin(PI * clampf(t / 0.35, 0.0, 1.0))
 			bones["torso"] = 0.22 * swing
 			bones["arm_front"] = -2.2 * swing
-			bones["prop"] = false
 		"cast":
 			bones["arm_front"] = -2.6
 			bones["arm_back"] = 2.6
 			bones["lift"] = Vector2(0, -10.0)
-			bones["prop"] = false
 		"hurt":
 			bones["torso"] = -0.18
 			bones["head"] = -0.15
-			bones["prop"] = false
 		"down":
 			bones["fall"] = -1.45
 			bones["prop"] = false
