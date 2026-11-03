@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café rig part: megabean/tank/hair. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
+  <defs></defs>
+  <g inkscape:label="hair" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M48,130 C52,84 96,64 134,64 C178,64 214,86 216,128 C196,112 164,104 132,104 C100,104 72,112 48,130 Z" fill="#1c1410" stroke="#0e0a08" stroke-width="4"/>
+    <rect x="88" y="146" width="126" height="34" rx="12" fill="#16141f" stroke="#0a0910" stroke-width="4"/>
+    <path d="M100,154 L140,154" stroke="#5a6a9a" stroke-width="5" opacity="0.8"/>
+    <path d="M54,170 Q46,200 70,214" fill="none" stroke="#2a2e3f" stroke-width="4"/>
+    <rect x="46" y="158" width="14" height="20" rx="5" fill="#2a2e3f"/>
+  </g>
+</svg>

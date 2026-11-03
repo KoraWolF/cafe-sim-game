@@ -312,9 +312,9 @@ func _draw_unit(side: bool, index: int, state: Dictionary) -> void:
 	var down := anim == "down"
 	var alpha := 0.35 if down else 1.0
 	var species := _species(fighter)
-	var body_type := CharacterArt.body_of(species, Session.data) if species != "" else ""
-	if species != "" and CharacterArt.has_art(body_type, species):
-		# A rigged Synth: the shared rig's battle animations.
+	var body_type := CharacterArt.body_of(species, Session.data) if species != "" else "megabean/" + fighter.class_id
+	if (species != "" or not mine) and CharacterArt.has_art(body_type, species):
+		# A rigged Synth or MegaBean staff: the shared rig's battle animations.
 		var flash := 1.0 - t / BattlePlayback.ANIM_SECONDS["hurt"] if anim == "hurt" else 0.0
 		var pose := {"anim": "walk" if anim == "move" else anim, "t": t if anim in ["attack", "hurt", "cast", "down"] else _time,
 			"face": "angry" if anim in ["attack", "hurt"] else "neutral", "mirror": facing.x < 0.0, "glow": _glow(fighter),

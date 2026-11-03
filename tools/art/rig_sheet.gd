@@ -3,7 +3,9 @@ extends SceneTree
 ##   godot --path . --resolution 1600x900 -s res://tools/art/rig_sheet.gd -- <out.png>
 ##     every animation, for the office worker and the Clerkbot;
 ##   godot --path . --resolution 1700x1300 -s res://tools/art/rig_sheet.gd -- <out.png> cast
-##     every customer type (idle, walk, eat, happy, angry) beside its Synth (idle, carry, cook, attack, hurt).
+##     every customer type (idle, walk, eat, happy, angry) beside its Synth (idle, carry, cook, attack, hurt);
+##   godot --path . --resolution 1300x900 -s res://tools/art/rig_sheet.gd -- <out.png> staff
+##     MegaBean's staff, one look per combat class, in their battle animations.
 
 const ANIMS: Array[String] = ["idle", "walk", "carry", "sit", "eat", "cook", "rest", "happy", "angry", "attack", "cast",
 	"hurt", "down"]
@@ -14,15 +16,23 @@ const CAST: Array[Array] = [["office_worker", "clerkbot", "4fb3ff"], ["gym_fan",
 	["alien_tourist", "xeno", "3dffd0"]]
 const CUSTOMER_ANIMS: Array[String] = ["idle", "walk", "eat", "happy", "angry"]
 const SYNTH_ANIMS: Array[String] = ["idle", "carry", "cook", "attack", "hurt"]
+const STAFF: Array[String] = ["fighter", "tank", "ranged", "fragile"]
+const STAFF_ANIMS: Array[String] = ["idle", "walk", "attack", "cast", "hurt", "down"]
 
 
 func _init() -> void:
 	var args := OS.get_cmdline_user_args()
 	var cast := args.has("cast")
+	var staff := args.has("staff")
 	var view := Control.new()
 	view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	view.draw.connect(func() -> void:
 		view.draw_rect(Rect2(Vector2.ZERO, view.size), Color("1b1630"))
+		if staff:
+			for row: int in STAFF.size():
+				for i: int in STAFF_ANIMS.size():
+					_pose(view, Vector2(110 + i * 200, 200 + row * 210), 0.4, "megabean/" + STAFF[row], "", STAFF_ANIMS[i], Color.WHITE)
+			return
 		if cast:
 			for row: int in CAST.size():
 				var anims: Array[String] = CUSTOMER_ANIMS + SYNTH_ANIMS

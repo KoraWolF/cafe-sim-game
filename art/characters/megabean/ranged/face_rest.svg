@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café rig part: megabean/ranged/face_rest. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
+  <defs></defs>
+  <g inkscape:label="face_rest" stroke-linejoin="round" stroke-linecap="round">
+    <ellipse cx="100" cy="196" rx="13" ry="7" fill="#ff8fa3" opacity="0.35"/><ellipse cx="196" cy="194" rx="14" ry="7" fill="#ff8fa3" opacity="0.35"/>
+    <path d="M106,166 Q118,178 130,166 M164,164 Q176,176 188,164" fill="none" stroke="#2b2238" stroke-width="6"/>
+    <path d="M144,206 Q151,210 158,206" fill="none" stroke="#7a3b3b" stroke-width="4"/>
+  </g>
+</svg>

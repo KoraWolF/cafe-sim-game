@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café rig part: megabean/fighter/torso. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
+  <defs><linearGradient id="top" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4b4c58"/><stop offset="1" stop-color="#20222c"/></linearGradient><linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eec7ab"/><stop offset="1" stop-color="#dcab88"/></linearGradient></defs>
+  <g inkscape:label="torso" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M78,250 Q128,230 182,250 L196,346 Q128,364 62,346 Z" fill="url(#top)" stroke="#16161d" stroke-width="4"/>
+    <path d="M78,250 Q74,300 66,344 Q86,352 104,355 Q92,300 96,252 Z" fill="#13141a" opacity="0.35"/>
+    <path d="M108,246 L128,292 L150,246 Q128,238 108,246 Z" fill="#f4f6fb" stroke="#b9c0d6" stroke-width="3"/>
+    <path d="M123,262 L134,262 L139,312 L128,326 L118,312 Z" fill="#e3485a" stroke="#9c2434" stroke-width="3"/>
+    <ellipse cx="164" cy="282" rx="9" ry="12" fill="#6b4a2f" stroke="#f1e4cc" stroke-width="3" transform="rotate(25 164 282)"/><path d="M163,274 q4,8 0,16" fill="none" stroke="#f1e4cc" stroke-width="2"/>
+    <path d="M184,262 L194,340" stroke="#38e1ff" stroke-width="5" opacity="0.75"/>
+  </g>
+</svg>

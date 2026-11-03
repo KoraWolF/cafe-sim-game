@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café rig part: megabean/tank/shadow. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
+  <defs></defs>
+  <g inkscape:label="shadow" stroke-linejoin="round" stroke-linecap="round">
+    <ellipse cx="130" cy="425" rx="72" ry="15" fill="#000" opacity="0.22"/>
+  </g>
+</svg>

@@ -3,8 +3,10 @@ and Clerkbot, as rig parts in the art guide's style.
 
 Run:  python tools/art/characters_svg.py
 Writes art/characters/customers/<type>/<part>.svg for gym_fan, gamer, influencer,
-grandparent and alien_tourist, and art/characters/synths/<species>/{glow,
-arm_front,visor}.svg for bulkform, glitchling, hypeform, steady_unit and xeno.
+grandparent and alien_tourist, art/characters/synths/<species>/{glow,
+arm_front,visor}.svg for bulkform, glitchling, hypeform, steady_unit and xeno, and
+art/characters/megabean/<class>/<part>.svg for MegaBean's staff, one look per
+combat class (fighter, tank, ranged, fragile).
 
 Every part uses the template's 256 x 440 canvas with the feet at (128, 430) and
 the same joints (hips 128,340; neck 130,244; shoulders 72,262 and 190,262), so
@@ -48,8 +50,8 @@ def write(folder, name, defs, body):
 
 
 # --- a customer type ------------------------------------------------------
-def customer(type_id, look):
-    folder = "customers/" + type_id
+def customer(type_id, look, folder=None):
+    folder = folder or "customers/" + type_id
     skin, skin_line = look["skin"], shade(look["skin"], -0.3)
     top, bottom, shoes = look["top"], look["bottom"], look.get("shoes", "#22202e")
     sleeve = skin if look.get("bare_arms") else look.get("sleeve", top)
@@ -276,9 +278,78 @@ SYNTHS = {
 }
 
 
+# --- MegaBean staff: corporate charcoal, coffee brown and red ties --------------
+BEAN = ('<ellipse cx="%d" cy="%d" rx="9" ry="12" fill="#6b4a2f" stroke="#f1e4cc" stroke-width="3" transform="rotate(25 %d %d)"/>'
+        '<path d="M%d,%d q4,8 0,16" fill="none" stroke="#f1e4cc" stroke-width="2"/>')
+
+
+def bean(x, y):
+    return BEAN % (x, y, x, y, x - 1, y - 8)
+
+
+STAFF = {
+    "fighter": {  # security
+        "skin": "#e8b48f", "top": "#2b2d3a", "bottom": "#23263a",
+        "torso_details": ['<path d="M108,246 L128,292 L150,246 Q128,238 108,246 Z" fill="#f4f6fb" stroke="#b9c0d6" stroke-width="3"/>',
+                          '<path d="M123,262 L134,262 L139,312 L128,326 L118,312 Z" fill="#e3485a" stroke="#9c2434" stroke-width="3"/>',
+                          bean(164, 282)],
+        "hair": ['<path d="M40,150 C34,92 86,56 136,56 C192,58 228,92 222,146 C206,120 166,108 126,110 C96,112 70,126 60,152 Z" fill="#2a1b15" stroke="#16100c" stroke-width="4"/>',
+                 '<path d="M40,124 C40,64 92,40 134,40 C186,40 226,66 226,122 Z" fill="#6b4a2f" stroke="#3e2a1c" stroke-width="4"/>',
+                 '<path d="M150,118 Q210,112 250,128 Q212,140 150,132 Z" fill="#5a3b26" stroke="#3e2a1c" stroke-width="4"/>',
+                 bean(132, 80)],
+        "prop": ['<path d="M200,334 L222,276" stroke="#2a2e3f" stroke-width="12"/>',
+                 '<path d="M219,284 L226,264" stroke="#e3485a" stroke-width="12"/>',
+                 '<circle cx="227" cy="262" r="7" fill="#ffd36b" opacity="0.9"/>'],
+    },
+    "tank": {  # bouncer with a riot shield
+        "skin": "#a8714a", "top": "#3e2a22", "bottom": "#23263a", "wide": 16,
+        "torso_details": ['<path d="M112,246 L128,272 L144,246 Q128,240 112,246 Z" fill="#2b2d3a"/>',
+                          '<path d="M86,300 L172,300" stroke="#6b4a2f" stroke-width="10"/>', bean(128, 300)],
+        "hair": ['<path d="M48,130 C52,84 96,64 134,64 C178,64 214,86 216,128 C196,112 164,104 132,104 C100,104 72,112 48,130 Z" fill="#1c1410" stroke="#0e0a08" stroke-width="4"/>',
+                 '<rect x="88" y="146" width="126" height="34" rx="12" fill="#16141f" stroke="#0a0910" stroke-width="4"/>',
+                 '<path d="M100,154 L140,154" stroke="#5a6a9a" stroke-width="5" opacity="0.8"/>',
+                 '<path d="M54,170 Q46,200 70,214" fill="none" stroke="#2a2e3f" stroke-width="4"/>',
+                 '<rect x="46" y="158" width="14" height="20" rx="5" fill="#2a2e3f"/>'],
+        "prop": ['<rect x="166" y="244" width="74" height="132" rx="16" fill="url(#shield)" stroke="#2a2e3f" stroke-width="5"/>',
+                 '<rect x="176" y="256" width="54" height="40" rx="6" fill="#9feaff" opacity="0.4"/>',
+                 bean(203, 330).replace('rx="9" ry="12"', 'rx="16" ry="21"')],
+        "prop_defs": [grad("shield", "#5a6a8a", 0.25, -0.25)],
+    },
+    "ranged": {  # barista with an espresso blaster
+        "skin": "#f2c9a8", "top": "#f1e4cc", "bottom": "#2b2d3a", "sleeve": "#f1e4cc",
+        "torso_details": ['<path d="M88,262 L168,262 L176,350 Q128,362 80,350 Z" fill="#6b4a2f" stroke="#3e2a1c" stroke-width="4"/>',
+                          '<path d="M100,262 Q128,236 156,262" fill="none" stroke="#6b4a2f" stroke-width="6"/>',
+                          '<path d="M110,306 L146,306 L144,330 L112,330 Z" fill="#5a3b26" stroke="#3e2a1c" stroke-width="3"/>',
+                          bean(128, 286)],
+        "hair": ['<path d="M42,160 C34,92 88,58 138,58 C194,60 230,96 222,150 C204,124 164,110 124,112 C96,114 72,128 62,160 Z" fill="#7a4a2a" stroke="#3e2410" stroke-width="4"/>',
+                 '<path d="M44,124 Q134,96 222,120 L222,136 Q134,110 44,140 Z" fill="#6b4a2f" stroke="#3e2a1c" stroke-width="4"/>',
+                 '<path d="M150,128 Q212,124 248,140 Q210,150 150,142 Z" fill="#5a3b26" stroke="#3e2a1c" stroke-width="4"/>'],
+        "prop": ['<rect x="178" y="322" width="54" height="30" rx="8" fill="#2b2d3a" stroke="#16141f" stroke-width="4"/>',
+                 '<path d="M224,326 L246,318 L246,340 L224,346 Z" fill="#6b4a2f" stroke="#3e2a1c" stroke-width="4"/>',
+                 '<rect x="186" y="350" width="14" height="22" rx="4" fill="#2b2d3a"/>',
+                 '<circle cx="200" cy="337" r="6" fill="#ff8a3d"/>'],
+    },
+    "fragile": {  # intern
+        "skin": "#ffe0c7", "top": "#f4f6fb", "bottom": "#3a3f5c",
+        "torso_details": ['<path d="M108,246 Q128,262 150,246" fill="none" stroke="#c9cfdc" stroke-width="4"/>',
+                          '<path d="M104,250 L124,312 M154,250 L134,312" stroke="#e3485a" stroke-width="5"/>',
+                          '<rect x="114" y="308" width="30" height="36" rx="4" fill="#ffffff" stroke="#8d96ab" stroke-width="3"/>',
+                          '<rect x="120" y="314" width="18" height="10" fill="#6b4a2f"/><path d="M120,332 l18,0" stroke="#8d96ab" stroke-width="3"/>'],
+        "hair": ['<path d="M36,166 C22,90 84,44 140,48 C202,52 240,100 222,160 C214,130 196,116 180,122 C186,104 168,96 158,110 C150,94 128,98 124,112 C98,110 72,126 62,166 Z" fill="#e0a85a" stroke="#9a6a2a" stroke-width="4"/>',
+                 '<path d="M126,50 Q120,30 136,24 M150,52 Q160,30 176,34" fill="none" stroke="#9a6a2a" stroke-width="5"/>'],
+        "prop": ['<rect x="176" y="300" width="50" height="64" rx="5" fill="#b07a50" stroke="#6b4130" stroke-width="4"/>',
+                 '<rect x="184" y="312" width="34" height="46" fill="#ffffff"/>',
+                 '<rect x="192" y="294" width="18" height="12" rx="3" fill="#8d96ab" stroke="#5b647a" stroke-width="2"/>',
+                 '<path d="M190,324 l22,0 M190,334 l22,0 M190,344 l14,0" stroke="#8d96ab" stroke-width="3"/>'],
+    },
+}
+
+
 if __name__ == "__main__":
     for type_id, look in CUSTOMERS.items():
         customer(type_id, look)
+    for class_id, look in STAFF.items():
+        customer(class_id, look, "megabean/" + class_id)
     for species_id, (color, arm, visor) in SYNTHS.items():
         synth(species_id, color, arm, visor)
     print("characters written to", ROOT)
