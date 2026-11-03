@@ -4,7 +4,7 @@ extends SceneTree
 ## (1x) version under it. Usage:
 ##   godot --headless --path . -s res://tools/art/preview_sheet.gd -- <out.png>
 
-const FOLDERS: Array[String] = ["res://art/furniture", "res://art/decor"]
+const FOLDERS: Array[String] = ["res://art/furniture", "res://art/decor", "res://art/room"]
 const CELL := Vector2i(460, 520)
 const COLUMNS: int = 6
 

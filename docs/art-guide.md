@@ -128,6 +128,11 @@ You don't animate these in the drawing program. You draw the parts; the animatio
 - `art/furniture/`: `seat`, `seat_far`, `seat_near`, `table`, `stove`, `counter`, `bin`, `register`, `pod`;
 - `art/decor/`: every décor piece.
 
+**The room** is in `art/room/`:
+- `floor_a` / `floor_b`: wood-plank tiles, alternating;
+- `wall_plain`, `wall_window`, `wall_shelf`: one tile-wide segment of the back-left wall. The back-right wall is the same drawings mirrored, with a window every third segment and a shelf now and then;
+- `door`: a glass door with a striped awning.
+
 **How they're made.** They come from `tools/art/furniture_svg.py`. It draws every piece from the same iso parts (boxes, cylinders, discs, floor shadows), so the style rules above hold everywhere.
 - Run `python tools/art/furniture_svg.py` to rebuild them all. A file edited by hand is overwritten when you rebuild, so either change the script or stop using it for that piece.
 - Each file has named layers (shadow, body, neon, …) for Inkscape.
