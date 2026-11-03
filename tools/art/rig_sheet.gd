@@ -5,7 +5,9 @@ extends SceneTree
 ##   godot --path . --resolution 1700x1300 -s res://tools/art/rig_sheet.gd -- <out.png> cast
 ##     every customer type (idle, walk, eat, happy, angry) beside its Synth (idle, carry, cook, attack, hurt);
 ##   godot --path . --resolution 1300x900 -s res://tools/art/rig_sheet.gd -- <out.png> staff
-##     MegaBean's staff, one look per combat class, in their battle animations.
+##     MegaBean's staff, one look per combat class, in their battle animations;
+##   godot --path . --resolution 1700x1300 -s res://tools/art/rig_sheet.gd -- <out.png> back
+##     every customer type, its Synth and MegaBean's staff walking away (the back view).
 
 const ANIMS: Array[String] = ["idle", "walk", "carry", "sit", "eat", "cook", "rest", "happy", "angry", "attack", "cast",
 	"hurt", "down"]
@@ -24,10 +26,24 @@ func _init() -> void:
 	var args := OS.get_cmdline_user_args()
 	var cast := args.has("cast")
 	var staff := args.has("staff")
+	var back := args.has("back")
 	var view := Control.new()
 	view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	view.draw.connect(func() -> void:
 		view.draw_rect(Rect2(Vector2.ZERO, view.size), Color("1b1630"))
+		if back:
+			var bodies: Array[Array] = []
+			for entry: Array in CAST:
+				bodies.append([entry[0], "", Color.WHITE])
+				bodies.append([entry[0], entry[1], Color(entry[2])])
+			for class_id: String in STAFF:
+				bodies.append(["megabean/" + class_id, "", Color.WHITE])
+			for i: int in bodies.size():
+				var feet := Vector2(90 + (i % 8) * 200, 220 + (i / 8) * 300)
+				for k: int in 2:
+					CharacterArt.draw(view, feet + Vector2(k * 80, 0), 0.32, bodies[i][0], bodies[i][1],
+						{"anim": "walk", "t": 0.1 + k * 0.15, "back": true, "mirror": k == 1, "glow": bodies[i][2]})
+			return
 		if staff:
 			for row: int in STAFF.size():
 				for i: int in STAFF_ANIMS.size():

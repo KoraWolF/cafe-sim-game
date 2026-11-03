@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café rig part: customers/gym_fan/torso_ne. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
+  <defs><linearGradient id="top" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#413c4d"/><stop offset="1" stop-color="#171422"/></linearGradient><linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d6a786"/><stop offset="1" stop-color="#bf8359"/></linearGradient></defs>
+  <g inkscape:label="torso_ne" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M68,250 Q128,230 192,250 L201,346 Q128,364 57,346 Z" fill="url(#top)" stroke="#100d17" stroke-width="4"/>
+    <path d="M68,250 Q74,300 66,344 Q86,352 104,355 Q92,300 96,252 Z" fill="#0e0c15" opacity="0.35"/>
+    <path d="M128,246 L128,350" stroke="#100d17" stroke-width="3" opacity="0.5"/>
+    <path d="M100,248 Q128,262 156,248" fill="none" stroke="#8a5a3a" stroke-width="4"/>
+    <path d="M104,300 L152,300" fill="none" stroke="#b6ff3b" stroke-width="12" stroke-opacity="0.35"/><path d="M104,300 L152,300" fill="none" stroke="#b6ff3b" stroke-width="4"/>
+    <path d="M194,262 L199,340" stroke="#19f0ff" stroke-width="5" opacity="0.75"/>
+  </g>
+</svg>

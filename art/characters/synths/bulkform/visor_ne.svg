@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café rig part: synths/bulkform/visor_ne. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
+  <defs><linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9e0eb"/><stop offset="1" stop-color="#797e88"/></linearGradient><linearGradient id="lit" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffb98b"/><stop offset="1" stop-color="#bf682e"/></linearGradient></defs>
+  <g inkscape:label="visor_ne" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M40,168 Q130,186 222,166 L222,182 Q130,202 40,184 Z" fill="#14111f" stroke="#0a0812" stroke-width="3"/><circle cx="130" cy="186" r="5" fill="#ff8a3d"/>
+    <rect x="200" y="148" width="22" height="34" rx="6" fill="url(#metal)" stroke="#2a3046" stroke-width="4"/>
+  </g>
+</svg>

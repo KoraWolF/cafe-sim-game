@@ -1047,7 +1047,8 @@ func _draw_synth(synth: Synth, at: Vector2) -> void:
 
 ## A rigged character (see CharacterArt) standing at `at` (cell units), posed
 ## by anim and face; walking whenever it moved since the last frame, facing the
-## way it last went. Returns its head's centre (and records it for clicks).
+## way it last went: its back while walking up the screen (away from the
+## camera) or working a mixer. Returns its head's centre (and records it for clicks).
 func _draw_rigged(person_id: String, at: Vector2, type_id: String, species_id: String, anim: String, face: String,
 		glow := Color.WHITE) -> Vector2:
 	var feet := Iso.to_world(at)
@@ -1055,10 +1056,12 @@ func _draw_rigged(person_id: String, at: Vector2, type_id: String, species_id: S
 	_rig_seen[person_id] = feet
 	if absf(feet.x - last.x) > 0.05:
 		_rig_left[person_id] = feet.x < last.x
-	if feet.distance_to(last) > 0.05 and anim != "angry":
+	var moving := feet.distance_to(last) > 0.05
+	var back := feet.y < last.y - 0.02 if moving else anim == "cook"
+	if moving and anim != "angry":
 		anim = "carry" if anim == "carry_still" else "walk"
 	var pose := {"anim": anim, "t": _rig_time + float(absi(person_id.hash()) % 100) / 37.0, "face": face,
-		"mirror": _rig_left.get(person_id, false), "glow": glow}
+		"mirror": _rig_left.get(person_id, false), "glow": glow, "back": back}
 	var head := CharacterArt.draw(self, feet, CharacterArt.SIZE, type_id, species_id, pose)
 	if person_id != "":
 		_heads[person_id] = head

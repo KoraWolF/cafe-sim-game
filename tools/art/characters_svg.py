@@ -7,6 +7,9 @@ art/characters/synths/<species>/{glow, arm_front, visor}.svg for every species, 
 art/characters/megabean/<class>/<part>.svg for MegaBean's staff, one look per
 combat class (fighter, tank, ranged, fragile).
 
+Each type also has back-view parts (torso_ne, head_ne, hair_ne; a Synth's
+visor_ne) for walking away; legs, arms and props are shared with the front.
+
 Every part uses the template's 256 x 440 canvas with the feet at (128, 430) and
 the same joints (hips 128,340; neck 130,244; shoulders 72,262 and 190,262), so
 the shared rig (src/ui/character_art.gd) poses them all the same way. Body
@@ -99,6 +102,23 @@ def customer(type_id, look, folder=None):
     write(folder, "hair", look.get("hair_defs", []), look["hair"])
     write(folder, "prop", look.get("prop_defs", []), look["prop"])
     faces(folder, look.get("eyes", "#2b2238"), look.get("big_eyes", False))
+
+    # The back view (walking away, facing up-right): the back of the clothes, of
+    # the head (both ears, no face) and of the hair. Legs, arms and prop are shared.
+    back = ['<path d="M%d,250 Q128,230 %d,250 L%d,346 Q128,364 %d,346 Z" fill="url(#top)" stroke="%s" stroke-width="4"/>'
+            % (78 - wide, 182 + wide, 196 + wide // 2, 62 - wide // 2, shade(top, -0.5)),
+            '<path d="M%d,250 Q74,300 66,344 Q86,352 104,355 Q92,300 96,252 Z" fill="%s" opacity="0.35"/>' % (78 - wide, shade(top, -0.55)),
+            '<path d="M128,246 L128,350" stroke="%s" stroke-width="3" opacity="0.5"/>' % shade(top, -0.5)]
+    back += BACK_TORSO.get(folder, [])
+    back.append('<path d="M%d,262 L%d,340" stroke="%s" stroke-width="5" opacity="0.75"/>' % (184 + wide, 194 + wide // 2, RIM))
+    write(folder, "torso_ne", [grad("top", top), skin_g] + look.get("torso_defs", []), back)
+    ears = "" if look.get("no_ears") else ('<ellipse cx="54" cy="166" rx="16" ry="20" fill="url(#skin)" stroke="%s" stroke-width="4"/>'
+                                           '<ellipse cx="206" cy="166" rx="16" ry="20" fill="url(#skin)" stroke="%s" stroke-width="4"/>' % (skin_line, skin_line))
+    write(folder, "head_ne", [skin_g], [ears,
+          '<ellipse cx="130" cy="152" rx="92" ry="88" fill="url(#skin)" stroke="%s" stroke-width="4"/>' % skin_line,
+          '<path d="M44,150 Q44,215 92,236 Q60,200 66,150 Z" fill="%s" opacity="0.45"/>' % shade(skin, -0.12),
+          '<path d="M214,120 Q226,160 212,198" stroke="%s" stroke-width="5" fill="none" opacity="0.7"/>' % RIM])
+    write(folder, "hair_ne", look.get("hair_defs", []) + [CHROME_DEF], BACK_HAIR[folder])
 
 
 def faces(folder, eye, big):
@@ -257,6 +277,7 @@ def synth(species_id, color, arm, visor):
     metal = grad("metal", "#c9d2e3", 0.3, -0.4)
     write(folder, "arm_front", [metal, grad("lit", color, 0.3, -0.2)], arm)
     write(folder, "visor", [metal, grad("lit", color, 0.4, -0.25, horizontal=True)], visor)
+    write(folder, "visor_ne", [metal, grad("lit", color, 0.4, -0.25, horizontal=True)], VISOR_BACK[species_id])
 
 
 def mech_arm(color, extra=""):
@@ -374,6 +395,70 @@ STAFF = {
                  '<rect x="180" y="308" width="42" height="50" rx="3" fill="%s" opacity="0.85"/>' % RED,
                  '<path d="M186,320 l28,0 M186,332 l20,0 M186,344 l26,0" stroke="#ffffff" stroke-width="3" opacity="0.8"/>'],
     },
+}
+
+
+# --- the back view ----------------------------------------------------------
+# Hair covering the back of the head (head ellipse: centre 130,152, 92 x 88).
+CAP = "M38,166 C28,84 88,48 132,48 C190,50 236,90 222,170 Q214,206 184,214 Q132,226 80,214 Q50,206 38,166 Z"
+
+
+def cap(fill, line):
+    return '<path d="%s" fill="%s" stroke="%s" stroke-width="4"/>' % (CAP, fill, line)
+
+
+STRAP = ('<path d="M40,168 Q130,186 222,166 L222,182 Q130,202 40,184 Z" fill="#14111f" stroke="#0a0812" stroke-width="3"/>'
+         '<circle cx="130" cy="186" r="5" fill="%s"/>')
+
+BACK_HAIR = {
+    "customers/office_worker": [cap("url(#hair)", "#0e0b17"), led("M150,62 C178,66 204,86 210,112", CYAN, 3),
+                                '<rect x="200" y="150" width="18" height="30" rx="6" fill="url(#chrome)" stroke="%s" stroke-width="3"/>' % CHROME_LINE],
+    "customers/gym_fan": ['<path d="M44,160 C40,90 90,58 140,58 C196,60 232,96 220,160 Q210,190 132,196 Q54,190 44,160 Z" fill="url(#hair)" stroke="#0e0b17" stroke-width="4"/>',
+                          led("M46,118 Q132,92 220,116", MAGENTA, 5)],
+    "customers/gamer": [cap("url(#hair)", "#0e0b17"), '<path d="M34,152 Q30,46 130,40 Q230,44 226,150" fill="none" stroke="#14111f" stroke-width="12"/>',
+                        '<rect x="18" y="130" width="28" height="44" rx="12" fill="#14111f" stroke="#0a0812" stroke-width="4"/>',
+                        '<rect x="214" y="130" width="28" height="44" rx="12" fill="#14111f" stroke="#0a0812" stroke-width="4"/>',
+                        '<rect x="220" y="138" width="16" height="28" rx="6" fill="%s"/>' % MAGENTA],
+    "customers/influencer": ['<path d="M24,200 C2,110 54,36 132,34 L132,262 Q70,272 36,244 Z" fill="url(#hairl)" stroke="#6a1a5a" stroke-width="4"/>',
+                             '<path d="M132,34 C214,34 256,104 236,200 Q222,252 132,262 Z" fill="url(#hairr)" stroke="#0a6f86" stroke-width="4"/>',
+                             led("M132,40 L132,256", "#ffffff", 2)],
+    "customers/grandparent": [cap("url(#hair)", "#8d96ab"), '<circle cx="132" cy="50" r="30" fill="url(#chrome)" stroke="%s" stroke-width="4"/>' % CHROME_LINE,
+                              '<path d="M60,166 Q130,176 204,164" fill="none" stroke="#2a3046" stroke-width="4"/>'],
+    "customers/alien_tourist": ['<path d="M96,74 Q80,30 64,18" fill="none" stroke="#7a62c8" stroke-width="7"/>',
+                                '<path d="M166,72 Q186,28 204,16" fill="none" stroke="#7a62c8" stroke-width="7"/>',
+                                '<circle cx="62" cy="16" r="10" fill="%s"/><circle cx="206" cy="14" r="10" fill="%s"/>' % (MAGENTA, CYAN)],
+    "megabean/fighter": [cap("#14111f", "#0a0812"), STRAP % "#d62f45"],
+    "megabean/tank": ['<path d="M40,170 C30,80 90,46 134,46 C182,46 234,80 224,170 Q132,204 40,170 Z" fill="url(#helm)" stroke="#0a0812" stroke-width="4"/>',
+                      led("M50,150 Q132,170 214,148", "#d62f45", 4)],
+    "megabean/ranged": [cap("#d62f45", "#6a1020"), STRAP % "#d62f45"],
+    "megabean/fragile": [cap("#e0e4ee", "#8d96ab"), '<path d="M50,164 Q130,176 210,162" fill="none" stroke="#0a0812" stroke-width="3"/>'],
+}
+
+BACK_TORSO = {
+    "customers/office_worker": ['<path d="M128,300 L128,346" stroke="#14111f" stroke-width="4"/>', led("M92,262 L164,262", CYAN, 2)],
+    "customers/gym_fan": ['<path d="M100,248 Q128,262 156,248" fill="none" stroke="#8a5a3a" stroke-width="4"/>', led("M104,300 L152,300", ACID, 4)],
+    "customers/gamer": ['<path d="M84,252 Q128,226 174,252 Q162,292 128,298 Q94,292 84,252 Z" fill="#221a3a" stroke="#120e22" stroke-width="4"/>',
+                        led("M100,316 L156,316", CYAN, 3)],
+    "customers/influencer": ['<path d="M82,262 L176,300 M78,304 L180,340" stroke="#ff2fb4" stroke-width="6" opacity="0.5"/>',
+                             '<path d="M86,286 L178,320" stroke="#19f0ff" stroke-width="6" opacity="0.5"/>'],
+    "customers/grandparent": [led("M90,280 L110,280 L116,296 L140,296 L146,280 L166,280", ACID, 2)],
+    "customers/alien_tourist": ['<rect x="104" y="280" width="48" height="30" rx="6" fill="%s" stroke="#8a5a1a" stroke-width="3"/>' % AMBER],
+    "megabean/fighter": [bean(128, 290).replace('rx="9" ry="12"', 'rx="14" ry="18"'), led("M90,330 L166,330", "#d62f45", 3)],
+    "megabean/tank": ['<path d="M80,256 L178,256 L184,330 L74,330 Z" fill="url(#armor)" stroke="#0a0812" stroke-width="4"/>',
+                      bean(128, 292).replace('rx="9" ry="12"', 'rx="16" ry="21"')],
+    "megabean/ranged": ['<path d="M156,250 L100,330" stroke="#d62f45" stroke-width="8"/>', bean(128, 300)],
+    "megabean/fragile": ['<path d="M104,250 Q128,270 154,250" fill="none" stroke="#d62f45" stroke-width="5"/>'],
+}
+
+VISOR_BACK = {
+    "clerkbot": [STRAP % "#4fb3ff", '<rect x="200" y="148" width="22" height="34" rx="6" fill="url(#metal)" stroke="#2a3046" stroke-width="4"/>'],
+    "bulkform": [STRAP % "#ff8a3d", '<rect x="200" y="148" width="22" height="34" rx="6" fill="url(#metal)" stroke="#2a3046" stroke-width="4"/>'],
+    "glitchling": [STRAP % "#c46bff", '<path d="M60,120 Q40,80 70,60 M200,110 Q230,80 214,52" fill="none" stroke="#2a3046" stroke-width="6"/>',
+                   '<path d="M90,190 Q100,230 80,260 M170,190 Q160,230 180,260" fill="none" stroke="#c46bff" stroke-width="4"/>'],
+    "hypeform": [STRAP % "#ff4fd8"],
+    "steady_unit": [STRAP % "#9cff6b", '<path d="M208,160 L228,140 L228,100" fill="none" stroke="#2a3046" stroke-width="5"/><circle cx="228" cy="96" r="8" fill="#9cff6b"/>'],
+    "xeno": ['<path d="M62,120 Q130,92 210,118 L204,134 Q130,108 68,136 Z" fill="url(#metal)" stroke="#2a3046" stroke-width="4"/>',
+             '<path d="M130,108 L118,74 L130,60 L142,74 Z" fill="url(#lit)" stroke="#0a6f5a" stroke-width="4"/>'],
 }
 
 
