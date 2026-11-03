@@ -46,6 +46,28 @@ const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
 
 
+## Copies the saves and settings of the game under its old name (its user
+## folder beside this one) into this one, if this one has none yet. Returns
+## how many files were copied.
+static func carry_over(old_app_name: String) -> int:
+	var here := ProjectSettings.globalize_path("user://")
+	var old := here.trim_suffix("/").get_base_dir().path_join(old_app_name)
+	if old.simplify_path() == here.trim_suffix("/").simplify_path() or not DirAccess.dir_exists_absolute(old):
+		return 0
+	if DirAccess.dir_exists_absolute(here.path_join("saves")) and not DirAccess.get_files_at(here.path_join("saves")).is_empty():
+		return 0
+	var copied := 0
+	DirAccess.make_dir_recursive_absolute(here.path_join("saves"))
+	if DirAccess.dir_exists_absolute(old.path_join("saves")):
+		for file: String in DirAccess.get_files_at(old.path_join("saves")):
+			if DirAccess.copy_absolute(old.path_join("saves").path_join(file), here.path_join("saves").path_join(file)) == OK:
+				copied += 1
+	if FileAccess.file_exists(old.path_join("settings.cfg")) and not FileAccess.file_exists(here.path_join("settings.cfg")):
+		if DirAccess.copy_absolute(old.path_join("settings.cfg"), here.path_join("settings.cfg")) == OK:
+			copied += 1
+	return copied
+
+
 static func slot_path(slot: int) -> String:
 	return "%s/slot_%d.json" % [SAVE_DIR, slot]
 

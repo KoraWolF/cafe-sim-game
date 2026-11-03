@@ -1,6 +1,6 @@
 # Art guide: customers, Synths and furniture (2D vector, digital illustration)
 
-How to make the characters and furniture for NanoBrew Café yourself and plug them into the game. Everything on screen today is placeholder shapes drawn in code (`src/ui/cafe_view.gd`, `src/ui/battle_view.gd`). Real art replaces them without changing any game rules.
+How to make the characters and furniture for NanoBrew Bar yourself and plug them into the game. Everything on screen today is placeholder shapes drawn in code (`src/ui/cafe_view.gd`, `src/ui/battle_view.gd`). Real art replaces them without changing any game rules.
 
 **Style (decided 2026-10-27): 2D vector shapes with a digital-illustration finish.** Clean, scalable shapes, soft gradients, cel-shadow shapes and a neon rim light, instead of hand-painted pixels or black comic outlines. **Theme (2026-11-03): a cyberpunk dive bar with chibi cyborgs** (see section 4).
 

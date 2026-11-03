@@ -56,7 +56,12 @@ var synth_names: Dictionary[String, String] = {}
 var _carry: float = 0.0
 
 
+## The game's name before it became a bar: its saves and settings are carried over once.
+const OLD_APP_NAME: String = "NanoBrew Café"
+
+
 func _ready() -> void:
+	SaveSystem.carry_over(OLD_APP_NAME)
 	data = GameData.load_default()
 	RenderingServer.set_default_clear_color(UiTheme.BACKGROUND)
 

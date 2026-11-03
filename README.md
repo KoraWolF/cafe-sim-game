@@ -1,2 +1,2 @@
-# cafe-sim-game
-2D Single-player cafe management game where you can turns customers into synthetic staff.
+# NanoBrew Bar
+2D single-player cyberpunk bar management game where you turn customers into cyborg staff.
