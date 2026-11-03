@@ -91,15 +91,21 @@ class Piece:
         line = outline or shade(color, -0.55)
         top = top or shade(color, 0.18)
         x1, y1, z1 = x0 + w, y0 + d, z0 + h
-        left = self.gradient(color, shade(color, -0.12))
-        right = self.gradient(shade(color, -0.25), shade(color, -0.38))
+        left = self.gradient(shade(color, 0.04), shade(color, -0.16))
+        right = self.gradient(shade(color, -0.32), shade(color, -0.48))
         out.append('<polygon points="%s" fill="%s" stroke="%s" stroke-width="4" stroke-linejoin="round"/>'
                    % (self.pts([(x0, y1, z1), (x1, y1, z1), (x1, y1, z0), (x0, y1, z0)]), left, line))
         out.append('<polygon points="%s" fill="%s" stroke="%s" stroke-width="4" stroke-linejoin="round"/>'
                    % (self.pts([(x1, y0, z1), (x1, y1, z1), (x1, y1, z0), (x1, y0, z0)]), right, line))
+        if h > 30:
+            foot = min(h * 0.25, 22)
+            out.append('<polygon points="%s" fill="%s" opacity="0.3"/>'
+                       % (self.pts([(x0, y1, z0 + foot), (x1, y1, z0 + foot), (x1, y1, z0), (x0, y1, z0)]), shade(color, -0.6)))
         out.append('<polygon points="%s" fill="%s" stroke="%s" stroke-width="4" stroke-linejoin="round"/>'
                    % (self.pts([(x0, y0, z1), (x1, y0, z1), (x1, y1, z1), (x0, y1, z1)]),
                       self.gradient(shade(top, 0.12), top), line))
+        out.append('<polyline points="%s" fill="none" stroke="#ffffff" stroke-width="3" stroke-opacity="0.35" stroke-linecap="round"/>'
+                   % self.pts([(x0 + 0.03, y1, z1), (x1 - 0.03, y1, z1)]))
         if rim and h > 6:
             out.append('<polyline points="%s" fill="none" stroke="%s" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>'
                        % (self.pts([(x1, y0, z0 + 6), (x1, y0, z1 - 2), (x1 + 0.0, y1 * 0.5 + y0 * 0.5, z1)]), RIM))
@@ -154,175 +160,239 @@ CUSHION = "#e98a4f"
 
 
 def seat(name, back):
-    """A round cushioned stool; back = "" (none), "far" (upper-left edge) or "near" (lower-right edge)."""
-    piece = Piece(name, 1, 1, 150, "furniture")
+    """A round cushioned stool with a footrest ring; back = "" (none), "far" (upper-left edge) or "near" (lower-right edge)."""
+    piece = Piece(name, 1, 1, 170, "furniture")
     out = piece.layer("shadow")
-    piece.floor_shadow(out, 0.18, 0.18, 0.64, 0.64)
+    piece.floor_shadow(out, 0.14, 0.14, 0.72, 0.72)
     if back == "far":
-        piece.box(piece.layer("backrest"), 0.14, 0.22, 0.12, 0.56, 36, 100, WOOD_DARK)
+        backrest(piece, 0.12)
     out = piece.layer("stool")
-    piece.cylinder(out, 0.5, 0.5, 0.07, 0, 40, STEEL, rim=False)
-    piece.disc(out, 0.5, 0.5, 2, 0.24, shade(STEEL, -0.2))
-    piece.cylinder(out, 0.5, 0.5, 0.33, 34, 22, CUSHION, top=shade(CUSHION, 0.1))
-    x, y, rx, ry = piece.ellipse_xy(0.5, 0.5, 56, 0.33)
-    out.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="#ffffff" opacity="0.18"/>' % (x - rx * 0.25, y - ry * 0.2, rx * 0.45, ry * 0.4))
+    piece.disc(out, 0.5, 0.5, 2, 0.26, shade(STEEL, -0.25))
+    piece.cylinder(out, 0.5, 0.5, 0.06, 0, 36, STEEL, rim=False)
+    x, y, rx, ry = piece.ellipse_xy(0.5, 0.5, 16, 0.2)
+    out.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="none" stroke="%s" stroke-width="6"/>' % (x, y, rx, ry, shade(STEEL, -0.35)))
+    piece.cylinder(out, 0.5, 0.5, 0.37, 34, 26, CUSHION, top=shade(CUSHION, 0.12))
+    x, y, rx, ry = piece.ellipse_xy(0.5, 0.5, 60, 0.37)
+    out.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="none" stroke="%s" stroke-width="3" stroke-dasharray="10 8" opacity="0.7"/>'
+               % (x, y, rx * 0.78, ry * 0.78, shade(CUSHION, -0.35)))
+    out.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="#ffffff" opacity="0.2"/>' % (x - rx * 0.3, y - ry * 0.25, rx * 0.4, ry * 0.35))
     if back == "near":
-        piece.box(piece.layer("backrest"), 0.74, 0.22, 0.12, 0.56, 36, 100, WOOD_DARK)
+        backrest(piece, 0.76)
     piece.write()
 
 
+def backrest(piece, x0):
+    """A wooden backrest with a cushion pad, along the edge at x0 (tiles)."""
+    out = piece.layer("backrest")
+    piece.box(out, x0, 0.18, 0.12, 0.64, 40, 112, WOOD_DARK)
+    pad_x = x0 + 0.12 if x0 < 0.5 else x0 - 0.02
+    out.append('<polygon points="%s" fill="%s" stroke="%s" stroke-width="3" stroke-linejoin="round"/>'
+               % (piece.pts([(pad_x, 0.26, 140), (pad_x, 0.74, 140), (pad_x, 0.74, 80), (pad_x, 0.26, 80)]),
+                  piece.gradient(shade(CUSHION, 0.1), shade(CUSHION, -0.15)), shade(CUSHION, -0.5)))
+
+
 def table():
-    piece = Piece("table", 1, 1, 130, "furniture")
-    piece.floor_shadow(piece.layer("shadow"), 0.1, 0.1, 0.8, 0.8)
+    piece = Piece("table", 1, 1, 170, "furniture")
+    piece.floor_shadow(piece.layer("shadow"), 0.06, 0.06, 0.88, 0.88)
     out = piece.layer("table")
-    piece.disc(out, 0.5, 0.5, 2, 0.2, shade(WOOD_DARK, -0.2))
-    piece.cylinder(out, 0.5, 0.5, 0.06, 4, 84, WOOD_DARK, rim=False)
-    piece.cylinder(out, 0.5, 0.5, 0.42, 86, 10, WOOD, top=shade(WOOD, 0.25))
-    x, y, rx, ry = piece.ellipse_xy(0.5, 0.5, 96, 0.42)
-    out.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="none" stroke="%s" stroke-width="3" opacity="0.5"/>'
-               % (x, y, rx * 0.7, ry * 0.7, shade(WOOD, -0.25)))
+    piece.disc(out, 0.5, 0.5, 2, 0.24, shade(WOOD_DARK, -0.2))
+    piece.cylinder(out, 0.5, 0.5, 0.07, 4, 94, WOOD_DARK, rim=False)
+    piece.cylinder(out, 0.5, 0.5, 0.46, 98, 12, WOOD, top=shade(WOOD, 0.25))
+    x, y, rx, ry = piece.ellipse_xy(0.5, 0.5, 110, 0.46)
+    for ring in (0.72, 0.45):
+        out.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="none" stroke="%s" stroke-width="3" opacity="0.4"/>'
+                   % (x, y, rx * ring, ry * ring, shade(WOOD, -0.25)))
+    out = piece.layer("vase")
+    piece.cylinder(out, 0.22, 0.3, 0.05, 110, 26, CREAM, top="#4a8a5a", rim=False)
+    vx, vy = piece.p(0.22, 0.3, 136)
+    out.append('<path d="M %.1f %.1f q -4 -18 -12 -26 M %.1f %.1f q 4 -20 12 -24" fill="none" stroke="#3f9a52" stroke-width="4" stroke-linecap="round"/>'
+               % (vx, vy, vx, vy))
+    for dx, dy, color in ((-12, -28, "#ff6f91"), (12, -26, "#ffd36b"), (0, -36, "#ff6f91")):
+        out.append('<circle cx="%.1f" cy="%.1f" r="8" fill="%s" stroke="%s" stroke-width="2"/>' % (vx + dx, vy + dy, color, shade(color, -0.45)))
     piece.write()
 
 
 def stove():
-    piece = Piece("stove", 1, 1, 170, "furniture")
-    piece.floor_shadow(piece.layer("shadow"), 0.06, 0.06, 0.88, 0.88)
+    piece = Piece("stove", 1, 1, 230, "furniture")
+    piece.floor_shadow(piece.layer("shadow"), 0.03, 0.03, 0.94, 0.94)
     out = piece.layer("body")
-    piece.box(out, 0.06, 0.06, 0.88, 0.88, 0, 112, STEEL, top="#454b63")
-    out = piece.layer("burners")
-    for cx, cy in ((0.32, 0.32), (0.68, 0.32), (0.32, 0.68), (0.68, 0.68)):
-        piece.disc(out, cx, cy, 112, 0.13, "#2a2e3f", outline="#1c1f2c")
-        x, y, rx, ry = piece.ellipse_xy(cx, cy, 112, 0.09)
-        out.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="none" stroke="#ff8a3d" stroke-width="4" opacity="0.8"/>' % (x, y, rx, ry))
-    out = piece.layer("knobs_and_display")
-    for i in range(3):
-        x, y = piece.p(0.22 + i * 0.25, 0.94, 84)
-        out.append('<circle cx="%.1f" cy="%.1f" r="9" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="3"/>' % (x, y))
+    piece.box(out, 0.03, 0.03, 0.94, 0.94, 0, 128, STEEL, top="#454b63")
+    out = piece.layer("oven")
+    out.append('<polygon points="%s" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="3" stroke-linejoin="round"/>'
+               % piece.pts([(0.97, 0.18, 96), (0.97, 0.82, 96), (0.97, 0.82, 14), (0.97, 0.18, 14)]))
+    out.append('<polygon points="%s" fill="%s" opacity="0.9"/>'
+               % (piece.pts([(0.97, 0.26, 80), (0.97, 0.74, 80), (0.97, 0.74, 30), (0.97, 0.26, 30)]), piece.gradient("#ffb35c", "#c4452a")))
+    out.append('<polyline points="%s" fill="none" stroke="#d9dde8" stroke-width="6" stroke-linecap="round"/>'
+               % piece.pts([(0.97, 0.28, 108), (0.97, 0.72, 108)]))
+    out = piece.layer("knobs")
+    for i in range(4):
+        kx, ky = piece.p(0.16 + i * 0.22, 0.97, 104)
+        out.append('<circle cx="%.1f" cy="%.1f" r="9" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="3"/>' % (kx, ky))
+        out.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#ff8a3d" stroke-width="3"/>' % (kx, ky, kx, ky - 7))
     out.append('<polygon points="%s" fill="#38e1ff" opacity="0.85" stroke="#1d6f86" stroke-width="3"/>'
-               % piece.pts([(0.94, 0.25, 92), (0.94, 0.75, 92), (0.94, 0.75, 72), (0.94, 0.25, 72)]))
-    out.append('<polygon points="%s" fill="#2a2e3f" opacity="0.9"/>' % piece.pts([(0.94, 0.2, 52), (0.94, 0.8, 52), (0.94, 0.8, 14), (0.94, 0.2, 14)]))
+               % piece.pts([(0.3, 0.97, 78), (0.7, 0.97, 78), (0.7, 0.97, 58), (0.3, 0.97, 58)]))
+    out = piece.layer("burners")
+    for cx, cy in ((0.3, 0.3), (0.7, 0.3), (0.3, 0.7), (0.7, 0.7)):
+        piece.disc(out, cx, cy, 128, 0.14, "#2a2e3f", outline="#1c1f2c")
+        x, y, rx, ry = piece.ellipse_xy(cx, cy, 128, 0.1)
+        out.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="none" stroke="#ff8a3d" stroke-width="4" opacity="0.85"/>' % (x, y, rx, ry))
+    out = piece.layer("pot")
+    piece.cylinder(out, 0.3, 0.3, 0.16, 128, 40, "#c94f3d", top="#7a2a22")
+    hx, hy, rx, ry = piece.ellipse_xy(0.3, 0.3, 160, 0.16)
+    out.append('<rect x="%.1f" y="%.1f" width="22" height="8" rx="4" fill="#2a2e3f"/>' % (hx + rx - 4, hy - 4))
+    for i in range(3):
+        sx, sy = piece.p(0.22 + i * 0.08, 0.3, 172)
+        out.append('<path d="M %.1f %.1f q -8 -10 0 -20 q 8 -10 0 -20" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity="0.55"/>' % (sx, sy))
     piece.write()
 
 
 def counter():
-    piece = Piece("counter", 1, 1, 150, "furniture")
+    piece = Piece("counter", 1, 1, 170, "furniture")
     piece.floor_shadow(piece.layer("shadow"), 0.02, 0.02, 0.96, 0.96)
     out = piece.layer("cabinet")
-    piece.box(out, 0.04, 0.04, 0.92, 0.92, 0, 94, WOOD)
-    out.append('<polyline points="%s" fill="none" stroke="%s" stroke-width="3" opacity="0.6"/>' % (
-        piece.pts([(0.12, 0.96, 70), (0.12, 0.96, 18), (0.88, 0.96, 18), (0.88, 0.96, 70), (0.12, 0.96, 70)]), shade(WOOD, -0.35)))
+    piece.box(out, 0.04, 0.04, 0.92, 0.92, 0, 108, WOOD)
+    for z0, z1 in ((60, 96), (12, 52)):
+        out.append('<polygon points="%s" fill="%s" stroke="%s" stroke-width="3" stroke-linejoin="round" opacity="0.9"/>'
+                   % (piece.pts([(0.12, 0.96, z1), (0.88, 0.96, z1), (0.88, 0.96, z0), (0.12, 0.96, z0)]), shade(WOOD, 0.08), shade(WOOD, -0.4)))
+        hx0, hy0 = piece.p(0.4, 0.96, (z0 + z1) / 2)
+        hx1, hy1 = piece.p(0.6, 0.96, (z0 + z1) / 2)
+        out.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#e9c48f" stroke-width="6" stroke-linecap="round"/>' % (hx0, hy0, hx1, hy1))
+    out.append('<polygon points="%s" fill="none" stroke="%s" stroke-width="3" opacity="0.6"/>'
+               % (piece.pts([(0.96, 0.14, 96), (0.96, 0.86, 96), (0.96, 0.86, 14), (0.96, 0.14, 14)]), shade(WOOD, -0.5)))
     out = piece.layer("top")
-    piece.box(out, 0.0, 0.0, 1.0, 1.0, 94, 10, CREAM, top=shade(CREAM, 0.3))
+    piece.box(out, 0.0, 0.0, 1.0, 1.0, 108, 12, CREAM, top=shade(CREAM, 0.3))
     out = piece.layer("led")
     out.append('<polyline points="%s" fill="none" stroke="#ff4fd8" stroke-width="5" stroke-opacity="0.85" stroke-linecap="round"/>'
-               % piece.pts([(0.06, 0.96, 6), (0.94, 0.96, 6)]))
+               % piece.pts([(0.06, 0.96, 4), (0.94, 0.96, 4)]))
     piece.write()
 
 
 def bin_piece():
-    piece = Piece("bin", 1, 1, 140, "furniture")
-    piece.floor_shadow(piece.layer("shadow"), 0.2, 0.2, 0.6, 0.6)
+    piece = Piece("bin", 1, 1, 170, "furniture")
+    piece.floor_shadow(piece.layer("shadow"), 0.16, 0.16, 0.68, 0.68)
     out = piece.layer("bin")
-    piece.cylinder(out, 0.5, 0.5, 0.28, 0, 84, TEAL, top="#2f6f61")
-    piece.cylinder(out, 0.5, 0.5, 0.3, 84, 10, shade(TEAL, -0.2), top=shade(TEAL, 0.05))
-    x, y = piece.p(0.5, 0.5, 112)
-    out.append('<rect x="%.1f" y="%.1f" width="40" height="16" rx="8" fill="%s" stroke="%s" stroke-width="3"/>' % (x - 20, y - 8, shade(TEAL, -0.3), shade(TEAL, -0.6)))
-    x, y = piece.p(0.5, 0.78, 50)
-    out.append('<path d="M %.1f %.1f l 12 -20 l 12 20 z" fill="none" stroke="#e8fff6" stroke-width="5" stroke-linejoin="round" opacity="0.9"/>' % (x - 12, y + 6))
+    piece.cylinder(out, 0.5, 0.5, 0.32, 0, 100, TEAL, top="#2f6f61")
+    x, y, rx, ry = piece.ellipse_xy(0.5, 0.5, 46, 0.32)
+    out.append('<path d="M %.1f %.1f A %.1f %.1f 0 0 0 %.1f %.1f L %.1f %.1f A %.1f %.1f 0 0 1 %.1f %.1f Z" fill="#e8fff6" opacity="0.85"/>'
+               % (x - rx, y, rx, ry, x + rx, y, x + rx, y - 26, rx, ry, x - rx, y - 26))
+    out.append('<path d="M %.1f %.1f l 12 -18 l 12 18 z" fill="none" stroke="%s" stroke-width="4" stroke-linejoin="round"/>' % (x - 12, y + ry - 8, TEAL))
+    piece.cylinder(out, 0.5, 0.5, 0.34, 100, 12, shade(TEAL, -0.2), top=shade(TEAL, 0.05))
+    hx, hy = piece.p(0.5, 0.5, 130)
+    out.append('<path d="M %.1f %.1f q 22 -22 44 0" fill="none" stroke="%s" stroke-width="7" stroke-linecap="round"/>' % (hx - 22, hy + 6, shade(TEAL, -0.45)))
     piece.write()
 
 
 def register():
-    piece = Piece("register", 1, 1, 180, "furniture")
+    piece = Piece("register", 1, 1, 200, "furniture")
     piece.floor_shadow(piece.layer("shadow"), 0.04, 0.04, 0.92, 0.92)
     out = piece.layer("stand")
-    piece.box(out, 0.06, 0.06, 0.88, 0.88, 0, 80, "#4b5aa8")
-    piece.box(out, 0.02, 0.02, 0.96, 0.96, 80, 8, CREAM, top=shade(CREAM, 0.3))
+    piece.box(out, 0.06, 0.06, 0.88, 0.88, 0, 92, "#4b5aa8")
+    out.append('<polyline points="%s" fill="none" stroke="#ffd36b" stroke-width="4" opacity="0.8"/>' % piece.pts([(0.1, 0.94, 70), (0.9, 0.94, 70)]))
+    piece.box(out, 0.02, 0.02, 0.96, 0.96, 92, 10, CREAM, top=shade(CREAM, 0.3))
     out = piece.layer("terminal")
-    piece.box(out, 0.3, 0.3, 0.42, 0.36, 88, 22, "#2a2e3f")
-    # The screen, tilted toward the customers (down-left).
+    piece.box(out, 0.32, 0.28, 0.4, 0.34, 102, 24, "#2a2e3f")
     out.append('<polygon points="%s" fill="#2a2e3f" stroke="#1c1f2c" stroke-width="4" stroke-linejoin="round"/>'
-               % piece.pts([(0.3, 0.5, 112), (0.72, 0.5, 112), (0.72, 0.62, 168), (0.3, 0.62, 168)]))
+               % piece.pts([(0.3, 0.48, 126), (0.74, 0.48, 126), (0.74, 0.6, 186), (0.3, 0.6, 186)]))
     out.append('<polygon points="%s" fill="%s" opacity="0.95"/>'
-               % (piece.pts([(0.34, 0.52, 118), (0.68, 0.52, 118), (0.68, 0.6, 162), (0.34, 0.6, 162)]), piece.gradient("#7ff0ff", "#1aa6d1")))
-    # A little receipt on the screen (no text: SVG fonts don't travel).
+               % (piece.pts([(0.34, 0.5, 132), (0.7, 0.5, 132), (0.7, 0.58, 180), (0.34, 0.58, 180)]), piece.gradient("#7ff0ff", "#1aa6d1")))
     for i in range(3):
-        a = piece.p(0.4, 0.55, 150 - i * 12)
-        b = piece.p(0.62 - i * 0.06, 0.55, 150 - i * 12)
+        a = piece.p(0.4, 0.54, 166 - i * 12)
+        b = piece.p(0.64 - i * 0.06, 0.54, 166 - i * 12)
         out.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#0d3b52" stroke-width="4" stroke-linecap="round"/>' % (a + b))
+    out = piece.layer("card_reader")
+    piece.box(out, 0.74, 0.62, 0.14, 0.2, 102, 30, "#3a3f5a")
+    rx_, ry_ = piece.p(0.81, 0.72, 132)
+    out.append('<circle cx="%.1f" cy="%.1f" r="5" fill="#9cff6b"/>' % (rx_, ry_))
+    out = piece.layer("tip_jar")
+    piece.cylinder(out, 0.2, 0.72, 0.08, 102, 40, "#bfefff", top="#e8fbff", rim=False, top_opacity=0.6)
+    for dx, dz, color in ((-6, 112, "#ffd36b"), (6, 118, "#e9c48f"), (0, 126, "#ffd36b")):
+        cx, cy = piece.p(0.2, 0.72, dz)
+        out.append('<ellipse cx="%.1f" cy="%.1f" rx="8" ry="4" fill="%s" stroke="#a87a2a" stroke-width="2"/>' % (cx + dx, cy, color))
     piece.write()
 
 
 def potted_fern():
-    piece = Piece("potted_fern", 1, 1, 230, "decor")
-    piece.floor_shadow(piece.layer("shadow"), 0.24, 0.24, 0.52, 0.52)
+    piece = Piece("potted_fern", 1, 1, 270, "decor")
+    piece.floor_shadow(piece.layer("shadow"), 0.2, 0.2, 0.6, 0.6)
     out = piece.layer("pot")
-    piece.cylinder(out, 0.5, 0.5, 0.24, 0, 64, "#d9774a", top="#5a3b2a")
+    piece.cylinder(out, 0.5, 0.5, 0.27, 0, 70, "#d9774a", top="#5a3b2a")
+    piece.cylinder(out, 0.5, 0.5, 0.29, 56, 14, "#e88a5a", top="#5a3b2a")
     out = piece.layer("fronds")
-    x, y = piece.p(0.5, 0.5, 60)
-    for angle, length, color in ((-70, 120, "#3f9a52"), (-110, 125, "#3f9a52"), (-40, 100, "#56b866"), (-140, 105, "#56b866"),
-                                 (-90, 150, "#6ccf73"), (-20, 80, "#3f9a52"), (-160, 85, "#3f9a52")):
+    x, y = piece.p(0.5, 0.5, 68)
+    fronds = ((-160, 100, "#3f9a52"), (-20, 95, "#3f9a52"), (-140, 130, "#56b866"), (-40, 125, "#56b866"),
+              (-120, 150, "#3f9a52"), (-60, 150, "#3f9a52"), (-100, 170, "#6ccf73"), (-80, 165, "#56b866"),
+              (-150, 80, "#6ccf73"), (-30, 80, "#6ccf73"), (-90, 185, "#7bdc82"))
+    for angle, length, color in fronds:
         a = math.radians(angle)
         tx, ty = x + math.cos(a) * length, y + math.sin(a) * length
-        cx, cy = x + math.cos(a + 0.35) * length * 0.6, y + math.sin(a + 0.35) * length * 0.6 - 10
+        cx, cy = x + math.cos(a + 0.3) * length * 0.6, y + math.sin(a + 0.3) * length * 0.6 - 12
         out.append('<path d="M %.1f %.1f Q %.1f %.1f %.1f %.1f Q %.1f %.1f %.1f %.1f Z" fill="%s" stroke="%s" stroke-width="3" stroke-linejoin="round"/>'
-                   % (x, y, cx - 14, cy, tx, ty, cx + 14, cy + 10, x, y, color, shade(color, -0.45)))
+                   % (x, y, cx - 16, cy, tx, ty, cx + 16, cy + 10, x, y, color, shade(color, -0.45)))
+        out.append('<path d="M %.1f %.1f Q %.1f %.1f %.1f %.1f" fill="none" stroke="%s" stroke-width="2" opacity="0.6"/>'
+                   % (x, y, cx, cy + 4, tx, ty, shade(color, -0.35)))
     piece.write()
 
 
 def bubble_lamp():
-    piece = Piece("bubble_lamp", 1, 1, 260, "decor")
+    piece = Piece("bubble_lamp", 1, 1, 280, "decor")
     out = piece.layer("glow")
     x, y = piece.p(0.5, 0.5, 200)
-    out.append('<circle cx="%.1f" cy="%.1f" r="110" fill="%s"/>' % (x, y, piece.glow("#ffd36b")))
-    piece.floor_shadow(piece.layer("shadow"), 0.3, 0.3, 0.4, 0.4)
+    out.append('<circle cx="%.1f" cy="%.1f" r="130" fill="%s"/>' % (x, y, piece.glow("#ffd36b")))
+    piece.floor_shadow(piece.layer("shadow"), 0.28, 0.28, 0.44, 0.44)
     out = piece.layer("lamp")
-    piece.cylinder(out, 0.5, 0.5, 0.2, 0, 14, "#3a3550", rim=False)
-    piece.cylinder(out, 0.5, 0.5, 0.03, 14, 150, "#c9a46a", rim=False)
-    out.append('<circle cx="%.1f" cy="%.1f" r="46" fill="%s" stroke="#c98a3a" stroke-width="4"/>' % (x, y, piece.gradient("#fff6cf", "#ffc04d")))
-    out.append('<circle cx="%.1f" cy="%.1f" r="14" fill="#ffffff" opacity="0.7"/>' % (x - 16, y - 16))
-    out.append('<path d="M %.1f %.1f A 46 46 0 0 1 %.1f %.1f" fill="none" stroke="%s" stroke-width="3" stroke-opacity="0.7"/>' % (x + 32, y - 33, x + 33, y + 32, RIM))
+    piece.cylinder(out, 0.5, 0.5, 0.22, 0, 16, "#3a3550", rim=False)
+    piece.cylinder(out, 0.5, 0.5, 0.03, 16, 150, "#c9a46a", rim=False)
+    for dx, dy, r in ((-44, 24, 30), (40, 18, 34), (0, 0, 46)):
+        out.append('<path d="M %.1f %.1f L %.1f %.1f" stroke="#c9a46a" stroke-width="5" stroke-linecap="round"/>' % (x, y + 40, x + dx, y + dy))
+        out.append('<circle cx="%.1f" cy="%.1f" r="%d" fill="%s" stroke="#c98a3a" stroke-width="4"/>' % (x + dx, y + dy - r * 0.3, r, piece.gradient("#fff6cf", "#ffc04d")))
+        out.append('<circle cx="%.1f" cy="%.1f" r="%d" fill="#ffffff" opacity="0.7"/>' % (x + dx - r * 0.35, y + dy - r * 0.65, max(r // 4, 5)))
+    out.append('<path d="M %.1f %.1f A 46 46 0 0 1 %.1f %.1f" fill="none" stroke="%s" stroke-width="3" stroke-opacity="0.7"/>' % (x + 32, y - 47, x + 33, y + 18, RIM))
     piece.write()
 
 
 def glass_pod_plant():
-    piece = Piece("glass_pod_plant", 1, 1, 230, "decor")
-    piece.floor_shadow(piece.layer("shadow"), 0.2, 0.2, 0.6, 0.6)
+    piece = Piece("glass_pod_plant", 1, 1, 250, "decor")
+    piece.floor_shadow(piece.layer("shadow"), 0.18, 0.18, 0.64, 0.64)
     out = piece.layer("base")
-    piece.cylinder(out, 0.5, 0.5, 0.3, 0, 30, "#4a4f6a", top="#2c3045")
-    x, y, rx, ry = piece.ellipse_xy(0.5, 0.5, 30, 0.3)
-    out.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="none" stroke="#3dffd0" stroke-width="5" opacity="0.9"/>' % (x, y + 14, rx, ry))
+    piece.cylinder(out, 0.5, 0.5, 0.32, 0, 34, "#4a4f6a", top="#2c3045")
+    x, y, rx, ry = piece.ellipse_xy(0.5, 0.5, 34, 0.32)
+    out.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="none" stroke="#3dffd0" stroke-width="5" opacity="0.9"/>' % (x, y + 16, rx, ry))
     out = piece.layer("plant")
-    for dx, h, color in ((-24, 90, "#4fbf6a"), (0, 120, "#6ad97e"), (26, 80, "#3f9a52")):
-        out.append('<ellipse cx="%.1f" cy="%.1f" rx="18" ry="%.1f" fill="%s" stroke="%s" stroke-width="3"/>' % (x + dx, y - h / 2 - 4, h / 2, color, shade(color, -0.45)))
+    for dx, h, color in ((-34, 80, "#3f9a52"), (-14, 120, "#4fbf6a"), (8, 145, "#6ad97e"), (30, 100, "#3f9a52")):
+        out.append('<ellipse cx="%.1f" cy="%.1f" rx="16" ry="%.1f" fill="%s" stroke="%s" stroke-width="3"/>' % (x + dx, y - h / 2 - 4, h / 2, color, shade(color, -0.45)))
+    for dx, dz in ((-30, 18), (24, 14)):
+        out.append('<ellipse cx="%.1f" cy="%.1f" rx="10" ry="7" fill="#3dffd0" stroke="#1d8f78" stroke-width="2"/>' % (x + dx, y - dz))
     out = piece.layer("glass")
-    top = y - 170
+    gx = rx * 0.92
+    top = y - 190
     out.append('<path d="M %.1f %.1f L %.1f %.1f A %.1f %.1f 0 0 1 %.1f %.1f L %.1f %.1f A %.1f %.1f 0 0 1 %.1f %.1f Z" fill="%s" '
-               'stroke="#9feaff" stroke-width="4" opacity="0.55"/>' % (x - rx * 0.9, y, x - rx * 0.9, top + rx * 0.9, rx * 0.9, rx * 0.9,
-                                                                   x + rx * 0.9, top + rx * 0.9, x + rx * 0.9, y, rx * 0.9, ry * 0.9, x - rx * 0.9, y,
+               'stroke="#9feaff" stroke-width="4" opacity="0.5"/>' % (x - gx, y, x - gx, top + gx, gx, gx,
+                                                                   x + gx, top + gx, x + gx, y, gx, ry * 0.92, x - gx, y,
                                                                    piece.gradient("#d6fbff", "#5fd4ff", vertical=False)))
     out.append('<path d="M %.1f %.1f Q %.1f %.1f %.1f %.1f" fill="none" stroke="#ffffff" stroke-width="6" opacity="0.6" stroke-linecap="round"/>'
-               % (x - rx * 0.6, y - 30, x - rx * 0.7, top + 40, x - rx * 0.2, top + 16))
+               % (x - gx * 0.65, y - 30, x - gx * 0.75, top + 44, x - gx * 0.2, top + 16))
     piece.write()
 
 
 def beanbag():
-    piece = Piece("beanbag", 1, 1, 120, "decor")
-    piece.floor_shadow(piece.layer("shadow"), 0.1, 0.1, 0.8, 0.8)
+    piece = Piece("beanbag", 1, 1, 140, "decor")
+    piece.floor_shadow(piece.layer("shadow"), 0.06, 0.06, 0.88, 0.88)
     out = piece.layer("bag")
     x, y = piece.p(0.5, 0.5, 0)
     color = "#ff6f91"
     out.append('<path d="M %.1f %.1f C %.1f %.1f %.1f %.1f %.1f %.1f C %.1f %.1f %.1f %.1f %.1f %.1f C %.1f %.1f %.1f %.1f %.1f %.1f Z" '
                'fill="%s" stroke="%s" stroke-width="4" stroke-linejoin="round"/>'
-               % (x - 120, y + 10, x - 140, y - 70, x - 60, y - 120, x, y - 100,
-                  x + 60, y - 125, x + 145, y - 70, x + 120, y + 10,
-                  x + 80, y + 50, x - 80, y + 50, x - 120, y + 10,
+               % (x - 135, y + 10, x - 155, y - 80, x - 65, y - 135, x, y - 112,
+                  x + 65, y - 140, x + 160, y - 80, x + 135, y + 10,
+                  x + 90, y + 56, x - 90, y + 56, x - 135, y + 10,
                   piece.gradient("#ff9ab3", "#d94f73"), shade(color, -0.55)))
-    out.append('<path d="M %.1f %.1f Q %.1f %.1f %.1f %.1f" fill="none" stroke="%s" stroke-width="5" opacity="0.6" stroke-linecap="round"/>'
-               % (x - 70, y - 40, x, y - 10, x + 70, y - 40, shade(color, -0.4)))
-    out.append('<ellipse cx="%.1f" cy="%.1f" rx="34" ry="16" fill="#ffffff" opacity="0.3"/>' % (x - 50, y - 80))
+    for path in ("M %.1f %.1f Q %.1f %.1f %.1f %.1f" % (x - 80, y - 46, x, y - 12, x + 80, y - 46),
+                 "M %.1f %.1f Q %.1f %.1f %.1f %.1f" % (x - 10, y - 108, x - 20, y - 60, x - 4, y - 24),
+                 "M %.1f %.1f Q %.1f %.1f %.1f %.1f" % (x - 110, y - 40, x - 60, y - 20, x - 40, y + 30)):
+        out.append('<path d="%s" fill="none" stroke="%s" stroke-width="4" stroke-dasharray="10 8" opacity="0.7" stroke-linecap="round"/>' % (path, shade(color, -0.4)))
+    out.append('<ellipse cx="%.1f" cy="%.1f" rx="38" ry="18" fill="#ffffff" opacity="0.3"/>' % (x - 56, y - 90))
     out.append('<path d="M %.1f %.1f C %.1f %.1f %.1f %.1f %.1f %.1f" fill="none" stroke="%s" stroke-width="3" stroke-opacity="0.7"/>'
-               % (x + 100, y - 60, x + 140, y - 40, x + 130, y, x + 110, y + 16, RIM))
+               % (x + 112, y - 70, x + 156, y - 46, x + 146, y, x + 124, y + 18, RIM))
     piece.write()
 
 

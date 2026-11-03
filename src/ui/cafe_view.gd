@@ -34,8 +34,8 @@ signal edit_exit_requested
 
 ## Room between customers waiting in the pay line (tiles).
 const LINE_GAP: float = 0.8
-const HEIGHTS: Dictionary[String, float] = {"seat": 14.0, "table": 24.0, "stove": 30.0, "pod": 56.0, "counter": 26.0,
-	"bin": 24.0, "register": 28.0, "decor": 22.0}
+const HEIGHTS: Dictionary[String, float] = {"seat": 15.0, "table": 28.0, "stove": 32.0, "pod": 56.0, "counter": 30.0,
+	"bin": 28.0, "register": 30.0, "decor": 22.0}
 const KIND_COLORS: Dictionary[String, Color] = {
 	"seat": Color("8a6a4a"), "stove": Color("8c95a8"), "pod": Color("5a6a9a"), "counter": Color("c9a27a"),
 	"bin": Color("4f6b5a"), "table": Color("b08a5a"), "register": Color("5b6bd0"),

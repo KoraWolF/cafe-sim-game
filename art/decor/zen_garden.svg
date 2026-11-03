@@ -2,8 +2,8 @@
 <!-- NanoBrew Café: zen_garden. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="800" height="606" viewBox="0 0 800 606">
   <defs>
-    <linearGradient id="zen_garden_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9784a"/><stop offset="1" stop-color="#a36a41"/></linearGradient>
-    <linearGradient id="zen_garden_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8b5a38"/><stop offset="1" stop-color="#734a2e"/></linearGradient>
+    <linearGradient id="zen_garden_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bc7d51"/><stop offset="1" stop-color="#9b653e"/></linearGradient>
+    <linearGradient id="zen_garden_g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7e5232"/><stop offset="1" stop-color="#603e26"/></linearGradient>
     <linearGradient id="zen_garden_g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cd9d7d"/><stop offset="1" stop-color="#c6906b"/></linearGradient>
     <linearGradient id="zen_garden_g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbf1dc"/><stop offset="1" stop-color="#e6d3ad"/></linearGradient>
     <linearGradient id="zen_garden_g5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a7a4bd"/><stop offset="1" stop-color="#6c6984"/></linearGradient>
@@ -17,6 +17,7 @@
     <polygon points="31.4,372.0 400.0,556.3 400.0,582.3 31.4,398.0" fill="url(#zen_garden_g1)" stroke="#533621" stroke-width="4" stroke-linejoin="round"/>
     <polygon points="768.6,372.0 400.0,556.3 400.0,582.3 768.6,398.0" fill="url(#zen_garden_g2)" stroke="#533621" stroke-width="4" stroke-linejoin="round"/>
     <polygon points="400.0,187.7 768.6,372.0 400.0,556.3 31.4,372.0" fill="url(#zen_garden_g3)" stroke="#533621" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="37.1,374.9 394.2,553.4" fill="none" stroke="#ffffff" stroke-width="3" stroke-opacity="0.35" stroke-linecap="round"/>
     <polyline points="768.6,392.0 768.6,374.0 584.3,464.2" fill="none" stroke="#38e1ff" stroke-width="3" stroke-opacity="0.7" stroke-linecap="round"/>
   </g>
   <g inkscape:groupmode="layer" id="sand" inkscape:label="sand">
