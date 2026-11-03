@@ -151,7 +151,17 @@ You don't animate these in the drawing program. You draw the parts; the animatio
 
 **In the game.** `src/ui/piece_art.gd` finds a piece's art by its id, and the café and battle views draw it in place of the placeholder block. A piece with no SVG keeps its block, so new pieces can arrive one at a time. Drawn décor shows its name only while arranging.
 
-**Characters (v1.7): the rig is in, with the office worker and the Clerkbot.**
+**Characters (v1.7): the rig is in, with all six customer types and their Synths.**
+
+*The cast.* `python tools/art/characters_svg.py` draws the other five on the template's body shapes, each with its own clothes, hair, skin, prop and tech:
+
+| Customer | Look | Prop | Synth | Tech |
+| --- | --- | --- | --- | --- |
+| gym_fan | tank top, bare arms, headband, shorts | water bottle | bulkform | piston arm, eye band, jaw guard |
+| gamer | hoodie, headset | handheld console | glitchling | pixel-screen visor, cable arm |
+| influencer | big hair, cropped jacket, shades on the head | phone | hypeform | heart LED shades, ring-light arm |
+| grandparent | cardigan, bun, glasses | cane | steady_unit | monocle scanner, sturdy arm |
+| alien_tourist | antennae, lavender skin, flower shirt, camera strap | camera | xeno | crystal tiara, segmented arm |
 
 *Parts.* `python tools/art/character_parts.py` splits the template into one SVG per part, all on the same 256 × 440 canvas:
 - `art/characters/customers/office_worker/`: shadow, leg_back, arm_back, leg_front, torso, arm_front, prop, head, hair, and faces `face_neutral`, `face_happy`, `face_angry`, `face_eat`, `face_rest`;
@@ -166,11 +176,13 @@ You don't animate these in the drawing program. You draw the parts; the animatio
 *In the game.*
 - **Café.** A character walks whenever it moves and faces the way it last went: the art faces right and is mirrored for left. Customers sit while waiting and eat with the eating face; angry customers stomp out. Synths carry trays, stir at a cooking stove, and close their eyes in the Pod.
 - **Battles.** Rigged Synths use the same rig.
-- **Fallback.** Customer types and species without parts keep the old placeholder, as do MegaBean staff.
+- **Fallback.** Any customer type or species without parts keeps the old placeholder. So does MegaBean staff for now.
 
-*Check by eye.* `godot --path . --resolution 1600x900 -s res://tools/art/rig_sheet.gd -- rig.png` draws every animation for both characters (it needs a window, not `--headless`).
+*Check by eye.* `tools/art/rig_sheet.gd` draws two sheets. It needs a window, not `--headless`:
+- `godot --path . --resolution 1600x900 -s res://tools/art/rig_sheet.gd -- rig.png`: every animation for the office worker and the Clerkbot;
+- `godot --path . --resolution 1700x1300 -s res://tools/art/rig_sheet.gd -- cast.png cast`: every customer type beside its Synth, in several poses.
 
 *Still to come:*
-- the other five customer types and species;
+- MegaBean staff (still placeholders in battles);
 - the back view (NE), for walking away;
 - outfits drawn on the rig (hats are still drawn as shapes above the head).

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café rig part: customers/gamer/hair. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
+  <defs><linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4e4a5d"/><stop offset="1" stop-color="#262233"/></linearGradient></defs>
+  <g inkscape:label="hair" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M38,162 C24,84 92,40 140,46 C204,50 238,100 222,156 C214,124 190,110 170,116 C176,100 160,92 150,104 C140,90 118,96 116,110 C92,108 70,124 62,166 Z" fill="url(#hair)" stroke="#16141f" stroke-width="4"/>
+    <path d="M34,152 Q30,46 130,40 Q230,44 226,150" fill="none" stroke="#2a2e3f" stroke-width="12"/>
+    <rect x="208" y="130" width="28" height="44" rx="12" fill="#2a2e3f" stroke="#16141f" stroke-width="4"/>
+    <rect x="214" y="138" width="16" height="28" rx="6" fill="#9cff6b" opacity="0.85"/>
+    <path d="M222,172 Q214,206 180,212" fill="none" stroke="#2a2e3f" stroke-width="6"/>
+    <circle cx="178" cy="212" r="7" fill="#2a2e3f"/>
+  </g>
+</svg>

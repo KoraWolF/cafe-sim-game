@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café rig part: customers/alien_tourist/hair. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
+  <defs></defs>
+  <g inkscape:label="hair" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M96,74 Q80,30 64,18" fill="none" stroke="#9a86d8" stroke-width="7"/>
+    <path d="M166,72 Q186,28 204,16" fill="none" stroke="#9a86d8" stroke-width="7"/>
+    <circle cx="62" cy="16" r="12" fill="#3dffd0" stroke="#1d8f78" stroke-width="3"/>
+    <circle cx="206" cy="14" r="12" fill="#3dffd0" stroke="#1d8f78" stroke-width="3"/>
+  </g>
+</svg>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café rig part: synths/glitchling/arm_front. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
+  <defs><linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9dde6"/><stop offset="1" stop-color="#8d919a"/></linearGradient><linearGradient id="lit" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d697ff"/><stop offset="1" stop-color="#9d56cc"/></linearGradient></defs>
+  <g inkscape:label="arm_front" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="180" y="256" width="24" height="44" rx="10" fill="url(#metal)" stroke="#5b647a" stroke-width="4"/>
+    <path d="M182,270 Q196,278 202,268 M182,286 Q196,294 202,284" stroke="#c46bff" stroke-width="4" fill="none"/>
+    <circle cx="192" cy="304" r="10" fill="url(#lit)" stroke="#7a3aa8" stroke-width="4"/>
+    <rect x="183" y="306" width="20" height="34" rx="8" fill="url(#metal)" stroke="#5b647a" stroke-width="4"/>
+    <path d="M184,342 l-4,12 M193,344 l0,14 M202,342 l4,12" stroke="#c46bff" stroke-width="5"/>
+    <path d="M200,262 L200,296" stroke="#38e1ff" stroke-width="3" opacity="0.9"/>
+  </g>
+</svg>

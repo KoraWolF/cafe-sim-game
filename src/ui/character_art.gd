@@ -87,8 +87,7 @@ static func draw(canvas: CanvasItem, feet: Vector2, size: float, type_id: String
 		_draw_tray(canvas, arm * HAND_FRONT, size)
 	_put(canvas, head, body, "head", tint)
 	var face: String = "face_" + str(pose.get("face", "neutral"))
-	if tech == "" or face != "face_neutral":
-		_put(canvas, head, body, face if _part(body, face) != null else "face_neutral", tint)
+	_put(canvas, head, body, face if _part(body, face) != null else "face_neutral", tint)
 	_put(canvas, head, body, "hair", tint)
 	if tech != "":
 		_put(canvas, head, tech, "visor", tint)

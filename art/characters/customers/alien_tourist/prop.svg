@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café rig part: customers/alien_tourist/prop. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
+  <defs></defs>
+  <g inkscape:label="prop" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="168" y="326" width="58" height="40" rx="8" fill="#2a2e3f" stroke="#16141f" stroke-width="4"/>
+    <circle cx="197" cy="346" r="13" fill="#5a6a9a" stroke="#16141f" stroke-width="3"/>
+    <circle cx="197" cy="346" r="6" fill="#9feaff"/>
+    <rect x="174" y="318" width="16" height="10" rx="3" fill="#2a2e3f"/>
+  </g>
+</svg>
