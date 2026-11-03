@@ -198,5 +198,21 @@ You don't animate these in the drawing program. You draw the parts; the animatio
 - **Mirroring:** the art faces up-right and is mirrored for up-left, like the front.
 - **Check sheet:** `godot --path . --resolution 1700x1300 -s res://tools/art/rig_sheet.gd -- back.png back` draws every body walking away.
 
-*Still to come:*
-- outfits drawn on the rig (hats are still drawn as shapes above the head).
+*Hats and outfits.* Every fashion item in `data/items.json` is drawn in its own colour by the same script, in `art/characters/fashion/<id>/`:
+- a hat is `hat.svg` and `hat_ne.svg`;
+- an outfit is `torso.svg`, `torso_ne.svg` and, with sleeves, `arm_back.svg`. The Synth's front arm is its own mechanical arm.
+
+The rig wears them through the pose's `hat` and `outfit`:
+- the outfit goes over the body's torso and back sleeve;
+- the hat goes on last, over the hair and visor.
+
+| Item | Look |
+| --- | --- |
+| neon_cap (Neon Cap) | dark cap with a cyan LED band and brim |
+| beanie (LED Beanie) | ribbed pink beanie with a glowing antenna |
+| top_hat (Chrome Top Hat) | top hat with a chrome band and magenta neon |
+| teal_jacket (Neon Bomber) | teal bomber with a zip and magenta piping |
+| barista_apron (Bartender Apron) | brown apron over a dark vest |
+| hoodie (Glow Hoodie) | purple hoodie with LED drawstrings |
+
+A Synth in the bar or in a battle wears what it has on. A new fashion item needs its drawing added in `fashion_parts()`; until then it isn't drawn on the rig. `rig_sheet.gd -- fashion.png fashion` shows every Synth in each look.

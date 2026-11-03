@@ -61,7 +61,8 @@ static func _body(type_id: String) -> String:
 ## Draws a character with its feet at `feet` on canvas, `size` world px per
 ## canvas px, posed by pose: {"anim", "t" (seconds into it), "face" ("neutral",
 ## "happy", "angry", "eat", "rest"), "mirror" (facing left), "back" (walking
-## away: the back-view parts, no face), "tint", "glow" (species colour)}.
+## away: the back-view parts, no face), "tint", "glow" (species colour), "hat"
+## and "outfit" (fashion item ids worn: art/characters/fashion/<id>/, "" = none)}.
 ## Returns the head's centre (for clicks and overlays).
 static func draw(canvas: CanvasItem, feet: Vector2, size: float, type_id: String, species_id: String, pose: Dictionary) -> Vector2:
 	var body := _body(type_id)
@@ -82,9 +83,16 @@ static func draw(canvas: CanvasItem, feet: Vector2, size: float, type_id: String
 	if tech != "":
 		_put(canvas, root, tech, "glow", pose.get("glow", Color.WHITE) * Color(1, 1, 1, tint.a))
 	_put(canvas, root * _about(HIP_BACK, bones["leg_back"], legs), body, "leg_back", tint)
-	_put(canvas, torso * _about(SHOULDER_BACK, bones["arm_back"]), body, "arm_back", tint)
+	var outfit := "fashion/" + str(pose.get("outfit", "")) if str(pose.get("outfit", "")) != "" else ""
+	var hat := "fashion/" + str(pose.get("hat", "")) if str(pose.get("hat", "")) != "" else ""
+	var shoulder := torso * _about(SHOULDER_BACK, bones["arm_back"])
+	_put(canvas, shoulder, body, "arm_back", tint)
+	if outfit != "":
+		_put(canvas, shoulder, outfit, "arm_back", tint)
 	_put(canvas, root * _about(HIP_FRONT, bones["leg_front"], legs), body, "leg_front", tint)
 	_put(canvas, torso, body, _view(body, "torso", back), tint)
+	if outfit != "":
+		_put(canvas, torso, outfit, _view(outfit, "torso", back), tint)
 	var arm := torso * _about(SHOULDER_FRONT, bones["arm_front"])
 	if tech != "":
 		_put(canvas, arm, tech, "arm_front", tint)
@@ -101,6 +109,8 @@ static func draw(canvas: CanvasItem, feet: Vector2, size: float, type_id: String
 	_put(canvas, head, body, _view(body, "hair", back), tint)
 	if tech != "":
 		_put(canvas, head, tech, _view(tech, "visor", back), tint)
+	if hat != "":
+		_put(canvas, head, hat, _view(hat, "hat", back), tint)
 	canvas.draw_set_transform_matrix(Transform2D.IDENTITY)
 	return head * HEAD_CENTRE
 

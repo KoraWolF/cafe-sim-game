@@ -292,11 +292,11 @@ item.charm_ring,Charm Ring
 item.spark_amulet,Spark Amulet
 item.plate_amulet,Coaster Amulet
 item.neon_cap,Neon Cap
-item.beanie,Beanie
-item.top_hat,Top Hat
-item.teal_jacket,Teal Jacket
-item.barista_apron,Barista Apron
-item.hoodie,Hoodie
+item.beanie,LED Beanie
+item.top_hat,Chrome Top Hat
+item.teal_jacket,Neon Bomber
+item.barista_apron,Bartender Apron
+item.hoodie,Glow Hoodie
 item.effect_share,+%d%% %s
 item.effect_amount,+%d %s
 item.effect_looks,looks only

@@ -7,7 +7,9 @@ extends SceneTree
 ##   godot --path . --resolution 1300x900 -s res://tools/art/rig_sheet.gd -- <out.png> staff
 ##     MegaBean's staff, one look per combat class, in their battle animations;
 ##   godot --path . --resolution 1700x1300 -s res://tools/art/rig_sheet.gd -- <out.png> back
-##     every customer type, its Synth and MegaBean's staff walking away (the back view).
+##     every customer type, its Synth and MegaBean's staff walking away (the back view);
+##   godot --path . --resolution 1700x1300 -s res://tools/art/rig_sheet.gd -- <out.png> fashion
+##     every Synth wearing each hat with an outfit, front and back.
 
 const ANIMS: Array[String] = ["idle", "walk", "carry", "sit", "eat", "cook", "rest", "happy", "angry", "attack", "cast",
 	"hurt", "down"]
@@ -27,10 +29,20 @@ func _init() -> void:
 	var cast := args.has("cast")
 	var staff := args.has("staff")
 	var back := args.has("back")
+	var fashion := args.has("fashion")
 	var view := Control.new()
 	view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	view.draw.connect(func() -> void:
 		view.draw_rect(Rect2(Vector2.ZERO, view.size), Color("1b1630"))
+		if fashion:
+			var looks: Array[Array] = [["neon_cap", "teal_jacket"], ["beanie", "hoodie"], ["top_hat", "barista_apron"]]
+			for row: int in CAST.size():
+				for i: int in looks.size():
+					for k: int in 2:
+						var feet := Vector2(80 + i * 330 + k * 120, 190 + row * 210)
+						CharacterArt.draw(view, feet, 0.36, CAST[row][0], CAST[row][1], {"anim": "idle", "t": 0.5, "back": k == 1,
+							"glow": Color(CAST[row][2]), "hat": looks[i][0], "outfit": looks[i][1]})
+			return
 		if back:
 			var bodies: Array[Array] = []
 			for entry: Array in CAST:

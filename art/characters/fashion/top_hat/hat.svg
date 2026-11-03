@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café rig part: fashion/top_hat/hat. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
+  <defs><linearGradient id="cloth" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#555173"/><stop offset="1" stop-color="#1e1b38"/></linearGradient><linearGradient id="chrome" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5ebf5"/><stop offset="1" stop-color="#91969d"/></linearGradient></defs>
+  <g inkscape:label="hat" stroke-linejoin="round" stroke-linecap="round">
+    <ellipse cx="132" cy="96" rx="104" ry="20" fill="url(#cloth)" stroke="#0a0812" stroke-width="4"/>
+    <path d="M74,94 L80,6 Q132,-4 184,6 L190,94 Q132,108 74,94 Z" fill="url(#cloth)" stroke="#0a0812" stroke-width="4"/>
+    <path d="M77,64 Q132,74 187,64 L188,82 Q132,92 76,82 Z" fill="url(#chrome)" stroke="#2a3046" stroke-width="3"/>
+    <path d="M80,74 Q132,84 186,74" fill="none" stroke="#ff2fb4" stroke-width="9" stroke-opacity="0.35"/><path d="M80,74 Q132,84 186,74" fill="none" stroke="#ff2fb4" stroke-width="3"/>
+    <path d="M96,14 L94,58" stroke="#ffffff" stroke-width="5" opacity="0.25"/>
+  </g>
+</svg>

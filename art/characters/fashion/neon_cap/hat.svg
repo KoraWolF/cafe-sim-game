@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café rig part: fashion/neon_cap/hat. Made by tools/art/characters_svg.py (canvas 256 x 440, feet at 128, 430). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="256" height="440" viewBox="0 0 256 440">
+  <defs><linearGradient id="cloth" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#60e7ff"/><stop offset="1" stop-color="#279eb2"/></linearGradient><linearGradient id="chrome" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5ebf5"/><stop offset="1" stop-color="#91969d"/></linearGradient></defs>
+  <g inkscape:label="hat" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M44,132 C44,62 92,34 134,34 C184,34 222,64 222,128 Q132,106 44,132 Z" fill="#1f1a2e" stroke="#0a0812" stroke-width="4"/>
+    <path d="M48,122 Q132,98 218,120" fill="none" stroke="#38e1ff" stroke-width="12" stroke-opacity="0.35"/><path d="M48,122 Q132,98 218,120" fill="none" stroke="#38e1ff" stroke-width="4"/>
+    <path d="M150,118 Q218,106 256,128 Q216,144 150,134 Z" fill="#14111f" stroke="#0a0812" stroke-width="4"/>
+    <path d="M156,128 Q214,120 248,130" fill="none" stroke="#38e1ff" stroke-width="9" stroke-opacity="0.35"/><path d="M156,128 Q214,120 248,130" fill="none" stroke="#38e1ff" stroke-width="3"/>
+    <circle cx="132" cy="40" r="7" fill="#38e1ff"/>
+  </g>
+</svg>

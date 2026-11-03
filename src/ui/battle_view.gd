@@ -320,6 +320,11 @@ func _draw_unit(side: bool, index: int, state: Dictionary) -> void:
 			"face": "angry" if anim in ["attack", "hurt"] else "neutral", "mirror": facing.x < 0.0, "back": facing.y < -0.01,
 			"glow": _glow(fighter),
 			"tint": Color(1.0 + flash, 1.0 + flash, 1.0 + flash, alpha)}
+		var synth := Session.state.synth_by_id(fighter.synth_id) if fighter.synth_id != "" else null
+		if synth != null:
+			for slot: String in ["hat", "outfit"]:
+				var worn := Items.worn(synth, slot, Session.data)
+				pose[slot] = worn.type_id if worn != null else ""
 		if anim == "cast":
 			draw_arc(feet + Vector2(0, -40), 30.0 + 50.0 * t, 0, TAU, 40, Color(_glow(fighter), 1.0 - t / 0.6), 4.0)
 		var size := CharacterArt.SIZE * TILE.x / Iso.TILE.x * _zoom()

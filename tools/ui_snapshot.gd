@@ -215,7 +215,17 @@ func _run() -> void:
 	var stove: PlacedPiece = Layout.placed_by_uid(state, state.stoves[0].piece_uid)
 	state.stoves[0].recipe_id = ""
 	state.stoves[0].ready = 0
-	await _click(game.cafe.get_viewport().get_canvas_transform() * (Iso.centre(stove.cell, Vector2i.ONE) - Vector2(0, game.cafe.HEIGHTS["stove"])))
+	# A point on it that no worker's head covers (a head is clicked first).
+	var stove_point := Iso.centre(stove.cell, Vector2i.ONE) - Vector2(0, game.cafe.HEIGHTS["stove"])
+	for offset: Vector2 in [Vector2.ZERO, Vector2(24, 4), Vector2(-24, 4), Vector2(0, 14), Vector2(30, -4), Vector2(-30, -4)]:
+		var point := stove_point + offset
+		var covered := false
+		for head: Vector2 in game.cafe._heads.values():
+			covered = covered or head.distance_to(point) <= game.cafe.HEAD_HIT_RADIUS
+		if not covered and game.cafe.piece_at_point(point) == stove:
+			stove_point = point
+			break
+	await _click(game.cafe.get_viewport().get_canvas_transform() * stove_point)
 	print("CHECK click stove -> recipe menu open: ", game.hud._recipe_menu.visible)
 	_shot("04_recipe_menu")
 	game.hud._recipe_menu.hide()
