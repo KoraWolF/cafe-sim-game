@@ -311,6 +311,23 @@ func _draw_unit(side: bool, index: int, state: Dictionary) -> void:
 		feet.y -= absf(sin(t * 12.0)) * 4.0
 	var down := anim == "down"
 	var alpha := 0.35 if down else 1.0
+	var species := _species(fighter)
+	var body_type := CharacterArt.body_of(species, Session.data) if species != "" else ""
+	if species != "" and CharacterArt.has_art(body_type, species):
+		# A rigged Synth: the shared rig's battle animations.
+		var flash := 1.0 - t / BattlePlayback.ANIM_SECONDS["hurt"] if anim == "hurt" else 0.0
+		var pose := {"anim": "walk" if anim == "move" else anim, "t": t if anim in ["attack", "hurt", "cast", "down"] else _time,
+			"face": "angry" if anim in ["attack", "hurt"] else "neutral", "mirror": facing.x < 0.0, "glow": _glow(fighter),
+			"tint": Color(1.0 + flash, 1.0 + flash, 1.0 + flash, alpha)}
+		if anim == "cast":
+			draw_arc(feet + Vector2(0, -40), 30.0 + 50.0 * t, 0, TAU, 40, Color(_glow(fighter), 1.0 - t / 0.6), 4.0)
+		var size := CharacterArt.SIZE * TILE.x / Iso.TILE.x * _zoom()
+		var head := CharacterArt.draw(self, feet, size, body_type, species, pose)
+		if down:
+			_centred_text(feet + Vector2(0, 28), _name(side, index), 14, Color(UiTheme.TEXT_DIM, alpha))
+			return
+		_draw_unit_status(side, index, state, fighter, feet, feet.y - head.y - 22.0, head)
+		return
 	draw_set_transform(feet, 0, Vector2(1, 0.4))
 	draw_circle(Vector2.ZERO, width * 0.8, Color(0, 0, 0, 0.4 * alpha))
 	draw_set_transform(Vector2.ZERO)
@@ -350,6 +367,13 @@ func _draw_unit(side: bool, index: int, state: Dictionary) -> void:
 			draw_line(hand, hand + Vector2(10, -14), Color("ff8a3d"), 3.0)
 	if anim == "hurt":
 		draw_rect(torso, Color(1, 1, 1, 0.55 * (1.0 - t / BattlePlayback.ANIM_SECONDS["hurt"])))
+	_draw_unit_status(side, index, state, fighter, feet, height, head)
+
+
+## Over a unit: stun stars, its HP bar (with shield) and mana bar, and its name
+## under its feet. height: from the feet to the bottom of its head.
+func _draw_unit_status(side: bool, index: int, state: Dictionary, fighter: Battle.Fighter, feet: Vector2, height: float,
+		head: Vector2) -> void:
 	if state["stunned"]:
 		_centred_text(head + Vector2(0, -30), "✦ ✦", 16, UiTheme.WARN)
 	# Bars: HP (with shield), then mana.
@@ -397,6 +421,12 @@ func _draw_numbers(time: float) -> void:
 func _name(side: bool, index: int) -> String:
 	var names := _names_attackers if side else _names_defenders
 	return names[index] if index < names.size() else ""
+
+
+## The species of a player's unit ("" for MegaBean's or a Synth that has gone).
+func _species(fighter: Battle.Fighter) -> String:
+	var synth := Session.state.synth_by_id(fighter.synth_id) if fighter.synth_id != "" else null
+	return synth.species_id if synth != null else ""
 
 
 func _glow(fighter: Battle.Fighter) -> Color:

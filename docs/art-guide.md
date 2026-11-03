@@ -151,4 +151,26 @@ You don't animate these in the drawing program. You draw the parts; the animatio
 
 **In the game.** `src/ui/piece_art.gd` finds a piece's art by its id, and the café and battle views draw it in place of the placeholder block. A piece with no SVG keeps its block, so new pieces can arrive one at a time. Drawn décor shows its name only while arranging.
 
-**Characters next.** They follow the same idea: when a customer type's or Synth species' folder exists, the game uses the rigged parts; otherwise it draws the current placeholder.
+**Characters (v1.7): the rig is in, with the office worker and the Clerkbot.**
+
+*Parts.* `python tools/art/character_parts.py` splits the template into one SVG per part, all on the same 256 × 440 canvas:
+- `art/characters/customers/office_worker/`: shadow, leg_back, arm_back, leg_front, torso, arm_front, prop, head, hair, and faces `face_neutral`, `face_happy`, `face_angry`, `face_eat`, `face_rest`;
+- `art/characters/synths/clerkbot/`: glow, arm_front (replaces the customer's), visor.
+
+*How a Synth is built.* A Synth is its customer type's body plus its species' parts. The Clerkbot is the office worker with a visor, a robot arm and a glow, and no briefcase.
+
+*The rig.* `src/ui/character_art.gd` hangs the parts on joints (hips, neck, shoulders, hips for each leg) and poses them by time, so no animation files are needed:
+- in the café: idle, walk, carry (with a tray), sit, eat, cook, rest (eyes closed), happy, angry;
+- in battles: attack, cast, hurt, down.
+
+*In the game.*
+- **Café.** A character walks whenever it moves and faces the way it last went: the art faces right and is mirrored for left. Customers sit while waiting and eat with the eating face; angry customers stomp out. Synths carry trays, stir at a cooking stove, and close their eyes in the Pod.
+- **Battles.** Rigged Synths use the same rig.
+- **Fallback.** Customer types and species without parts keep the old placeholder, as do MegaBean staff.
+
+*Check by eye.* `godot --path . --resolution 1600x900 -s res://tools/art/rig_sheet.gd -- rig.png` draws every animation for both characters (it needs a window, not `--headless`).
+
+*Still to come:*
+- the other five customer types and species;
+- the back view (NE), for walking away;
+- outfits drawn on the rig (hats are still drawn as shapes above the head).
