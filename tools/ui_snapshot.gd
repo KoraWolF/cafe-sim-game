@@ -476,7 +476,15 @@ func _run() -> void:
 	await _frames(3)
 	print("CHECK Open map -> the district map: ", game.raid_map.visible)
 	_shot("07b_raid_map")
-	await _click(_centre_of(_button_with(game.raid_map, UiText.name("megabean_kiosk"))))
+	# Drag the town around, then click the Kiosk's building and press Raid on its card.
+	var map_offset: Vector2 = game.raid_map.offset
+	await _drag_by(game.raid_map.size * 0.5, Vector2(-200, -120))
+	print("CHECK drag the town map -> it moves: ", game.raid_map.offset != map_offset)
+	game.raid_map.pan(game.raid_map.size * 0.5 - game.raid_map.bar_screen_position("megabean_kiosk"))
+	await _click(game.raid_map.bar_screen_position("megabean_kiosk"))
+	print("CHECK click a bar on the map -> its card: ", game.raid_map.selected == "megabean_kiosk" and game.raid_map._card.visible)
+	_shot("07b2_town_card")
+	await _click(_centre_of(game.raid_map._raid))
 	await _frames(3)
 	print("CHECK click a café -> the raid setup in front of it: ", game.raid_setup.visible and game.raid_setup.rival_id == "megabean_kiosk")
 	await _click(_centre_of(_button_with(game.raid_setup._roster, _session.synth_name(raider))))

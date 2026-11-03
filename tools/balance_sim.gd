@@ -10,8 +10,9 @@ extends SceneTree
 ## converts every star it can
 ## (and puts each new Synth to work in its best role),
 ## brews NanoBrew from every core, keeps enough Power for a full recharge, buys
-## the cheapest upgrade while keeping a reserve, and raids the strongest rival
-## its squad (everyone but one Synth left home) is likely to beat.
+## the cheapest upgrade while keeping a reserve, and raids a bar its squad
+## (everyone but one Synth left home) is likely to beat: one not beaten yet
+## first (they open the town's boss), else the richest.
 
 const RESERVE: int = 150
 ## Seconds before closing the bot sends everyone to their Pod.
@@ -351,7 +352,11 @@ func _plan_raid(state: GameState) -> String:
 		# Rounds each side needs to knock the other out; attackers hit first.
 		# The flagship is worth a riskier try.
 		var margin := 1.25 if data.districts[state.district_id].is_flagship(rival.id) else 1.0
-		if guard_hp / power <= margin * hp / guard_power and (best == null or rival.loot_cores > best.loot_cores):
+		# Bars not beaten yet come first (they open the boss), then the richest.
+		var fresh := not state.beaten.has(rival.id)
+		var best_fresh := best != null and not state.beaten.has(best.id)
+		if guard_hp / power <= margin * hp / guard_power and (best == null or (fresh and not best_fresh)
+				or (fresh == best_fresh and rival.loot_cores > best.loot_cores)):
 			best = rival
 	if best == null:
 		return ""

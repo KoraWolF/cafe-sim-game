@@ -95,7 +95,13 @@ static func raid_lines(report: NightOps.Report) -> Array[Array]:
 		return result
 	if report.raid.attackers_won:
 		result.append([TranslationServer.translate("ui.report_raid_won") % [UiText.name(report.raid_target),
-			report.loot_coins, report.loot_cores, report.influence_gained], UiTheme.GOOD])
+			report.loot_coins, report.loot_cores], UiTheme.GOOD])
+		var town := data.districts.get(report.district_taken if report.district_taken != "" else Session.state.district_id) as District
+		if report.first_win and town != null and not town.is_flagship(report.raid_target):
+			result.append([TranslationServer.translate("ui.report_first_win") % [UiText.name(report.raid_target),
+				NightOps.bars_beaten(Session.state, town), town.rivals.size(), UiText.name(town.id)], UiTheme.PANEL_BORDER])
+		if report.boss_opened and town != null:
+			result.append([TranslationServer.translate("ui.report_boss_open") % UiText.name(town.flagship.id), UiTheme.WARN])
 		if report.loot_scrap > 0 or report.loot_chips > 0:
 			result.append([TranslationServer.translate("ui.report_materials") % [report.loot_scrap, report.loot_chips], UiTheme.GOOD])
 		for uid: String in report.loot_items:

@@ -41,7 +41,7 @@ extends RefCounted
 ## 19: Pods are bought in the shop (up to the café's side): the Pod upgrade
 ##     level is dropped (the Pods stay). Batteries recharge only in the Pod.
 ## 20: dishes are unlocked one by one; older games keep every dish they could cook.
-const VERSION: int = 20
+const VERSION: int = 21
 const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
 
@@ -117,6 +117,7 @@ static func to_dict(state: GameState) -> Dictionary:
 		"district_id": state.district_id,
 		"district_started_day": state.district_started_day,
 		"owned_districts": state.owned_districts,
+		"beaten": state.beaten,
 		"influence": state.influence,
 		"closed": state.closed,
 		"suspicion": state.suspicion,
@@ -227,6 +228,8 @@ static func from_dict(raw: Dictionary) -> GameState:
 	if owned is Array:
 		for district_id: Variant in owned:
 			state.owned_districts.append(str(district_id))
+	for rival_id: Variant in raw.get("beaten", []):
+		state.beaten.append(str(rival_id))
 	var influence: Variant = raw.get("influence", {})
 	if influence is Dictionary:
 		for district_id: Variant in influence:
@@ -363,6 +366,10 @@ static func _migrate_step(version: int, raw: Dictionary) -> Dictionary:
 			return raw
 		16:
 			raw["floor_width"] = 8
+			return raw
+		20:
+			# Before bars were marked beaten: those of towns already taken count as beaten.
+			raw["needs_beaten"] = true
 			return raw
 		19:
 			raw["needs_dishes"] = true
@@ -674,6 +681,13 @@ static func _load_one(path: String, data: GameData, errors: PackedStringArray) -
 		for recipe: Recipe in data.recipes.values():
 			if recipe.unlock_species == "":
 				state.dishes.append(recipe.id)
+	if current.get("needs_beaten", false):
+		for district_id: String in state.owned_districts:
+			var town: District = data.districts.get(district_id)
+			if town != null:
+				for rival: RivalCafe in town.rivals + [town.flagship]:
+					if not state.beaten.has(rival.id):
+						state.beaten.append(rival.id)
 	if current.get("needs_fashion", false):
 		for fashion_id: String in data.items.starter_fashion:
 			state.inventory.append(Items.make(state, Item.FASHION, fashion_id))

@@ -90,8 +90,10 @@ var seat_table: Dictionary[String, String] = {}
 @export var district_started_day: int = 1
 ## Districts taken over; each pays its income every night.
 @export var owned_districts: Array[String] = []
-## District id -> Influence earned there by winning raids.
+## District id -> Influence earned there by winning raids (no longer opens anything).
 @export var influence: Dictionary[String, int] = {}
+## Bars (rival and boss ids) beaten at least once; every rival of a town beaten opens its boss.
+@export var beaten: Array[String] = []
 ## District id -> 0..100.
 @export var suspicion: Dictionary[String, float] = {}
 ## True for a shift the café is shut after a lost Corporate Audit.

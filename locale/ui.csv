@@ -20,7 +20,7 @@ ui.nanobrew,NanoBrew
 ui.cores,Nano Cores
 ui.power,Energy
 ui.suspicion,Suspicion
-ui.influence,Influence %d / %d
+ui.influence,Bars beaten %d / %d
 ui.district,District
 ui.vibe,Vibe %d
 ui.menu_button,Menu
@@ -81,14 +81,14 @@ ui.brew,Brew NanoBrew (%d core + %d coins)
 ui.nanobrew_count,NanoBrew: %d   Nano Cores: %d
 ui.power_line,"Energy: %d (full recharge needs %d)"
 ui.buy_power,Buy %d Energy (%d coins)
-ui.ops_district,"%s — Influence %d / %d, Suspicion %d"
+ui.ops_district,"%s — bars beaten %d / %d, Suspicion %d"
 ui.ops_owned,Owned districts: %s (income %d per night)
 ui.ops_none_owned,No districts owned yet.
 ui.ops_defense,MegaBean raid chance tonight: %d%%
 ui.ops_audit,"Suspicion is %d or more: a Corporate Audit WILL come tonight. Keep strong Synths home!"
 ui.report_title,Night %d results
 ui.report_close,Close the night results
-ui.report_raid_won,Raid on %s: WON. Loot %d coins + %d cores. +%d Influence.
+ui.report_raid_won,Raid on %s: WON. Loot %d coins + %d cores.
 ui.report_raid_lost,Raid on %s: lost.
 ui.report_takeover,%s is yours! It pays %d coins every night.
 ui.report_next,%s opens tomorrow.
@@ -482,7 +482,7 @@ error.raided_tonight,"You have raided tonight already: one raid a night."
 ui.ops_open_map,Open map
 ui.ops_map_hint,"Pick a MegaBean bar on the district map, set your squad in front of it, and raid. One raid a night."
 ui.ops_raided,You have raided tonight. End the night when you're ready.
-ui.map_title,"%s — Influence %d / %d"
+ui.map_title,"%s — bars beaten %d / %d"
 ui.map_owned,Taken: %s
 ui.map_hint,Pick a bar to raid tonight.
 ui.map_home,Your bar
@@ -533,3 +533,13 @@ name.vending_shrine,Vending Machine
 name.koi_tank,Holo Aquarium
 name.neon_mural,Graffiti Wall
 name.zen_garden,DJ Booth
+ui.report_first_win,First win over %s: %d / %d bars beaten in %s.
+ui.report_boss_open,Every bar in town beaten: the boss bar %s is open!
+ui.map_drag,Drag to look around · click a bar
+ui.map_beaten,Beaten ✓ (raid again for loot)
+ui.map_taken,Taken: this town is yours.
+ui.map_boss_locked,Boss: beat every bar in town first (%d / %d).
+ui.map_raid,Raid this bar
+ui.map_town_locked,Locked: take %s first
+ui.map_view_only,You took this town; raids happen in %s.
+name.chrome_heights,Chrome Heights
