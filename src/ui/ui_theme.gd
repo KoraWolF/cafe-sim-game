@@ -1,19 +1,26 @@
 class_name UiTheme
 extends RefCounted
-## Placeholder look: a dark neon-city palette and one Theme for every screen.
-## Real art and fonts replace these later without touching screen code.
+## The neon dive-bar look (see docs/art-guide.md) and one Theme for every
+## screen: near-black glass panels with a glowing cyan edge and two cut corners,
+## slanted buttons edged in magenta that glow cyan on hover, tabs with a neon
+## underline, slim neon scroll bars. Screens only use these colours and the Theme.
 
 ## Height of the HUD's top bar (two rows); panels and the camera start below it.
 const TOP_BAR_HEIGHT: float = 100.0
-const BACKGROUND := Color("141225")
-const PANEL := Color("1e1b36ee")
-const PANEL_BORDER := Color("38e1ff")
-const TEXT := Color("f2efff")
-const TEXT_DIM := Color("a8a3c7")
-const ACCENT := Color("ff4fd8")
+const BACKGROUND := Color("0c0a14")
+const PANEL := Color("120f1ef2")
+const PANEL_BORDER := Color("19f0ff")
+const TEXT := Color("eaf8ff")
+const TEXT_DIM := Color("8f8ab3")
+const ACCENT := Color("ff2fb4")
 const GOOD := Color("5dff9a")
-const WARN := Color("ffcf4a")
-const BAD := Color("ff5d6c")
+const WARN := Color("ffb03b")
+const BAD := Color("ff4560")
+## Button fills.
+const BUTTON := Color("1a1428")
+const BUTTON_HOVER := Color("241a3a")
+## How far buttons lean (a cyberpunk slant).
+const BUTTON_SLANT: float = 0.12
 const FLOOR_A := Color("3a2f4f")
 const FLOOR_B := Color("44385c")
 const WALL := Color("231d36")
@@ -46,27 +53,95 @@ static func shared() -> Theme:
 static func build() -> Theme:
 	var theme := Theme.new()
 	theme.default_font_size = 18
-	var panel := _box(PANEL, PANEL_BORDER, 2, 10)
+	var panel := panel_box(PANEL_BORDER)
 	theme.set_stylebox("panel", "PanelContainer", panel)
 	theme.set_stylebox("panel", "Panel", panel)
 	theme.set_stylebox("panel", "PopupMenu", panel)
-	theme.set_stylebox("panel", "TabContainer", _box(PANEL, PANEL_BORDER, 2, 6))
-	theme.set_stylebox("normal", "Button", _box(Color("2b2650"), Color("5b54a0"), 1, 6))
-	theme.set_stylebox("hover", "Button", _box(Color("3a3370"), PANEL_BORDER, 1, 6))
-	theme.set_stylebox("pressed", "Button", _box(Color("4a2a6a"), ACCENT, 1, 6))
-	theme.set_stylebox("disabled", "Button", _box(Color("221f3a"), Color("3a3560"), 1, 6))
-	theme.set_stylebox("focus", "Button", _box(Color(0, 0, 0, 0), ACCENT, 2, 6))
-	for type: String in ["Label", "Button", "CheckBox", "OptionButton", "TabContainer", "PopupMenu"]:
+	theme.set_stylebox("panel", "TooltipPanel", panel_box(ACCENT, 6))
+	theme.set_stylebox("panel", "TabContainer", panel_box(PANEL_BORDER, 6))
+	theme.set_stylebox("hover", "PopupMenu", _box(Color(ACCENT, 0.3), ACCENT, 0, 2, 4))
+	# Buttons: slanted, edged in magenta; cyan glow on hover, magenta when pressed.
+	theme.set_stylebox("normal", "Button", button_box(BUTTON, Color(ACCENT, 0.7)))
+	theme.set_stylebox("hover", "Button", button_box(BUTTON_HOVER, PANEL_BORDER, PANEL_BORDER))
+	theme.set_stylebox("pressed", "Button", button_box(Color(ACCENT, 0.35), ACCENT, ACCENT))
+	theme.set_stylebox("hover_pressed", "Button", button_box(Color(ACCENT, 0.45), ACCENT, ACCENT))
+	theme.set_stylebox("disabled", "Button", button_box(Color("14111c"), Color("2a2640")))
+	var focus := button_box(Color(0, 0, 0, 0), ACCENT)
+	focus.set_border_width_all(2)
+	theme.set_stylebox("focus", "Button", focus)
+	for type: String in ["Label", "Button", "CheckBox", "OptionButton", "TabContainer", "PopupMenu", "LineEdit"]:
 		theme.set_color("font_color", type, TEXT)
 	theme.set_color("font_disabled_color", "Button", TEXT_DIM)
 	theme.set_color("font_hover_color", "Button", Color.WHITE)
+	theme.set_color("font_pressed_color", "Button", Color.WHITE)
+	theme.set_color("font_hover_color", "PopupMenu", Color.WHITE)
+	# Tabs: a neon underline on the chosen one.
 	theme.set_color("font_selected_color", "TabContainer", PANEL_BORDER)
 	theme.set_color("font_unselected_color", "TabContainer", TEXT_DIM)
-	theme.set_stylebox("background", "ProgressBar", _box(Color(0, 0, 0, 0.5), Color("3a3560"), 1, 4, 0))
-	theme.set_stylebox("fill", "ProgressBar", _box(PANEL_BORDER, PANEL_BORDER, 0, 4, 0))
+	theme.set_color("font_hovered_color", "TabContainer", Color.WHITE)
+	var tab := _box(Color(PANEL_BORDER, 0.12), PANEL_BORDER, 0, 2, 6)
+	tab.border_width_bottom = 3
+	theme.set_stylebox("tab_selected", "TabContainer", tab)
+	theme.set_stylebox("tab_unselected", "TabContainer", _box(Color(0, 0, 0, 0.3), Color(0, 0, 0, 0), 0, 2, 6))
+	var tab_hover := _box(Color(ACCENT, 0.15), ACCENT, 0, 2, 6)
+	tab_hover.border_width_bottom = 2
+	theme.set_stylebox("tab_hovered", "TabContainer", tab_hover)
+	# Text fields: dark glass with a cyan underline.
+	var field := _box(Color("0a0812"), Color(PANEL_BORDER, 0.6), 0, 2, 6)
+	field.border_width_bottom = 2
+	theme.set_stylebox("normal", "LineEdit", field)
+	var field_focus := _box(Color("0a0812"), PANEL_BORDER, 0, 2, 6)
+	field_focus.border_width_bottom = 2
+	field_focus.shadow_color = Color(PANEL_BORDER, 0.3)
+	field_focus.shadow_size = 6
+	theme.set_stylebox("focus", "LineEdit", field_focus)
+	# Scroll bars: a slim neon grabber.
+	for bar: String in ["VScrollBar", "HScrollBar"]:
+		theme.set_stylebox("scroll", bar, _box(Color(0, 0, 0, 0.35), Color(0, 0, 0, 0), 0, 3, 0))
+		theme.set_stylebox("grabber", bar, _box(Color(PANEL_BORDER, 0.55), Color(0, 0, 0, 0), 0, 3, 0))
+		theme.set_stylebox("grabber_highlight", bar, _box(PANEL_BORDER, Color(0, 0, 0, 0), 0, 3, 0))
+		theme.set_stylebox("grabber_pressed", bar, _box(ACCENT, Color(0, 0, 0, 0), 0, 3, 0))
+	# Progress: a glowing cyan fill.
+	theme.set_stylebox("background", "ProgressBar", _box(Color(0, 0, 0, 0.55), Color(PANEL_BORDER, 0.35), 1, 2, 0))
+	var fill := _box(PANEL_BORDER, PANEL_BORDER, 0, 2, 0)
+	fill.shadow_color = Color(PANEL_BORDER, 0.4)
+	fill.shadow_size = 4
+	theme.set_stylebox("fill", "ProgressBar", fill)
+	theme.set_stylebox("separator", "HSeparator", _line(Color(ACCENT, 0.6)))
 	theme.set_constant("separation", "VBoxContainer", 8)
 	theme.set_constant("separation", "HBoxContainer", 10)
 	return theme
+
+
+## A panel: near-black glass, a glowing edge in `edge`, and two cut corners
+## (sharp top-left and bottom-right, rounded at the others).
+static func panel_box(edge: Color, margin := 8) -> StyleBoxFlat:
+	var box := _box(PANEL, edge, 2, 0, margin)
+	box.corner_radius_top_right = 16
+	box.corner_radius_bottom_left = 16
+	box.shadow_color = Color(edge, 0.22)
+	box.shadow_size = 10
+	return box
+
+
+## A slanted button: a fill, an edge, and a glow in `glow` (none if transparent).
+static func button_box(fill: Color, edge: Color, glow := Color(0, 0, 0, 0)) -> StyleBoxFlat:
+	var box := _box(fill, edge, 2, 0, 8)
+	box.corner_radius_top_left = 2
+	box.corner_radius_bottom_right = 2
+	box.skew = Vector2(BUTTON_SLANT, 0)
+	if glow.a > 0.0:
+		box.shadow_color = Color(glow, 0.35)
+		box.shadow_size = 7
+	return box
+
+
+## A thin glowing line (for separators).
+static func _line(color: Color) -> StyleBoxLine:
+	var line := StyleBoxLine.new()
+	line.color = color
+	line.thickness = 2
+	return line
 
 
 static func _box(fill: Color, border: Color, width: int, radius: int, margin := 8) -> StyleBoxFlat:
@@ -103,6 +178,10 @@ static func label(text: String, size := 18, color := TEXT) -> Label:
 	label.text = text
 	label.add_theme_font_size_override("font_size", size)
 	label.add_theme_color_override("font_color", color)
+	if size >= 26:
+		# Big titles get a neon halo in their own colour.
+		label.add_theme_constant_override("outline_size", maxi(size / 5, 4))
+		label.add_theme_color_override("font_outline_color", Color(color, 0.3))
 	return label
 
 

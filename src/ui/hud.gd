@@ -156,13 +156,7 @@ func _build_shop_button() -> void:
 	night_button.offset_top = UiTheme.TOP_BAR_HEIGHT + 16
 	night_button.offset_bottom = night_button.offset_top + SHOP_BUTTON
 	night_button.add_theme_font_size_override("font_size", 20)
-	for state_name: String in ["normal", "hover", "pressed", "focus"]:
-		var style := StyleBoxFlat.new()
-		style.bg_color = Color("3a2f8f").lightened(0.0 if state_name == "normal" else 0.15)
-		style.border_color = UiTheme.PANEL_BORDER
-		style.set_border_width_all(3)
-		style.set_corner_radius_all(int(SHOP_BUTTON / 2))
-		night_button.add_theme_stylebox_override(state_name, style)
+	_neon_ring(night_button, UiTheme.PANEL_BORDER)
 	night_button.visible = false
 	add_child(night_button)
 	shop_button.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
@@ -172,14 +166,23 @@ func _build_shop_button() -> void:
 	shop_button.offset_right = -24
 	shop_button.offset_bottom = -24
 	shop_button.add_theme_font_size_override("font_size", 22)
+	_neon_ring(shop_button, UiTheme.ACCENT)
+	add_child(shop_button)
+
+
+## A round button as a glowing neon ring in `color` around dark glass (brighter on hover).
+func _neon_ring(button: Button, color: Color) -> void:
 	for state_name: String in ["normal", "hover", "pressed", "focus"]:
 		var style := StyleBoxFlat.new()
-		style.bg_color = UiTheme.ACCENT.darkened(0.15 if state_name == "normal" else 0.0)
-		style.border_color = UiTheme.TEXT
-		style.set_border_width_all(3)
+		style.bg_color = Color("120f1e") if state_name == "normal" else Color(color, 0.25 if state_name == "pressed" else 0.12)
+		style.border_color = color if state_name != "normal" else Color(color, 0.85)
+		style.set_border_width_all(4)
 		style.set_corner_radius_all(int(SHOP_BUTTON / 2))
-		shop_button.add_theme_stylebox_override(state_name, style)
-	add_child(shop_button)
+		style.shadow_color = Color(color, 0.55 if state_name == "hover" else 0.35)
+		style.shadow_size = 14 if state_name == "hover" else 9
+		button.add_theme_stylebox_override(state_name, style)
+	button.add_theme_color_override("font_color", color.lightened(0.4))
+	button.add_theme_color_override("font_hover_color", Color.WHITE)
 
 
 func show_night_button(on: bool) -> void:

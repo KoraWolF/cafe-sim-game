@@ -70,6 +70,18 @@ Every part of one character uses **the same 256 × 440 canvas and the same pivot
 8. **Faces:** big dark eyes with one white highlight, a small mouth and soft blush, so the cute read stays under the tech. Faces are separate parts (`face_neutral`, `face_happy`, `face_angry`, `face_eat`, `face_rest`).
 9. **Check at game size:** a character is about 97 × 60 px and a tile is 96 × 48. If a detail vanishes at that size, simplify it.
 
+### The UI
+
+The menus follow the same theme. Everything comes from one Theme in `src/ui/ui_theme.gd`, built from Godot style boxes, so there are no image files:
+- **Panels:** near-black glass with a glowing cyan edge, sharp top-left and bottom-right corners and rounded others.
+- **Buttons:** slanted (`BUTTON_SLANT`), edged in magenta; they glow cyan on hover and magenta when pressed.
+- **Tabs and fields:** tabs get a neon underline, text fields a cyan underline, and scroll bars a slim neon grabber.
+- **Titles:** labels of 26 px and up get a neon halo in their own colour.
+- **Round buttons:** the Menu and Night buttons are glowing neon rings.
+- **Main menu:** `src/ui/menu_backdrop.gd` draws a rainy skyline behind it.
+
+Change a colour or the slant there, and every screen follows.
+
 ## 5. Making a character yourself, step by step
 
 1. **Copy the template** (`art/templates/chibi_office_worker_se.svg`) and rename it, for example `gym_fan_se.svg`.
