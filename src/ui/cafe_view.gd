@@ -1026,16 +1026,17 @@ func _draw_synth(synth: Synth, at: Vector2) -> void:
 		elif synth.role == Synth.CHEF:
 			var stove := Layout.stove_of(Session.state, synth.station_uid)
 			anim = "cook" if stove != null and not stove.is_idle() else "idle"
-		head = _draw_rigged(synth.id, at, body_type, synth.species_id, anim, face, glow)
+		head = _draw_rigged(synth.id, at, body_type, synth.species_id, anim, face, glow, Items.worn(synth, "hat", data),
+			outfit)
 	else:
 		head = _draw_body(at, body, glow, synth.id, true)
 	var hat := Items.worn(synth, "hat", data)
-	if hat != null:
+	if hat != null and not rigged:
+		# A placeholder Synth's hat, as a block (a rigged one wears its drawn hat).
 		var hat_color := Color(data.items.fashion[hat.type_id]["color"])
-		var brim := head + (Vector2(0, -16) if rigged else Vector2.ZERO)
-		draw_rect(Rect2(brim + Vector2(-13, -20), Vector2(26, 9)), hat_color)
-		draw_rect(Rect2(brim + Vector2(-8, -27), Vector2(16, 8)), hat_color)
-		draw_rect(Rect2(brim + Vector2(-13, -20), Vector2(26, 9)), hat_color.darkened(0.5), false, 1.5)
+		draw_rect(Rect2(head + Vector2(-13, -20), Vector2(26, 9)), hat_color)
+		draw_rect(Rect2(head + Vector2(-8, -27), Vector2(16, 8)), hat_color)
+		draw_rect(Rect2(head + Vector2(-13, -20), Vector2(26, 9)), hat_color.darkened(0.5), false, 1.5)
 	var above := head + Vector2(0, -38 if hat != null else -28)
 	_draw_bar(above + Vector2(0, 6), 34, synth.battery / SynthStats.stat(synth, "battery_max", data), _battery_color(synth, data))
 	_text(above + Vector2(0, -4), "Lv%d" % synth.level, 13, glow)
@@ -1050,7 +1051,7 @@ func _draw_synth(synth: Synth, at: Vector2) -> void:
 ## way it last went: its back while walking up the screen (away from the
 ## camera) or working a mixer. Returns its head's centre (and records it for clicks).
 func _draw_rigged(person_id: String, at: Vector2, type_id: String, species_id: String, anim: String, face: String,
-		glow := Color.WHITE) -> Vector2:
+		glow := Color.WHITE, hat: Item = null, outfit: Item = null) -> Vector2:
 	var feet := Iso.to_world(at)
 	var last: Vector2 = _rig_seen.get(person_id, feet)
 	_rig_seen[person_id] = feet
@@ -1061,7 +1062,8 @@ func _draw_rigged(person_id: String, at: Vector2, type_id: String, species_id: S
 	if moving and anim != "angry":
 		anim = "carry" if anim == "carry_still" else "walk"
 	var pose := {"anim": anim, "t": _rig_time + float(absi(person_id.hash()) % 100) / 37.0, "face": face,
-		"mirror": _rig_left.get(person_id, false), "glow": glow, "back": back}
+		"mirror": _rig_left.get(person_id, false), "glow": glow, "back": back,
+		"hat": hat.type_id if hat != null else "", "outfit": outfit.type_id if outfit != null else ""}
 	var head := CharacterArt.draw(self, feet, CharacterArt.SIZE, type_id, species_id, pose)
 	if person_id != "":
 		_heads[person_id] = head

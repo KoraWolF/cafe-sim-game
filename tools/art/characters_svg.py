@@ -7,6 +7,9 @@ art/characters/synths/<species>/{glow, arm_front, visor}.svg for every species, 
 art/characters/megabean/<class>/<part>.svg for MegaBean's staff, one look per
 combat class (fighter, tank, ranged, fragile).
 
+Hats and outfits (data/items.json "fashion") are drawn as parts too, in
+art/characters/fashion/<id>/, to wear on the rig.
+
 Each type also has back-view parts (torso_ne, head_ne, hair_ne; a Synth's
 visor_ne) for walking away; legs, arms and props are shared with the front.
 
@@ -462,11 +465,102 @@ VISOR_BACK = {
 }
 
 
+# --- fashion: hats and outfits worn on the rig ---------------------------------
+# One folder per item in data/items.json ("fashion"), in the item's colour:
+#   art/characters/fashion/<id>/hat.svg, hat_ne.svg        (a hat, over the hair)
+#   art/characters/fashion/<id>/torso.svg, torso_ne.svg     (an outfit, over the body's torso)
+#   art/characters/fashion/<id>/arm_back.svg                (its sleeve; a Synth's front arm is its own)
+TORSO = "M74,250 Q128,228 186,250 L200,348 Q128,368 58,348 Z"
+SLEEVE = '<rect x="56" y="258" width="32" height="82" rx="15" fill="url(#cloth)" stroke="%s" stroke-width="4" transform="rotate(8 72 258)"/>'
+
+
+def hat(item_id, color, front, back):
+    folder = "fashion/" + item_id
+    defs = [grad("cloth", color, 0.2, -0.3), CHROME_DEF]
+    write(folder, "hat", defs, front)
+    write(folder, "hat_ne", defs, back)
+
+
+def outfit(item_id, color, front, back, sleeve=True):
+    folder = "fashion/" + item_id
+    line = shade(color, -0.55)
+    defs = [grad("cloth", color, 0.15, -0.3), CHROME_DEF]
+    body = '<path d="%s" fill="url(#cloth)" stroke="%s" stroke-width="4"/>' % (TORSO, line)
+    shadow = '<path d="M74,250 Q70,300 62,346 Q84,354 102,357 Q90,300 94,252 Z" fill="%s" opacity="0.35"/>' % line
+    rim = '<path d="M188,262 L198,340" stroke="%s" stroke-width="5" opacity="0.75"/>' % RIM
+    write(folder, "torso", defs, [body, shadow] + front + [rim])
+    write(folder, "torso_ne", defs, [body, shadow, '<path d="M128,246 L128,352" stroke="%s" stroke-width="3" opacity="0.5"/>' % line] + back + [rim])
+    if sleeve:
+        write(folder, "arm_back", defs, [SLEEVE % line])
+
+
+def fashion_parts():
+    import json
+    items = json.load(open(os.path.join(ROOT, "..", "..", "data", "items.json"), encoding="utf-8"))["fashion"]
+    colors = {item["id"]: "#" + item["color"] for item in items}
+    c = colors.get
+    cap_dome = "M44,132 C44,62 92,34 134,34 C184,34 222,64 222,128 Q132,106 44,132 Z"
+    if "neon_cap" in colors:
+        hat("neon_cap", c("neon_cap"),
+            ['<path d="%s" fill="#1f1a2e" stroke="#0a0812" stroke-width="4"/>' % cap_dome,
+             led("M48,122 Q132,98 218,120", c("neon_cap"), 4),
+             '<path d="M150,118 Q218,106 256,128 Q216,144 150,134 Z" fill="#14111f" stroke="#0a0812" stroke-width="4"/>',
+             led("M156,128 Q214,120 248,130", c("neon_cap"), 3),
+             '<circle cx="132" cy="40" r="7" fill="%s"/>' % c("neon_cap")],
+            ['<path d="%s" fill="#1f1a2e" stroke="#0a0812" stroke-width="4"/>' % cap_dome,
+             led("M48,122 Q132,98 218,120", c("neon_cap"), 4),
+             '<path d="M112,124 Q132,108 152,124" fill="none" stroke="#0a0812" stroke-width="6"/>'])
+    beanie = "M38,142 C38,58 92,28 132,28 C178,28 226,58 226,142 Z"
+    if "beanie" in colors:
+        ribs = "".join('<path d="M%d,%d L%d,140" stroke="%s" stroke-width="3" opacity="0.5"/>' % (x, 56 if 70 < x < 196 else 90, x, shade(c("beanie"), -0.4))
+                       for x in range(56, 216, 18))
+        parts = ['<path d="%s" fill="url(#cloth)" stroke="%s" stroke-width="4"/>' % (beanie, shade(c("beanie"), -0.55)), ribs,
+                 '<path d="M36,126 Q132,108 228,126 L228,150 Q132,132 36,150 Z" fill="%s" stroke="%s" stroke-width="4"/>' % (shade(c("beanie"), -0.25), shade(c("beanie"), -0.6)),
+                 led("M44,140 Q132,124 220,140", CYAN, 3),
+                 '<path d="M132,28 L132,10" stroke="#2a3046" stroke-width="4"/><circle cx="132" cy="8" r="8" fill="%s"/>' % CYAN]
+        hat("beanie", c("beanie"), parts, parts)
+    if "top_hat" in colors:
+        top = ['<ellipse cx="132" cy="96" rx="104" ry="20" fill="url(#cloth)" stroke="#0a0812" stroke-width="4"/>',
+               '<path d="M74,94 L80,6 Q132,-4 184,6 L190,94 Q132,108 74,94 Z" fill="url(#cloth)" stroke="#0a0812" stroke-width="4"/>',
+               '<path d="M77,64 Q132,74 187,64 L188,82 Q132,92 76,82 Z" fill="url(#chrome)" stroke="#2a3046" stroke-width="3"/>',
+               led("M80,74 Q132,84 186,74", MAGENTA, 3),
+               '<path d="M96,14 L94,58" stroke="#ffffff" stroke-width="5" opacity="0.25"/>']
+        hat("top_hat", c("top_hat"), top, top)
+    if "teal_jacket" in colors:
+        outfit("teal_jacket", c("teal_jacket"),
+               ['<path d="M100,244 Q128,262 156,244 L156,256 Q128,274 100,256 Z" fill="#14111f" stroke="#0a0812" stroke-width="3"/>',
+                '<path d="M128,262 L128,350" stroke="#c9d2e3" stroke-width="4"/>',
+                led("M66,320 L92,322 M164,322 L190,318", MAGENTA, 3),
+                '<path d="M62,338 Q128,356 194,338 L196,350 Q128,368 60,350 Z" fill="#14111f" opacity="0.85"/>'],
+               ['<path d="M100,244 Q128,262 156,244 L156,256 Q128,274 100,256 Z" fill="#14111f" stroke="#0a0812" stroke-width="3"/>',
+                led("M92,292 L164,292", MAGENTA, 3),
+                '<path d="M62,338 Q128,356 194,338 L196,350 Q128,368 60,350 Z" fill="#14111f" opacity="0.85"/>'])
+    if "barista_apron" in colors:
+        apron = c("barista_apron")
+        outfit("barista_apron", "#2a2836",
+               ['<path d="M110,246 L128,280 L146,246" fill="none" stroke="#c9d2e3" stroke-width="4"/>',
+                '<path d="M92,286 L166,286 L174,354 Q128,366 84,354 Z" fill="%s" stroke="%s" stroke-width="4"/>' % (apron, shade(apron, -0.55)),
+                '<path d="M100,254 L92,286 M156,254 L166,286" stroke="%s" stroke-width="5"/>' % shade(apron, -0.3),
+                '<rect x="110" y="306" width="38" height="24" rx="4" fill="%s" stroke="%s" stroke-width="3"/>' % (shade(apron, -0.2), shade(apron, -0.55)),
+                led("M88,294 L170,294", AMBER, 2)],
+               ['<path d="M92,300 L166,300" stroke="%s" stroke-width="8"/>' % apron,
+                '<path d="M120,300 l-12,24 M136,300 l12,24" stroke="%s" stroke-width="6"/>' % apron], sleeve=False)
+    if "hoodie" in colors:
+        hood = c("hoodie")
+        outfit("hoodie", hood,
+               ['<path d="M84,252 Q128,214 176,252 Q128,282 84,252 Z" fill="%s" stroke="%s" stroke-width="4"/>' % (shade(hood, -0.2), shade(hood, -0.6)),
+                led("M116,268 L112,304 M142,268 L146,304", CYAN, 3),
+                '<path d="M94,318 Q128,332 164,318 L160,346 Q128,354 98,346 Z" fill="%s" stroke="%s" stroke-width="3"/>' % (shade(hood, -0.15), shade(hood, -0.6))],
+               ['<path d="M82,252 Q128,226 176,252 Q164,296 128,302 Q92,296 82,252 Z" fill="%s" stroke="%s" stroke-width="4"/>' % (shade(hood, -0.2), shade(hood, -0.6)),
+                led("M98,320 L158,320", CYAN, 3)])
+
+
 if __name__ == "__main__":
     for type_id, look in CUSTOMERS.items():
         customer(type_id, look)
     for class_id, look in STAFF.items():
         customer(class_id, look, "megabean/" + class_id)
+    fashion_parts()
     for species_id, (color, arm, visor) in SYNTHS.items():
         synth(species_id, color, arm, visor)
     print("characters written to", ROOT)
