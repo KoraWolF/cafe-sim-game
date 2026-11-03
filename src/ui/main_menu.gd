@@ -13,6 +13,7 @@ var _confirm := ConfirmModal.new()
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	theme = UiTheme.shared()
+	add_child(MenuBackdrop.new())
 	var centre := CenterContainer.new()
 	centre.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(centre)
