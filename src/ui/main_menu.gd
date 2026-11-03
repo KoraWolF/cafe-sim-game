@@ -38,6 +38,11 @@ func _ready() -> void:
 	column.add_child(_error)
 	add_child(settings)
 	add_child(_confirm)
+	# The game's version, bottom right (project setting application/config/version).
+	var version := UiTheme.label("v" + str(ProjectSettings.get_setting("application/config/version", "")), 14, UiTheme.TEXT_DIM)
+	version.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+	version.position = Vector2(-90, -36)
+	add_child(version)
 	var resume: Button = _saves.get_child(0).get_child(0).get_child(0)
 	(resume if not resume.disabled else new_game).grab_focus()
 	Sfx.music("night")
