@@ -147,3 +147,17 @@ func test_a_save_with_broken_walls_or_hp_is_refused() -> void:
 	state.walls.clear()
 	state.synths[0].ko_left = -1
 	assert_true(SaveSystem.validate(state, data).size() > 0, "a negative knockout timer")
+
+
+func test_megabean_raids_less_often_early_on() -> void:
+	var data := GameData.from_content(TestFixtures.content({"defense_base_chance": 0.4, "defense_chance_per_suspicion": 0.0,
+		"defense_early_share": 0.25, "defense_ramp_days": 10}))
+	var state := _night(data)
+	state.day = 1
+	assert_eq(NightOps.defense_chance(state, data.balance), 0.1, "a quarter on day 1")
+	state.day = 6
+	assert_true(absf(NightOps.defense_chance(state, data.balance) - 0.25) < 0.001, "rising")
+	state.day = 11
+	assert_eq(NightOps.defense_chance(state, data.balance), 0.4, "all of it from day 11")
+	state.day = 30
+	assert_eq(NightOps.defense_chance(state, data.balance), 0.4, "and it stays there")

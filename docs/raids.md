@@ -40,6 +40,7 @@ The board is the café floor (8 wide; 4 rows deep, 5 for a flagship), its front 
 
 ## MegaBean raids on your café
 Fought the same way, in front of **your own café** as you've laid it out, with its door (the front-right corner). MegaBean waits on the street and your defenders walk out to meet it.
+- **How often:** the chance grows with Suspicion. On day 1 it's a quarter of normal, rising evenly to all of it by day 11 (`defense_early_share`, `defense_ramp_days`). Audits aren't affected.
 - **Who defends:** tick them under **Night Ops → Defenders tonight**. At closing every worker above 70% battery is ticked (`defender_battery_share`). A ticked defender can't go on a raid: untick it first.
 - They wait inside, tanks nearest the door.
 - Defenders who fought get back only half their missing battery that night (`defender_recharge`).

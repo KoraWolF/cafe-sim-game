@@ -32,21 +32,20 @@
 ## Cooking
 Every dish takes 1.5x as long to cook and gives 2x the servings for 2x the cost, so a stove makes about a third more per minute.
 
-## Balance (40 days x 5 seeds, the sim bot raids every night it can)
-| | Before | Now |
-| --- | --- | --- |
-| Star rate | 98% | 83% |
-| Left angry | 2 | 91 |
-| Income | 8,120 | 6,040 |
-| Raids won | 37.6 of 39.2 | 33.8 of 40 |
-| Defences lost | 2.4 of 14.8 | 3.4 of 13.6 |
-| Alley taken | day 6 | day 10 |
-| Workers at the end | 18.8 | 18 |
+## Balance (30 days x 10 seeds, the sim bot raids every night it can)
+The first numbers for this playtest were wrong. After knockouts the sim bot could end up with no Server and never fix it, so whole runs served nobody. That made the game look harder than it is and made cooking ahead look bad. The bot now keeps a Server, and these numbers replace the earlier ones.
 
-The game is harder, and both changes add to it. With the new HP rules and the old cooking, the sim gave 50 angry customers and a 92% star rate. The longer cooks took that to 91 and 83%. Income fell with the HP rules (5,944) and barely changed with the cooking.
+| | Normal early raids | Fewer early raids (now in the game) | Fewer early raids, bot cooks ahead |
+| --- | --- | --- | --- |
+| Star rate | 92% | 95% | 99% |
+| Left angry per run | 12.4 | 10.5 | 8.2 |
+| Raids won | 84% | 87% | 82% |
+| MegaBean raids, days 1-10 | 29 (6 held) | 9 (3 held) | 18 (6 held) |
+| MegaBean raids held, all days | 76% | 82% | 74% |
+| Alley taken | 10 of 10, day 8.3 | 10 of 10, day 8.6 | 10 of 10, day 8.8 |
+| Neon Market taken | 9 of 10 | 9 of 10 | 8 of 10 |
+| Workers at the end | 16.1 | 15.9 | 15.8 |
 
-A bot that cooks 8 servings ahead did much worse over 40 days (356 angry, 59% stars, 11 workers), so it was dropped. Over the first 14 days (2 seeds) its service was as good as the normal bot's, with no angry customers on most days. It just bought Pods later, so it grew more slowly. That points to coins tied up in food, not a cooking bug, but the later days weren't checked.
-
-In those same runs with the normal bot, about half the bad days came right after a lost raid.
-
-No values were changed after these runs. The Neon Market still falls within 40 days in all 5 seeds.
+- **Fewer early raids:** MegaBean's chance is a quarter of normal on day 1 and all of it by day 11.
+- **Cooking ahead helps:** keeping 8 servings ready gave the best service. The bot still doesn't do it by default, so the table's middle column stays comparable with earlier runs.
+- **Chrome Heights** wasn't taken in any run within 30 days.
