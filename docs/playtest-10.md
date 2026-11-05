@@ -45,6 +45,8 @@ Every dish takes 1.5x as long to cook and gives 2x the servings for 2x the cost,
 
 The game is harder, and both changes add to it. With the new HP rules and the old cooking, the sim gave 50 angry customers and a 92% star rate. The longer cooks took that to 91 and 83%. Income fell with the HP rules (5,944) and barely changed with the cooking.
 
-A bot that cooks 8 servings ahead did much worse (356 angry, 59% stars, 11 workers), so it was dropped. The cause isn't known yet. One idea to test: each counter holds one dish, so extra dishes may fill the counters.
+A bot that cooks 8 servings ahead did much worse over 40 days (356 angry, 59% stars, 11 workers), so it was dropped. Over the first 14 days (2 seeds) its service was as good as the normal bot's, with no angry customers on most days. It just bought Pods later, so it grew more slowly. That points to coins tied up in food, not a cooking bug, but the later days weren't checked.
+
+In those same runs with the normal bot, about half the bad days came right after a lost raid.
 
 No values were changed after these runs. The Neon Market still falls within 40 days in all 5 seeds.

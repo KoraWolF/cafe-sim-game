@@ -564,3 +564,5 @@ name.wall_window,Rainy Window
 name.wall_bottles,Bottle Shelf
 name.wall_screen,Wall Screen
 name.wall_neon_sign,Neon Wall Sign
+error.on_raid,That worker is on tonight's raid: it can't defend too.
+ui.ops_on_raid," · on the raid"

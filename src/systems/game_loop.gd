@@ -42,6 +42,7 @@ const RAIDED_TONIGHT: String = "raided_tonight"
 const BLOCKS_DOOR: String = "blocks_door"
 const BLOCKS_WAY: String = "blocks_way"
 const IS_DEFENDER: String = "is_defender"
+const ON_RAID: String = "on_raid"
 const KNOCKED_OUT: String = "knocked_out"
 const CHEF_COOKING: String = "chef_cooking"
 const UNKNOWN_PLACED: String = "unknown_placed"
@@ -439,6 +440,8 @@ static func set_formation(state: GameState, synth_id: String, spot: Vector2i, da
 static func set_defender(state: GameState, synth_id: String, on: bool) -> String:
 	if state.synth_by_id(synth_id) == null:
 		return UNKNOWN_SYNTH
+	if on and state.raid_squad.has(synth_id):
+		return ON_RAID
 	if on and not state.defenders.has(synth_id):
 		state.defenders.append(synth_id)
 	elif not on:

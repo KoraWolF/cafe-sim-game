@@ -110,3 +110,40 @@ func test_a_knocked_out_worker_goes_back_to_its_job_when_the_timer_ends() -> voi
 	GameLoop.advance(state, 4, data)
 	assert_eq(worker.ko_left, 0, "timer done")
 	assert_eq(worker.role, Synth.SERVER, "back at its job")
+
+
+func test_a_raider_cant_be_ticked_as_a_defender() -> void:
+	var data := GameData.from_content(TestFixtures.content())
+	var state := _night(data)
+	var raider := state.synths[0]
+	state.raid_squad.append(raider.id)
+	assert_eq(GameLoop.set_defender(state, raider.id, true), GameLoop.ON_RAID, "refused")
+	assert_true(not state.defenders.has(raider.id), "not ticked")
+
+
+func test_a_save_with_broken_walls_or_hp_is_refused() -> void:
+	var content := TestFixtures.content()
+	content["pieces"].append({"id": "window", "kind": "wall_decor", "height": 2, "price": 10, "vibe": 1})
+	content["pieces"].append({"id": "brick", "kind": "wall_style", "price": 10, "vibe": 0})
+	var data := GameData.from_content(content)
+	var state := _night(data)
+	state.coins = 100
+	GameLoop.buy_piece(state, "window", data)
+	GameLoop.buy_piece(state, "brick", data)
+	GameLoop.place_on_wall(state, "window", "L1", 0, data)
+	GameLoop.place_on_wall(state, "brick", "L1", 0, data)
+	assert_eq(Walls.check(state, data).size(), 0, "real walls pass")
+	state.walls["L1"]["cells"] = ["window", "", ""]
+	assert_eq(Walls.check(state, data).size(), 1, "a tall piece cut short")
+	state.walls["L1"]["cells"] = ["nope", "", ""]
+	assert_eq(Walls.check(state, data).size(), 1, "an unknown piece")
+	state.walls["L1"] = {"style": "window", "cells": ["", "", ""]}
+	assert_eq(Walls.check(state, data).size(), 1, "decor used as a panel")
+	state.walls["L1"] = {"style": ""}
+	assert_eq(Walls.check(state, data).size(), 1, "no cells")
+	state.walls.clear()
+	state.walls["L99"] = {"style": "", "cells": ["", "", ""]}
+	assert_eq(Walls.check(state, data).size(), 1, "a column off the walls")
+	state.walls.clear()
+	state.synths[0].ko_left = -1
+	assert_true(SaveSystem.validate(state, data).size() > 0, "a negative knockout timer")

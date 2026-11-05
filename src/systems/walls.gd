@@ -88,7 +88,7 @@ static func place(state: GameState, piece_id: String, column: String, row: int, 
 		cells[row] = piece_id
 		for i: int in range(1, piece.height):
 			cells[row + i] = ABOVE
-	Layout._take_from_storage(state, piece_id)
+	Layout.take_from_storage(state, piece_id)
 	Layout.refresh(state, data)
 	return GameLoop.OK
 
@@ -127,6 +127,37 @@ static func vibe_at(state: GameState, seat_cell: Vector2i, data: GameData) -> fl
 			if piece != null:
 				total += piece.vibe
 	return total
+
+
+## What's wrong with state.walls (for SaveSystem.validate): every column on the
+## bar's walls, ROWS cells, known pieces of the right kind, tall pieces whole.
+static func check(state: GameState, data: GameData) -> PackedStringArray:
+	var errors: PackedStringArray = []
+	var known := columns(state)
+	for column: String in state.walls:
+		var entry: Dictionary = state.walls[column]
+		var cells: Variant = entry.get("cells")
+		if not known.has(column) or not cells is Array or cells.size() != ROWS:
+			errors.append("bad wall column '%s'" % column)
+			continue
+		var panel: Piece = data.pieces.get(str(entry.get("style", "")))
+		if str(entry.get("style", "")) != "" and (panel == null or panel.kind != Piece.WALL_STYLE):
+			errors.append("wall column '%s': bad panel '%s'" % [column, entry.get("style")])
+		var row := 0
+		while row < ROWS:
+			var piece_id := str(cells[row])
+			row += 1
+			if piece_id == "":
+				continue
+			var piece: Piece = data.pieces.get(piece_id)
+			if piece == null or piece.kind != Piece.WALL_DECOR:
+				errors.append("wall column '%s': bad piece '%s'" % [column, piece_id])
+				continue
+			for i: int in piece.height - 1:
+				if row >= ROWS or str(cells[row]) != ABOVE:
+					errors.append("wall column '%s': '%s' is cut short" % [column, piece_id])
+				row += 1
+	return errors
 
 
 ## How many of a piece are up on the walls.
