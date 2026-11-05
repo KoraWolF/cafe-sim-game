@@ -13,6 +13,9 @@ signal arrange_requested
 ## Bought with "Buy": arrange it now, holding piece_id.
 signal place_requested(piece_id: String)
 
+## The player dragged the menu's top edge.
+signal resize_changed
+
 ## Height of the strip at the bottom (the camera keeps the café above it).
 const HEIGHT: float = 330.0
 const CARD_SIZE: Vector2 = Vector2(210, 220)
@@ -20,7 +23,7 @@ const CARD_SIZE: Vector2 = Vector2(210, 220)
 const CARD_LINES: int = 6
 ## Pixels one press of an arrow scrolls the row.
 const SCROLL_STEP: float = 440.0
-const TABS: Array[String] = ["furniture", "decor", "upgrades", "energy", "workshop"]
+const TABS: Array[String] = ["furniture", "decor", "walls", "upgrades", "energy", "workshop"]
 
 var tabs := TabBar.new()
 var _coins := UiTheme.label("", 20, UiTheme.WARN)
@@ -29,12 +32,17 @@ var _scroll := ScrollContainer.new()
 var _row := HBoxContainer.new()
 
 
+## Drags the top edge to change the height (see StripResize).
+var resize: StripResize = null
+
+
 func _ready() -> void:
 	visible = false
 	set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
 	offset_left = 12
 	offset_right = -12
 	offset_top = -HEIGHT - 12
+	resize = StripResize.attach(self, HEIGHT, resize_changed.emit)
 	offset_bottom = -12
 	grow_vertical = Control.GROW_DIRECTION_BEGIN  # if it ever needs more room, it grows up, never off the screen
 	var column := VBoxContainer.new()
@@ -58,7 +66,7 @@ func _ready() -> void:
 	carousel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	carousel.add_child(_arrow("◀", -1))
 	_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	_row.add_theme_constant_override("separation", 12)
 	_scroll.add_child(_row)
 	UiTheme.wheel_scrolls_sideways(_scroll)
@@ -98,13 +106,19 @@ func refresh() -> void:
 			_note.text = tr("ui.furniture_note")
 			_row.add_child(_pod_card(state, data))
 			for piece: Piece in data.pieces.values():
-				if piece.price > 0 and piece.kind != Piece.DECOR:
+				if piece.price > 0 and piece.kind != Piece.DECOR and not Walls.is_wall_piece(piece):
 					_row.add_child(_piece_card(piece, tr("tip.piece." + piece.id)))
 		"decor":
 			_note.text = tr("ui.floor_line") % [state.floor_width, state.floor_rows, roundi(state.vibe)]
 			for piece: Piece in data.pieces.values():
 				if piece.price > 0 and piece.kind == Piece.DECOR:
 					_row.add_child(_piece_card(piece, tr("ui.decor_card") % [roundi(piece.vibe), ", ".join(piece.tags)]))
+		"walls":
+			_note.text = tr("ui.walls_note")
+			for piece: Piece in data.pieces.values():
+				if piece.price > 0 and Walls.is_wall_piece(piece):
+					var about := tr("ui.wall_style_card") if piece.kind == Piece.WALL_STYLE else tr("ui.wall_decor_card") % piece.height
+					_row.add_child(_piece_card(piece, about + "\n" + tr("ui.decor_card") % [roundi(piece.vibe), ", ".join(piece.tags)]))
 		"upgrades":
 			_note.text = ""
 			for upgrade_id: String in Upgrade.IDS:

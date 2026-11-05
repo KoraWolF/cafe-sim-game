@@ -3,8 +3,8 @@ style: a cyberpunk dive bar (steel, chrome, grime and neon; see docs/art-guide.m
 
 Run:  python tools/art/furniture_svg.py
 Writes art/furniture/<id>.svg, art/decor/<id>.svg, art/furniture/pod.svg and the
-room: art/room/floor_a.svg, floor_b.svg, wall_plain.svg, wall_window.svg,
-wall_shelf.svg and door.svg.
+room: art/room/floor_a.svg, floor_b.svg, the wall panels (wall_cracked, wall_brick,
+wall_steel, wall_graffiti, wall_neon_panel) and door.svg; wall décor is in art/decor/.
 
 Style (docs/art-guide.md): outlines in a darker shade of each material (no
 black), one gradient per material lit from the top-left, a flat cel shadow, a
@@ -631,57 +631,124 @@ def floor_tile(name, color):
     piece.write()
 
 
-def wall(name, kind):
-    """One tile-wide segment of the back-left wall (the plane x = 0, seen from inside).
+def wall_style(name, color, detail):
+    """One tile-wide wall panel (the plane x = 0, seen from inside), 3 grid cells high.
     The back-right wall is the same drawing mirrored."""
     piece = Piece(name, 1, 1, WALL_HEIGHT, "room")
     h = WALL_HEIGHT
     out = piece.layer("wall")
-    out.append('<polygon points="%s" fill="%s"/>' % (piece.pts([(0, 0, h), (0, 1, h), (0, 1, 0), (0, 0, 0)]), piece.gradient("#2a2236", "#14111f")))
-    for z in (60, 120, 180, 240):
-        out.append('<polyline points="%s" fill="none" stroke="#0e0b17" stroke-width="3" opacity="0.6"/>' % piece.pts([(0, 0, z), (0, 1, z)]))
-    for i, z in enumerate((30, 90, 150, 210)):
-        t = 0.25 if i % 2 == 0 else 0.75
-        out.append('<polyline points="%s" fill="none" stroke="#0e0b17" stroke-width="3" opacity="0.6"/>' % piece.pts([(0, t, z - 30), (0, t, z + 30)]))
-    out = piece.layer("base")
-    out.append('<polygon points="%s" fill="%s" stroke="%s" stroke-width="3"/>' % (piece.pts([(0, 0, 40), (0, 1, 40), (0, 1, 0), (0, 0, 0)]),
-                                                                                piece.gradient(STEEL, GUNMETAL), METAL_LINE))
-    neon(piece, out, [(0, 0, 40), (0, 1, 40)], MAGENTA, 4)
-    if kind == "window":
-        out = piece.layer("window")
-        frame = [(0, 0.16, 236), (0, 0.84, 236), (0, 0.84, 110), (0, 0.16, 110)]
-        out.append('<polygon points="%s" fill="%s" stroke="%s" stroke-width="7" stroke-linejoin="round"/>' % (piece.pts(frame), piece.gradient("#0a1030", "#3a1450"), GUNMETAL))
-        for i, (y0, top, color) in enumerate(((0.22, 200, "#1a2050"), (0.36, 176, "#14183e"), (0.52, 214, "#1a2050"), (0.68, 168, "#14183e"))):
-            out.append('<polygon points="%s" fill="%s"/>' % (piece.pts([(0, y0, top), (0, y0 + 0.12, top), (0, y0 + 0.12, 114), (0, y0, 114)]), color))
-            for j in range(2):
-                lx, ly = piece.p(0, y0 + 0.04 + j * 0.05, top - 16)
-                out.append('<rect x="%.1f" y="%.1f" width="6" height="8" fill="%s"/>' % (lx, ly, [MAGENTA, CYAN][(i + j) % 2]))
-        for k in range(7):
-            ax, ay = piece.p(0, 0.2 + k * 0.09, 228)
-            out.append('<path d="M %.1f %.1f l -6 18" stroke="#9fd8ff" stroke-width="2" opacity="0.5"/>' % (ax, ay))
-        out.append('<polyline points="%s" fill="none" stroke="%s" stroke-width="4"/>' % (piece.pts([(0, 0.5, 236), (0, 0.5, 110)]), GUNMETAL))
-    elif kind == "shelf":
-        out = piece.layer("back_bar")
-        for z in (130, 190):
-            out.append('<polygon points="%s" fill="%s" stroke="%s" stroke-width="3" stroke-linejoin="round"/>'
-                       % (piece.pts([(0, 0.12, z), (0, 0.88, z), (0.12, 0.88, z), (0.12, 0.12, z)]), GUNMETAL, METAL_LINE))
-            neon(piece, out, [(0.12, 0.12, z - 2), (0.12, 0.88, z - 2)], CYAN, 2)
-            for i, color in enumerate((AMBER, ACID, MAGENTA, AMBER, CYAN)):
-                bx, by = piece.p(0.06, 0.2 + i * 0.15, z)
-                out.append('<path d="M %.1f %.1f l 0 -22 l 3 -4 l 0 -8 l 6 0 l 0 8 l 3 4 l 0 22 z" fill="%s" stroke="%s" stroke-width="2" opacity="0.92"/>'
-                           % (bx - 6, by, color, shade(color, -0.5)))
-                out.append('<circle cx="%.1f" cy="%.1f" r="12" fill="%s"/>' % (bx, by - 12, piece.glow(color)))
-    elif kind == "plain":
-        out = piece.layer("graffiti")
-        gx, gy = piece.p(0, 0.3, 150)
-        out.append('<path d="M %.1f %.1f c 14 -26 30 8 44 -16 c 6 14 22 4 30 -6" fill="none" stroke="%s" stroke-width="7" opacity="0.7"/>' % (gx, gy, ACID))
-        px, py = piece.p(0, 0.75, 210)
-        out.append('<path d="M %.1f %.1f l 0 -60" stroke="%s" stroke-width="10"/>' % (px, py, GUNMETAL))
-        out.append('<path d="M %.1f %.1f l 0 -60" stroke="#ffffff" stroke-width="2" opacity="0.3"/>' % (px - 3, py))
+    out.append('<polygon points="%s" fill="%s"/>' % (piece.pts([(0, 0, h), (0, 1, h), (0, 1, 0), (0, 0, 0)]),
+                                                     piece.gradient(shade(color, 0.1), shade(color, -0.25))))
+    detail(piece, piece.layer("surface"), color)
     out = piece.layer("top")
-    out.append('<polygon points="%s" fill="#0a0812"/>' % piece.pts([(0, 0, h), (0, 1, h), (0, 1, h - 12), (0, 0, h - 12)]))
-    neon(piece, out, [(0, 0, h - 18), (0, 1, h - 18)], CYAN, 3)
+    out.append('<polygon points="%s" fill="#0a0812"/>' % piece.pts([(0, 0, h), (0, 1, h), (0, 1, h - 10), (0, 0, h - 10)]))
+    out.append('<polyline points="%s" fill="none" stroke="#0a0812" stroke-width="3"/>' % piece.pts([(0, 1, 0), (0, 1, h)]))
     piece.write()
+
+
+def cracked(piece, out, color):
+    """Bare concrete: cracks, stains and a chipped base."""
+    for points in ([(0, 0.2, 250), (0, 0.32, 200), (0, 0.26, 150), (0, 0.4, 96)],
+                   [(0, 0.7, 220), (0, 0.62, 170), (0, 0.76, 120)],
+                   [(0, 0.32, 200), (0, 0.46, 182)]):
+        out.append('<polyline points="%s" fill="none" stroke="#0e0b17" stroke-width="4" stroke-linejoin="round"/>' % piece.pts(points))
+    for y, z, w in ((0.5, 240, 30), (0.2, 70, 40), (0.8, 60, 34)):
+        x0, y0 = piece.p(0, y, z)
+        out.append('<ellipse cx="%.1f" cy="%.1f" rx="%d" ry="%d" fill="#000000" opacity="0.22"/>' % (x0, y0, w, w // 2))
+    out.append('<polygon points="%s" fill="%s"/>' % (piece.pts([(0, 0, 26), (0, 1, 26), (0, 1, 0), (0, 0, 0)]), shade(color, -0.4)))
+
+
+def bricks(piece, out, color):
+    for i, z in enumerate(range(0, 280, 28)):
+        out.append('<polyline points="%s" fill="none" stroke="%s" stroke-width="3"/>' % (piece.pts([(0, 0, z), (0, 1, z)]), shade(color, -0.55)))
+        for t in ((0.17, 0.5, 0.83) if i % 2 else (0.33, 0.67)):
+            out.append('<polyline points="%s" fill="none" stroke="%s" stroke-width="3"/>' % (piece.pts([(0, t, z), (0, t, z + 28)]), shade(color, -0.55)))
+
+
+def steel(piece, out, color):
+    for z in (96, 192):
+        out.append('<polyline points="%s" fill="none" stroke="%s" stroke-width="4"/>' % (piece.pts([(0, 0, z), (0, 1, z)]), METAL_LINE))
+    for y in (0.08, 0.92):
+        for z in (20, 76, 116, 172, 212, 268):
+            rx_, ry_ = piece.p(0, y, z)
+            out.append('<circle cx="%.1f" cy="%.1f" r="4" fill="%s"/>' % (rx_, ry_, CHROME))
+    neon(piece, out, [(0, 0.02, 100), (0, 0.98, 100)], CYAN, 2)
+
+
+def graffiti(piece, out, color):
+    for (y, z), c in (((0.12, 210), MAGENTA), ((0.3, 120), ACID), ((0.15, 50), AMBER)):
+        a = piece.p(0, y, z)
+        out.append('<path d="M %.1f %.1f c 20 -30 34 12 54 -16 c 8 16 26 2 36 -10" fill="none" stroke="%s" stroke-width="9" opacity="0.85"/>' % (a[0], a[1], c))
+    d = piece.p(0, 0.6, 160)
+    out.append('<path d="M %.1f %.1f l 0 -44" stroke="%s" stroke-width="4" opacity="0.6"/>' % (d[0], d[1], MAGENTA))
+
+
+def neon_panel(piece, out, color):
+    for z, c in ((48, MAGENTA), (144, CYAN), (240, MAGENTA)):
+        neon(piece, out, [(0, 0.04, z), (0, 0.96, z)], c, 4)
+
+
+def wall_decor(name, height_cells, draw):
+    """Wall décor for the grid: drawn from the bottom cell; the game lifts it to its row."""
+    piece = Piece(name, 1, 1, WALL_HEIGHT, "decor")
+    draw(piece, piece.layer("decor"))
+    piece.write()
+
+
+def wall_window_art(piece, out):
+    frame = [(0, 0.14, 180), (0, 0.86, 180), (0, 0.86, 10), (0, 0.14, 10)]
+    out.append('<polygon points="%s" fill="%s" stroke="%s" stroke-width="7" stroke-linejoin="round"/>' % (piece.pts(frame), piece.gradient("#0a1030", "#3a1450"), GUNMETAL))
+    for i, (y0, top, color) in enumerate(((0.2, 130, "#1a2050"), (0.36, 104, "#14183e"), (0.52, 150, "#1a2050"), (0.68, 96, "#14183e"))):
+        out.append('<polygon points="%s" fill="%s"/>' % (piece.pts([(0, y0, top), (0, y0 + 0.12, top), (0, y0 + 0.12, 14), (0, y0, 14)]), color))
+        for j in range(2):
+            lx, ly = piece.p(0, y0 + 0.04 + j * 0.05, top - 16)
+            out.append('<rect x="%.1f" y="%.1f" width="6" height="8" fill="%s"/>' % (lx, ly, [MAGENTA, CYAN][(i + j) % 2]))
+    for k in range(7):
+        ax, ay = piece.p(0, 0.2 + k * 0.09, 170)
+        out.append('<path d="M %.1f %.1f l -6 18" stroke="#9fd8ff" stroke-width="2" opacity="0.5"/>' % (ax, ay))
+    out.append('<polyline points="%s" fill="none" stroke="%s" stroke-width="4"/>' % (piece.pts([(0, 0.5, 180), (0, 0.5, 10)]), GUNMETAL))
+
+
+def wall_bottles_art(piece, out):
+    out.append('<polygon points="%s" fill="%s" stroke="%s" stroke-width="3" stroke-linejoin="round"/>'
+               % (piece.pts([(0, 0.1, 22), (0, 0.9, 22), (0.12, 0.9, 22), (0.12, 0.1, 22)]), GUNMETAL, METAL_LINE))
+    neon(piece, out, [(0.12, 0.1, 20), (0.12, 0.9, 20)], CYAN, 2)
+    for i, color in enumerate((AMBER, ACID, MAGENTA, AMBER, CYAN)):
+        bx, by = piece.p(0.06, 0.18 + i * 0.16, 22)
+        out.append('<path d="M %.1f %.1f l 0 -28 l 3 -5 l 0 -10 l 6 0 l 0 10 l 3 5 l 0 28 z" fill="%s" stroke="%s" stroke-width="2"/>' % (bx - 6, by, color, shade(color, -0.5)))
+        out.append('<circle cx="%.1f" cy="%.1f" r="13" fill="%s"/>' % (bx, by - 16, piece.glow(color)))
+
+
+def wall_neon_sign_art(piece, out):
+    out.append('<polygon points="%s" fill="#14111f" stroke="%s" stroke-width="3"/>' % (piece.pts([(0, 0.12, 86), (0, 0.88, 86), (0, 0.88, 10), (0, 0.12, 10)]), METAL_LINE))
+    neon(piece, out, [(0, 0.3, 74), (0, 0.7, 74), (0, 0.5, 44), (0, 0.3, 74)], MAGENTA, 4)
+    neon(piece, out, [(0, 0.5, 44), (0, 0.5, 20)], MAGENTA, 4)
+    neon(piece, out, [(0, 0.38, 18), (0, 0.62, 18)], CYAN, 4)
+
+
+def wall_poster_art(piece, out):
+    out.append('<polygon points="%s" fill="%s" stroke="#2a2236" stroke-width="3"/>' % (piece.pts([(0, 0.24, 88), (0, 0.76, 88), (0, 0.76, 8), (0, 0.24, 8)]), piece.gradient(MAGENTA, "#5a1f8a")))
+    cx, cy = piece.p(0, 0.5, 56)
+    out.append('<circle cx="%.1f" cy="%.1f" r="20" fill="%s"/>' % (cx, cy, AMBER))
+    for k in range(3):
+        a = piece.p(0, 0.32, 28 - k * 7)
+        b = piece.p(0, 0.68 - k * 0.08, 28 - k * 7)
+        out.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#ffffff" stroke-width="3" opacity="0.8"/>' % (a + b))
+
+
+def wall_screen_art(piece, out):
+    out.append('<polygon points="%s" fill="#0a0812" stroke="%s" stroke-width="5" stroke-linejoin="round"/>' % (piece.pts([(0, 0.1, 86), (0, 0.9, 86), (0, 0.9, 12), (0, 0.1, 12)]), METAL_LINE))
+    out.append('<polygon points="%s" fill="%s"/>' % (piece.pts([(0, 0.15, 80), (0, 0.85, 80), (0, 0.85, 18), (0, 0.15, 18)]), piece.gradient(CYAN, "#5a1f8a")))
+    for k in range(5):
+        a = piece.p(0, 0.22 + k * 0.13, 22)
+        b = piece.p(0, 0.22 + k * 0.13, 30 + (k * 17) % 40)
+        out.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#ffffff" stroke-width="7" opacity="0.7"/>' % (a + b))
+
+
+def wall_vent_art(piece, out):
+    out.append('<polygon points="%s" fill="%s" stroke="%s" stroke-width="4" stroke-linejoin="round"/>' % (piece.pts([(0, 0.26, 78), (0, 0.74, 78), (0, 0.74, 18), (0, 0.26, 18)]), piece.gradient(STEEL, GUNMETAL), METAL_LINE))
+    for z in (30, 42, 54, 66):
+        out.append('<polyline points="%s" fill="none" stroke="%s" stroke-width="4"/>' % (piece.pts([(0, 0.3, z), (0, 0.7, z)]), METAL_LINE))
 
 
 def door():
@@ -733,8 +800,16 @@ if __name__ == "__main__":
     pod()
     floor_tile("floor_a", "#2b2836")
     floor_tile("floor_b", "#26232f")
-    wall("wall_plain", "plain")
-    wall("wall_window", "window")
-    wall("wall_shelf", "shelf")
+    wall_style("wall_cracked", "#3a3644", cracked)
+    wall_style("wall_brick", "#6e2f2a", bricks)
+    wall_style("wall_steel", "#4a5068", steel)
+    wall_style("wall_graffiti", "#3a3448", graffiti)
+    wall_style("wall_neon_panel", "#1f1a2e", neon_panel)
+    wall_decor("wall_window", 2, wall_window_art)
+    wall_decor("wall_bottles", 1, wall_bottles_art)
+    wall_decor("wall_neon_sign", 1, wall_neon_sign_art)
+    wall_decor("wall_poster", 1, wall_poster_art)
+    wall_decor("wall_screen", 1, wall_screen_art)
+    wall_decor("wall_vent", 1, wall_vent_art)
     door()
     print("furniture and décor written to", os.path.normpath(ROOT))

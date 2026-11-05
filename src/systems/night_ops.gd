@@ -21,6 +21,8 @@ class Report:
 	var first_win: bool = false
 	## That first win was the last bar of the town: its boss is open.
 	var boss_opened: bool = false
+	## Synths knocked out tonight (ids).
+	var knocked_out: Array[String] = []
 	## District taken over tonight ("" = none) and the district that opens next
 	## ("" = none: the whole city is yours).
 	var district_taken: String = ""
@@ -163,14 +165,27 @@ static func resolve(state: GameState, data: GameData) -> Report:
 ## (a station sold overnight: a free one of its kind, see Roles.bind_free).
 static func _back_to_work(state: GameState, data: GameData) -> void:
 	for synth: Synth in state.synths:
-		if synth.day_role == "":
-			continue
-		synth.station_uid = synth.day_station if Layout.placed_by_uid(state, synth.day_station) != null else ""
-		if synth.station_uid != "":
-			Roles.walk_to_station(state, synth, synth.station_uid, data)  # from the Pod
-		synth.role = synth.day_role
-		synth.day_role = ""
-		synth.day_station = ""
+		if synth.ko_left <= 0:
+			_to_job(state, synth, data)
+	Roles.bind_free(state, data)
+
+
+## Back to the job it remembers, at its station if that's still there and free.
+static func _to_job(state: GameState, synth: Synth, data: GameData) -> void:
+	if synth.day_role == "":
+		return
+	var taken := state.synths.any(func(other: Synth) -> bool: return other != synth and other.station_uid == synth.day_station)
+	synth.station_uid = synth.day_station if Layout.placed_by_uid(state, synth.day_station) != null and not taken else ""
+	if synth.station_uid != "":
+		Roles.walk_to_station(state, synth, synth.station_uid, data)  # from the Pod
+	synth.role = synth.day_role
+	synth.day_role = ""
+	synth.day_station = ""
+
+
+## A knocked-out worker's timer ended: it goes back to the job it remembers.
+static func back_from_knockout(state: GameState, synth: Synth, data: GameData) -> void:
+	_to_job(state, synth, data)
 	Roles.bind_free(state, data)
 
 
@@ -200,8 +215,9 @@ static func synth_fighter(synth: Synth, extra_hp: float, data: GameData, state: 
 	# Low battery fights at the same reduced strength as it works.
 	var power := SynthStats.stat(synth, "power", data) * SynthStats.battery_factor(synth, data)
 	var species := data.species[synth.species_id]
-	var fighter := Battle.Fighter.make(synth.id, power, SynthStats.stat(synth, "hp", data) + extra_hp,
+	var fighter := Battle.Fighter.make(synth.id, power, SynthStats.hp_now(synth, data) + extra_hp,
 		species.combat_class, species.skill)
+	fighter.max_hp = maxf(SynthStats.stat(synth, "hp", data) + extra_hp, fighter.hp)
 	fighter.species_id = synth.species_id
 	if state != null:
 		fighter.cell = state.formation.get(synth.id, Vector2i(-1, -1))
@@ -222,11 +238,11 @@ static func _raid(state: GameState, data: GameData, rng: RandomNumberGenerator, 
 		squad.append(synth_fighter(synth, 0.0, data, state))
 		loot_bonus += SynthStats.stat(synth, "raid_loot", data)
 		synth.battery = maxf(synth.battery - b.raid_battery_cost, 0.0)
-	_hand_on_ticks(state, raiders)
 	# Fought inside the rival café, among its tables and counters.
 	report.raid = Battle.run(squad, guards_for(state, rival, data), rng, data,
 		RaidField.for_rival(rival, district.is_flagship(rival.id), data))
 	state.raid_cooldowns[rival.id] = state.day + b.raid_cooldown_days
+	_wound(state, report.raid.attackers, 0.0, data, report)
 	for synth: Synth in raiders:
 		Leveling.add_xp(synth, b.xp_raid_win if report.raid.attackers_won else b.xp_raid_loss, b, report.level_ups)
 	if not report.raid.attackers_won:
@@ -261,24 +277,36 @@ static func _take_over(state: GameState, data: GameData, report: Report) -> void
 	state.suspicion[report.next_district] = 0.0
 
 
-## Raiders don't defend tonight: each ticked one hands its tick to the most
-## charged Synth staying home that isn't ticked yet (if any has battery).
-static func _hand_on_ticks(state: GameState, raiders: Array[Synth]) -> void:
-	var home := state.synths.filter(func(synth: Synth) -> bool:
-		return not raiders.has(synth) and not state.defenders.has(synth.id) and synth.battery > 0.0)
-	home.sort_custom(func(a: Synth, b: Synth) -> bool: return a.battery > b.battery)
-	for synth: Synth in raiders:
-		if state.defenders.has(synth.id):
-			state.defenders.erase(synth.id)
-			if not home.is_empty():
-				state.defenders.append(home.pop_front().id)
+## Keeps what a fight did to the player's fighters: extra_hp (security) goes
+## first; at 0 HP a Synth is knocked out.
+static func _wound(state: GameState, fighters: Array[Battle.Fighter], extra_hp: float, data: GameData, report: Report) -> void:
+	for fighter: Battle.Fighter in fighters:
+		var synth := state.synth_by_id(fighter.synth_id)
+		if synth == null:
+			continue
+		var lost := maxf(fighter.start_hp - fighter.hp - extra_hp, 0.0)
+		synth.hp = maxf(SynthStats.hp_now(synth, data) - lost, 0.0)
+		if synth.hp <= 0.0 or fighter.hp <= 0.0:
+			knock_out(synth, data)
+			report.knocked_out.append(synth.id)
 
 
-## Tonight's defenders (those with battery), with security HP.
+## Out of the fight: drained, forced into its Pod, resting on a timer (longer at
+## higher levels). It keeps the job it remembers for when the timer ends.
+static func knock_out(synth: Synth, data: GameData) -> void:
+	var b := data.balance
+	synth.hp = 0.0
+	synth.battery = 0.0
+	synth.role = Synth.REST
+	synth.station_uid = ""
+	synth.ko_left = b.knockout_seconds + b.knockout_seconds_per_level * maxi(synth.level - 1, 0)
+
+
+## Tonight's defenders (those fit to fight), with security HP.
 static func _home_defenders(state: GameState, data: GameData) -> Array[Battle.Fighter]:
 	var home: Array[Battle.Fighter] = []
 	for synth: Synth in state.synths:
-		if state.defenders.has(synth.id) and not state.raid_squad.has(synth.id) and synth.battery > 0.0:
+		if state.defenders.has(synth.id) and not state.raid_squad.has(synth.id) and SynthStats.can_fight(synth, data):
 			home.append(synth_fighter(synth, state.security, data))
 	return home
 
@@ -311,6 +339,7 @@ static func _defend(state: GameState, data: GameData, rng: RandomNumberGenerator
 	var size := mini(1 + int(state.current_suspicion() / maxf(b.defense_size_step, 1.0)), b.defense_max_size)
 	report.defense = Battle.run(_megabean_squad(state, size, 1.0, data), _home_defenders(state, data), rng, data,
 		RaidField.for_home(state, data))
+	_wound(state, report.defense.defenders, state.security, data, report)
 	_defender_xp(state, report, b)
 	if not report.defense.attackers_won:
 		_drop_dish(state, "defense", data, rng, report)
@@ -326,6 +355,7 @@ static func _audit(state: GameState, data: GameData, rng: RandomNumberGenerator,
 	report.audit = true
 	report.defense = Battle.run(_megabean_squad(state, b.audit_size, b.audit_strength, data), _home_defenders(state, data),
 		rng, data, RaidField.for_home(state, data))
+	_wound(state, report.defense.defenders, state.security, data, report)
 	_defender_xp(state, report, b)
 	if not report.defense.attackers_won:
 		return
@@ -365,6 +395,12 @@ static func _recharge(state: GameState, data: GameData, report: Report) -> void:
 		for fighter: Battle.Fighter in report.defense.defenders:
 			fought[fighter.synth_id] = true
 	for synth: Synth in state.synths:
+		if synth.ko_left > 0:
+			continue  # knocked out: its timer brings it back
+		# A night's rest heals for free (those who fought tonight get half as much).
+		var share := data.balance.defender_recharge if fought.has(synth.id) else 1.0
+		var top := SynthStats.stat(synth, "hp", data)
+		synth.hp = minf(SynthStats.hp_now(synth, data) + top * data.balance.night_heal_share * share, top)
 		var missing := _missing_battery(synth, data) * (data.balance.defender_recharge if fought.has(synth.id) else 1.0)
 		if missing <= 0.0:
 			continue

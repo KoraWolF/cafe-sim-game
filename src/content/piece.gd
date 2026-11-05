@@ -15,7 +15,11 @@ const BIN: String = "bin"
 ## Where customers pay on the way out; one Cashier works each. A café keeps at least one.
 const REGISTER: String = "register"
 const DECOR: String = "decor"
-const KINDS: Array[String] = [SEAT, TABLE, STOVE, COUNTER, BIN, REGISTER, DECOR]
+## Hangs on the wall grid (see Walls), `height` cells tall.
+const WALL_DECOR: String = "wall_decor"
+## A wall panel: paints one column of the wall (see Walls).
+const WALL_STYLE: String = "wall_style"
+const KINDS: Array[String] = [SEAT, TABLE, STOVE, COUNTER, BIN, REGISTER, DECOR, WALL_DECOR, WALL_STYLE]
 
 var id: String = ""
 var kind: String = DECOR
@@ -31,6 +35,8 @@ var tags: Array[String] = []
 var auto_cook: bool = false
 ## A stove: how many dishes it holds at once (one cooking, the rest waiting).
 var stack: int = 1
+## Wall décor: wall cells tall.
+var height: int = 1
 
 
 static func from_dict(values: Dictionary) -> Piece:
@@ -45,6 +51,7 @@ static func from_dict(values: Dictionary) -> Piece:
 	piece.tags.assign(values.get("tags", []))
 	piece.auto_cook = bool(values.get("auto_cook", false))
 	piece.stack = maxi(int(values.get("stack", 1)), 1)
+	piece.height = maxi(int(values.get("height", 1)), 1)
 	return piece
 
 

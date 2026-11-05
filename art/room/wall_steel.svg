@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café: wall_steel. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="512" viewBox="0 0 416 512">
+  <defs>
+    <linearGradient id="wall_steel_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5c6277"/><stop offset="1" stop-color="#383c4e"/></linearGradient>
+  </defs>
+  <g inkscape:groupmode="layer" id="wall" inkscape:label="wall">
+    <polygon points="208.0,16.0 16.0,112.0 16.0,400.0 208.0,304.0" fill="url(#wall_steel_g1)"/>
+  </g>
+  <g inkscape:groupmode="layer" id="surface" inkscape:label="surface">
+    <polyline points="208.0,208.0 16.0,304.0" fill="none" stroke="#2a3046" stroke-width="4"/>
+    <polyline points="208.0,112.0 16.0,208.0" fill="none" stroke="#2a3046" stroke-width="4"/>
+    <circle cx="192.6" cy="291.7" r="4" fill="#c9d2e3"/>
+    <circle cx="192.6" cy="235.7" r="4" fill="#c9d2e3"/>
+    <circle cx="192.6" cy="195.7" r="4" fill="#c9d2e3"/>
+    <circle cx="192.6" cy="139.7" r="4" fill="#c9d2e3"/>
+    <circle cx="192.6" cy="99.7" r="4" fill="#c9d2e3"/>
+    <circle cx="192.6" cy="43.7" r="4" fill="#c9d2e3"/>
+    <circle cx="31.4" cy="372.3" r="4" fill="#c9d2e3"/>
+    <circle cx="31.4" cy="316.3" r="4" fill="#c9d2e3"/>
+    <circle cx="31.4" cy="276.3" r="4" fill="#c9d2e3"/>
+    <circle cx="31.4" cy="220.3" r="4" fill="#c9d2e3"/>
+    <circle cx="31.4" cy="180.3" r="4" fill="#c9d2e3"/>
+    <circle cx="31.4" cy="124.3" r="4" fill="#c9d2e3"/>
+    <polyline points="204.2,205.9 19.8,298.1" fill="none" stroke="#19f0ff" stroke-width="6" stroke-opacity="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="204.2,205.9 19.8,298.1" fill="none" stroke="#19f0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="204.2,205.9 19.8,298.1" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g inkscape:groupmode="layer" id="top" inkscape:label="top">
+    <polygon points="208.0,16.0 16.0,112.0 16.0,122.0 208.0,26.0" fill="#0a0812"/>
+    <polyline points="16.0,400.0 16.0,112.0" fill="none" stroke="#0a0812" stroke-width="3"/>
+  </g>
+</svg>

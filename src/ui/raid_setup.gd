@@ -90,14 +90,19 @@ func refresh() -> void:
 	for synth: Synth in state.synths:
 		var species := data.species[synth.species_id]
 		var text := tr("ui.raid_member") % [Session.synth_name(synth), tr("class." + species.combat_class), synth.level,
-			SynthStats.battery_percent(synth, data)]
+			SynthStats.battery_percent(synth, data), roundi(SynthStats.hp_now(synth, data)), roundi(SynthStats.stat(synth, "hp", data))]
+		var free := SynthStats.can_fight(synth, data) and not state.defenders.has(synth.id)
+		if state.defenders.has(synth.id):
+			text += tr("ui.raid_defending")
+		elif synth.ko_left > 0:
+			text += tr("ui.raid_knocked_out")
 		var pick := UiTheme.button(("✓ " if squad.has(synth.id) else "") + text, _pick.bind(synth.id))
 		pick.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		pick.toggle_mode = true
 		pick.button_pressed = synth.id == _picked
-		pick.disabled = synth.battery <= 0.0
+		pick.disabled = not free
 		pick.add_theme_font_size_override("font_size", 14)
-		if synth.battery > 0.0:
+		if free:
 			var synth_id := synth.id
 			pick.set_drag_forwarding(func(_at: Vector2) -> Variant: return _drag_data(synth_id), Callable(), Callable())
 		_roster.add_child(pick)
@@ -131,7 +136,7 @@ func _drag_data(synth_id: String) -> Dictionary:
 ## Dragging a squad member off its tile.
 func _drag_from_board(at: Vector2) -> Variant:
 	var field := _board.playback.report.field
-	var cell := _board.cell_at(at)
+	var cell := _board.body_cell_at(at)
 	var spot := Vector2i(cell.x, cell.y - field.split)
 	for synth_id: String in squad:
 		if squad[synth_id] == spot:

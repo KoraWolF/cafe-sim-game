@@ -163,9 +163,10 @@ func _fill_ops(page: VBoxContainer) -> void:
 	for synth: Synth in state.synths:
 		var pick := CheckBox.new()
 		pick.text = tr("ui.ops_defender") % [Session.synth_name(synth), tr("class." + data.species[synth.species_id].combat_class),
-			synth.level, SynthStats.battery_percent(synth, data)]
+			synth.level, SynthStats.battery_percent(synth, data), roundi(SynthStats.hp_now(synth, data)),
+			roundi(SynthStats.stat(synth, "hp", data))]
 		pick.button_pressed = state.defenders.has(synth.id)
-		pick.disabled = synth.battery <= 0.0
+		pick.disabled = not SynthStats.can_fight(synth, data)
 		var synth_id := synth.id
 		pick.toggled.connect(func(on: bool) -> void: GameLoop.set_defender(Session.state, synth_id, on))
 		page.add_child(pick)

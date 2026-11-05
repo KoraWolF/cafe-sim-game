@@ -29,9 +29,13 @@ signal customer_clicked(customer_id: String)
 signal customer_hovered(customer_id: String, screen_position: Vector2)
 ## Floor editing: the held piece or the floor changed (the edit panel refreshes).
 signal editor_changed
+## Floor editing: a piece carried with the mouse held down was released over the menu.
+signal carried_to_zone
 ## Esc pressed while editing with nothing in hand.
 signal edit_exit_requested
 
+## A wall cell's height (world px): the wall is Walls.ROWS of them.
+const WALL_CELL: float = 24.0
 ## Room between customers waiting in the pay line (tiles).
 const LINE_GAP: float = 0.8
 const HEIGHTS: Dictionary[String, float] = {"seat": 15.0, "table": 28.0, "stove": 32.0, "pod": 56.0, "counter": 30.0,
@@ -87,6 +91,10 @@ var camera := Camera2D.new()
 var _time: float = 0.0
 ## The rigged characters' animation clock (stands still while the game is paused),
 ## where each was last drawn, and which way each faces (true = left).
+## Arranging: a piece is being carried with the mouse held down, and the area
+## where letting go stores it (a Callable taking the screen point).
+var _carrying: bool = false
+var carry_zone: Callable
 var _rig_time: float = 0.0
 var _rig_seen: Dictionary[String, Vector2] = {}
 var _rig_left: Dictionary[String, bool] = {}
@@ -218,10 +226,17 @@ func _unhandled_input(event: InputEvent) -> void:
 					_pressed = true
 					_dragging = button.button_index != MOUSE_BUTTON_LEFT
 					_drag_from = button.position
+					_carrying = false
 				else:
 					# The event's own position, not the cursor's (they differ for injected input).
 					var world := get_canvas_transform().affine_inverse() * button.position
-					if not _dragging:
+					if _carrying:
+						_carrying = false
+						if carry_zone.is_valid() and carry_zone.call(button.position):
+							carried_to_zone.emit()
+						else:
+							_edit_click(MOUSE_BUTTON_LEFT, world)
+					elif not _dragging:
 						if editor != null:
 							_edit_click(button.button_index, world)
 						elif button.button_index == MOUSE_BUTTON_LEFT:
@@ -235,8 +250,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		_update_customer_hover(get_canvas_transform().affine_inverse() * motion.position, motion.position)
 		if not _pressed:
 			return
-		if not _dragging and motion.position.distance_to(_drag_from) > DRAG_THRESHOLD:
-			_dragging = true
+		if not _dragging and not _carrying and motion.position.distance_to(_drag_from) > DRAG_THRESHOLD:
+			if not _start_carry():
+				_dragging = true
 		if _dragging:
 			camera.position -= motion.relative / camera.zoom
 
@@ -258,6 +274,18 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 
 
+## Arranging: a left drag that starts on a piece picks it up to carry it (true).
+func _start_carry() -> bool:
+	if editor == null or editor.selecting or editor.is_holding():
+		return false
+	var placed := piece_at_point(get_canvas_transform().affine_inverse() * _drag_from)
+	if placed == null or editor.hold_placed(Session.state, placed.uid) != GameLoop.OK:
+		return false
+	_carrying = true
+	editor_changed.emit()
+	return true
+
+
 ## Left click drops the held piece (or picks up the piece under the mouse);
 ## right click puts the held piece down where it was.
 func _edit_click(button: MouseButton, world: Vector2) -> void:
@@ -271,12 +299,27 @@ func _edit_click(button: MouseButton, world: Vector2) -> void:
 		if picked != null:
 			editor.toggle(picked.uid)
 	elif button == MOUSE_BUTTON_LEFT:
-		if editor.is_holding():
+		var held: Piece = Session.data.pieces.get(editor.held_piece)
+		if Walls.is_wall_piece(held):
+			var spot := _wall_at(world)
+			if not spot.is_empty():
+				var row: int = mini(spot["row"], Walls.ROWS - held.height)
+				if Session.act(GameLoop.place_on_wall(state, held.id, spot["column"], row, Session.data)) \
+						and state.storage.get(held.id, 0) <= 0:
+					editor.cancel()
+		elif editor.is_holding():
 			Session.act(editor.drop(state, ghost_cell(tile), Session.data))
 		else:
 			var placed := piece_at_point(world)
 			if placed != null:
 				editor.hold_placed(state, placed.uid)
+			else:
+				# Wall décor comes off the wall and into the hand.
+				var spot := _wall_at(world)
+				if not spot.is_empty():
+					var taken := Walls.take(state, spot["column"], spot["row"], Session.data)
+					if taken != "":
+						editor.hold_stored(state, taken)
 	editor_changed.emit()
 
 
@@ -439,10 +482,8 @@ func _draw_floor(state: GameState, data: GameData) -> void:
 ## some with a window or a shelf; the right wall is the left one mirrored), the
 ## entrance mat and the Pod bay.
 func _draw_room(state: GameState, data: GameData) -> void:
-	for x: int in state.floor_width:
-		PieceArt.draw(self, _wall_kind(x), Vector2i.ONE, true, Iso.to_world(Vector2(x, 0)), Iso.TILE.x)
-	for y: int in state.floor_rows:
-		PieceArt.draw(self, _wall_kind(y + 1), Vector2i.ONE, false, Iso.to_world(Vector2(0, y)), Iso.TILE.x)
+	for column: String in Walls.columns(state):
+		_draw_wall_column(column, state)
 	for y: int in state.floor_rows:
 		for x: int in state.floor_width:
 			PieceArt.draw(self, "floor_a" if (x + y) % 2 == 0 else "floor_b", Vector2i.ONE, false, Iso.to_world(Vector2(x, y)), Iso.TILE.x)
@@ -452,9 +493,52 @@ func _draw_room(state: GameState, data: GameData) -> void:
 	_draw_pod_bay(state, data)
 
 
-## Which wall segment stands at position i along a wall: a window every third, a shelf now and then.
-func _wall_kind(i: int) -> String:
-	return "wall_window" if i % 3 == 1 else ("wall_shelf" if i % 5 == 3 else "wall_plain")
+## One column of wall: its panel, then the décor on its cells (the right wall is the left one mirrored).
+func _draw_wall_column(column: String, state: GameState) -> void:
+	var top := Iso.to_world(Vector2(Walls.tile(column)))
+	var mirrored := not Walls.is_left(column)
+	PieceArt.draw(self, Walls.style(state, column), Vector2i.ONE, mirrored, top, Iso.TILE.x)
+	for row: int in Walls.ROWS:
+		var piece_id := Walls.cell(state, column, row)
+		if piece_id != "" and piece_id != Walls.ABOVE:
+			PieceArt.draw(self, piece_id, Vector2i.ONE, mirrored, top - Vector2(0, row * WALL_CELL), Iso.TILE.x)
+
+
+## The wall cell under a world point: {"column", "row"}, or {} off the walls.
+func _wall_at(world: Vector2) -> Dictionary:
+	var state := Session.state
+	var left := -world.x / (Iso.TILE.x * 0.5)
+	var right := world.x / (Iso.TILE.x * 0.5)
+	for try_left: bool in [true, false]:
+		var along: float = left if try_left else right
+		var limit := state.floor_rows if try_left else state.floor_width
+		var up := along * Iso.TILE.y * 0.5 - world.y
+		if along >= 0.0 and along < limit and up >= 0.0 and up < WALL_CELL * Walls.ROWS:
+			return {"column": Walls.key(try_left, floori(along)), "row": floori(up / WALL_CELL)}
+	return {}
+
+
+## The corners of `cells` wall cells of a column from row up (world).
+func _wall_quad(column: String, row: int, cells: int) -> PackedVector2Array:
+	var i := Walls.index(column)
+	var near := Vector2(0, i) if Walls.is_left(column) else Vector2(i, 0)
+	var far := near + (Vector2(0, 1) if Walls.is_left(column) else Vector2(1, 0))
+	var low := Vector2(0, -row * WALL_CELL)
+	var high := Vector2(0, -(row + cells) * WALL_CELL)
+	return PackedVector2Array([Iso.to_world(near) + low, Iso.to_world(far) + low, Iso.to_world(far) + high, Iso.to_world(near) + high])
+
+
+## Holding a wall piece: the column or cells it would take, under the mouse.
+func _draw_wall_ghost(piece: Piece, state: GameState) -> void:
+	var spot := _wall_at(_hover_world)
+	if spot.is_empty():
+		return
+	var cells := Walls.ROWS if piece.kind == Piece.WALL_STYLE else piece.height
+	var row: int = 0 if piece.kind == Piece.WALL_STYLE else mini(spot["row"], Walls.ROWS - cells)
+	var quad := _wall_quad(spot["column"], row, cells)
+	draw_colored_polygon(quad, Color(UiTheme.GOOD, 0.3))
+	quad.append(quad[0])
+	draw_polyline(quad, UiTheme.GOOD, 2.5)
 
 
 ## The café door: a frame on the front-right edge with a neon OPEN sign.
@@ -621,6 +705,9 @@ func _draw_editing(state: GameState, data: GameData) -> void:
 					_outline(Layout.placed_by_uid(state, seat_uid), UiTheme.GOOD)
 			_outline(under, UiTheme.PANEL_BORDER)
 		return
+	if Walls.is_wall_piece(data.pieces.get(editor.held_piece)):
+		_draw_wall_ghost(data.pieces[editor.held_piece], state)
+		return
 	if _hover.x < -50:
 		return
 	var cell := ghost_cell(_hover)
@@ -781,7 +868,7 @@ func _people(state: GameState, data: GameData) -> Array[Array]:
 			Synth.CHEF:
 				# At the front of its own stove (a Chef without a stove waits by the kitchen);
 				# it carries each finished batch to a counter and walks back.
-				target = _piece_front(synth.station_uid, state, data, pass_point + Vector2(-0.8, 0))
+				target = _station_front(synth.station_uid, state, data, pass_point + Vector2(-0.8, 0))
 				progress = 1.0 - synth.task_remaining / maxf(synth.task_total, 0.01)
 				if synth.is_carrying():
 					trip = _trip(synth, _piece_front(synth.task_stove_uid, state, data, target),
@@ -949,6 +1036,20 @@ func _pass_point(state: GameState, data: GameData) -> Vector2:
 	return _stove_front(0, state, data) + Vector2(0.4, 0.5)
 
 
+## Where a Bartender stands at its mixer: at the piece's front corner on screen
+## if that tile is free, else in front of it.
+func _station_front(uid: String, state: GameState, data: GameData, fallback: Vector2) -> Vector2:
+	var placed := Layout.placed_by_uid(state, uid)
+	if placed == null:
+		return fallback
+	var size := data.pieces[placed.piece_id].footprint(placed.rotated)
+	var corner := placed.cell + size
+	var inside := corner.x < state.floor_width and corner.y < state.floor_rows
+	if inside and not state.placed.any(func(other: PlacedPiece) -> bool: return Layout.cells(other, data).has(corner)):
+		return Vector2(corner) + Vector2(0.18, 0.18)
+	return _piece_front(uid, state, data, fallback)
+
+
 ## The floor point in front of a placed piece (or fallback if it is gone).
 func _piece_front(uid: String, state: GameState, data: GameData, fallback: Vector2) -> Vector2:
 	var placed := Layout.placed_by_uid(state, uid)
@@ -1039,6 +1140,12 @@ func _draw_synth(synth: Synth, at: Vector2) -> void:
 		draw_rect(Rect2(head + Vector2(-13, -20), Vector2(26, 9)), hat_color.darkened(0.5), false, 1.5)
 	var above := head + Vector2(0, -38 if hat != null else -28)
 	_draw_bar(above + Vector2(0, 6), 34, synth.battery / SynthStats.stat(synth, "battery_max", data), _battery_color(synth, data))
+	# HP just under it, shown only when hurt.
+	var hp_share := SynthStats.hp_now(synth, data) / SynthStats.stat(synth, "hp", data)
+	if hp_share < 1.0:
+		_draw_bar(above + Vector2(0, 13), 34, hp_share, UiTheme.BAD)
+	if synth.ko_left > 0:
+		_text(above + Vector2(0, -20), tr("ui.workers_ko") % UiText.clock(synth.ko_left), 14, UiTheme.BAD)
 	_text(above + Vector2(0, -4), "Lv%d" % synth.level, 13, glow)
 	if synth.is_busy():
 		draw_circle(head + Vector2(16, 18), 7, Color.WHITE)

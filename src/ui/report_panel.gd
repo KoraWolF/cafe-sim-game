@@ -76,6 +76,10 @@ static func lines(report: NightOps.Report) -> Array[Array]:
 	if report.income > 0:
 		result.append([TranslationServer.translate("ui.report_income") % report.income, UiTheme.GOOD])
 	result.append([TranslationServer.translate("ui.report_power") % roundi(report.power_used), UiTheme.TEXT_DIM])
+	for synth_id: String in report.knocked_out:
+		var fallen := state.synth_by_id(synth_id)
+		if fallen != null:
+			result.append([TranslationServer.translate("ui.report_knocked_out") % Session.synth_name(fallen), UiTheme.BAD])
 	if not report.undercharged.is_empty():
 		result.append([TranslationServer.translate("ui.report_undercharged") % report.undercharged.size(), UiTheme.WARN])
 	for synth_id: String in report.level_ups:

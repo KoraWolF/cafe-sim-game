@@ -42,7 +42,7 @@ func is_finished(time: float) -> bool:
 ## board, "stunned": bool}.
 func unit_state(side: bool, index: int, time: float) -> Dictionary:
 	var fighter := report.fighter(side, index)
-	var state := {"pos": Vector2(fighter.cell), "hp": fighter.max_hp, "max_hp": fighter.max_hp, "mana": 0.0,
+	var state := {"pos": Vector2(fighter.cell), "hp": fighter.start_hp, "max_hp": fighter.max_hp, "mana": 0.0,
 		"max_mana": 0.0, "shield": 0.0, "anim": "idle", "anim_time": time, "facing": Vector2(0, -1 if side else 1),
 		"stunned": false}
 	state["max_mana"] = fighter.max_mana

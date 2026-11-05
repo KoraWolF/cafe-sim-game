@@ -39,21 +39,24 @@ func test_a_cashier_takes_payments_only_once_at_the_register() -> void:
 	assert_eq(Shift.active_cashiers(state, data), [cashier] as Array[Synth], "at the register: working")
 
 
-func test_defenders_are_the_most_charged_and_recharge_half() -> void:
-	var data := TestFixtures.data({"defense_base_chance": 1.0, "defender_count": 1, "start_security": 1000.0})
+func test_workers_above_70_percent_are_ticked_and_fighters_recharge_half() -> void:
+	var data := TestFixtures.data({"defense_base_chance": 1.0, "start_security": 1000.0})
 	var state := GameState.new_game(1, data)
 	var strong := state.add_synth("worker", "", data)
+	var weak := state.add_synth("worker", "", data)
 	strong.role = Synth.REST
-	strong.battery = 50.0
+	weak.battery = 10.0
+	weak.role = Synth.SERVER
 	GameLoop.advance(state, data.balance.shift_seconds, data)
-	assert_eq(state.defenders, [strong.id] as Array[String], "the one with the most battery is ticked")
+	assert_true(state.defenders.has(strong.id), "above 70%: ticked")
+	assert_true(not state.defenders.has(weak.id), "below it: not ticked")
+	state.defenders = [strong.id] as Array[String]
+	strong.battery = 50.0
 	state.power = 1000.0
-	var before := strong.battery
-	var missing := SynthStats.stat(strong, "battery_max", data) - before
+	var missing := SynthStats.stat(strong, "battery_max", data) - strong.battery
 	var report := GameLoop.end_night(state, data)
 	assert_eq(report.defense.defenders.size(), 1, "it defended")
-	assert_true(is_equal_approx(strong.battery, before + missing * 0.5), "and got back half its missing battery")
-	assert_true(state.synths[0].battery > 0.0, "the rest recharged")
+	assert_true(is_equal_approx(strong.battery, 50.0 + missing * 0.5), "and got back half its missing battery")
 
 
 func test_defenders_wait_inside_tanks_nearest_the_door() -> void:
@@ -100,17 +103,3 @@ func test_a_megabean_raid_is_fought_in_the_players_cafe() -> void:
 	assert_eq(field.split, state.floor_rows + 1 + RaidField.STREET_ROWS, "then the street")
 	assert_eq(field.door.x, Layout.door_cell(state).x, "the café's own door")
 	assert_eq(field.pieces.size(), state.placed.size(), "its own furniture")
-
-
-func test_a_raider_hands_its_defender_tick_to_the_next_most_charged() -> void:
-	var data := TestFixtures.data({"defender_count": 1})
-	var state := GameState.new_game(1, data)
-	var raider := state.add_synth("worker", "", data)
-	var spare := state.add_synth("worker", "", data)
-	raider.battery = 90.0
-	spare.battery = 60.0
-	state.synths[0].battery = 30.0
-	GameLoop.advance(state, data.balance.shift_seconds, data)
-	assert_eq(state.defenders, [raider.id] as Array[String], "the most charged is ticked")
-	assert_eq(GameLoop.raid_now(state, "weak", [raider.id] as Array[String], data), GameLoop.OK, "raided")
-	assert_eq(state.defenders, [spare.id] as Array[String], "its tick went to the next most charged")

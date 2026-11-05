@@ -62,7 +62,7 @@ ui.decor_line,"%s — %dx%d, %d Vibe, tags: %s"
 ui.decor_owned,In storage: %d
 ui.arrange,Arrange Floor
 ui.edit_title,Arrange the floor
-ui.edit_hint,"Click a piece to pick it up, click again to drop it. R rotates, Cancel or right-click puts it back. Select several to store or sell many at once. Esc leaves. Décor only lifts seats within 2 tiles: the lit area shows its reach, and the seats it reaches turn green."
+ui.edit_hint,"Click a piece to pick it up, click again to drop it. Drag a piece onto this menu to store it. R rotates, Cancel or right-click puts it back. Select several to store or sell many at once. Esc leaves. Décor only lifts seats within 2 tiles: the lit area shows its reach, and the seats it reaches turn green."
 ui.edit_holding,Holding: %s
 ui.edit_holding_rotated,Holding: %s (rotated)
 ui.edit_nothing,Nothing in hand.
@@ -247,7 +247,7 @@ customer.stage_4,Paying at the register
 customer.stage_5,Finished: waiting at the table for room in the pay line
 ui.register_label,Pay Terminal
 ui.card_core,"%s · best: %s · trait: %s"
-ui.card_hp,HP %d
+ui.card_hp,HP %d / %d
 ui.details,Details
 ui.info_button,Info
 ui.details_title,%s — details
@@ -262,7 +262,7 @@ ui.details_speed,Speed %.2f
 ui.details_cook,Mixing +%d%%
 ui.details_appeal,Appeal +%d%%
 ui.details_power,Power %d
-ui.details_hp,HP %d
+ui.details_hp,HP %d / %d
 ui.details_strength,"Fight strength now: %d%% (battery %d%%)"
 ui.details_no_speed,"Speed doesn't matter in fights: raiders always strike first, then the sides take turns."
 ui.details_species,Species
@@ -496,7 +496,7 @@ ui.map_cooldown,Cooling down: %d more night(s)
 ui.raid_title,Raid on %s
 ui.raid_info,"%d guards · avg Lv %.1f · loot %d coins + %d cores · squad %d / %d"
 ui.raid_roster,"Your workers: pick one, then a tile in your rows"
-ui.raid_member,"%s · %s · Lv %d · %d%%"
+ui.raid_member,"%s · %s · Lv %d · %d%% · HP %d/%d"
 ui.raid_guard,Guard Lv %d
 ui.raid_start,Start raid
 ui.raid_back,Back to map
@@ -511,8 +511,8 @@ ui.cook_queue,"Queue %s — %d coins (%d glasses, %ds)"
 ui.stove_has_chef,This mixer already has its Bartender (%s).
 ui.night_button,Night
 ui.ops_defenders,Defenders tonight
-ui.ops_defenders_help,"If MegaBean raids the bar, these fight it (tanks stand nearest the door). Those who fight only get back half their missing battery tonight. The ones with the most battery are ticked at closing; a raider hands its tick to the next one."
-ui.ops_defender,"%s · %s · Lv %d · %d%%"
+ui.ops_defenders_help,"If MegaBean raids the bar, these fight it (tanks stand nearest the door). Those who fight only get back half their missing battery tonight. Workers above 70% battery are ticked at closing. A ticked defender can't go on a raid: untick it here."
+ui.ops_defender,"%s · %s · Lv %d · %d%% · HP %d/%d"
 name.coffee,Neon Shot
 name.toast,Static Fizz
 name.ramen,Chrome Ale
@@ -543,3 +543,24 @@ ui.map_raid,Raid this bar
 ui.map_town_locked,Locked: take %s first
 ui.map_view_only,You took this town; raids happen in %s.
 name.chrome_heights,Chrome Heights
+error.is_defender,A ticked defender can't go on a raid: untick it in Night Ops first.
+error.knocked_out,That worker is knocked out and resting in its Pod.
+ui.raid_defending," · defending"
+ui.raid_knocked_out," · knocked out"
+ui.card_knocked_out," · knocked out: %s"
+ui.workers_ko,KO %s
+ui.report_knocked_out,%s was knocked out: it rests in its Pod until its timer ends.
+ui.shop_tab_walls,Walls
+ui.walls_note,"Wall panels paint one column (1 x 3); décor hangs on the wall grid. Near seats, both add Vibe. Click the wall in Arrange to place them."
+ui.wall_style_card,"Wall panel, 1 x 3"
+ui.wall_decor_card,"Hangs on the wall, %d cell(s) tall"
+name.wall_brick,Brick Panel
+name.wall_steel,Steel Panel
+name.wall_graffiti,Graffiti Panel
+name.wall_neon_panel,Neon Panel
+name.wall_vent,Wall Vent
+name.wall_poster,Band Poster
+name.wall_window,Rainy Window
+name.wall_bottles,Bottle Shelf
+name.wall_screen,Wall Screen
+name.wall_neon_sign,Neon Wall Sign

@@ -316,7 +316,7 @@ static func seat_vibes(state: GameState, data: GameData) -> Dictionary[String, f
 		for i: int in state.placed.size():
 			if shares[i] != 0.0 and distance(state.placed[i], seat, data) <= data.balance.decor_range:
 				total += shares[i]
-		result[seat.uid] = total
+		result[seat.uid] = total + Walls.vibe_at(state, seat.cell, data)
 	return result
 
 
@@ -385,9 +385,9 @@ static func _shares(state: GameState, data: GameData) -> Array[float]:
 	return shares
 
 
-## Placed pieces with this piece id.
+## Placed pieces with this piece id (on the floor or the walls).
 static func count_placed_id(state: GameState, piece_id: String) -> int:
-	return state.placed.filter(func(placed: PlacedPiece) -> bool: return placed.piece_id == piece_id).size()
+	return state.placed.filter(func(placed: PlacedPiece) -> bool: return placed.piece_id == piece_id).size() + Walls.count(state, piece_id)
 
 
 static func count_placed(state: GameState, kind: String, data: GameData) -> int:

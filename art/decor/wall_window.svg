@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café: wall_window. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="512" viewBox="0 0 416 512">
+  <defs>
+    <linearGradient id="wall_window_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a1030"/><stop offset="1" stop-color="#3a1450"/></linearGradient>
+  </defs>
+  <g inkscape:groupmode="layer" id="decor" inkscape:label="decor">
+    <polygon points="181.1,137.4 42.9,206.6 42.9,376.6 181.1,307.4" fill="url(#wall_window_g1)" stroke="#4a5068" stroke-width="7" stroke-linejoin="round"/>
+    <polygon points="169.6,193.2 146.6,204.7 146.6,320.7 169.6,309.2" fill="#1a2050"/>
+    <rect x="161.9" y="213.0" width="6" height="8" fill="#ff2fb4"/>
+    <rect x="152.3" y="217.8" width="6" height="8" fill="#19f0ff"/>
+    <polygon points="138.9,234.6 115.8,246.1 115.8,336.1 138.9,324.6" fill="#14183e"/>
+    <rect x="131.2" y="254.4" width="6" height="8" fill="#19f0ff"/>
+    <rect x="121.6" y="259.2" width="6" height="8" fill="#ff2fb4"/>
+    <polygon points="108.2,203.9 85.1,215.4 85.1,351.4 108.2,339.9" fill="#1a2050"/>
+    <rect x="100.5" y="223.8" width="6" height="8" fill="#ff2fb4"/>
+    <rect x="90.9" y="228.6" width="6" height="8" fill="#19f0ff"/>
+    <polygon points="77.4,273.3 54.4,284.8 54.4,366.8 77.4,355.3" fill="#14183e"/>
+    <rect x="69.8" y="293.1" width="6" height="8" fill="#19f0ff"/>
+    <rect x="60.2" y="297.9" width="6" height="8" fill="#ff2fb4"/>
+    <path d="M 169.6 153.2 l -6 18" stroke="#9fd8ff" stroke-width="2" opacity="0.5"/>
+    <path d="M 152.3 161.8 l -6 18" stroke="#9fd8ff" stroke-width="2" opacity="0.5"/>
+    <path d="M 135.0 170.5 l -6 18" stroke="#9fd8ff" stroke-width="2" opacity="0.5"/>
+    <path d="M 117.8 179.1 l -6 18" stroke="#9fd8ff" stroke-width="2" opacity="0.5"/>
+    <path d="M 100.5 187.8 l -6 18" stroke="#9fd8ff" stroke-width="2" opacity="0.5"/>
+    <path d="M 83.2 196.4 l -6 18" stroke="#9fd8ff" stroke-width="2" opacity="0.5"/>
+    <path d="M 65.9 205.0 l -6 18" stroke="#9fd8ff" stroke-width="2" opacity="0.5"/>
+    <polyline points="112.0,172.0 112.0,342.0" fill="none" stroke="#4a5068" stroke-width="4"/>
+  </g>
+</svg>

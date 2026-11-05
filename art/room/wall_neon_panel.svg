@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café: wall_neon_panel. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="512" viewBox="0 0 416 512">
+  <defs>
+    <linearGradient id="wall_neon_panel_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#353143"/><stop offset="1" stop-color="#171422"/></linearGradient>
+  </defs>
+  <g inkscape:groupmode="layer" id="wall" inkscape:label="wall">
+    <polygon points="208.0,16.0 16.0,112.0 16.0,400.0 208.0,304.0" fill="url(#wall_neon_panel_g1)"/>
+  </g>
+  <g inkscape:groupmode="layer" id="surface" inkscape:label="surface">
+    <polyline points="200.3,259.8 23.7,348.2" fill="none" stroke="#ff2fb4" stroke-width="12" stroke-opacity="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="200.3,259.8 23.7,348.2" fill="none" stroke="#ff2fb4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="200.3,259.8 23.7,348.2" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="200.3,163.8 23.7,252.2" fill="none" stroke="#19f0ff" stroke-width="12" stroke-opacity="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="200.3,163.8 23.7,252.2" fill="none" stroke="#19f0ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="200.3,163.8 23.7,252.2" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="200.3,67.8 23.7,156.2" fill="none" stroke="#ff2fb4" stroke-width="12" stroke-opacity="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="200.3,67.8 23.7,156.2" fill="none" stroke="#ff2fb4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="200.3,67.8 23.7,156.2" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g inkscape:groupmode="layer" id="top" inkscape:label="top">
+    <polygon points="208.0,16.0 16.0,112.0 16.0,122.0 208.0,26.0" fill="#0a0812"/>
+    <polyline points="16.0,400.0 16.0,112.0" fill="none" stroke="#0a0812" stroke-width="3"/>
+  </g>
+</svg>

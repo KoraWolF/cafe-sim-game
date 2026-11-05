@@ -27,6 +27,10 @@ var bought: Dictionary[String, int] = {}
 var data: GameData
 
 
+## Jobs waiting for a knocked-out worker's timer.
+var late_jobs: Dictionary[String, String] = {}
+
+
 func _init() -> void:
 	var args := OS.get_cmdline_user_args()
 	var days := int(args[0]) if args.size() > 0 else 30
@@ -46,6 +50,7 @@ func _init() -> void:
 
 func _play(seed_value: int, days: int, daily: bool) -> Dictionary:
 	var state := GameState.new_game(seed_value, data)
+	late_jobs.clear()
 	decor_spend = 0
 	bought.clear()
 	var stats := {"seated": 0.0, "stars": 0.0, "angry": 0.0, "turned_away": 0.0, "conversions": 0.0,
@@ -61,6 +66,9 @@ func _play(seed_value: int, days: int, daily: bool) -> Dictionary:
 		var day_stats := {"seated": 0, "stars": 0, "angry": 0, "away": 0}
 		var jobs: Dictionary[String, String] = {}
 		while state.phase == GameState.Phase.SHIFT:
+			for synth_id: String in late_jobs.keys():
+				if GameLoop.assign_role(state, synth_id, late_jobs[synth_id]) != GameLoop.KNOCKED_OUT:
+					late_jobs.erase(synth_id)
 			if state.shift_time >= data.balance.shift_seconds - REST_BEFORE_CLOSE:
 				_go_rest(state, jobs)
 			_cook(state)
@@ -79,8 +87,8 @@ func _play(seed_value: int, days: int, daily: bool) -> Dictionary:
 		stats["upgrade_spend"] += _night_shopping(state)
 		var report := GameLoop.end_night(state, data)
 		for synth_id: String in jobs:
-			if state.synth_by_id(synth_id) != null:
-				GameLoop.assign_role(state, synth_id, jobs[synth_id])
+			if state.synth_by_id(synth_id) != null 					and GameLoop.assign_role(state, synth_id, jobs[synth_id]) == GameLoop.KNOCKED_OUT:
+				late_jobs[synth_id] = jobs[synth_id]
 		_keep_a_cashier(state)
 		_staff_stoves(state)
 		stats["seated"] += day_stats["seated"]
@@ -333,13 +341,14 @@ func _plan_raid(state: GameState) -> String:
 	var squad: Array[String] = []
 	var power := 0.0
 	var hp := 0.0
-	var ready := state.synths.filter(func(synth: Synth) -> bool: return synth.battery > data.balance.raid_battery_cost)
+	var ready := state.synths.filter(func(synth: Synth) -> bool:
+		return SynthStats.can_fight(synth, data) and synth.battery > data.balance.raid_battery_cost)
 	ready.sort_custom(func(a: Synth, b: Synth) -> bool:
 		return SynthStats.stat(a, "power", data) > SynthStats.stat(b, "power", data))
 	for synth: Synth in ready.slice(0, mini(ready.size() - 1, data.balance.raid_squad_max)):
 		squad.append(synth.id)
 		power += SynthStats.stat(synth, "power", data)
-		hp += SynthStats.stat(synth, "hp", data)
+		hp += SynthStats.hp_now(synth, data)
 	if squad.is_empty():
 		return ""
 	var best: RivalCafe = null
@@ -360,5 +369,7 @@ func _plan_raid(state: GameState) -> String:
 			best = rival
 	if best == null:
 		return ""
+	for synth_id: String in squad:
+		GameLoop.set_defender(state, synth_id, false)  # a ticked defender can't raid
 	GameLoop.plan_raid(state, best.id, squad, data)
 	return best.id
