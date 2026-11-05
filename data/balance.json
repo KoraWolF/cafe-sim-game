@@ -87,6 +87,8 @@
 	"defense_base_chance": 0.1,
 	"defense_chance_per_suspicion": 0.006,
 	"defense_max_chance": 0.8,
+	"defense_early_share": 0.25,
+	"defense_ramp_days": 10,
 	"defense_size_step": 30.0,
 	"defense_max_size": 4,
 	"defense_power_base": 6.0,

@@ -91,6 +91,7 @@ func _play(seed_value: int, days: int, daily: bool) -> Dictionary:
 				late_jobs[synth_id] = jobs[synth_id]
 		_keep_a_cashier(state)
 		_staff_stoves(state)
+		_keep_a_server(state)
 		stats["seated"] += day_stats["seated"]
 		stats["stars"] += day_stats["stars"]
 		stats["angry"] += day_stats["angry"]
@@ -163,6 +164,18 @@ func _cook(state: GameState) -> void:
 				pick = recipe
 		if pick != null and GameLoop.start_cooking(state, i, pick.id, data) == GameLoop.OK:
 			food += pick.servings
+
+
+## Someone has to serve: if knockouts left no Server, a spare Chef or Cashier
+## takes the job (as any player would).
+func _keep_a_server(state: GameState) -> void:
+	if state.synths.any(func(synth: Synth) -> bool: return synth.role == Synth.SERVER):
+		return
+	for role: String in [Synth.CHEF, Synth.CASHIER]:
+		var staff := state.synths.filter(func(synth: Synth) -> bool: return synth.role == role)
+		if staff.size() > 1:
+			GameLoop.assign_role(state, staff[-1].id, Synth.SERVER)
+			return
 
 
 ## Brews, buys Power for a full recharge, then upgrades. Returns coins spent on upgrades.

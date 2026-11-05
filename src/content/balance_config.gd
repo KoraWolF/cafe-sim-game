@@ -147,6 +147,10 @@ var battle_damage_variance: float = 0.2
 var defense_base_chance: float = 0.1
 var defense_chance_per_suspicion: float = 0.006
 var defense_max_chance: float = 0.8
+## Early game: on day 1 the raid chance is this share of normal, rising evenly to
+## all of it after defense_ramp_days (the Audit isn't affected).
+var defense_early_share: float = 1.0
+var defense_ramp_days: int = 10
 ## MegaBean squad size: 1 + one per defense_size_step suspicion, capped.
 var defense_size_step: float = 30.0
 var defense_max_size: int = 4

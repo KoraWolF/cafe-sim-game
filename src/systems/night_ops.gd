@@ -112,7 +112,9 @@ static func bars_beaten(state: GameState, district: District) -> int:
 
 ## Chance MegaBean raids the café tonight (ignoring the Audit).
 static func defense_chance(state: GameState, b: BalanceConfig) -> float:
-	return minf(b.defense_base_chance + state.current_suspicion() * b.defense_chance_per_suspicion, b.defense_max_chance)
+	var chance := minf(b.defense_base_chance + state.current_suspicion() * b.defense_chance_per_suspicion, b.defense_max_chance)
+	var ramp := clampf(float(state.day - 1) / maxf(b.defense_ramp_days, 1.0), 0.0, 1.0)
+	return chance * lerpf(b.defense_early_share, 1.0, ramp)
 
 
 ## Power a full recharge of every Synth would cost now.
