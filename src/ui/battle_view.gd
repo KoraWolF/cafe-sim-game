@@ -112,6 +112,21 @@ func preview(battle: Battle.Report, attacker_names: Array[String], defender_name
 	queue_redraw()
 
 
+## The tile of the player's unit whose body is under a point, else the tile
+## under the point (a unit stands well above its own tile; nearest the camera wins).
+func body_cell_at(point: Vector2) -> Vector2i:
+	var size_now := CharacterArt.SIZE * TILE.x / Iso.TILE.x * _zoom()
+	var best := Vector2i(-1, -1)
+	var nearest := -INF
+	for fighter: Battle.Fighter in playback.report.attackers:
+		var feet := _screen(Vector2(fighter.cell))
+		var body := Rect2(feet + Vector2(-90, -420) * size_now, Vector2(180, 440) * size_now)
+		if body.has_point(point) and feet.y > nearest:
+			nearest = feet.y
+			best = fighter.cell
+	return best if best.x >= 0 else cell_at(point)
+
+
 ## The board tile under a point of this control (preview: the player attacks).
 func cell_at(point: Vector2) -> Vector2i:
 	var board := Vector2(playback.report.board)
@@ -131,7 +146,7 @@ func _gui_input(event: InputEvent) -> void:
 		queue_redraw()
 	var click := event as InputEventMouseButton
 	if click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT:
-		cell_clicked.emit(cell_at(click.position))
+		cell_clicked.emit(body_cell_at(click.position))
 		accept_event()
 
 

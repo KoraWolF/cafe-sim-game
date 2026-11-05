@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dmauhmus3sops"
-path="res://.godot/imported/wall_plain.svg-2a7c660ad6d3f463f3d008574c97e196.ctex"
+uid="uid://dore05uardpxn"
+path="res://.godot/imported/wall_poster.svg-37b95ff2169d55243899e4ec47a07e41.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/room/wall_plain.svg"
-dest_files=["res://.godot/imported/wall_plain.svg-2a7c660ad6d3f463f3d008574c97e196.ctex"]
+source_file="res://art/decor/wall_poster.svg"
+dest_files=["res://.godot/imported/wall_poster.svg-37b95ff2169d55243899e4ec47a07e41.ctex"]
 
 [params]
 

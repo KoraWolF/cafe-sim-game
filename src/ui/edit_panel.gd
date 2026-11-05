@@ -8,6 +8,9 @@ signal done
 ## A button changed what is held (rotate, put back, store, sell).
 signal changed
 
+## The player dragged the menu's top edge.
+signal resize_changed
+
 ## Height of the strip at the bottom (the camera keeps the café above it).
 const HEIGHT: float = 270.0
 
@@ -26,11 +29,16 @@ var _sell_selected := UiTheme.button("", _ask.bind("sell_selected"))
 var _confirm := ConfirmModal.new()
 
 
+## Drags the top edge to change the height (see StripResize).
+var resize: StripResize = null
+
+
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
 	offset_left = 12
 	offset_right = -12
 	offset_top = -HEIGHT - 12
+	resize = StripResize.attach(self, HEIGHT, resize_changed.emit)
 	offset_bottom = -12
 	grow_vertical = Control.GROW_DIRECTION_BEGIN  # if it ever needs more room, it grows up, never off the screen
 	visible = false
@@ -49,8 +57,14 @@ func _ready() -> void:
 	column.add_child(hint)
 	var body := HBoxContainer.new()
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override("separation", 16)
-	column.add_child(body)
+	# Scrolls when the menu is made small.
+	var body_scroll := ScrollContainer.new()
+	body_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	body_scroll.add_child(body)
+	column.add_child(body_scroll)
 	# What is in hand and its buttons.
 	var held := VBoxContainer.new()
 	held.custom_minimum_size = Vector2(330, 0)
@@ -96,6 +110,21 @@ func _ready() -> void:
 	# Beside the panel, not inside it: a container would squeeze the full-screen modal.
 	get_parent().add_child.call_deferred(_confirm)
 	Session.state_changed.connect(refresh)
+
+
+## A click on the menu while holding a piece stores it, as does dropping one here.
+func _gui_input(event: InputEvent) -> void:
+	var button := event as InputEventMouseButton
+	if button != null and button.pressed and button.button_index == MOUSE_BUTTON_LEFT and button.position.y > StripResize.GRIP \
+			and editor != null and editor.is_holding():
+		store_held()
+		accept_event()
+
+
+## Puts what is in hand away, with no question (the player carried it here).
+func store_held() -> void:
+	if editor != null and editor.is_holding():
+		_do("store")
 
 
 func open(with_editor: FloorEditor) -> void:

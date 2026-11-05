@@ -122,8 +122,16 @@ var raid_suspicion: float = 12.0
 ## Suspicion each district loses every night.
 var suspicion_decay: float = 5.0
 var raid_squad_max: int = 4
-## Defenders ticked at closing: this many with the most battery.
-var defender_count: int = 6
+## Defenders ticked at closing: every worker above this share of its battery.
+var defender_battery_share: float = 0.7
+## Share of its max HP a worker recovers each second resting in a Pod by day, and each night.
+var pod_heal_share: float = 0.002
+var night_heal_share: float = 0.3
+## At 0 HP a worker is knocked out: it rests this long (shift seconds; more with each
+## level above 1), then comes back with this share of its HP and battery.
+var knockout_seconds: int = 120
+var knockout_seconds_per_level: int = 30
+var knockout_return_share: float = 0.5
 ## Share of their missing battery that defenders who fought get back that night.
 var defender_recharge: float = 0.5
 ## Rival guards (not flagships) grow stronger every day the district has been open:

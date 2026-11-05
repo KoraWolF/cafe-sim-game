@@ -66,7 +66,8 @@ func refresh() -> void:
 	work.add_child(_line(tr("ui.details_appeal") % roundi(100.0 * SynthStats.stat(synth, "appeal", data)), tr("info.stat.appeal")))
 	var fight := _clear("fight")
 	fight.add_child(_line(tr("ui.details_power") % roundi(SynthStats.stat(synth, "power", data)), tr("ui.card_power_help")))
-	fight.add_child(_line(tr("ui.details_hp") % roundi(SynthStats.stat(synth, "hp", data)), tr("info.stat.hp")))
+	fight.add_child(_line(tr("ui.details_hp") % [roundi(SynthStats.hp_now(synth, data)), roundi(SynthStats.stat(synth, "hp", data))],
+		tr("info.stat.hp")))
 	fight.add_child(_line(tr("ui.details_strength") % [roundi(100.0 * SynthStats.battery_factor(synth, data)),
 		SynthStats.battery_percent(synth, data)], tr("info.stat.battery")))
 	fight.add_child(_line("", tr("ui.details_no_speed")))

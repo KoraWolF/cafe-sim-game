@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café: wall_brick. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="512" viewBox="0 0 416 512">
+  <defs>
+    <linearGradient id="wall_brick_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7c443f"/><stop offset="1" stop-color="#522320"/></linearGradient>
+  </defs>
+  <g inkscape:groupmode="layer" id="wall" inkscape:label="wall">
+    <polygon points="208.0,16.0 16.0,112.0 16.0,400.0 208.0,304.0" fill="url(#wall_brick_g1)"/>
+  </g>
+  <g inkscape:groupmode="layer" id="surface" inkscape:label="surface">
+    <polyline points="208.0,304.0 16.0,400.0" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="144.6,335.7 144.6,307.7" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="79.4,368.3 79.4,340.3" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="208.0,276.0 16.0,372.0" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="175.4,292.3 175.4,264.3" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="112.0,324.0 112.0,296.0" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="48.6,355.7 48.6,327.7" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="208.0,248.0 16.0,344.0" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="144.6,279.7 144.6,251.7" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="79.4,312.3 79.4,284.3" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="208.0,220.0 16.0,316.0" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="175.4,236.3 175.4,208.3" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="112.0,268.0 112.0,240.0" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="48.6,299.7 48.6,271.7" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="208.0,192.0 16.0,288.0" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="144.6,223.7 144.6,195.7" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="79.4,256.3 79.4,228.3" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="208.0,164.0 16.0,260.0" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="175.4,180.3 175.4,152.3" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="112.0,212.0 112.0,184.0" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="48.6,243.7 48.6,215.7" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="208.0,136.0 16.0,232.0" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="144.6,167.7 144.6,139.7" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="79.4,200.3 79.4,172.3" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="208.0,108.0 16.0,204.0" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="175.4,124.3 175.4,96.3" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="112.0,156.0 112.0,128.0" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="48.6,187.7 48.6,159.7" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="208.0,80.0 16.0,176.0" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="144.6,111.7 144.6,83.7" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="79.4,144.3 79.4,116.3" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="208.0,52.0 16.0,148.0" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="175.4,68.3 175.4,40.3" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="112.0,100.0 112.0,72.0" fill="none" stroke="#311513" stroke-width="3"/>
+    <polyline points="48.6,131.7 48.6,103.7" fill="none" stroke="#311513" stroke-width="3"/>
+  </g>
+  <g inkscape:groupmode="layer" id="top" inkscape:label="top">
+    <polygon points="208.0,16.0 16.0,112.0 16.0,122.0 208.0,26.0" fill="#0a0812"/>
+    <polyline points="16.0,400.0 16.0,112.0" fill="none" stroke="#0a0812" stroke-width="3"/>
+  </g>
+</svg>

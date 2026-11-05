@@ -632,10 +632,20 @@ static func _leave_angry(state: GameState, customer: Customer, data: GameData, e
 static func _drain(state: GameState, data: GameData) -> void:
 	for synth: Synth in state.synths:
 		synth.arrive_left = maxf(synth.arrive_left - 1.0, 0.0)  # walking to its station
-		if SynthStats.on_duty(synth):
+		if synth.ko_left > 0:
+			# Knocked out: nothing recovers until the timer ends, then half of both.
+			synth.ko_left -= 1
+			if synth.ko_left == 0:
+				var back := data.balance.knockout_return_share
+				synth.hp = SynthStats.stat(synth, "hp", data) * back
+				synth.battery = SynthStats.stat(synth, "battery_max", data) * back
+				NightOps.back_from_knockout(state, synth, data)
+		elif SynthStats.on_duty(synth):
 			synth.battery = maxf(synth.battery - maxf(SynthStats.stat(synth, "drain", data), 0.0), 0.0)
 		else:
 			synth.battery = minf(synth.battery + data.balance.pod_charge_per_second, SynthStats.stat(synth, "battery_max", data))
+			var top := SynthStats.stat(synth, "hp", data)
+			synth.hp = minf(SynthStats.hp_now(synth, data) + top * data.balance.pod_heal_share, top)
 
 
 ## Customers eating or in the pay line pay (if a Cashier is working) and leave,
@@ -664,12 +674,12 @@ static func _close(state: GameState, data: GameData, events: Events) -> void:
 			_clear_task(synth)
 	state.customers.clear()
 	state.leaving.clear()
-	# Tonight's defenders, until the player picks others: the most charged.
+	# Tonight's defenders, until the player picks others: those with battery to spare.
 	state.defenders.clear()
-	var charged := state.synths.duplicate()
-	charged.sort_custom(func(a: Synth, b: Synth) -> bool: return a.battery > b.battery)
-	for synth: Synth in charged.slice(0, data.balance.defender_count):
-		state.defenders.append(synth.id)
+	for synth: Synth in state.synths:
+		if SynthStats.can_fight(synth, data) \
+				and synth.battery > SynthStats.stat(synth, "battery_max", data) * data.balance.defender_battery_share:
+			state.defenders.append(synth.id)
 	# Everyone goes to their Pod for the night (and recharges there), remembering
 	# their job for the morning.
 	for synth: Synth in state.synths:

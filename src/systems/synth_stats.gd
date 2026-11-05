@@ -50,3 +50,14 @@ static func battery_percent(synth: Synth, data: GameData) -> int:
 
 static func on_duty(synth: Synth) -> bool:
 	return synth.role != Synth.REST
+
+
+## HP now (full until it has been hurt; never above its max, which grows with levels).
+static func hp_now(synth: Synth, data: GameData) -> float:
+	var top := stat(synth, "hp", data)
+	return top if synth.hp < 0.0 else minf(synth.hp, top)
+
+
+## Fit for a fight: has battery and HP, and isn't knocked out.
+static func can_fight(synth: Synth, data: GameData) -> bool:
+	return synth.ko_left <= 0 and synth.battery > 0.0 and hp_now(synth, data) > 0.0

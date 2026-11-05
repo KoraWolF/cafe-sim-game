@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café: wall_neon_sign. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="512" viewBox="0 0 416 512">
+  <defs>
+    
+  </defs>
+  <g inkscape:groupmode="layer" id="decor" inkscape:label="decor">
+    <polygon points="185.0,229.5 39.0,302.5 39.0,378.5 185.0,305.5" fill="#14111f" stroke="#2a3046" stroke-width="3"/>
+    <polyline points="150.4,258.8 73.6,297.2 112.0,308.0 150.4,258.8" fill="none" stroke="#ff2fb4" stroke-width="12" stroke-opacity="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="150.4,258.8 73.6,297.2 112.0,308.0 150.4,258.8" fill="none" stroke="#ff2fb4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="150.4,258.8 73.6,297.2 112.0,308.0 150.4,258.8" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="112.0,308.0 112.0,332.0" fill="none" stroke="#ff2fb4" stroke-width="12" stroke-opacity="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="112.0,308.0 112.0,332.0" fill="none" stroke="#ff2fb4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="112.0,308.0 112.0,332.0" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="135.0,322.5 89.0,345.5" fill="none" stroke="#19f0ff" stroke-width="12" stroke-opacity="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="135.0,322.5 89.0,345.5" fill="none" stroke="#19f0ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="135.0,322.5 89.0,345.5" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

@@ -36,8 +36,9 @@ class Fighter:
 	## "" = no skill.
 	var skill_id: String = ""
 	var power: float = 0.0
-	## HP at the end of the battle (max_hp at the start).
+	## HP at the end of the battle (start_hp at the start).
 	var hp: float = 1.0
+	var start_hp: float = 1.0
 	var max_hp: float = 1.0
 	## Before the battle: the formation spot (column, row from the front), or
 	## (-1, -1) to be placed by class. After: the board cell it started on.
@@ -51,6 +52,7 @@ class Fighter:
 		fighter.synth_id = synth_id
 		fighter.power = power
 		fighter.hp = maxf(hp, 1.0)
+		fighter.start_hp = fighter.hp
 		fighter.max_hp = fighter.hp
 		fighter.class_id = class_id
 		fighter.skill_id = skill_id

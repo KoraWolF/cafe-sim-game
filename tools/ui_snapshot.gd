@@ -91,8 +91,9 @@ func _run() -> void:
 	var the_stove := Layout.placed_by_uid(state, state.stoves[0].piece_uid)
 	state.stoves[0].recipe_id = ""
 	state.stoves[0].ready = 0
-	# Click the stove's top face (pieces are clicked by their drawn shape).
-	await _click(canvas_job * (Iso.centre(the_stove.cell, Vector2i.ONE) - Vector2(0, game.cafe.HEIGHTS["stove"])))
+	# Click the stove's top face, off to the side of the Chef standing in front of it
+	# (pieces are clicked by their drawn shape).
+	await _click(canvas_job * (Iso.to_world(Vector2(the_stove.cell) + Vector2(0.1, 0.9)) - Vector2(0, game.cafe.HEIGHTS["stove"])))
 	var chef_there: Synth = Roles.at_station(state, the_stove.uid)
 	print("CHECK a stove that has its Chef -> its dish menu, nobody moves: ", game.hud._recipe_menu.visible
 		and (chef_there == null or chef_there == picked or picked.role != Synth.CHEF))
@@ -202,11 +203,16 @@ func _run() -> void:
 				through += 1
 	_session.set_speed(0)
 	print("CHECK customers walk round the furniture (%d frames on a piece): %s" % [through, through == 0])
-	# Customers walk in through the door: give them a few seconds, then everyone seated is at their seat.
+	# Customers walk in through the door: give them a few seconds (the game running,
+	# as nobody walks while paused), then everyone who had a seat is at it.
+	var had_seats := state.customers.filter(func(customer: Customer) -> bool: return customer.is_seated()).map(
+		func(customer: Customer) -> String: return customer.id)
+	_session.set_speed(1)
 	await _frames(300)
+	_session.set_speed(0)
 	var stuck := 0
 	for customer: Customer in state.customers:
-		if customer.is_seated() and game.cafe._walk.has(customer.id):
+		if had_seats.has(customer.id) and customer.is_seated() and game.cafe._walk.has(customer.id):
 			var seat: PlacedPiece = Layout.placed_by_uid(state, customer.seat_uid)
 			if seat != null and game.cafe._walk[customer.id].distance_to(Vector2(seat.cell) + Vector2(0.5, 0.5)) > 0.1:
 				stuck += 1
@@ -444,6 +450,65 @@ func _run() -> void:
 	game.edit_panel.done.emit()
 	await _frames(3)
 	print("CHECK Done -> back to the night hub: ", game.night.visible and not game.edit_panel.visible)
+	# Playtest 10: the Night button works over a bottom menu; bottom menus resize.
+	game.open_shop()
+	await _frames(3)
+	var shop_height: float = game.shop.resize.height
+	await _drag_by(Vector2(game.shop.get_global_rect().get_center().x, game.shop.get_global_rect().position.y + 4), Vector2(0, -120))
+	print("CHECK drag a bottom menu's top edge -> it grows: ", game.shop.resize.height > shop_height)
+	game.shop.resize.set_height(0.0)
+	print("CHECK a bottom menu stays at least 20% of the screen: ", game.shop.resize.height >= root.get_visible_rect().size.y * 0.2 - 1.0)
+	game.shop.resize.set_height(shop_height)
+	game.shop.tabs.current_tab = game.shop.TABS.find("walls")
+	await _frames(3)
+	_shot("11d_shop_walls")
+	await _click(_centre_of(game.hud.night_button))
+	await _frames(2)
+	print("CHECK Night button over the shop -> the night window: ", game.night.visible and not game.shop.visible)
+	# Drag a piece onto the Arrange menu to store it.
+	GameLoop.buy_piece(state, "potted_fern", data)
+	_session.auto_place("potted_fern")
+	var stored_ferns: int = state.storage.get("potted_fern", 0)
+	var dragged: PlacedPiece = state.placed[-1]
+	game.enter_edit()
+	await _frames(3)
+	var canvas_store: Transform2D = game.cafe.get_viewport().get_canvas_transform()
+	var grab: Vector2 = canvas_store * (Iso.centre(dragged.cell, Vector2i.ONE) - Vector2(0, game.cafe.HEIGHTS["decor"] + 4))
+	await _drag_by(grab, _centre_of(game.edit_panel) - grab)
+	print("CHECK drag a piece onto the Arrange menu -> stored: ", state.storage.get("potted_fern", 0) == stored_ferns + 1
+		and not game.cafe.editor.is_holding())
+	# Walls: the bar starts bare; a panel paints a column, décor hangs on a cell.
+	print("CHECK the walls start cracked and bare: ", state.walls.is_empty())
+	state.coins += 2000
+	for wall_piece: String in ["wall_brick", "wall_neon_panel", "wall_poster", "wall_window", "wall_bottles", "wall_screen", "wall_neon_sign", "wall_vent", "wall_steel", "wall_graffiti"]:
+		GameLoop.buy_piece(state, wall_piece, data)
+	_session.state_changed.emit()
+	await _frames(2)
+	_shot("11e_cracked_walls")
+	var on_left := func(index: int, row: int) -> Vector2:
+		return canvas_store * (Iso.to_world(Vector2(0, index + 0.5)) - Vector2(0, (row + 0.5) * game.cafe.WALL_CELL))
+	var on_right := func(index: int, row: int) -> Vector2:
+		return canvas_store * (Iso.to_world(Vector2(index + 0.5, 0)) - Vector2(0, (row + 0.5) * game.cafe.WALL_CELL))
+	game.edit_panel._take("wall_brick")
+	await _move(on_left.call(1, 1))
+	_shot("11f_wall_ghost")
+	await _click(on_left.call(1, 1))
+	print("CHECK click a wall with a panel -> that column: ", Walls.style(state, "L1") == "wall_brick")
+	for placing: Array in [["wall_steel", true, 2, 0], ["wall_graffiti", false, 1, 0], ["wall_neon_panel", false, 2, 0],
+			["wall_window", true, 2, 1], ["wall_poster", true, 1, 2], ["wall_bottles", false, 1, 1], ["wall_screen", false, 2, 1],
+			["wall_neon_sign", false, 3, 2], ["wall_vent", true, 3, 2]]:
+		game.edit_panel._take(placing[0])
+		await _click((on_left if placing[1] else on_right).call(placing[2], placing[3]))
+	print("CHECK click a wall cell with décor -> hung there: ", Walls.cell(state, "L2", 1) == "wall_window" and Walls.cell(state, "L2", 2) == Walls.ABOVE)
+	await _frames(2)
+	_shot("11g_decorated_walls")
+	await _click(on_left.call(1, 2))
+	print("CHECK click wall décor -> in the hand: ", game.cafe.editor.held_piece == "wall_poster")
+	await _click(on_left.call(1, 0))
+	print("CHECK and hung again lower down: ", Walls.cell(state, "L1", 0) == "wall_poster")
+	game.cafe.editor.cancel()
+	game.edit_panel.done.emit()
+	await _frames(3)
 
 	# Settings: a real click on the Music slider's left end turns music down, and it is saved.
 	game.hud.settings_requested.emit()
@@ -469,6 +534,7 @@ func _run() -> void:
 	# Raid from the map: Night Ops -> Open map -> the kiosk -> place a worker -> Start raid.
 	var raider := state.synths[-1]
 	raider.battery = 100.0
+	state.defenders.clear()  # a ticked defender can't raid
 	game.night._tabs.current_tab = 2
 	await _frames(3)
 	_shot("07_night_ops_map_button")

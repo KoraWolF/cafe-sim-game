@@ -8,7 +8,6 @@ func _night(data: GameData) -> Array:
 	var state := GameState.new_game(1, data)
 	GameLoop.advance(state, data.balance.shift_seconds, data)
 	var raider := state.add_synth("worker", "", data)
-	GameLoop.set_defender(state, raider.id, true)  # added after closing: ticked by hand
 	return [state, raider]
 
 
@@ -149,6 +148,7 @@ func test_survived_audit_costs_nothing() -> void:
 	var data := TestFixtures.data({"start_security": 500.0})
 	var setup := _night(data)
 	var state: GameState = setup[0]
+	GameLoop.set_defender(state, setup[1].id, true)
 	state.add_suspicion(95.0)
 	var coins := state.coins
 	var report := GameLoop.end_night(state, data)

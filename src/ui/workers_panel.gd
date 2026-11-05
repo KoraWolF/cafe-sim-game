@@ -48,7 +48,8 @@ func refresh() -> void:
 		_build(state)
 	for synth: Synth in state.synths:
 		if _battery.has(synth.id):
-			_battery[synth.id].text = "%d%%" % SynthStats.battery_percent(synth, data)
+			_battery[synth.id].text = "%d%%" % SynthStats.battery_percent(synth, data) if synth.ko_left <= 0 \
+				else tr("ui.workers_ko") % UiText.clock(synth.ko_left)
 
 
 func _build(state: GameState) -> void:
@@ -74,6 +75,7 @@ func _build(state: GameState) -> void:
 			job.add_item(UiText.role(role))
 			job.set_item_metadata(job.item_count - 1, role)
 		job.select(Synth.ROLES.find(synth.role))
+		job.disabled = synth.ko_left > 0
 		job.item_selected.connect(_set_job.bind(synth.id))
 		row.add_child(job)
 		var battery := UiTheme.label("", 13, UiTheme.TEXT_DIM)

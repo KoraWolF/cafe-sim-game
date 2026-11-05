@@ -41,7 +41,7 @@ extends RefCounted
 ## 19: Pods are bought in the shop (up to the café's side): the Pod upgrade
 ##     level is dropped (the Pods stay). Batteries recharge only in the Pod.
 ## 20: dishes are unlocked one by one; older games keep every dish they could cook.
-const VERSION: int = 21
+const VERSION: int = 22
 const SAVE_DIR: String = "user://saves"
 const SLOTS: int = 3
 
@@ -118,6 +118,7 @@ static func to_dict(state: GameState) -> Dictionary:
 		"district_started_day": state.district_started_day,
 		"owned_districts": state.owned_districts,
 		"beaten": state.beaten,
+		"walls": state.walls,
 		"influence": state.influence,
 		"closed": state.closed,
 		"suspicion": state.suspicion,
@@ -228,6 +229,11 @@ static func from_dict(raw: Dictionary) -> GameState:
 	if owned is Array:
 		for district_id: Variant in owned:
 			state.owned_districts.append(str(district_id))
+	var walls: Variant = raw.get("walls", {})
+	if walls is Dictionary:
+		for column: Variant in walls:
+			if walls[column] is Dictionary:
+				state.walls[str(column)] = walls[column]
 	for rival_id: Variant in raw.get("beaten", []):
 		state.beaten.append(str(rival_id))
 	var influence: Variant = raw.get("influence", {})
@@ -366,6 +372,9 @@ static func _migrate_step(version: int, raw: Dictionary) -> Dictionary:
 			return raw
 		16:
 			raw["floor_width"] = 8
+			return raw
+		21:
+			# Worker HP and walls start at their defaults.
 			return raw
 		20:
 			# Before bars were marked beaten: those of towns already taken count as beaten.

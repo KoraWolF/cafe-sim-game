@@ -41,6 +41,8 @@ const OVERLAP: String = "overlap"
 const RAIDED_TONIGHT: String = "raided_tonight"
 const BLOCKS_DOOR: String = "blocks_door"
 const BLOCKS_WAY: String = "blocks_way"
+const IS_DEFENDER: String = "is_defender"
+const KNOCKED_OUT: String = "knocked_out"
 const CHEF_COOKING: String = "chef_cooking"
 const UNKNOWN_PLACED: String = "unknown_placed"
 const COUNTER_NEEDED: String = "counter_needed"
@@ -287,6 +289,11 @@ static func place_piece(state: GameState, piece_id: String, cell: Vector2i, rota
 	return Layout.place(state, piece_id, cell, rotated, data)
 
 
+## Hangs a stored wall piece on a wall column (see Walls).
+static func place_on_wall(state: GameState, piece_id: String, column: String, row: int, data: GameData) -> String:
+	return Walls.place(state, piece_id, column, row, data)
+
+
 ## Moves (and/or rotates) a placed piece. Free.
 static func move_piece(state: GameState, uid: String, cell: Vector2i, rotated: bool, data: GameData) -> String:
 	return Layout.move(state, uid, cell, rotated, data)
@@ -396,6 +403,8 @@ static func assign_role(state: GameState, synth_id: String, role: String, data: 
 		return UNKNOWN_ROLE
 	if synth.is_busy():
 		return SYNTH_BUSY
+	if synth.ko_left > 0:
+		return KNOCKED_OUT
 	if role == Synth.REST:
 		return Roles.rest(state, synth_id)
 	synth.role = role
@@ -460,8 +469,12 @@ static func plan_raid(state: GameState, rival_id: String, synth_ids: Array[Strin
 		var synth := state.synth_by_id(synth_id)
 		if synth == null:
 			return UNKNOWN_SYNTH
+		if synth.ko_left > 0 or SynthStats.hp_now(synth, data) <= 0.0:
+			return KNOCKED_OUT
 		if synth.battery <= 0.0:
 			return NO_BATTERY
+		if state.defenders.has(synth_id):
+			return IS_DEFENDER
 	state.raid_target = rival_id
 	state.raid_squad = squad
 	return OK

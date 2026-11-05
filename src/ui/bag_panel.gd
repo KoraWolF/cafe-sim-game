@@ -9,6 +9,9 @@ extends PanelContainer
 
 signal closed
 
+## The player dragged the menu's top edge.
+signal resize_changed
+
 ## Height of the strip at the bottom (the camera keeps the café above it).
 const HEIGHT: float = 330.0
 const TABS: Array[String] = ["equipment", "fashion", "bottles"]
@@ -23,12 +26,17 @@ var _grids: Dictionary[String, GridContainer] = {}
 var _details: Dictionary[String, VBoxContainer] = {}
 
 
+## Drags the top edge to change the height (see StripResize).
+var resize: StripResize = null
+
+
 func _ready() -> void:
 	visible = false
 	set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
 	offset_left = 12
 	offset_right = -12
 	offset_top = -HEIGHT - 12
+	resize = StripResize.attach(self, HEIGHT, resize_changed.emit)
 	offset_bottom = -12
 	grow_vertical = Control.GROW_DIRECTION_BEGIN  # if it ever needs more room, it grows up, never off the screen
 	var column := VBoxContainer.new()
@@ -46,7 +54,7 @@ func _ready() -> void:
 		split.name = tr("ui.bag_tab_" + key)
 		var scroll := ScrollContainer.new()
 		scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 		UiTheme.wheel_scrolls_sideways(scroll)
 		var grid := GridContainer.new()
 		grid.columns = 999  # one row, scrolling sideways

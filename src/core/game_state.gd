@@ -92,6 +92,8 @@ var seat_table: Dictionary[String, String] = {}
 @export var owned_districts: Array[String] = []
 ## District id -> Influence earned there by winning raids (no longer opens anything).
 @export var influence: Dictionary[String, int] = {}
+## The bar's walls: changed columns only (see Walls).
+@export var walls: Dictionary[String, Dictionary] = {}
 ## Bars (rival and boss ids) beaten at least once; every rival of a town beaten opens its boss.
 @export var beaten: Array[String] = []
 ## District id -> 0..100.
@@ -104,7 +106,7 @@ var seat_table: Dictionary[String, String] = {}
 @export var raid_target: String = ""
 @export var raid_squad: Array[String] = []
 ## Synths who defend the café if MegaBean comes tonight (picked in Night Ops;
-## at closing the defender_count with the most battery).
+## at closing those above defender_battery_share of their battery).
 @export var defenders: Array[String] = []
 ## The day of the last raid (one raid a night).
 @export var last_raid_day: int = 0

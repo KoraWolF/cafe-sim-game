@@ -85,7 +85,9 @@ func refresh() -> void:
 	var xp_text := tr("ui.card_xp") % [synth.xp, Leveling.xp_to_next(synth.level, b)] \
 		if synth.level < b.max_synth_level else tr("ui.card_xp_max")
 	_level.text = "%s   %s" % [tr("ui.card_level") % synth.level, xp_text]
-	_hp.text = tr("ui.card_hp") % roundi(SynthStats.stat(synth, "hp", data))
+	_hp.text = tr("ui.card_hp") % [roundi(SynthStats.hp_now(synth, data)), roundi(SynthStats.stat(synth, "hp", data))]
+	if synth.ko_left > 0:
+		_hp.text += tr("ui.card_knocked_out") % UiText.clock(synth.ko_left)
 	_battery_text.text = tr("ui.card_battery") % [SynthStats.battery_percent(synth, data), roundi(battery_max)]
 	_xp.max_value = Leveling.xp_to_next(synth.level, b)
 	_xp.value = synth.xp if synth.level < b.max_synth_level else _xp.max_value

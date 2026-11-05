@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NanoBrew Café: wall_cracked. Made by tools/art/furniture_svg.py (see docs/art-guide.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="416" height="512" viewBox="0 0 416 512">
+  <defs>
+    <linearGradient id="wall_cracked_g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4e4a57"/><stop offset="1" stop-color="#2c2833"/></linearGradient>
+  </defs>
+  <g inkscape:groupmode="layer" id="wall" inkscape:label="wall">
+    <polygon points="208.0,16.0 16.0,112.0 16.0,400.0 208.0,304.0" fill="url(#wall_cracked_g1)"/>
+  </g>
+  <g inkscape:groupmode="layer" id="surface" inkscape:label="surface">
+    <polyline points="169.6,73.2 146.6,134.7 158.1,179.0 131.2,246.4" fill="none" stroke="#0e0b17" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="73.6,151.2 89.0,193.5 62.1,257.0" fill="none" stroke="#0e0b17" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="146.6,134.7 119.7,166.2" fill="none" stroke="#0e0b17" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="112.0" cy="112.0" rx="30" ry="15" fill="#000000" opacity="0.22"/>
+    <ellipse cx="169.6" cy="253.2" rx="40" ry="20" fill="#000000" opacity="0.22"/>
+    <ellipse cx="54.4" cy="320.8" rx="34" ry="17" fill="#000000" opacity="0.22"/>
+    <polygon points="208.0,278.0 16.0,374.0 16.0,400.0 208.0,304.0" fill="#232029"/>
+  </g>
+  <g inkscape:groupmode="layer" id="top" inkscape:label="top">
+    <polygon points="208.0,16.0 16.0,112.0 16.0,122.0 208.0,26.0" fill="#0a0812"/>
+    <polyline points="16.0,400.0 16.0,112.0" fill="none" stroke="#0a0812" stroke-width="3"/>
+  </g>
+</svg>

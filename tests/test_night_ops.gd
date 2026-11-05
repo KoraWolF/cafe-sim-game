@@ -94,7 +94,7 @@ func test_raid_win_gives_loot_suspicion_and_cooldown() -> void:
 		"weak is on cooldown")
 
 
-func test_raid_loss_gives_nothing_but_costs_battery() -> void:
+func test_a_lost_raid_gives_nothing_and_knocks_out_the_fallen() -> void:
 	var data := TestFixtures.data({"start_power": 0.0})
 	var state := _night(data)
 	var raider := state.add_synth("worker", "", data)
@@ -102,7 +102,8 @@ func test_raid_loss_gives_nothing_but_costs_battery() -> void:
 	var report := GameLoop.end_night(state, data)
 	assert_true(not report.raid.attackers_won, "lost")
 	assert_eq(report.loot_coins, 0, "no loot")
-	assert_eq(raider.battery, 25.0, "spent 25 battery, no Power to recharge")
+	assert_eq(report.knocked_out, [raider.id] as Array[String], "the raider fell")
+	assert_eq(raider.battery, 0.0, "knocked out: drained")
 	assert_eq(state.current_suspicion(), 0.0, "no suspicion for a failed raid")
 
 

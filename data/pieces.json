@@ -1,19 +1,305 @@
 [
-	{"id": "seat", "kind": "seat", "size": [1, 1], "price": 30, "tags": ["seat"]},
-	{"id": "table", "kind": "table", "size": [1, 1], "price": 30, "tags": ["table"]},
-	{"id": "stove", "kind": "stove", "size": [1, 1], "price": 150, "tags": ["kitchen"], "stack": 2},
-	{"id": "counter", "kind": "counter", "size": [1, 1], "price": 120, "tags": ["kitchen"]},
-	{"id": "bin", "kind": "bin", "size": [1, 1], "price": 40, "tags": ["kitchen"]},
-	{"id": "register", "kind": "register", "size": [1, 1], "price": 150, "tags": ["tech"]},
-
-	{"id": "potted_fern", "kind": "decor", "size": [1, 1], "price": 100, "vibe": 3, "tags": ["plant"]},
-	{"id": "bubble_lamp", "kind": "decor", "size": [1, 1], "price": 180, "vibe": 4, "tags": ["light", "cozy"]},
-	{"id": "glass_pod_plant", "kind": "decor", "size": [1, 1], "price": 250, "vibe": 6, "tags": ["plant", "tech"]},
-	{"id": "beanbag", "kind": "decor", "size": [1, 1], "price": 300, "vibe": 6, "tags": ["cozy"]},
-	{"id": "led_sign", "kind": "decor", "size": [2, 1], "price": 400, "vibe": 8, "tags": ["light", "tech"]},
-	{"id": "holo_menu", "kind": "decor", "size": [1, 1], "price": 600, "vibe": 10, "tags": ["tech", "light"]},
-	{"id": "vending_shrine", "kind": "decor", "size": [1, 2], "price": 900, "vibe": 14, "tags": ["tech", "cozy"]},
-	{"id": "koi_tank", "kind": "decor", "size": [2, 2], "price": 1500, "vibe": 22, "tags": ["plant", "tech"]},
-	{"id": "neon_mural", "kind": "decor", "size": [2, 1], "price": 2500, "vibe": 30, "tags": ["light"]},
-	{"id": "zen_garden", "kind": "decor", "size": [2, 2], "price": 5000, "vibe": 50, "tags": ["plant", "cozy"]}
+	{
+		"id": "seat",
+		"kind": "seat",
+		"size": [
+			1,
+			1
+		],
+		"price": 30,
+		"tags": [
+			"seat"
+		]
+	},
+	{
+		"id": "table",
+		"kind": "table",
+		"size": [
+			1,
+			1
+		],
+		"price": 30,
+		"tags": [
+			"table"
+		]
+	},
+	{
+		"id": "stove",
+		"kind": "stove",
+		"size": [
+			1,
+			1
+		],
+		"price": 150,
+		"tags": [
+			"kitchen"
+		],
+		"stack": 2
+	},
+	{
+		"id": "counter",
+		"kind": "counter",
+		"size": [
+			1,
+			1
+		],
+		"price": 120,
+		"tags": [
+			"kitchen"
+		]
+	},
+	{
+		"id": "bin",
+		"kind": "bin",
+		"size": [
+			1,
+			1
+		],
+		"price": 40,
+		"tags": [
+			"kitchen"
+		]
+	},
+	{
+		"id": "register",
+		"kind": "register",
+		"size": [
+			1,
+			1
+		],
+		"price": 150,
+		"tags": [
+			"tech"
+		]
+	},
+	{
+		"id": "potted_fern",
+		"kind": "decor",
+		"size": [
+			1,
+			1
+		],
+		"price": 100,
+		"vibe": 3,
+		"tags": [
+			"plant"
+		]
+	},
+	{
+		"id": "bubble_lamp",
+		"kind": "decor",
+		"size": [
+			1,
+			1
+		],
+		"price": 180,
+		"vibe": 4,
+		"tags": [
+			"light",
+			"cozy"
+		]
+	},
+	{
+		"id": "glass_pod_plant",
+		"kind": "decor",
+		"size": [
+			1,
+			1
+		],
+		"price": 250,
+		"vibe": 6,
+		"tags": [
+			"plant",
+			"tech"
+		]
+	},
+	{
+		"id": "beanbag",
+		"kind": "decor",
+		"size": [
+			1,
+			1
+		],
+		"price": 300,
+		"vibe": 6,
+		"tags": [
+			"cozy"
+		]
+	},
+	{
+		"id": "led_sign",
+		"kind": "decor",
+		"size": [
+			2,
+			1
+		],
+		"price": 400,
+		"vibe": 8,
+		"tags": [
+			"light",
+			"tech"
+		]
+	},
+	{
+		"id": "holo_menu",
+		"kind": "decor",
+		"size": [
+			1,
+			1
+		],
+		"price": 600,
+		"vibe": 10,
+		"tags": [
+			"tech",
+			"light"
+		]
+	},
+	{
+		"id": "vending_shrine",
+		"kind": "decor",
+		"size": [
+			1,
+			2
+		],
+		"price": 900,
+		"vibe": 14,
+		"tags": [
+			"tech",
+			"cozy"
+		]
+	},
+	{
+		"id": "koi_tank",
+		"kind": "decor",
+		"size": [
+			2,
+			2
+		],
+		"price": 1500,
+		"vibe": 22,
+		"tags": [
+			"plant",
+			"tech"
+		]
+	},
+	{
+		"id": "neon_mural",
+		"kind": "decor",
+		"size": [
+			2,
+			1
+		],
+		"price": 2500,
+		"vibe": 30,
+		"tags": [
+			"light"
+		]
+	},
+	{
+		"id": "zen_garden",
+		"kind": "decor",
+		"size": [
+			2,
+			2
+		],
+		"price": 5000,
+		"vibe": 50,
+		"tags": [
+			"plant",
+			"cozy"
+		]
+	},
+	{
+		"id": "wall_brick",
+		"kind": "wall_style",
+		"price": 60,
+		"vibe": 1,
+		"tags": [
+			"cozy"
+		]
+	},
+	{
+		"id": "wall_steel",
+		"kind": "wall_style",
+		"price": 90,
+		"vibe": 1,
+		"tags": [
+			"tech"
+		]
+	},
+	{
+		"id": "wall_graffiti",
+		"kind": "wall_style",
+		"price": 120,
+		"vibe": 2,
+		"tags": [
+			"light"
+		]
+	},
+	{
+		"id": "wall_neon_panel",
+		"kind": "wall_style",
+		"price": 180,
+		"vibe": 3,
+		"tags": [
+			"light",
+			"tech"
+		]
+	},
+	{
+		"id": "wall_vent",
+		"kind": "wall_decor",
+		"price": 60,
+		"vibe": 1,
+		"tags": [
+			"tech"
+		]
+	},
+	{
+		"id": "wall_poster",
+		"kind": "wall_decor",
+		"price": 90,
+		"vibe": 2,
+		"tags": [
+			"cozy"
+		]
+	},
+	{
+		"id": "wall_window",
+		"kind": "wall_decor",
+		"height": 2,
+		"price": 220,
+		"vibe": 4,
+		"tags": [
+			"cozy"
+		]
+	},
+	{
+		"id": "wall_bottles",
+		"kind": "wall_decor",
+		"price": 260,
+		"vibe": 5,
+		"tags": [
+			"light"
+		]
+	},
+	{
+		"id": "wall_screen",
+		"kind": "wall_decor",
+		"price": 320,
+		"vibe": 6,
+		"tags": [
+			"tech"
+		]
+	},
+	{
+		"id": "wall_neon_sign",
+		"kind": "wall_decor",
+		"price": 380,
+		"vibe": 7,
+		"tags": [
+			"light",
+			"tech"
+		]
+	}
 ]

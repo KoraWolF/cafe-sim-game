@@ -66,12 +66,14 @@ func _ready() -> void:
 	cafe.synth_clicked.connect(func(_synth_id: String) -> void: _tutorial_saw(Tutorial.OPENED_CARD))
 	battle.finished.connect(_show_result)
 	night.map_requested.connect(raid_map.open)
+	for strip: Control in [shop, bag, edit_panel]:
+		strip.resize_changed.connect(_layout)
+	cafe.carry_zone = func(point: Vector2) -> bool: return edit_panel.visible and edit_panel.get_global_rect().has_point(point)
+	cafe.carried_to_zone.connect(edit_panel.store_held)
 	night.closed.connect(func() -> void:
 		_night_open = false
 		_layout())
-	hud.night_requested.connect(func() -> void:
-		_night_open = not _night_open
-		_layout())
+	hud.night_requested.connect(_toggle_night)
 	Session.phase_changed.connect(func() -> void: _night_open = true)
 	raid_map.target_picked.connect(raid_setup.open)
 	raid_setup.back.connect(raid_map.open)
@@ -375,6 +377,21 @@ func open_quests() -> void:
 
 ## One panel on the right at a time: the edit panel, else the shop or quests,
 ## else the night hub at night. The camera fits the café beside it.
+## The Night button: a bottom menu steps aside for the night window; with none
+## open it opens or closes the window.
+func _toggle_night() -> void:
+	if cafe.editor != null or shop.visible or bag.visible or quests.visible:
+		_back_to_shop = false
+		exit_edit()
+		shop.visible = false
+		bag.visible = false
+		quests.visible = false
+		_night_open = true
+	else:
+		_night_open = not _night_open
+	_layout()
+
+
 func _layout() -> void:
 	night.visible = Session.state.phase == GameState.Phase.NIGHT and _night_open and cafe.editor == null and not shop.visible 		and not battle.visible and not notice.visible \
 		and not quests.visible and not bag.visible
@@ -383,17 +400,17 @@ func _layout() -> void:
 	var panel := 0.0
 	var bottom := 0.0
 	if cafe.editor != null:
-		bottom = EditPanel.HEIGHT + 24.0
+		bottom = edit_panel.resize.height + 24.0
 	elif shop.visible:
-		bottom = ShopPanel.HEIGHT + 24.0
+		bottom = shop.resize.height + 24.0
 	elif quests.visible:
 		panel = QuestPanel.WIDTH + 30.0
 	elif bag.visible:
-		bottom = BagPanel.HEIGHT + 24.0
+		bottom = bag.resize.height + 24.0
 	elif night.visible:
 		panel = 0.0  # a window in the middle: the café stays where it is
 	cafe.fit_camera(panel, bottom)
 	hud.set_right_inset(panel, bottom)
 	hud.show_shop_button(bottom == 0.0, panel)
-	hud.show_night_button(Session.state.phase == GameState.Phase.NIGHT and cafe.editor == null)
+	hud.show_night_button(Session.state.phase == GameState.Phase.NIGHT)
 	tutorial_box.bottom_inset = bottom

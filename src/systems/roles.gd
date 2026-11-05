@@ -15,6 +15,8 @@ static func assign_to(state: GameState, synth_id: String, uid: String, data: Gam
 	var placed := Layout.placed_by_uid(state, uid)
 	if placed == null:
 		return GameLoop.UNKNOWN_PLACED
+	if synth.ko_left > 0:
+		return GameLoop.KNOCKED_OUT
 	if synth.is_busy():
 		return GameLoop.SYNTH_BUSY
 	synth.day_role = ""  # a job given at night replaces the one it would go back to
@@ -81,6 +83,8 @@ static func swap(state: GameState, first_id: String, second_id: String) -> Strin
 		return GameLoop.NO_JOB_THERE  # both working or both resting
 	if first.is_busy() or second.is_busy():
 		return GameLoop.SYNTH_BUSY
+	if first.ko_left > 0 or second.ko_left > 0:
+		return GameLoop.KNOCKED_OUT
 	var working := first if second.role == Synth.REST else second
 	var resting := second if working == first else first
 	resting.role = working.role

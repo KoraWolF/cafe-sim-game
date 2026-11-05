@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ctg4ilt7exn14"
-path="res://.godot/imported/wall_shelf.svg-14aeac43bd2fd7e321965c56e2fbb6a1.ctex"
+uid="uid://0t5cq5m8715u"
+path="res://.godot/imported/wall_window.svg-37e8f24fa0aaf1af108e69b7287119c9.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/room/wall_shelf.svg"
-dest_files=["res://.godot/imported/wall_shelf.svg-14aeac43bd2fd7e321965c56e2fbb6a1.ctex"]
+source_file="res://art/decor/wall_window.svg"
+dest_files=["res://.godot/imported/wall_window.svg-37e8f24fa0aaf1af108e69b7287119c9.ctex"]
 
 [params]
 

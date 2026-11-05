@@ -142,7 +142,8 @@ You don't animate these in the drawing program. You draw the parts; the animatio
 
 **The room** is in `art/room/`:
 - `floor_a` / `floor_b`: dark concrete slabs with scuffs and neon reflections, alternating;
-- `wall_plain`, `wall_window`, `wall_shelf`: one tile-wide segment of the back-left wall. Each has dark tile, a steel base with magenta neon and cyan trim at the top. `wall_plain` adds a pipe and graffiti, `wall_window` a rainy city view, and `wall_shelf` back-bar shelves of glowing bottles. The back-right wall is the same drawings mirrored, with a window every third segment and a shelf now and then;
+- `wall_cracked` (the starter), `wall_brick`, `wall_steel`, `wall_graffiti`, `wall_neon_panel`: one tile-wide wall panel, 3 grid cells high (`art/room/`). The back-right wall is the same drawings mirrored.
+- `wall_window`, `wall_bottles`, `wall_neon_sign`, `wall_poster`, `wall_screen`, `wall_vent`: wall décor (`art/decor/`), drawn on the same canvas from the bottom cell. The game lifts each piece 24 world px per row.
 - `door`: a steel frame with a half-open shutter, a glass door and a neon cocktail-glass sign.
 
 **How they're made.** They come from `tools/art/furniture_svg.py`, drawn as a cyberpunk dive bar since 2026-11-03. It draws every piece from the same iso parts (boxes, cylinders, discs, floor shadows), so the style rules above hold everywhere.
