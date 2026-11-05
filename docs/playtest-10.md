@@ -43,4 +43,8 @@ Every dish takes 1.5x as long to cook and gives 2x the servings for 2x the cost,
 | Alley taken | day 6 | day 10 |
 | Workers at the end | 18.8 | 18 |
 
-The game is harder because fights now cost something. Most of the angry customers come from staff being knocked out, since the bot never rests a hurt worker. No further tuning was done: the Neon Market still falls within 40 days.
+The game is harder, and both changes add to it. With the new HP rules and the old cooking, the sim gave 50 angry customers and a 92% star rate. The longer cooks took that to 91 and 83%. Income fell with the HP rules (5,944) and barely changed with the cooking.
+
+A bot that cooks 8 servings ahead did much worse (356 angry, 59% stars, 11 workers), so it was dropped. The cause isn't known yet. One idea to test: each counter holds one dish, so extra dishes may fill the counters.
+
+No values were changed after these runs. The Neon Market still falls within 40 days in all 5 seeds.
