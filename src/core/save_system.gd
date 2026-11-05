@@ -454,6 +454,7 @@ static func validate(state: GameState, data: GameData) -> PackedStringArray:
 	if state.pods < state.synths.size():
 		errors.append("%d Pods for %d Synths" % [state.pods, state.synths.size()])
 	errors.append_array(_check_floor(state, data))
+	errors.append_array(Walls.check(state, data))
 	for upgrade_id: String in state.upgrades:
 		var upgrade: Upgrade = data.upgrades.get(upgrade_id)
 		if upgrade == null or state.upgrades[upgrade_id] < 0 or state.upgrades[upgrade_id] > upgrade.max_level:
@@ -494,6 +495,8 @@ static func validate(state: GameState, data: GameData) -> PackedStringArray:
 			errors.append("Synth '%s': unknown trait '%s'" % [synth.id, synth.trait_id])
 		if not Synth.ROLES.has(synth.role):
 			errors.append("Synth '%s': unknown role '%s'" % [synth.id, synth.role])
+		if synth.hp < -1.0 or is_nan(synth.hp) or synth.ko_left < 0:
+			errors.append("Synth '%s': bad HP %s or knockout %d" % [synth.id, synth.hp, synth.ko_left])
 		if synth.level < 1 or synth.level > data.balance.max_synth_level or synth.xp < 0 \
 				or (synth.level < data.balance.max_synth_level and synth.xp >= Leveling.xp_to_next(synth.level, data.balance)):
 			errors.append("Synth '%s': level %d with %d XP" % [synth.id, synth.level, synth.xp])

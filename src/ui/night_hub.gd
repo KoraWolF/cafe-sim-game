@@ -166,9 +166,11 @@ func _fill_ops(page: VBoxContainer) -> void:
 			synth.level, SynthStats.battery_percent(synth, data), roundi(SynthStats.hp_now(synth, data)),
 			roundi(SynthStats.stat(synth, "hp", data))]
 		pick.button_pressed = state.defenders.has(synth.id)
-		pick.disabled = not SynthStats.can_fight(synth, data)
+		pick.disabled = not SynthStats.can_fight(synth, data) or state.raid_squad.has(synth.id)
+		if state.raid_squad.has(synth.id):
+			pick.text += tr("ui.ops_on_raid")
 		var synth_id := synth.id
-		pick.toggled.connect(func(on: bool) -> void: GameLoop.set_defender(Session.state, synth_id, on))
+		pick.toggled.connect(func(on: bool) -> void: Session.act(GameLoop.set_defender(Session.state, synth_id, on)))
 		page.add_child(pick)
 
 

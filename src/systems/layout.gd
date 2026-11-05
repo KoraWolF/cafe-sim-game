@@ -171,7 +171,7 @@ static func place(state: GameState, piece_id: String, cell: Vector2i, rotated: b
 	var error := check_spot(state, piece_id, cell, rotated, data)
 	if error != GameLoop.OK:
 		return error
-	_take_from_storage(state, piece_id)
+	take_from_storage(state, piece_id)
 	_put(state, piece_id, cell, rotated, data)
 	return GameLoop.OK
 
@@ -254,7 +254,7 @@ static func sell_stored(state: GameState, piece_id: String, data: GameData) -> S
 		return GameLoop.NOT_FOR_SALE
 	if state.storage.get(piece_id, 0) <= 0:
 		return GameLoop.NONE_STORED
-	_take_from_storage(state, piece_id)
+	take_from_storage(state, piece_id)
 	state.coins += refund(piece, data.balance)
 	return GameLoop.OK
 
@@ -555,7 +555,7 @@ static func stove_of(state: GameState, uid: String) -> Stove:
 	return null
 
 
-static func _take_from_storage(state: GameState, piece_id: String) -> void:
+static func take_from_storage(state: GameState, piece_id: String) -> void:
 	state.storage[piece_id] -= 1
 	if state.storage[piece_id] <= 0:
 		state.storage.erase(piece_id)
